@@ -1,36 +1,233 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🐟 ZenKoi - Smart Koi Farm Breeding and Sales Management System
 
-## Getting Started
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/quanhuy180423/Smart-Koi-Farm-Breeding-and-Sales-Management-System)
+[![Next.js](https://img.shields.io/badge/Next.js-15.5.3-black)](https://nextjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue)](https://www.typescriptlang.org/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind-4.0-38B2AC)](https://tailwindcss.com/)
 
-First, run the development server:
+Hệ thống quản lý trang trại nuôi cá Koi thông minh với giao diện web hiện đại, tích hợp các tính năng quản lý bán hàng, kho hàng, và chăm sóc khách hàng.
+
+## ✨ Tính năng chính
+
+### 🛒 **Quản lý bán hàng**
+
+- Danh mục sản phẩm cá Koi chi tiết
+- Giỏ hàng thông minh với Zustand
+- Hệ thống thanh toán đa dạng
+- Theo dõi đơn hàng real-time
+
+### 👥 **Quản lý khách hàng**
+
+- Hệ thống tài khoản người dùng
+- Lịch sử giao dịch
+- Đánh giá và phản hồi
+- Chương trình khuyến mãi
+
+### 🔐 **Bảo mật và phân quyền**
+
+- Xác thực người dùng (JWT)
+- Phân quyền theo vai trò (Admin/Customer/Sale Staff)
+- Middleware bảo vệ route
+- Bảo mật dữ liệu
+
+### 🎨 **Giao diện hiện đại**
+
+- UI/UX responsive với Tailwind CSS
+- Animation cá Koi bơi tự nhiên
+- Dark/Light mode
+- Thiết kế mobile-first
+
+## 🚀 Công nghệ sử dụng
+
+- **Frontend**: Next.js 15, React 19, TypeScript
+- **Styling**: Tailwind CSS 4, Shadcn/ui
+- **State Management**: Zustand
+- **Form Handling**: React Hook Form + Zod
+- **Icons**: Lucide React
+- **Deployment**: Vercel
+- **CI/CD**: GitHub Actions
+
+## 📋 Yêu cầu hệ thống
+
+- Node.js 20.x trở lên
+- npm hoặc yarn hoặc pnpm
+- Git
+
+## 🛠️ Cài đặt và chạy
+
+### 1. Clone repository
+
+```bash
+git clone https://github.com/quanhuy180423/Smart-Koi-Farm-Breeding-and-Sales-Management-System.git
+cd Smart-Koi-Farm-Breeding-and-Sales-Management-System
+```
+
+### 2. Cài đặt dependencies
+
+```bash
+npm install
+# hoặc
+yarn install
+# hoặc
+pnpm install
+```
+
+### 3. Cấu hình environment variables
+
+```bash
+cp .env.example .env.local
+# Chỉnh sửa các biến môi trường trong .env.local
+```
+
+### 4. Chạy development server
 
 ```bash
 npm run dev
-# or
+# hoặc
 yarn dev
-# or
+# hoặc
 pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Mở [http://localhost:3000](http://localhost:3000) để xem ứng dụng.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 📁 Cấu trúc dự án
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```
+src/
+├── app/                    # Next.js App Router
+│   ├── (auth)/            # Authentication pages
+│   ├── (customer)/        # Customer pages
+│   ├── api/               # API routes
+│   ├── globals.css        # Global styles
+│   └── layout.tsx         # Root layout
+├── components/            # Reusable components
+├── lib/                   # Utility functions
+└── store/                 # Zustand stores
+```
 
-## Learn More
+## 🔧 Scripts có sẵn
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+# Development
+npm run dev              # Chạy development server
+npm run build            # Build production
+npm run start            # Chạy production server
+npm run lint             # Kiểm tra linting
+npm run type-check       # Kiểm tra TypeScript
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+# Deployment
+npm run vercel:setup     # Thiết lập Vercel
+npm run vercel:deploy    # Deploy lên Vercel production
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 🚀 Triển khai lên Vercel
 
-## Deploy on Vercel
+### Tự động (CI/CD)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+1. Push code lên GitHub
+2. Vercel sẽ tự động deploy
+3. Xem kết quả tại URL được cung cấp
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Thủ công
+
+```bash
+# Cài đặt Vercel CLI
+npm i -g vercel
+
+# Đăng nhập
+vercel login
+
+# Deploy
+npm run vercel:deploy
+```
+
+📖 **Chi tiết**: Xem [VERCEL_DEPLOYMENT.md](./VERCEL_DEPLOYMENT.md)
+
+## 🔐 Biến môi trường
+
+Tạo file `.env.local` và thêm các biến sau:
+
+```env
+# Bắt buộc
+NODE_ENV=production
+
+# Tùy chọn
+DATABASE_URL=your_database_url
+NEXTAUTH_SECRET=your_secret
+API_BASE_URL=your_api_url
+```
+
+## 🧪 Testing
+
+```bash
+# Chạy unit tests
+npm run test
+
+# Chạy E2E tests
+npm run test:e2e
+
+# Kiểm tra coverage
+npm run test:coverage
+```
+
+## 📱 API Documentation
+
+### Health Check
+
+```
+GET /api/health
+```
+
+Kiểm tra trạng thái của ứng dụng.
+
+### Authentication
+
+```
+POST /api/auth/login
+POST /api/auth/register
+POST /api/auth/logout
+```
+
+### Products
+
+```
+GET /api/products
+GET /api/products/:id
+POST /api/products
+PUT /api/products/:id
+DELETE /api/products/:id
+```
+
+## 🤝 Đóng góp
+
+1. Fork dự án
+2. Tạo feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to branch (`git push origin feature/AmazingFeature`)
+5. Tạo Pull Request
+
+## 📝 License
+
+Distributed under the MIT License. See `LICENSE` for more information.
+
+## 📞 Liên hệ
+
+**ZenKoi Team**
+
+- Email: support@zenkoi.com
+- Website: [zenkoi.com](https://zenkoi.com)
+- GitHub: [@quanhuy180423](https://github.com/quanhuy180423)
+
+## 🙏 Acknowledgments
+
+- [Next.js](https://nextjs.org/) - The React Framework
+- [Vercel](https://vercel.com/) - Deployment platform
+- [Tailwind CSS](https://tailwindcss.com/) - Utility-first CSS framework
+- [Shadcn/ui](https://ui.shadcn.com/) - Beautiful UI components
+
+---
+
+<div align="center">
+  Made with ❤️ by ZenKoi Team
+</div>

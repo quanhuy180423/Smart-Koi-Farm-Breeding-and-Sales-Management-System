@@ -4,11 +4,17 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "next build --turbopack",
+    "build": "next build",
+    "build:analyze": "ANALYZE=true next build",
     "start": "next start",
     "lint": "eslint",
+    "lint:fix": "eslint --fix",
     "format": "prettier --write .",
-    "prepare": "husky"
+    "type-check": "tsc --noEmit",
+    "prepare": "husky",
+    "vercel:deploy": "vercel --prod",
+    "vercel:deploy:preview": "vercel",
+    "vercel:setup": "node scripts/setup-vercel.js"
   },
   "dependencies": {
     "@headlessui/react": "^2.2.8",
