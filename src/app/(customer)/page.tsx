@@ -10,49 +10,11 @@ import { Badge } from "@/components/ui/badge";
 import { Star, Fish, Zap, Shield, Award, ArrowRight, Play } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
-import logo from "@/assets/logo.jpg";
+// import logo from "@/assets/logo.jpg";
 
 export default function HomePage() {
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      {/* <header className="border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <Image src={logo} alt="Logo" width={60} height={60} />
-          </div>
-          <nav className="hidden md:flex items-center space-x-8">
-            <a
-              href="#catalog"
-              className="text-muted-foreground hover:text-foreground transition-colors"
-            >
-              Danh mục cá
-            </a>
-            <a
-              href="#technology"
-              className="text-muted-foreground hover:text-foreground transition-colors"
-            >
-              Công nghệ
-            </a>
-            <a
-              href="#about"
-              className="text-muted-foreground hover:text-foreground transition-colors"
-            >
-              Về chúng tôi
-            </a>
-            <a
-              href="#contact"
-              className="text-muted-foreground hover:text-foreground transition-colors"
-            >
-              Liên hệ
-            </a>
-          </nav>
-          <Button className="bg-primary hover:bg-primary/90 text-primary-foreground">
-            Đăng nhập
-          </Button>
-        </div>
-      </header> */}
-
       {/* Hero Section */}
       <section className="relative py-20 lg:py-32 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-accent/5"></div>
@@ -117,7 +79,7 @@ export default function HomePage() {
             </div>
             <div className="relative">
               <div className="aspect-square rounded-2xl overflow-hidden bg-gradient-to-br from-primary/10 to-accent/10 p-8">
-                <img
+                <Image
                   src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/attachments/gen-images/public/beautiful-japanese-koi-fish-swimming-in-clear-pond-1MrDrpINIJ33x6iP0z7Xz4hMlnVc50.jpg"
                   alt="Cá Koi Nhật Bản chất lượng cao"
                   className="w-full h-full object-cover rounded-xl"
@@ -238,7 +200,7 @@ export default function HomePage() {
                 className="border-border hover:shadow-lg transition-all group cursor-pointer"
               >
                 <div className="aspect-square overflow-hidden rounded-t-lg">
-                  <img
+                  <Image
                     src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/attachments/gen-images/public/beautiful-japanese-koi-fish-swimming-in-clear-pond-1MrDrpINIJ33x6iP0z7Xz4hMlnVc50.jpg"
                     alt={koi.name}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"

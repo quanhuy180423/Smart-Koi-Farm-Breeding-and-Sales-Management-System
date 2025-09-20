@@ -102,7 +102,7 @@ export const useAuthStore = create<AuthState>()(
 
         // Check if route requires specific role
         for (const [protectedRoute, allowedRoles] of Object.entries(
-          routePermissions
+          routePermissions,
         )) {
           if (route.startsWith(protectedRoute)) {
             return allowedRoles.includes(userRole);
@@ -120,8 +120,8 @@ export const useAuthStore = create<AuthState>()(
         isAuthenticated: state.isAuthenticated,
         // Don't persist isLoading
       }),
-    }
-  )
+    },
+  ),
 );
 
 // Helper functions for authentication
@@ -131,7 +131,7 @@ export const authHelpers = {
     if (typeof window !== "undefined") {
       const cookies = document.cookie.split(";");
       const roleCookie = cookies.find((cookie) =>
-        cookie.trim().startsWith("user-role=")
+        cookie.trim().startsWith("user-role="),
       );
 
       if (roleCookie) {

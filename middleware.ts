@@ -40,7 +40,7 @@ export function middleware(request: NextRequest) {
 
   // Check if current route is auth route
   const isAuthRoute = authRoutes.some(
-    (route) => pathname === route || pathname.startsWith(`${route}/`)
+    (route) => pathname === route || pathname.startsWith(`${route}/`),
   );
 
   // Handle authentication logic

@@ -74,7 +74,7 @@ export function CartSheet() {
                     className="flex gap-4 p-4 border rounded-lg"
                   >
                     <div className="relative w-16 h-16 rounded-md overflow-hidden">
-                      <img
+                      <Image
                         src={item.image || "/placeholder.svg"}
                         alt={item.name}
                         className="object-cover"

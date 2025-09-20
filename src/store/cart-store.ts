@@ -46,7 +46,7 @@ export const useCartStore = create<CartState>()(
             items: items.map((item) =>
               item.id === newItem.id
                 ? { ...item, quantity: item.quantity + 1 }
-                : item
+                : item,
             ),
           });
         } else {
@@ -71,7 +71,7 @@ export const useCartStore = create<CartState>()(
 
         set({
           items: get().items.map((item) =>
-            item.id === id ? { ...item, quantity } : item
+            item.id === id ? { ...item, quantity } : item,
           ),
         });
       },
@@ -95,7 +95,7 @@ export const useCartStore = create<CartState>()(
       getTotalPrice: () => {
         return get().items.reduce(
           (total, item) => total + item.price * item.quantity,
-          0
+          0,
         );
       },
 
@@ -110,6 +110,6 @@ export const useCartStore = create<CartState>()(
         items: state.items,
         // Không persist isOpen để tránh trạng thái không mong muốn khi reload
       }),
-    }
-  )
+    },
+  ),
 );

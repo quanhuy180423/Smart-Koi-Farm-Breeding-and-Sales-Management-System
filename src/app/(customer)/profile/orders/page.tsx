@@ -35,8 +35,43 @@ import {
 import Link from "next/link";
 import Image from "next/image";
 
+// Type definitions
+interface OrderItem {
+  id: string;
+  name: string;
+  variety: string;
+  size: string;
+  age: string;
+  price: number;
+  quantity: number;
+  image: string;
+}
+
+interface Shipping {
+  method: string;
+  address: string;
+  trackingNumber: string | null;
+}
+
+interface Payment {
+  method: string;
+  status: "paid" | "pending" | "cancelled";
+}
+
+type OrderStatus = "processing" | "shipping" | "delivered" | "cancelled";
+
+interface Order {
+  id: string;
+  date: string;
+  status: OrderStatus;
+  total: number;
+  items: OrderItem[];
+  shipping: Shipping;
+  payment: Payment;
+}
+
 // Mock order data
-const mockOrders = [
+const mockOrders: Order[] = [
   {
     id: "KOI001234",
     date: "2024-01-15",
@@ -157,7 +192,14 @@ const mockOrders = [
   },
 ];
 
-const statusConfig = {
+const statusConfig: Record<
+  OrderStatus,
+  {
+    label: string;
+    color: string;
+    icon: React.ComponentType<{ className?: string }>;
+  }
+> = {
   processing: {
     label: "Đang xử lý",
     color: "bg-yellow-100 text-yellow-800",
@@ -179,7 +221,7 @@ const statusConfig = {
 export default function OrdersPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
-  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("vi-VN", {
@@ -205,11 +247,11 @@ export default function OrdersPage() {
     return matchesSearch && matchesStatus;
   });
 
-  const getOrdersByStatus = (status: string) => {
+  const getOrdersByStatus = (status: OrderStatus) => {
     return mockOrders.filter((order) => order.status === status);
   };
 
-  const OrderCard = ({ order }: { order: any }) => {
+  const OrderCard = ({ order }: { order: Order }) => {
     const StatusIcon = statusConfig[order.status].icon;
 
     return (
@@ -289,7 +331,7 @@ export default function OrdersPage() {
     );
   };
 
-  const OrderDetails = ({ order }: { order: any }) => (
+  const OrderDetails = ({ order }: { order: Order }) => (
     <div className="space-y-6">
       <div className="grid grid-cols-2 gap-4 text-sm">
         <div>
@@ -319,7 +361,7 @@ export default function OrdersPage() {
       <div>
         <h4 className="font-semibold mb-3">Sản phẩm đã đặt</h4>
         <div className="space-y-3">
-          {order.items.map((item) => (
+          {order.items.map((item: OrderItem) => (
             <div key={item.id} className="flex gap-3 p-3 border rounded-lg">
               <div className="relative w-16 h-16 rounded-md overflow-hidden">
                 <Image

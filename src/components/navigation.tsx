@@ -42,7 +42,7 @@ export function Navigation() {
               Giới thiệu
             </Link>
             <Link
-              href="/contact"
+              href="/"
               className="text-xl font-medium hover:text-primary transition-colors"
             >
               Liên hệ
@@ -101,7 +101,7 @@ export function Navigation() {
                 Giới thiệu
               </Link>
               <Link
-                href="/contact"
+                href="/"
                 className="text-sm font-medium hover:text-primary transition-colors"
                 onClick={() => setIsMenuOpen(false)}
               >

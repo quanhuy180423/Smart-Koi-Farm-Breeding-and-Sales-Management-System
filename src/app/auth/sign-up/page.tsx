@@ -53,7 +53,7 @@ export default function SignUpPage() {
       const result = await authHelpers.register(
         data.email,
         data.username,
-        data.password
+        data.password,
       );
 
       if (result.success) {

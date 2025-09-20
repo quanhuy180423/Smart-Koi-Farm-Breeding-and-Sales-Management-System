@@ -160,7 +160,8 @@
 }
 
 @keyframes float-koi-1 {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(0px) rotate(2deg);
   }
   25% {
@@ -175,7 +176,8 @@
 }
 
 @keyframes float-koi-2 {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(0px) rotate(-1deg);
   }
   33% {
@@ -187,7 +189,8 @@
 }
 
 @keyframes float-koi-3 {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(0px) rotate(1deg);
   }
   50% {
@@ -251,9 +254,19 @@
     height: 30px;
   }
 
-  .koi-fish.koi-1 { top: 15%; }
-  .koi-fish.koi-2 { top: 55%; }
-  .koi-fish.koi-3 { top: 35%; }
-  .koi-fish.koi-4 { top: 75%; }
-  .koi-fish.koi-5 { top: 25%; }
+  .koi-fish.koi-1 {
+    top: 15%;
+  }
+  .koi-fish.koi-2 {
+    top: 55%;
+  }
+  .koi-fish.koi-3 {
+    top: 35%;
+  }
+  .koi-fish.koi-4 {
+    top: 75%;
+  }
+  .koi-fish.koi-5 {
+    top: 25%;
+  }
 }

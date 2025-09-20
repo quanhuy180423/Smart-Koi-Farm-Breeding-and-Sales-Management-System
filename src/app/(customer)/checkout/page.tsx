@@ -389,7 +389,7 @@ export default function CheckoutPage() {
                         <Label htmlFor="terms" className="text-sm">
                           Tôi đồng ý với{" "}
                           <Link
-                            href="/terms"
+                            href="/"
                             className="text-primary hover:underline"
                           >
                             điều khoản và điều kiện
