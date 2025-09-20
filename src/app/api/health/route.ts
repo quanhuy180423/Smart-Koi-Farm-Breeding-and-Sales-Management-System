@@ -28,7 +28,7 @@ export async function GET() {
         timestamp: new Date().toISOString(),
         error: "Internal server error",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
