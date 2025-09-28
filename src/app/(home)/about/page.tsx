@@ -239,8 +239,8 @@ export default function AboutPage() {
                 <div>
                   <h3 className="font-semibold text-lg mb-2">Dễ sử dụng</h3>
                   <p className="text-muted-foreground">
-                    Giao diện thân thiện, trực quan và dễ hiểu, phù hợp với mọi đối tượng
-                    người dùng từ cơ bản đến chuyên nghiệp.
+                    Giao diện thân thiện, trực quan và dễ hiểu, phù hợp với mọi
+                    đối tượng người dùng từ cơ bản đến chuyên nghiệp.
                   </p>
                 </div>
               </div>
@@ -263,8 +263,8 @@ export default function AboutPage() {
                 <div>
                   <h3 className="font-semibold text-lg mb-2">Bảo mật cao</h3>
                   <p className="text-muted-foreground">
-                    Hệ thống bảo mật đa tầng với các tiêu chuẩn quốc tế, đảm bảo an toàn 
-                    tuyệt đối cho dữ liệu và thông tin khách hàng.
+                    Hệ thống bảo mật đa tầng với các tiêu chuẩn quốc tế, đảm bảo
+                    an toàn tuyệt đối cho dữ liệu và thông tin khách hàng.
                   </p>
                 </div>
               </div>
@@ -276,8 +276,8 @@ export default function AboutPage() {
                     Cập nhật liên tục
                   </h3>
                   <p className="text-muted-foreground">
-                    Luôn cập nhật các tính năng mới nhất theo xu hướng công
-                    nghệ hiện đại và nhu cầu thực tế của người dùng.
+                    Luôn cập nhật các tính năng mới nhất theo xu hướng công nghệ
+                    hiện đại và nhu cầu thực tế của người dùng.
                   </p>
                 </div>
               </div>
@@ -287,8 +287,8 @@ export default function AboutPage() {
                 <div>
                   <h3 className="font-semibold text-lg mb-2">Chi phí hợp lý</h3>
                   <p className="text-muted-foreground">
-                    Giải pháp tối ưu về chi phí với mức đầu tư hợp lý, mang lại lợi nhuận 
-                    cao và hiệu quả kinh tế bền vững cho khách hàng.
+                    Giải pháp tối ưu về chi phí với mức đầu tư hợp lý, mang lại
+                    lợi nhuận cao và hiệu quả kinh tế bền vững cho khách hàng.
                   </p>
                 </div>
               </div>

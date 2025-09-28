@@ -13,13 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  Search,
-  Download,
-  CreditCard,
-  Receipt,
-  Gift,
-} from "lucide-react";
+import { Search, Download, CreditCard, Receipt, Gift } from "lucide-react";
 import { formatCurrency } from "@/lib/utils/numbers/formatCurrency";
 import CustomerLayout from "@/components/customer/CustomerLayout";
 
@@ -115,8 +109,6 @@ const mockTransactions: Transaction[] = [
   },
 ];
 
-
-
 const paymentMethods: Record<PaymentMethod, string> = {
   bank_transfer: "Chuyển khoản",
   cod: "Thanh toán khi nhận",
@@ -135,8 +127,6 @@ export default function TransactionsPage() {
   const [methodFilter, setMethodFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
 
-
-
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("vi-VN", {
       day: "2-digit",
@@ -154,7 +144,8 @@ export default function TransactionsPage() {
       (transaction.orderId &&
         transaction.orderId.toLowerCase().includes(searchTerm.toLowerCase()));
 
-    const matchesMethod = methodFilter === "all" || transaction.method === methodFilter;
+    const matchesMethod =
+      methodFilter === "all" || transaction.method === methodFilter;
     const matchesStatus =
       statusFilter === "all" || transaction.status === statusFilter;
 
@@ -162,8 +153,10 @@ export default function TransactionsPage() {
   });
 
   const getCustomerStats = () => {
-    const totalSpent = mockTransactions
-      .reduce((sum, t) => sum + Math.abs(t.amount), 0);
+    const totalSpent = mockTransactions.reduce(
+      (sum, t) => sum + Math.abs(t.amount),
+      0,
+    );
 
     return { totalSpent };
   };
@@ -176,9 +169,7 @@ export default function TransactionsPage() {
         <CardContent className="p-4 md:p-6">
           <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-3">
             <div className="flex items-start gap-3 md:gap-4 flex-1">
-              <div
-                className="w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center bg-blue-100 text-blue-800 flex-shrink-0"
-              >
+              <div className="w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center bg-blue-100 text-blue-800 flex-shrink-0">
                 <Receipt className="w-5 h-5 md:w-6 md:h-6" />
               </div>
               <div className="space-y-1 flex-1 min-w-0">
@@ -194,7 +185,9 @@ export default function TransactionsPage() {
                   {transaction.orderId && (
                     <>
                       <span className="hidden md:inline">•</span>
-                      <span className="font-mono text-primary">#{transaction.orderId}</span>
+                      <span className="font-mono text-primary">
+                        #{transaction.orderId}
+                      </span>
                     </>
                   )}
                 </div>
@@ -233,58 +226,64 @@ export default function TransactionsPage() {
           </div>
         </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-6 md:mb-8">
-            <Card className="border-blue-200">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-xs md:text-sm font-medium text-blue-700">
-                  Tổng chi tiêu
-                </CardTitle>
-                <Receipt className="h-4 w-4 md:h-5 md:w-5 text-blue-600" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-lg md:text-2xl font-bold text-blue-700">
-                  {formatCurrency(customerStats.totalSpent)}
-                </div>
-                <p className="text-xs text-muted-foreground mt-1">
-                  {mockTransactions.length} giao dịch
-                </p>
-              </CardContent>
-            </Card>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-6 md:mb-8">
+          <Card className="border-blue-200">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-xs md:text-sm font-medium text-blue-700">
+                Tổng chi tiêu
+              </CardTitle>
+              <Receipt className="h-4 w-4 md:h-5 md:w-5 text-blue-600" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-lg md:text-2xl font-bold text-blue-700">
+                {formatCurrency(customerStats.totalSpent)}
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                {mockTransactions.length} giao dịch
+              </p>
+            </CardContent>
+          </Card>
 
-            <Card className="border-green-200">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-xs md:text-sm font-medium text-green-700">
-                  Chi tiêu trung bình
-                </CardTitle>
-                <CreditCard className="h-4 w-4 md:h-5 md:w-5 text-green-600" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-lg md:text-2xl font-bold text-green-700">
-                  {formatCurrency(Math.round(customerStats.totalSpent / mockTransactions.length))}
-                </div>
-                <p className="text-xs text-muted-foreground mt-1">
-                  Mỗi lần mua hàng
-                </p>
-              </CardContent>
-            </Card>
+          <Card className="border-green-200">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-xs md:text-sm font-medium text-green-700">
+                Chi tiêu trung bình
+              </CardTitle>
+              <CreditCard className="h-4 w-4 md:h-5 md:w-5 text-green-600" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-lg md:text-2xl font-bold text-green-700">
+                {formatCurrency(
+                  Math.round(
+                    customerStats.totalSpent / mockTransactions.length,
+                  ),
+                )}
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                Mỗi lần mua hàng
+              </p>
+            </CardContent>
+          </Card>
 
-            <Card className="border-purple-200">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-xs md:text-sm font-medium text-purple-700">
-                  Giao dịch lớn nhất
-                </CardTitle>
-                <Gift className="h-4 w-4 md:h-5 md:w-5 text-purple-600" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-lg md:text-2xl font-bold text-purple-700">
-                  {formatCurrency(Math.max(...mockTransactions.map(t => Math.abs(t.amount))))}
-                </div>
-                <p className="text-xs text-muted-foreground mt-1">
-                  Giá trị cao nhất
-                </p>
-              </CardContent>
-            </Card>
-          </div>
+          <Card className="border-purple-200">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-xs md:text-sm font-medium text-purple-700">
+                Giao dịch lớn nhất
+              </CardTitle>
+              <Gift className="h-4 w-4 md:h-5 md:w-5 text-purple-600" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-lg md:text-2xl font-bold text-purple-700">
+                {formatCurrency(
+                  Math.max(...mockTransactions.map((t) => Math.abs(t.amount))),
+                )}
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                Giá trị cao nhất
+              </p>
+            </CardContent>
+          </Card>
+        </div>
 
         {/* Desktop Search and Filter */}
         <div className="hidden md:block mb-6">
@@ -343,10 +342,16 @@ export default function TransactionsPage() {
                 Tất cả ({mockTransactions.length})
               </TabsTrigger>
               <TabsTrigger value="bank_transfer">
-                Chuyển khoản ({mockTransactions.filter(t => t.method === "bank_transfer").length})
+                Chuyển khoản (
+                {
+                  mockTransactions.filter((t) => t.method === "bank_transfer")
+                    .length
+                }
+                )
               </TabsTrigger>
               <TabsTrigger value="cod">
-                Thanh toán khi nhận ({mockTransactions.filter(t => t.method === "cod").length})
+                Thanh toán khi nhận (
+                {mockTransactions.filter((t) => t.method === "cod").length})
               </TabsTrigger>
             </TabsList>
 
@@ -361,7 +366,9 @@ export default function TransactionsPage() {
               ) : (
                 <div className="text-center py-12">
                   <Receipt className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                  <p className="text-muted-foreground">Không tìm thấy giao dịch nào</p>
+                  <p className="text-muted-foreground">
+                    Không tìm thấy giao dịch nào
+                  </p>
                   <p className="text-sm text-muted-foreground mt-2">
                     Thử thay đổi bộ lọc tìm kiếm
                   </p>
@@ -370,33 +377,43 @@ export default function TransactionsPage() {
             </TabsContent>
 
             <TabsContent value="bank_transfer" className="space-y-4">
-              {filteredTransactions.filter(t => t.method === "bank_transfer").length > 0 ? (
-                filteredTransactions.filter(t => t.method === "bank_transfer").map((transaction) => (
-                  <TransactionCard
-                    key={transaction.id}
-                    transaction={transaction}
-                  />
-                ))
+              {filteredTransactions.filter((t) => t.method === "bank_transfer")
+                .length > 0 ? (
+                filteredTransactions
+                  .filter((t) => t.method === "bank_transfer")
+                  .map((transaction) => (
+                    <TransactionCard
+                      key={transaction.id}
+                      transaction={transaction}
+                    />
+                  ))
               ) : (
                 <div className="text-center py-12">
                   <Receipt className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                  <p className="text-muted-foreground">Không tìm thấy giao dịch chuyển khoản nào</p>
+                  <p className="text-muted-foreground">
+                    Không tìm thấy giao dịch chuyển khoản nào
+                  </p>
                 </div>
               )}
             </TabsContent>
 
             <TabsContent value="cod" className="space-y-4">
-              {filteredTransactions.filter(t => t.method === "cod").length > 0 ? (
-                filteredTransactions.filter(t => t.method === "cod").map((transaction) => (
-                  <TransactionCard
-                    key={transaction.id}
-                    transaction={transaction}
-                  />
-                ))
+              {filteredTransactions.filter((t) => t.method === "cod").length >
+              0 ? (
+                filteredTransactions
+                  .filter((t) => t.method === "cod")
+                  .map((transaction) => (
+                    <TransactionCard
+                      key={transaction.id}
+                      transaction={transaction}
+                    />
+                  ))
               ) : (
                 <div className="text-center py-12">
                   <Receipt className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                  <p className="text-muted-foreground">Không tìm thấy giao dịch COD nào</p>
+                  <p className="text-muted-foreground">
+                    Không tìm thấy giao dịch COD nào
+                  </p>
                 </div>
               )}
             </TabsContent>
@@ -456,7 +473,9 @@ export default function TransactionsPage() {
             ) : (
               <div className="text-center py-12">
                 <Receipt className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <p className="text-muted-foreground">Không tìm thấy giao dịch nào</p>
+                <p className="text-muted-foreground">
+                  Không tìm thấy giao dịch nào
+                </p>
                 <p className="text-sm text-muted-foreground mt-2">
                   Thử thay đổi bộ lọc tìm kiếm
                 </p>
@@ -464,9 +483,6 @@ export default function TransactionsPage() {
             )}
           </div>
         </div>
-
-
-
       </div>
     </CustomerLayout>
   );

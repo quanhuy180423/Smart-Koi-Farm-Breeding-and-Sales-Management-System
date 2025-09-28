@@ -1,4 +1,3 @@
-
 import Image from "next/image";
 import Logo from "@/assets/images/ZenKoi.png";
 import Link from "next/link";
@@ -28,7 +27,9 @@ export function Footer() {
           </div>
 
           <div className="space-y-3 sm:space-y-4">
-            <h3 className="font-semibold text-foreground text-sm sm:text-base">Sản phẩm</h3>
+            <h3 className="font-semibold text-foreground text-sm sm:text-base">
+              Sản phẩm
+            </h3>
             <ul className="space-y-1.5 sm:space-y-2 text-muted-foreground text-sm sm:text-base">
               <li>
                 <Link
@@ -58,7 +59,9 @@ export function Footer() {
           </div>
 
           <div className="space-y-3 sm:space-y-4">
-            <h3 className="font-semibold text-foreground text-sm sm:text-base">Dịch vụ</h3>
+            <h3 className="font-semibold text-foreground text-sm sm:text-base">
+              Dịch vụ
+            </h3>
             <ul className="space-y-1.5 sm:space-y-2 text-muted-foreground text-sm sm:text-base">
               <li>
                 <Link
@@ -88,7 +91,9 @@ export function Footer() {
           </div>
 
           <div className="space-y-3 sm:space-y-4">
-            <h3 className="font-semibold text-foreground text-sm sm:text-base">Liên hệ</h3>
+            <h3 className="font-semibold text-foreground text-sm sm:text-base">
+              Liên hệ
+            </h3>
             <ul className="space-y-1.5 sm:space-y-2 text-muted-foreground text-sm sm:text-base">
               <li>Hotline: 0123 456 789</li>
               <li>Email: info@zenkoi.vn</li>
@@ -98,7 +103,9 @@ export function Footer() {
         </div>
 
         <div className="border-t border-border mt-8 sm:mt-10 pt-4 text-center text-muted-foreground">
-          <p className="text-sm sm:text-base">&copy; 2024 ZenKoi. Tất cả quyền được bảo lưu.</p>
+          <p className="text-sm sm:text-base">
+            &copy; 2024 ZenKoi. Tất cả quyền được bảo lưu.
+          </p>
         </div>
       </div>
     </footer>

@@ -1,5 +1,12 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Shield, Truck, RotateCcw, CreditCard, Phone, Mail } from "lucide-react"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Shield,
+  Truck,
+  RotateCcw,
+  CreditCard,
+  Phone,
+  Mail,
+} from "lucide-react";
 
 export default function PolicyPage() {
   return (
@@ -8,9 +15,12 @@ export default function PolicyPage() {
         <div className="max-w-4xl mx-auto">
           {/* Header */}
           <div className="text-center mb-12">
-            <h1 className="text-4xl font-bold text-gray-900 mb-4">Chính sách</h1>
+            <h1 className="text-4xl font-bold text-gray-900 mb-4">
+              Chính sách
+            </h1>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Tìm hiểu về các chính sách và điều khoản của KoiFarm để có trải nghiệm mua sắm tốt nhất
+              Tìm hiểu về các chính sách và điều khoản của KoiFarm để có trải
+              nghiệm mua sắm tốt nhất
             </p>
           </div>
 
@@ -27,22 +37,25 @@ export default function PolicyPage() {
                 <div>
                   <h3 className="font-semibold mb-2">Thu thập thông tin</h3>
                   <p className="text-gray-600">
-                    Chúng tôi thu thập thông tin cá nhân khi bạn đăng ký tài khoản, đặt hàng, hoặc liên hệ với chúng
-                    tôi. Thông tin bao gồm: họ tên, email, số điện thoại, địa chỉ giao hàng.
+                    Chúng tôi thu thập thông tin cá nhân khi bạn đăng ký tài
+                    khoản, đặt hàng, hoặc liên hệ với chúng tôi. Thông tin bao
+                    gồm: họ tên, email, số điện thoại, địa chỉ giao hàng.
                   </p>
                 </div>
                 <div>
                   <h3 className="font-semibold mb-2">Sử dụng thông tin</h3>
                   <p className="text-gray-600">
-                    Thông tin của bạn được sử dụng để xử lý đơn hàng, giao hàng, hỗ trợ khách hàng và cải thiện dịch vụ.
-                    Chúng tôi cam kết không chia sẻ thông tin với bên thứ ba không liên quan.
+                    Thông tin của bạn được sử dụng để xử lý đơn hàng, giao hàng,
+                    hỗ trợ khách hàng và cải thiện dịch vụ. Chúng tôi cam kết
+                    không chia sẻ thông tin với bên thứ ba không liên quan.
                   </p>
                 </div>
                 <div>
                   <h3 className="font-semibold mb-2">Bảo mật dữ liệu</h3>
                   <p className="text-gray-600">
-                    Chúng tôi áp dụng các biện pháp bảo mật tiên tiến để bảo vệ thông tin cá nhân của bạn khỏi truy cập
-                    trái phép, thay đổi, tiết lộ hoặc phá hủy.
+                    Chúng tôi áp dụng các biện pháp bảo mật tiên tiến để bảo vệ
+                    thông tin cá nhân của bạn khỏi truy cập trái phép, thay đổi,
+                    tiết lộ hoặc phá hủy.
                   </p>
                 </div>
               </CardContent>
@@ -60,7 +73,8 @@ export default function PolicyPage() {
                 <div>
                   <h3 className="font-semibold mb-2">Khu vực giao hàng</h3>
                   <p className="text-gray-600">
-                    Chúng tôi giao hàng toàn quốc với các mức phí khác nhau tùy theo khoảng cách và kích thước đơn hàng.
+                    Chúng tôi giao hàng toàn quốc với các mức phí khác nhau tùy
+                    theo khoảng cách và kích thước đơn hàng.
                   </p>
                 </div>
                 <div>
@@ -74,8 +88,8 @@ export default function PolicyPage() {
                 <div>
                   <h3 className="font-semibold mb-2">Đóng gói chuyên nghiệp</h3>
                   <p className="text-gray-600">
-                    Cá Koi được đóng gói trong túi oxy chuyên dụng, hộp xốp cách nhiệt để đảm bảo an toàn trong quá
-                    trình vận chuyển.
+                    Cá Koi được đóng gói trong túi oxy chuyên dụng, hộp xốp cách
+                    nhiệt để đảm bảo an toàn trong quá trình vận chuyển.
                   </p>
                 </div>
               </CardContent>
@@ -93,7 +107,10 @@ export default function PolicyPage() {
                 <div>
                   <h3 className="font-semibold mb-2">Điều kiện đổi trả</h3>
                   <ul className="text-gray-600 space-y-1">
-                    <li>• Cá bị chết trong vòng 24h sau khi nhận hàng (do lỗi vận chuyển)</li>
+                    <li>
+                      • Cá bị chết trong vòng 24h sau khi nhận hàng (do lỗi vận
+                      chuyển)
+                    </li>
                     <li>• Cá không đúng mô tả hoặc kích thước</li>
                     <li>• Cá có dấu hiệu bệnh tật rõ ràng khi nhận hàng</li>
                   </ul>
@@ -103,14 +120,16 @@ export default function PolicyPage() {
                   <ol className="text-gray-600 space-y-1">
                     <li>1. Liên hệ hotline trong vòng 24h sau khi nhận hàng</li>
                     <li>2. Cung cấp video/hình ảnh làm bằng chứng</li>
-                    <li>3. Chúng tôi sẽ xác nhận và hỗ trợ đổi trả trong 48h</li>
+                    <li>
+                      3. Chúng tôi sẽ xác nhận và hỗ trợ đổi trả trong 48h
+                    </li>
                   </ol>
                 </div>
                 <div>
                   <h3 className="font-semibold mb-2">Bồi thường</h3>
                   <p className="text-gray-600">
-                    Trong trường hợp cá chết do lỗi của chúng tôi, khách hàng sẽ được hoàn tiền 100% hoặc đổi cá mới
-                    cùng loại.
+                    Trong trường hợp cá chết do lỗi của chúng tôi, khách hàng sẽ
+                    được hoàn tiền 100% hoặc đổi cá mới cùng loại.
                   </p>
                 </div>
               </CardContent>
@@ -137,14 +156,16 @@ export default function PolicyPage() {
                 <div>
                   <h3 className="font-semibold mb-2">Chính sách giá</h3>
                   <p className="text-gray-600">
-                    Giá cả được niêm yết rõ ràng, không phát sinh chi phí ẩn. Giá có thể thay đổi tùy theo thời điểm và
-                    chương trình khuyến mãi.
+                    Giá cả được niêm yết rõ ràng, không phát sinh chi phí ẩn.
+                    Giá có thể thay đổi tùy theo thời điểm và chương trình
+                    khuyến mãi.
                   </p>
                 </div>
                 <div>
                   <h3 className="font-semibold mb-2">Hóa đơn VAT</h3>
                   <p className="text-gray-600">
-                    Khách hàng có thể yêu cầu xuất hóa đơn VAT khi đặt hàng. Vui lòng cung cấp đầy đủ thông tin công ty.
+                    Khách hàng có thể yêu cầu xuất hóa đơn VAT khi đặt hàng. Vui
+                    lòng cung cấp đầy đủ thông tin công ty.
                   </p>
                 </div>
               </CardContent>
@@ -160,7 +181,9 @@ export default function PolicyPage() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <h3 className="font-semibold mb-2">Quyền và nghĩa vụ của khách hàng</h3>
+                  <h3 className="font-semibold mb-2">
+                    Quyền và nghĩa vụ của khách hàng
+                  </h3>
                   <ul className="text-gray-600 space-y-1">
                     <li>• Cung cấp thông tin chính xác khi đặt hàng</li>
                     <li>• Thanh toán đúng hạn theo phương thức đã chọn</li>
@@ -169,7 +192,9 @@ export default function PolicyPage() {
                   </ul>
                 </div>
                 <div>
-                  <h3 className="font-semibold mb-2">Quyền và nghĩa vụ của KoiFarm</h3>
+                  <h3 className="font-semibold mb-2">
+                    Quyền và nghĩa vụ của KoiFarm
+                  </h3>
                   <ul className="text-gray-600 space-y-1">
                     <li>• Cung cấp cá Koi chất lượng, đúng mô tả</li>
                     <li>• Đóng gói và vận chuyển an toàn</li>
@@ -180,8 +205,9 @@ export default function PolicyPage() {
                 <div>
                   <h3 className="font-semibold mb-2">Giải quyết tranh chấp</h3>
                   <p className="text-gray-600">
-                    Mọi tranh chấp sẽ được giải quyết thông qua thương lượng. Nếu không thể thỏa thuận, sẽ đưa ra cơ
-                    quan có thẩm quyền theo quy định của pháp luật Việt Nam.
+                    Mọi tranh chấp sẽ được giải quyết thông qua thương lượng.
+                    Nếu không thể thỏa thuận, sẽ đưa ra cơ quan có thẩm quyền
+                    theo quy định của pháp luật Việt Nam.
                   </p>
                 </div>
               </CardContent>
@@ -226,5 +252,5 @@ export default function PolicyPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }

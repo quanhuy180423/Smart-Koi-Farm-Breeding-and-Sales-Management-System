@@ -5,15 +5,15 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { 
-  Bell, 
-  Package, 
-  Star, 
-  Gift, 
-  AlertCircle, 
+import {
+  Bell,
+  Package,
+  Star,
+  Gift,
+  AlertCircle,
   CheckCircle2,
   Trash2,
-  Check
+  Check,
 } from "lucide-react";
 import CustomerLayout from "@/components/customer/CustomerLayout";
 
@@ -35,13 +35,14 @@ const notifications: Notification[] = [
     id: "1",
     type: "order",
     title: "Đơn hàng đã được giao",
-    message: "Đơn hàng #ORD-001 đã được giao thành công. Cảm ơn bạn đã mua hàng!",
+    message:
+      "Đơn hàng #ORD-001 đã được giao thành công. Cảm ơn bạn đã mua hàng!",
     date: "2024-12-15T10:30:00Z",
     isRead: false,
     action: {
       label: "Xem đơn hàng",
-      href: "/profile/orders"
-    }
+      href: "/profile/orders",
+    },
   },
   {
     id: "2",
@@ -52,8 +53,8 @@ const notifications: Notification[] = [
     isRead: false,
     action: {
       label: "Mua ngay",
-      href: "/catalog"
-    }
+      href: "/catalog",
+    },
   },
   {
     id: "3",
@@ -64,8 +65,8 @@ const notifications: Notification[] = [
     isRead: true,
     action: {
       label: "Cập nhật",
-      href: "/profile"
-    }
+      href: "/profile",
+    },
   },
   {
     id: "4",
@@ -76,8 +77,8 @@ const notifications: Notification[] = [
     isRead: true,
     action: {
       label: "Đánh giá",
-      href: "/profile/orders"
-    }
+      href: "/profile/orders",
+    },
   },
 ];
 
@@ -115,47 +116,62 @@ export default function NotificationsPage() {
   const [notificationList, setNotificationList] = useState(notifications);
 
   const markAsRead = (id: string) => {
-    setNotificationList(prev =>
-      prev.map(notif =>
-        notif.id === id ? { ...notif, isRead: true } : notif
-      )
+    setNotificationList((prev) =>
+      prev.map((notif) =>
+        notif.id === id ? { ...notif, isRead: true } : notif,
+      ),
     );
   };
 
   const markAllAsRead = () => {
-    setNotificationList(prev =>
-      prev.map(notif => ({ ...notif, isRead: true }))
+    setNotificationList((prev) =>
+      prev.map((notif) => ({ ...notif, isRead: true })),
     );
   };
 
   const deleteNotification = (id: string) => {
-    setNotificationList(prev => prev.filter(notif => notif.id !== id));
+    setNotificationList((prev) => prev.filter((notif) => notif.id !== id));
   };
 
-  const unreadCount = notificationList.filter(n => !n.isRead).length;
+  const unreadCount = notificationList.filter((n) => !n.isRead).length;
   const allNotifications = notificationList;
-  const unreadNotifications = notificationList.filter(n => !n.isRead);
-  const readNotifications = notificationList.filter(n => n.isRead);
+  const unreadNotifications = notificationList.filter((n) => !n.isRead);
+  const readNotifications = notificationList.filter((n) => n.isRead);
 
-  const NotificationCard = ({ notification }: { notification: Notification }) => {
+  const NotificationCard = ({
+    notification,
+  }: {
+    notification: Notification;
+  }) => {
     const Icon = getNotificationIcon(notification.type);
     const colorClass = getNotificationColor(notification.type);
 
     return (
-      <Card className={`transition-all ${!notification.isRead ? 'ring-2 ring-primary/20 bg-primary/5' : ''}`}>
+      <Card
+        className={`transition-all ${!notification.isRead ? "ring-2 ring-primary/20 bg-primary/5" : ""}`}
+      >
         <CardContent className="p-3 md:p-4">
           <div className="flex items-start gap-3 md:gap-4">
-            <div className={`p-1.5 md:p-2 rounded-full ${colorClass} flex-shrink-0`}>
+            <div
+              className={`p-1.5 md:p-2 rounded-full ${colorClass} flex-shrink-0`}
+            >
               <Icon className="h-3 w-3 md:h-4 md:w-4" />
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-start justify-between mb-2">
-                <h3 className={`font-medium text-sm md:text-base leading-tight ${!notification.isRead ? 'text-foreground' : 'text-muted-foreground'}`}>
+                <h3
+                  className={`font-medium text-sm md:text-base leading-tight ${!notification.isRead ? "text-foreground" : "text-muted-foreground"}`}
+                >
                   {notification.title}
                 </h3>
                 <div className="flex items-center gap-1 md:gap-2 ml-2 flex-shrink-0">
                   {!notification.isRead && (
-                    <Badge variant="secondary" className="text-xs px-1.5 py-0.5">Mới</Badge>
+                    <Badge
+                      variant="secondary"
+                      className="text-xs px-1.5 py-0.5"
+                    >
+                      Mới
+                    </Badge>
                   )}
                   <Button
                     variant="ghost"
@@ -172,12 +188,12 @@ export default function NotificationsPage() {
               </p>
               <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
                 <span className="text-xs text-muted-foreground">
-                  {new Date(notification.date).toLocaleDateString('vi-VN', {
-                    year: 'numeric',
-                    month: 'short',
-                    day: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit'
+                  {new Date(notification.date).toLocaleDateString("vi-VN", {
+                    year: "numeric",
+                    month: "short",
+                    day: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
                   })}
                 </span>
                 <div className="flex gap-2">
@@ -194,7 +210,10 @@ export default function NotificationsPage() {
                     </Button>
                   )}
                   {notification.action && (
-                    <Button size="sm" className="h-7 text-xs flex-1 md:flex-none md:w-auto">
+                    <Button
+                      size="sm"
+                      className="h-7 text-xs flex-1 md:flex-none md:w-auto"
+                    >
                       {notification.action.label}
                     </Button>
                   )}
@@ -218,10 +237,16 @@ export default function NotificationsPage() {
             </p>
           </div>
           {unreadCount > 0 && (
-            <Button onClick={markAllAsRead} variant="outline" className="w-full md:w-auto">
+            <Button
+              onClick={markAllAsRead}
+              variant="outline"
+              className="w-full md:w-auto"
+            >
               <Check className="h-4 w-4 mr-2" />
               <span className="md:hidden">Đánh dấu tất cả ({unreadCount})</span>
-              <span className="hidden md:inline">Đánh dấu tất cả đã đọc ({unreadCount})</span>
+              <span className="hidden md:inline">
+                Đánh dấu tất cả đã đọc ({unreadCount})
+              </span>
             </Button>
           )}
         </div>
@@ -231,7 +256,7 @@ export default function NotificationsPage() {
           <Tabs defaultValue="all" className="space-y-6">
             <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="all">
-                Tất cả 
+                Tất cả
                 {allNotifications.length > 0 && (
                   <Badge variant="secondary" className="ml-2">
                     {allNotifications.length}
@@ -239,7 +264,7 @@ export default function NotificationsPage() {
                 )}
               </TabsTrigger>
               <TabsTrigger value="unread">
-                Chưa đọc 
+                Chưa đọc
                 {unreadCount > 0 && (
                   <Badge variant="default" className="ml-2">
                     {unreadCount}
@@ -247,7 +272,7 @@ export default function NotificationsPage() {
                 )}
               </TabsTrigger>
               <TabsTrigger value="read">
-                Đã đọc 
+                Đã đọc
                 {readNotifications.length > 0 && (
                   <Badge variant="secondary" className="ml-2">
                     {readNotifications.length}
@@ -261,15 +286,21 @@ export default function NotificationsPage() {
                 <Card className="text-center py-12">
                   <CardContent>
                     <Bell className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                    <h3 className="text-lg font-semibold mb-2">Không có thông báo</h3>
+                    <h3 className="text-lg font-semibold mb-2">
+                      Không có thông báo
+                    </h3>
                     <p className="text-muted-foreground">
-                      Bạn sẽ nhận được thông báo về đơn hàng và khuyến mãi tại đây
+                      Bạn sẽ nhận được thông báo về đơn hàng và khuyến mãi tại
+                      đây
                     </p>
                   </CardContent>
                 </Card>
               ) : (
                 allNotifications.map((notification) => (
-                  <NotificationCard key={notification.id} notification={notification} />
+                  <NotificationCard
+                    key={notification.id}
+                    notification={notification}
+                  />
                 ))
               )}
             </TabsContent>
@@ -279,7 +310,9 @@ export default function NotificationsPage() {
                 <Card className="text-center py-12">
                   <CardContent>
                     <CheckCircle2 className="h-12 w-12 text-green-500 mx-auto mb-4" />
-                    <h3 className="text-lg font-semibold mb-2">Bạn đã đọc hết thông báo</h3>
+                    <h3 className="text-lg font-semibold mb-2">
+                      Bạn đã đọc hết thông báo
+                    </h3>
                     <p className="text-muted-foreground">
                       Tất cả thông báo đều đã được đọc
                     </p>
@@ -287,7 +320,10 @@ export default function NotificationsPage() {
                 </Card>
               ) : (
                 unreadNotifications.map((notification) => (
-                  <NotificationCard key={notification.id} notification={notification} />
+                  <NotificationCard
+                    key={notification.id}
+                    notification={notification}
+                  />
                 ))
               )}
             </TabsContent>
@@ -297,7 +333,9 @@ export default function NotificationsPage() {
                 <Card className="text-center py-12">
                   <CardContent>
                     <Bell className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                    <h3 className="text-lg font-semibold mb-2">Chưa có thông báo đã đọc</h3>
+                    <h3 className="text-lg font-semibold mb-2">
+                      Chưa có thông báo đã đọc
+                    </h3>
                     <p className="text-muted-foreground">
                       Các thông báo đã đọc sẽ hiển thị tại đây
                     </p>
@@ -305,7 +343,10 @@ export default function NotificationsPage() {
                 </Card>
               ) : (
                 readNotifications.map((notification) => (
-                  <NotificationCard key={notification.id} notification={notification} />
+                  <NotificationCard
+                    key={notification.id}
+                    notification={notification}
+                  />
                 ))
               )}
             </TabsContent>
@@ -318,7 +359,9 @@ export default function NotificationsPage() {
             <Card className="text-center py-12">
               <CardContent>
                 <Bell className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-lg font-semibold mb-2">Không có thông báo</h3>
+                <h3 className="text-lg font-semibold mb-2">
+                  Không có thông báo
+                </h3>
                 <p className="text-muted-foreground">
                   Bạn sẽ nhận được thông báo về đơn hàng và khuyến mãi tại đây
                 </p>
@@ -326,7 +369,10 @@ export default function NotificationsPage() {
             </Card>
           ) : (
             allNotifications.map((notification) => (
-              <NotificationCard key={notification.id} notification={notification} />
+              <NotificationCard
+                key={notification.id}
+                notification={notification}
+              />
             ))
           )}
         </div>

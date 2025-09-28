@@ -19,7 +19,7 @@ export interface FormatCurrencyOptions {
 
 export function formatCurrency(
   amount: number,
-  options: FormatCurrencyOptions = {}
+  options: FormatCurrencyOptions = {},
 ): string {
   const {
     showSymbol = true,
@@ -60,7 +60,7 @@ export function formatCurrencyShort(
   options: Omit<
     FormatCurrencyOptions,
     "minimumFractionDigits" | "maximumFractionDigits"
-  > = {}
+  > = {},
 ): string {
   const { showSymbol = true, locale = "vi-VN", currency = "VND" } = options;
 

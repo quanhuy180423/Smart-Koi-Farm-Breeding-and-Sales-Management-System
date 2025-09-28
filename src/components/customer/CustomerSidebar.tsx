@@ -4,7 +4,13 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import {
   User,
   ShoppingBag,
@@ -91,13 +97,13 @@ export function CustomerSidebar({ className }: CustomerSidebarProps) {
         {sidebarItems.map((item) => {
           const Icon = item.icon;
           const isActive = pathname === item.href;
-          
+
           return (
             <Link key={item.href} href={item.href}>
               <div
                 className={cn(
                   "flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-200 group hover:bg-accent/50 cursor-pointer",
-                  isActive && "bg-primary/10 border border-primary/20 my-1"
+                  isActive && "bg-primary/10 border border-primary/20 my-1",
                 )}
               >
                 <div
@@ -105,7 +111,7 @@ export function CustomerSidebar({ className }: CustomerSidebarProps) {
                     "flex items-center justify-center w-10 h-10 rounded-lg transition-colors",
                     isActive
                       ? "bg-primary text-primary-foreground"
-                      : "bg-muted text-muted-foreground group-hover:bg-primary/20 group-hover:text-primary"
+                      : "bg-muted text-muted-foreground group-hover:bg-primary/20 group-hover:text-primary",
                   )}
                 >
                   <Icon className="h-5 w-5" />
@@ -114,7 +120,7 @@ export function CustomerSidebar({ className }: CustomerSidebarProps) {
                   <p
                     className={cn(
                       "font-medium truncate",
-                      isActive ? "text-primary" : "text-foreground"
+                      isActive ? "text-primary" : "text-foreground",
                     )}
                   >
                     {item.title}
@@ -123,9 +129,7 @@ export function CustomerSidebar({ className }: CustomerSidebarProps) {
                     {item.description}
                   </p>
                 </div>
-                {isActive && (
-                  <ChevronRight className="h-4 w-4 text-primary" />
-                )}
+                {isActive && <ChevronRight className="h-4 w-4 text-primary" />}
               </div>
             </Link>
           );

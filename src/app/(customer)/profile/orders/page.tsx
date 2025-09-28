@@ -87,7 +87,8 @@ const mockOrders: Order[] = [
         age: "3 năm",
         price: 25000000,
         quantity: 1,
-        image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/attachments/gen-images/public/beautiful-japanese-koi-fish-swimming-in-clear-pond-1MrDrpINIJ33x6iP0z7Xz4hMlnVc50.jpg",
+        image:
+          "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/attachments/gen-images/public/beautiful-japanese-koi-fish-swimming-in-clear-pond-1MrDrpINIJ33x6iP0z7Xz4hMlnVc50.jpg",
       },
       {
         id: "2",
@@ -97,7 +98,8 @@ const mockOrders: Order[] = [
         age: "2 năm",
         price: 15000000,
         quantity: 1,
-        image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/attachments/gen-images/public/beautiful-red-and-white-kohaku-koi-fish-shXq5nIYD8xv7a5mdkJBQJJ0llXM2v.jpg",
+        image:
+          "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/attachments/gen-images/public/beautiful-red-and-white-kohaku-koi-fish-shXq5nIYD8xv7a5mdkJBQJJ0llXM2v.jpg",
       },
     ],
     shipping: {
@@ -124,7 +126,8 @@ const mockOrders: Order[] = [
         age: "2 năm",
         price: 15000000,
         quantity: 1,
-        image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/attachments/gen-images/public/beautiful-red-and-white-kohaku-koi-fish-shXq5nIYD8xv7a5mdkJBQJJ0llXM2v.jpg",
+        image:
+          "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/attachments/gen-images/public/beautiful-red-and-white-kohaku-koi-fish-shXq5nIYD8xv7a5mdkJBQJJ0llXM2v.jpg",
       },
       {
         id: "3",
@@ -134,7 +137,8 @@ const mockOrders: Order[] = [
         age: "2.5 năm",
         price: 20000000,
         quantity: 1,
-        image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/attachments/gen-images/public/beautiful-platinum-ogon-koi-fish-metallic-silver-bNZw5PNFEYXbZMPAY0Zxrvlscb335x.jpg",
+        image:
+          "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/attachments/gen-images/public/beautiful-platinum-ogon-koi-fish-metallic-silver-bNZw5PNFEYXbZMPAY0Zxrvlscb335x.jpg",
       },
     ],
     shipping: {
@@ -161,7 +165,8 @@ const mockOrders: Order[] = [
         age: "1.5 năm",
         price: 12000000,
         quantity: 1,
-        image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/attachments/gen-images/public/beautiful-japanese-koi-fish-swimming-in-clear-pond-1MrDrpINIJ33x6iP0z7Xz4hMlnVc50.jpg",
+        image:
+          "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/attachments/gen-images/public/beautiful-japanese-koi-fish-swimming-in-clear-pond-1MrDrpINIJ33x6iP0z7Xz4hMlnVc50.jpg",
       },
     ],
     shipping: {
@@ -188,7 +193,8 @@ const mockOrders: Order[] = [
         age: "2 năm",
         price: 8000000,
         quantity: 1,
-        image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/attachments/gen-images/public/beautiful-platinum-ogon-koi-fish-metallic-silver-bNZw5PNFEYXbZMPAY0Zxrvlscb335x.jpg",
+        image:
+          "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/attachments/gen-images/public/beautiful-platinum-ogon-koi-fish-metallic-silver-bNZw5PNFEYXbZMPAY0Zxrvlscb335x.jpg",
       },
     ],
     shipping: {
@@ -308,7 +314,9 @@ export default function OrdersPage() {
                 </DialogTrigger>
                 <DialogContent className="max-w-4xl w-[95vw] md:w-3xl max-h-[90vh] overflow-y-auto p-4 md:p-6">
                   <DialogHeader>
-                    <DialogTitle className="text-lg md:text-xl">Chi tiết đơn hàng #{order.id}</DialogTitle>
+                    <DialogTitle className="text-lg md:text-xl">
+                      Chi tiết đơn hàng #{order.id}
+                    </DialogTitle>
                   </DialogHeader>
                   <OrderDetails order={order} />
                 </DialogContent>
@@ -340,7 +348,9 @@ export default function OrdersPage() {
           </Badge>
         </div>
         <div className="p-3 bg-gray-50 rounded-lg">
-          <p className="text-muted-foreground text-xs">Phương thức thanh toán</p>
+          <p className="text-muted-foreground text-xs">
+            Phương thức thanh toán
+          </p>
           <p className="font-medium text-sm">{order.payment.method}</p>
         </div>
         <div className="p-3 bg-gray-50 rounded-lg">
@@ -357,7 +367,10 @@ export default function OrdersPage() {
         <h4 className="font-semibold mb-3 text-base">Sản phẩm đã đặt</h4>
         <div className="space-y-3">
           {order.items.map((item: OrderItem) => (
-            <div key={item.id} className="flex flex-col md:flex-row gap-3 p-3 border rounded-lg">
+            <div
+              key={item.id}
+              className="flex flex-col md:flex-row gap-3 p-3 border rounded-lg"
+            >
               <div className="flex gap-3 md:contents">
                 <div className="relative w-16 h-16 md:w-20 md:h-20 rounded-md overflow-hidden flex-shrink-0">
                   <Image
@@ -368,8 +381,12 @@ export default function OrdersPage() {
                   />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="font-medium text-sm md:text-base truncate">{item.name}</p>
-                  <p className="text-xs md:text-sm text-muted-foreground">{item.variety}</p>
+                  <p className="font-medium text-sm md:text-base truncate">
+                    {item.name}
+                  </p>
+                  <p className="text-xs md:text-sm text-muted-foreground">
+                    {item.variety}
+                  </p>
                   <p className="text-xs md:text-sm text-muted-foreground">
                     {item.size} • {item.age}
                   </p>
@@ -391,15 +408,21 @@ export default function OrdersPage() {
       <Separator />
 
       <div className="p-4 bg-blue-50 rounded-lg">
-        <h4 className="font-semibold mb-2 text-sm md:text-base text-blue-800">Địa chỉ giao hàng</h4>
-        <p className="text-xs md:text-sm text-blue-700 leading-relaxed">{order.shipping.address}</p>
+        <h4 className="font-semibold mb-2 text-sm md:text-base text-blue-800">
+          Địa chỉ giao hàng
+        </h4>
+        <p className="text-xs md:text-sm text-blue-700 leading-relaxed">
+          {order.shipping.address}
+        </p>
       </div>
 
       <Separator />
 
       <div className="flex justify-between items-center p-4 bg-primary/5 rounded-lg">
         <span className="font-bold text-base md:text-lg">Tổng cộng:</span>
-        <span className="font-bold text-lg md:text-xl text-primary">{formatCurrency(order.total)}</span>
+        <span className="font-bold text-lg md:text-xl text-primary">
+          {formatCurrency(order.total)}
+        </span>
       </div>
     </div>
   );
@@ -413,8 +436,8 @@ export default function OrdersPage() {
             <p className="text-muted-foreground">
               Theo dõi và quản lý các đơn hàng
             </p>
-            </div>
           </div>
+        </div>
 
         {/* Desktop Tabs */}
         <div className="hidden md:block">

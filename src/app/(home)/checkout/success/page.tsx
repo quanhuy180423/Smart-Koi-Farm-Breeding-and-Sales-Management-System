@@ -49,15 +49,11 @@ export default function CheckoutSuccessPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                 <div>
                   <p className="text-muted-foreground">Mã đơn hàng:</p>
-                  <p className="font-medium">
-                    {orderCode || "Đang tải..."}
-                  </p>
+                  <p className="font-medium">{orderCode || "Đang tải..."}</p>
                 </div>
                 <div>
                   <p className="text-muted-foreground">Thời gian đặt:</p>
-                  <p className="font-medium">
-                    {orderTime || "Đang tải..."}
-                  </p>
+                  <p className="font-medium">{orderTime || "Đang tải..."}</p>
                 </div>
                 <div>
                   <p className="text-muted-foreground">Trạng thái:</p>

@@ -11,10 +11,10 @@ const FishSvg: React.FC<FishSvgProps> = ({ size = 32, color, className }) => {
   const getFill = (fallback: string) => color ?? fallback;
 
   return (
-    <svg 
-      width={size} 
-      height={size} 
-      viewBox="0 0 512.002 512.002" 
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 512.002 512.002"
       fill="none"
       className={className}
       xmlns="http://www.w3.org/2000/svg"

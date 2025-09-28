@@ -13,7 +13,7 @@ import { vi } from "date-fns/locale";
  */
 export function formatDate(
   dateString?: string,
-  formatStr: string = "PPP"
+  formatStr: string = "PPP",
 ): string {
   if (!dateString) return "N/A";
 
@@ -39,7 +39,7 @@ export function formatDate(
  */
 export function formatDateForInput(
   dateString?: string,
-  formatStr: string = "yyyy-MM-dd"
+  formatStr: string = "yyyy-MM-dd",
 ): string {
   if (!dateString) return "";
 

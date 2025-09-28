@@ -16,23 +16,24 @@ const geistMono = Geist_Mono({
 
 export async function generateMetadata(): Promise<Metadata> {
   const title = "ZenKoi - Trang Trại Cá Koi Premium";
-  const description = "Hệ thống quản lý trang trại cá Koi thông minh và bán hàng chuyên nghiệp. Cung cấp cá Koi Nhật Bản chất lượng cao với dịch vụ tư vấn chuyên nghiệp.";
+  const description =
+    "Hệ thống quản lý trang trại cá Koi thông minh và bán hàng chuyên nghiệp. Cung cấp cá Koi Nhật Bản chất lượng cao với dịch vụ tư vấn chuyên nghiệp.";
   const keywords = [
     "cá koi",
-    "trang trại cá koi", 
+    "trang trại cá koi",
     "cá koi nhật bản",
     "bán cá koi",
     "nuôi cá koi",
     "cá cảnh cao cấp",
     "ZenKoi",
     "koi farm",
-    "japanese koi"
+    "japanese koi",
   ];
 
   return {
     title: {
       default: title,
-      template: "%s | ZenKoi"
+      template: "%s | ZenKoi",
     },
     description,
     keywords: keywords.join(", "),
@@ -44,7 +45,9 @@ export async function generateMetadata(): Promise<Metadata> {
       address: false,
       telephone: false,
     },
-    metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'),
+    metadataBase: new URL(
+      process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
+    ),
     alternates: {
       canonical: "/",
     },
@@ -61,7 +64,7 @@ export async function generateMetadata(): Promise<Metadata> {
           width: 1200,
           height: 630,
           alt: "ZenKoi - Trang Trại Cá Koi Premium",
-        }
+        },
       ],
     },
     twitter: {
@@ -83,8 +86,8 @@ export async function generateMetadata(): Promise<Metadata> {
       },
     },
     icons: {
-      icon: '/ZenKoi.png',
-      apple: '/ZenKoi.png',
+      icon: "/ZenKoi.png",
+      apple: "/ZenKoi.png",
     },
     manifest: "/manifest.json",
     category: "business",

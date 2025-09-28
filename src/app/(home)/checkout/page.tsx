@@ -71,16 +71,17 @@ export default function CheckoutPage() {
 
   const handleSubmitOrder = async () => {
     setIsSubmitting(true);
-    
+
     try {
       // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+
       // Simulate random failure for testing (remove in production)
-      if (Math.random() < 0.3) { // 30% chance of failure for testing
+      if (Math.random() < 0.3) {
+        // 30% chance of failure for testing
         throw new Error("Simulated payment failure");
       }
-      
+
       // Here you would typically send the order to your backend
       console.log("Order submitted:", {
         ...orderData,
@@ -145,16 +146,14 @@ export default function CheckoutPage() {
         <div className="max-w-7xl mx-auto">
           {/* Header */}
           <div className="flex items-center gap-4 mb-6 md:mb-8">
-            <Button 
-              variant="ghost" 
-              size="sm"
-              onClick={() => router.back()}
-            >
+            <Button variant="ghost" size="sm" onClick={() => router.back()}>
               <ArrowLeft className="mr-2 h-4 w-4" />
               <span className="hidden sm:inline">Quay lại</span>
             </Button>
             <div className="flex-1">
-              <h1 className="text-2xl md:text-3xl font-bold text-foreground">Thanh toán</h1>
+              <h1 className="text-2xl md:text-3xl font-bold text-foreground">
+                Thanh toán
+              </h1>
               <p className="text-muted-foreground text-sm md:text-base">
                 {getTotalItems()} sản phẩm trong giỏ hàng
               </p>
@@ -172,14 +171,16 @@ export default function CheckoutPage() {
                 >
                   <div
                     className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-all duration-200 ${
-                      step >= 1 
-                        ? "bg-primary text-primary-foreground shadow-md" 
+                      step >= 1
+                        ? "bg-primary text-primary-foreground shadow-md"
                         : "bg-muted text-muted-foreground"
                     }`}
                   >
                     {step > 1 ? <CheckCircle className="h-4 w-4" /> : "1"}
                   </div>
-                  <span className="font-medium text-sm md:text-base">Thông tin</span>
+                  <span className="font-medium text-sm md:text-base">
+                    Thông tin
+                  </span>
                 </div>
                 <div className="w-4 md:w-8 h-px bg-border" />
                 <div
@@ -189,14 +190,16 @@ export default function CheckoutPage() {
                 >
                   <div
                     className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-all duration-200 ${
-                      step >= 2 
-                        ? "bg-primary text-primary-foreground shadow-md" 
+                      step >= 2
+                        ? "bg-primary text-primary-foreground shadow-md"
                         : "bg-muted text-muted-foreground"
                     }`}
                   >
                     {step > 2 ? <CheckCircle className="h-4 w-4" /> : "2"}
                   </div>
-                  <span className="font-medium text-sm md:text-base">Giao hàng</span>
+                  <span className="font-medium text-sm md:text-base">
+                    Giao hàng
+                  </span>
                 </div>
                 <div className="w-4 md:w-8 h-px bg-border" />
                 <div
@@ -206,14 +209,16 @@ export default function CheckoutPage() {
                 >
                   <div
                     className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-all duration-200 ${
-                      step >= 3 
-                        ? "bg-primary text-primary-foreground shadow-md" 
+                      step >= 3
+                        ? "bg-primary text-primary-foreground shadow-md"
                         : "bg-muted text-muted-foreground"
                     }`}
                   >
                     3
                   </div>
-                  <span className="font-medium text-sm md:text-base">Thanh toán</span>
+                  <span className="font-medium text-sm md:text-base">
+                    Thanh toán
+                  </span>
                 </div>
               </div>
             </div>
@@ -231,13 +236,17 @@ export default function CheckoutPage() {
                       Thông tin khách hàng
                     </CardTitle>
                     <p className="text-sm text-muted-foreground">
-                      Vui lòng điền đầy đủ thông tin để chúng tôi liên hệ xác nhận đơn hàng
+                      Vui lòng điền đầy đủ thông tin để chúng tôi liên hệ xác
+                      nhận đơn hàng
                     </p>
                   </CardHeader>
                   <CardContent className="space-y-4 md:space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                       <div className="space-y-2">
-                        <Label htmlFor="fullName" className="text-sm font-medium">
+                        <Label
+                          htmlFor="fullName"
+                          className="text-sm font-medium"
+                        >
                           Họ và tên <span className="text-destructive">*</span>
                         </Label>
                         <Input
@@ -248,13 +257,16 @@ export default function CheckoutPage() {
                           }
                           placeholder="Nhập họ và tên đầy đủ"
                           className={`transition-colors ${
-                            orderData.fullName ? "border-green-500 bg-green-50/50" : ""
+                            orderData.fullName
+                              ? "border-green-500 bg-green-50/50"
+                              : ""
                           }`}
                         />
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="phone" className="text-sm font-medium">
-                          Số điện thoại <span className="text-destructive">*</span>
+                          Số điện thoại{" "}
+                          <span className="text-destructive">*</span>
                         </Label>
                         <Input
                           id="phone"
@@ -264,14 +276,17 @@ export default function CheckoutPage() {
                           }
                           placeholder="0xxxxxxxxx"
                           className={`transition-colors ${
-                            orderData.phone ? "border-green-500 bg-green-50/50" : ""
+                            orderData.phone
+                              ? "border-green-500 bg-green-50/50"
+                              : ""
                           }`}
                         />
                       </div>
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="email" className="text-sm font-medium">
-                        Địa chỉ email <span className="text-destructive">*</span>
+                        Địa chỉ email{" "}
+                        <span className="text-destructive">*</span>
                       </Label>
                       <Input
                         id="email"
@@ -282,13 +297,16 @@ export default function CheckoutPage() {
                         }
                         placeholder="example@email.com"
                         className={`transition-colors ${
-                          orderData.email ? "border-green-500 bg-green-50/50" : ""
+                          orderData.email
+                            ? "border-green-500 bg-green-50/50"
+                            : ""
                         }`}
                       />
                     </div>
                     <div className="flex justify-between items-center pt-4">
                       <p className="text-xs text-muted-foreground">
-                        Các trường có dấu <span className="text-destructive">*</span> là bắt buộc
+                        Các trường có dấu{" "}
+                        <span className="text-destructive">*</span> là bắt buộc
                       </p>
                       <Button
                         onClick={() => setStep(2)}
@@ -318,7 +336,8 @@ export default function CheckoutPage() {
                   <CardContent className="space-y-4 md:space-y-6">
                     <div className="space-y-2">
                       <Label htmlFor="address" className="text-sm font-medium">
-                        Địa chỉ cụ thể <span className="text-destructive">*</span>
+                        Địa chỉ cụ thể{" "}
+                        <span className="text-destructive">*</span>
                       </Label>
                       <Input
                         id="address"
@@ -328,7 +347,9 @@ export default function CheckoutPage() {
                         }
                         placeholder="Số nhà, tên đường (VD: 123 Đường ABC, Khu vực XYZ)"
                         className={`transition-colors ${
-                          orderData.address ? "border-green-500 bg-green-50/50" : ""
+                          orderData.address
+                            ? "border-green-500 bg-green-50/50"
+                            : ""
                         }`}
                       />
                     </div>
@@ -345,12 +366,17 @@ export default function CheckoutPage() {
                           }
                           placeholder="Phường/Xã"
                           className={`transition-colors ${
-                            orderData.ward ? "border-green-500 bg-green-50/50" : ""
+                            orderData.ward
+                              ? "border-green-500 bg-green-50/50"
+                              : ""
                           }`}
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="district" className="text-sm font-medium">
+                        <Label
+                          htmlFor="district"
+                          className="text-sm font-medium"
+                        >
                           Quận/Huyện <span className="text-destructive">*</span>
                         </Label>
                         <Input
@@ -361,13 +387,16 @@ export default function CheckoutPage() {
                           }
                           placeholder="Quận/Huyện"
                           className={`transition-colors ${
-                            orderData.district ? "border-green-500 bg-green-50/50" : ""
+                            orderData.district
+                              ? "border-green-500 bg-green-50/50"
+                              : ""
                           }`}
                         />
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="city" className="text-sm font-medium">
-                          Tỉnh/Thành phố <span className="text-destructive">*</span>
+                          Tỉnh/Thành phố{" "}
+                          <span className="text-destructive">*</span>
                         </Label>
                         <Select
                           value={orderData.city}
@@ -375,9 +404,13 @@ export default function CheckoutPage() {
                             handleInputChange("city", value)
                           }
                         >
-                          <SelectTrigger className={`w-full transition-colors ${
-                            orderData.city ? "border-green-500 bg-green-50/50" : ""
-                          }`}>
+                          <SelectTrigger
+                            className={`w-full transition-colors ${
+                              orderData.city
+                                ? "border-green-500 bg-green-50/50"
+                                : ""
+                            }`}
+                          >
                             <SelectValue placeholder="Chọn tỉnh/thành phố" />
                           </SelectTrigger>
                           <SelectContent>
@@ -386,7 +419,9 @@ export default function CheckoutPage() {
                             <SelectItem value="danang">Đà Nẵng</SelectItem>
                             <SelectItem value="haiphong">Hải Phòng</SelectItem>
                             <SelectItem value="cantho">Cần Thơ</SelectItem>
-                            <SelectItem value="other">Tỉnh/Thành khác</SelectItem>
+                            <SelectItem value="other">
+                              Tỉnh/Thành khác
+                            </SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
@@ -410,8 +445,8 @@ export default function CheckoutPage() {
                       </p>
                     </div>
                     <div className="flex justify-between items-center pt-4">
-                      <Button 
-                        variant="outline" 
+                      <Button
+                        variant="outline"
                         onClick={() => setStep(1)}
                         className="px-6"
                       >
@@ -451,11 +486,13 @@ export default function CheckoutPage() {
                       }
                       className="space-y-3"
                     >
-                      <div className={`relative flex items-center space-x-3 p-4 border-2 rounded-xl transition-all cursor-pointer hover:bg-muted/50 ${
-                        orderData.paymentMethod === "cod" 
-                          ? "border-primary bg-primary/5 shadow-sm" 
-                          : "border-border hover:border-muted-foreground/30"
-                      }`}>
+                      <div
+                        className={`relative flex items-center space-x-3 p-4 border-2 rounded-xl transition-all cursor-pointer hover:bg-muted/50 ${
+                          orderData.paymentMethod === "cod"
+                            ? "border-primary bg-primary/5 shadow-sm"
+                            : "border-border hover:border-muted-foreground/30"
+                        }`}
+                      >
                         <RadioGroupItem value="cod" id="cod" className="mt-1" />
                         <Label htmlFor="cod" className="flex-1 cursor-pointer">
                           <div className="flex items-start gap-3">
@@ -467,7 +504,8 @@ export default function CheckoutPage() {
                                 Thanh toán khi nhận hàng (COD)
                               </p>
                               <p className="text-sm text-muted-foreground">
-                                Thanh toán bằng tiền mặt khi nhận cá. An toàn và thuận tiện.
+                                Thanh toán bằng tiền mặt khi nhận cá. An toàn và
+                                thuận tiện.
                               </p>
                               <div className="flex items-center gap-2 text-xs text-green-600">
                                 <CheckCircle className="h-3 w-3" />
@@ -477,12 +515,18 @@ export default function CheckoutPage() {
                           </div>
                         </Label>
                       </div>
-                      <div className={`relative flex items-center space-x-3 p-4 border-2 rounded-xl transition-all cursor-pointer hover:bg-muted/50 ${
-                        orderData.paymentMethod === "bank" 
-                          ? "border-primary bg-primary/5 shadow-sm" 
-                          : "border-border hover:border-muted-foreground/30"
-                      }`}>
-                        <RadioGroupItem value="bank" id="bank" className="mt-1" />
+                      <div
+                        className={`relative flex items-center space-x-3 p-4 border-2 rounded-xl transition-all cursor-pointer hover:bg-muted/50 ${
+                          orderData.paymentMethod === "bank"
+                            ? "border-primary bg-primary/5 shadow-sm"
+                            : "border-border hover:border-muted-foreground/30"
+                        }`}
+                      >
+                        <RadioGroupItem
+                          value="bank"
+                          id="bank"
+                          className="mt-1"
+                        />
                         <Label htmlFor="bank" className="flex-1 cursor-pointer">
                           <div className="flex items-start gap-3">
                             <div className="p-2 rounded-lg bg-blue-100 text-blue-600">
@@ -493,7 +537,8 @@ export default function CheckoutPage() {
                                 Chuyển khoản ngân hàng
                               </p>
                               <p className="text-sm text-muted-foreground">
-                                Chuyển khoản trước khi giao hàng. Xử lý nhanh chóng.
+                                Chuyển khoản trước khi giao hàng. Xử lý nhanh
+                                chóng.
                               </p>
                               <div className="flex items-center gap-2 text-xs text-blue-600">
                                 <Shield className="h-3 w-3" />
@@ -565,8 +610,8 @@ export default function CheckoutPage() {
                     </div>
 
                     <div className="flex justify-between items-center pt-6 border-t">
-                      <Button 
-                        variant="outline" 
+                      <Button
+                        variant="outline"
                         onClick={() => setStep(2)}
                         className="px-6"
                         disabled={isSubmitting}
@@ -611,7 +656,10 @@ export default function CheckoutPage() {
                 <CardContent className="space-y-4 px-4">
                   <div className="space-y-3">
                     {items.map((item) => (
-                      <div key={item.id} className="flex gap-3 p-3 bg-muted/30 rounded-lg border border-border/50">
+                      <div
+                        key={item.id}
+                        className="flex gap-3 p-3 bg-muted/30 rounded-lg border border-border/50"
+                      >
                         <div className="relative w-14 h-14 rounded-lg overflow-hidden flex-shrink-0 bg-muted">
                           <Image
                             src={item.image || "/placeholder.svg"}
@@ -626,7 +674,10 @@ export default function CheckoutPage() {
                             {item.name}
                           </p>
                           <div className="flex items-center gap-2">
-                            <Badge variant="outline" className="text-xs px-1.5 py-0.5">
+                            <Badge
+                              variant="outline"
+                              className="text-xs px-1.5 py-0.5"
+                            >
                               {item.variety}
                             </Badge>
                           </div>
@@ -650,12 +701,20 @@ export default function CheckoutPage() {
 
                   <div className="space-y-3 p-3 bg-muted/20 rounded-lg">
                     <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">Tạm tính ({getTotalItems()} sản phẩm)</span>
-                      <span className="font-medium">{formatPrice(getTotalPrice())}</span>
+                      <span className="text-muted-foreground">
+                        Tạm tính ({getTotalItems()} sản phẩm)
+                      </span>
+                      <span className="font-medium">
+                        {formatPrice(getTotalPrice())}
+                      </span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">Phí vận chuyển</span>
-                      <span className="text-green-600 font-medium">Miễn phí</span>
+                      <span className="text-muted-foreground">
+                        Phí vận chuyển
+                      </span>
+                      <span className="text-green-600 font-medium">
+                        Miễn phí
+                      </span>
                     </div>
                     <div className="flex justify-between text-sm">
                       <span className="text-muted-foreground">Thuế VAT</span>

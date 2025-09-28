@@ -83,7 +83,7 @@ export default function ForgotPasswordPage() {
               {/* Card glow effect */}
               <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-accent/10 opacity-50"></div>
               <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent"></div>
-              
+
               <CardHeader className="text-center space-y-4 relative z-10">
                 <Link href="/" className="flex justify-center mb-1 group">
                   <div className="relative">
@@ -102,7 +102,8 @@ export default function ForgotPasswordPage() {
                     Email đã được gửi!
                   </CardTitle>
                   <CardDescription className="text-muted-foreground text-sm">
-                    Chúng tôi đã gửi hướng dẫn khôi phục mật khẩu đến email của bạn
+                    Chúng tôi đã gửi hướng dẫn khôi phục mật khẩu đến email của
+                    bạn
                   </CardDescription>
                 </div>
               </CardHeader>
@@ -111,13 +112,14 @@ export default function ForgotPasswordPage() {
                 <div className="space-y-4">
                   <div className="text-center p-4 bg-primary/5 rounded-lg border border-primary/20">
                     <p className="text-sm text-muted-foreground leading-relaxed">
-                      Vui lòng kiểm tra hộp thư và làm theo hướng dẫn. Không nhận được email? 
-                      Kiểm tra thư mục spam hoặc thử lại sau vài phút.
+                      Vui lòng kiểm tra hộp thư và làm theo hướng dẫn. Không
+                      nhận được email? Kiểm tra thư mục spam hoặc thử lại sau
+                      vài phút.
                     </p>
                   </div>
 
-                  <Button 
-                    asChild 
+                  <Button
+                    asChild
                     className="w-full bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-primary-foreground font-semibold py-2.5 h-10 transition-all duration-300 hover:scale-[1.02] hover:shadow-lg hover:shadow-primary/25 relative overflow-hidden group"
                   >
                     <Link href="/login">
@@ -127,7 +129,7 @@ export default function ForgotPasswordPage() {
                   </Button>
                 </div>
               </CardContent>
-              
+
               {/* Bottom highlight */}
               <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-secondary/30 to-transparent"></div>
             </Card>
@@ -182,7 +184,8 @@ export default function ForgotPasswordPage() {
                   Khôi phục tài khoản
                 </h1>
                 <p className="text-lg text-white/90 text-pretty leading-relaxed">
-                  Chúng tôi luôn sẵn sàng hỗ trợ bạn truy cập lại tài khoản ZenKoi một cách an toàn
+                  Chúng tôi luôn sẵn sàng hỗ trợ bạn truy cập lại tài khoản
+                  ZenKoi một cách an toàn
                 </p>
 
                 {/* Features showcase */}
@@ -276,7 +279,7 @@ export default function ForgotPasswordPage() {
             {/* Card glow effect */}
             <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-accent/10 opacity-50"></div>
             <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent"></div>
-            
+
             <CardHeader className="text-center space-y-4 relative z-10">
               <Link href="/" className="flex justify-center mb-1 group">
                 <div className="relative">
@@ -303,7 +306,10 @@ export default function ForgotPasswordPage() {
             <CardContent className="pt-1 relative z-10">
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="email" className="text-foreground font-medium text-sm">
+                  <Label
+                    htmlFor="email"
+                    className="text-foreground font-medium text-sm"
+                  >
                     Địa chỉ Email
                   </Label>
                   <Input
@@ -346,7 +352,9 @@ export default function ForgotPasswordPage() {
                   <div className="w-full border-t border-border/40"></div>
                 </div>
                 <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-card px-3 text-muted-foreground/70 font-medium">hoặc</span>
+                  <span className="bg-card px-3 text-muted-foreground/70 font-medium">
+                    hoặc
+                  </span>
                 </div>
               </div>
 
@@ -367,12 +375,12 @@ export default function ForgotPasswordPage() {
                     className="text-primary hover:text-accent font-medium transition-all duration-200 hover:underline"
                   >
                     tạo tài khoản mới
-                  </Link>
-                  {" "}nếu chưa có tài khoản
+                  </Link>{" "}
+                  nếu chưa có tài khoản
                 </p>
               </div>
             </CardContent>
-            
+
             {/* Bottom highlight */}
             <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-secondary/30 to-transparent"></div>
           </Card>
@@ -427,7 +435,8 @@ export default function ForgotPasswordPage() {
                 Khôi phục mật khẩu dễ dàng
               </h1>
               <p className="text-lg text-white/90 text-pretty leading-relaxed">
-                Đừng lo lắng! Chúng tôi sẽ giúp bạn lấy lại quyền truy cập vào tài khoản ZenKoi một cách nhanh chóng và an toàn
+                Đừng lo lắng! Chúng tôi sẽ giúp bạn lấy lại quyền truy cập vào
+                tài khoản ZenKoi một cách nhanh chóng và an toàn
               </p>
 
               {/* Features showcase */}

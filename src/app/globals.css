@@ -13,7 +13,9 @@
   --primary: oklch(0.35 0.12 240); /* #0A3D62 - deep navy blue primary */
   --primary-foreground: oklch(1 0 0); /* #ffffff - text on primary */
   --secondary: oklch(0.72 0.15 40); /* #D4AF37 - gold secondary for elegance */
-  --secondary-foreground: oklch(0.15 0 0); /* #1a1a1a - dark text on secondary */
+  --secondary-foreground: oklch(
+    0.15 0 0
+  ); /* #1a1a1a - dark text on secondary */
   --muted: oklch(0.98 0 0); /* #f9fafb - muted sections */
   --muted-foreground: oklch(0.35 0 0); /* #4b5563 - muted text */
   --accent: oklch(0.35 0.12 240); /* #0A3D62 - deep navy blue primary */
@@ -122,13 +124,13 @@
   body {
     @apply bg-background text-foreground;
   }
-  
+
   /* Hide scrollbar but keep functionality */
   * {
     scrollbar-width: none; /* Firefox */
     -ms-overflow-style: none; /* Internet Explorer 10+ */
   }
-  
+
   *::-webkit-scrollbar {
     display: none; /* Safari and Chrome */
   }

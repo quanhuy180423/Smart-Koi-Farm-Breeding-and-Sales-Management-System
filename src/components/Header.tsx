@@ -18,7 +18,7 @@ export function Header() {
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as Node;
-      
+
       // Don't close if clicking on the menu button or menu content
       if (
         (mobileMenuRef.current && mobileMenuRef.current.contains(target)) ||
@@ -26,16 +26,16 @@ export function Header() {
       ) {
         return;
       }
-      
+
       setIsMenuOpen(false);
     };
 
     if (isMenuOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener("mousedown", handleClickOutside);
     }
 
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [isMenuOpen]);
 
@@ -47,11 +47,11 @@ export function Header() {
           <Link href="/" className="flex items-center space-x-3 group">
             <div className="relative">
               <div className="absolute inset-0 bg-primary/20 rounded-full blur-xl group-hover:bg-primary/30 transition-all duration-300"></div>
-              <Image 
-                src={logo} 
-                alt="ZenKoi Logo" 
-                width={64} 
-                height={64} 
+              <Image
+                src={logo}
+                alt="ZenKoi Logo"
+                width={64}
+                height={64}
                 className="w-16 h-16 object-contain relative z-10 group-hover:scale-105 transition-transform duration-300"
               />
             </div>
@@ -59,7 +59,9 @@ export function Header() {
               <h1 className="font-bold text-2xl bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
                 ZenKoi
               </h1>
-              <p className="text-xs text-muted-foreground leading-tight">Koi Farm Premium</p>
+              <p className="text-xs text-muted-foreground leading-tight">
+                Koi Farm Premium
+              </p>
             </div>
           </Link>
 
@@ -105,9 +107,7 @@ export function Header() {
             {/* Login Button - Desktop only */}
             <div className="hidden sm:block">
               <Link href="/login">
-                <Button 
-                  className="bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-primary-foreground font-medium px-6 py-2.5 h-auto transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-primary/25 relative overflow-hidden group rounded-xl cursor-pointer"
-                >
+                <Button className="bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-primary-foreground font-medium px-6 py-2.5 h-auto transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-primary/25 relative overflow-hidden group rounded-xl cursor-pointer">
                   <span className="relative z-10 flex items-center gap-2">
                     <User className="w-4 h-4" />
                     Đăng nhập
@@ -141,7 +141,10 @@ export function Header() {
 
         {/* Mobile Navigation */}
         {isMenuOpen && (
-          <div ref={mobileMenuRef} className="lg:hidden border-t border-border/40 bg-background/98 backdrop-blur-sm">
+          <div
+            ref={mobileMenuRef}
+            className="lg:hidden border-t border-border/40 bg-background/98 backdrop-blur-sm"
+          >
             <div className="pb-4">
               <nav className="flex flex-col space-y-1">
                 <Link
@@ -173,19 +176,27 @@ export function Header() {
                   Liên hệ
                 </Link>
               </nav>
-              
+
               {/* Mobile divider */}
-              <Separator className="mb-2"/>
-              
+              <Separator className="mb-2" />
+
               {/* Mobile action buttons */}
               <div className="px-4 flex flex-row gap-3">
-                <Link href="/login" onClick={() => setIsMenuOpen(false)} className="flex-1">
+                <Link
+                  href="/login"
+                  onClick={() => setIsMenuOpen(false)}
+                  className="flex-1"
+                >
                   <Button className="w-full justify-center bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-primary-foreground font-medium">
                     <User className="w-4 h-4 mr-2" />
                     Đăng nhập
                   </Button>
                 </Link>
-                <Link href="/register" onClick={() => setIsMenuOpen(false)} className="flex-1">
+                <Link
+                  href="/register"
+                  onClick={() => setIsMenuOpen(false)}
+                  className="flex-1"
+                >
                   <Button variant="outline" className="w-full justify-center">
                     Đăng ký
                   </Button>

@@ -38,7 +38,9 @@ export default function CartPage() {
           <div className="bg-muted/50 rounded-full w-24 h-24 md:w-32 md:h-32 flex items-center justify-center mx-auto mb-4 md:mb-6">
             <ShoppingCart className="h-12 w-12 md:h-16 md:w-16 text-muted-foreground" />
           </div>
-          <h1 className="text-2xl md:text-3xl font-bold mb-3 md:mb-4">Giỏ hàng trống</h1>
+          <h1 className="text-2xl md:text-3xl font-bold mb-3 md:mb-4">
+            Giỏ hàng trống
+          </h1>
           <p className="text-muted-foreground mb-6 md:mb-8 text-base md:text-lg px-4">
             Bạn chưa có sản phẩm nào trong giỏ hàng. Hãy khám phá bộ sưu tập cá
             Koi tuyệt đẹp của chúng tôi.
@@ -51,7 +53,12 @@ export default function CartPage() {
               </Link>
             </Button>
             <div>
-              <Button asChild variant="outline" size="lg" className="w-full md:w-auto md:px-11">
+              <Button
+                asChild
+                variant="outline"
+                size="lg"
+                className="w-full md:w-auto md:px-11"
+              >
                 <Link href="/">
                   <ArrowLeft className="mr-2 h-4 w-4" />
                   Về trang chủ
@@ -74,7 +81,9 @@ export default function CartPage() {
           </Button>
           <div>
             <h1 className="text-2xl md:text-3xl font-bold">Giỏ hàng</h1>
-            <p className="text-sm md:text-base text-muted-foreground">{getTotalItems()} sản phẩm</p>
+            <p className="text-sm md:text-base text-muted-foreground">
+              {getTotalItems()} sản phẩm
+            </p>
           </div>
         </div>
 
@@ -95,7 +104,9 @@ export default function CartPage() {
                     <div className="flex-1 min-w-0 space-y-3 sm:space-y-2">
                       <div className="flex justify-between items-start">
                         <div className="flex-1 pr-2">
-                          <h3 className="font-semibold text-lg sm:text-base md:text-lg line-clamp-2">{item.name}</h3>
+                          <h3 className="font-semibold text-lg sm:text-base md:text-lg line-clamp-2">
+                            {item.name}
+                          </h3>
                           <Badge variant="secondary" className="mt-1 text-xs">
                             {item.variety}
                           </Badge>
@@ -122,7 +133,7 @@ export default function CartPage() {
                             onClick={() =>
                               updateQuantity(
                                 item.id,
-                                Math.max(1, item.quantity - 1)
+                                Math.max(1, item.quantity - 1),
                               )
                             }
                             disabled={item.quantity <= 1}
@@ -139,7 +150,7 @@ export default function CartPage() {
                             onClick={() =>
                               updateQuantity(
                                 item.id,
-                                Math.min(10, item.quantity + 1)
+                                Math.min(10, item.quantity + 1),
                               )
                             }
                             disabled={item.quantity >= 10}
@@ -177,13 +188,17 @@ export default function CartPage() {
           <div className="lg:col-span-1 mt-6 lg:mt-0">
             <Card className="lg:sticky lg:top-4">
               <CardHeader className="pb-3 md:pb-4">
-                <CardTitle className="text-lg md:text-xl">Tóm tắt đơn hàng</CardTitle>
+                <CardTitle className="text-lg md:text-xl">
+                  Tóm tắt đơn hàng
+                </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4 md:space-y-5">
                 <div className="space-y-2 md:space-y-3">
                   <div className="flex justify-between text-sm md:text-base">
                     <span>Tạm tính ({getTotalItems()} sản phẩm)</span>
-                    <span className="font-medium">{formatCurrency(getTotalPrice())}</span>
+                    <span className="font-medium">
+                      {formatCurrency(getTotalPrice())}
+                    </span>
                   </div>
                   <div className="flex justify-between text-sm md:text-base">
                     <span>Phí vận chuyển</span>

@@ -79,9 +79,7 @@ export default function CheckoutFailurePage() {
                   </div>
                   <div>
                     <p className="text-muted-foreground">Thời gian:</p>
-                    <p className="font-medium">
-                      {errorTime || "Đang tải..."}
-                    </p>
+                    <p className="font-medium">{errorTime || "Đang tải..."}</p>
                   </div>
                 </div>
                 <div className="mt-3">

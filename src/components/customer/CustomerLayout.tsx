@@ -24,10 +24,10 @@ export function CustomerLayout({ children }: CustomerLayoutProps) {
             <div className="relative">
               <div className="absolute inset-0 bg-primary/20 rounded-full blur-xl group-hover:bg-primary/30 transition-all duration-300"></div>
               <Image
-                src={logo} 
-                alt="ZenKoi Logo" 
-                width={44} 
-                height={44} 
+                src={logo}
+                alt="ZenKoi Logo"
+                width={44}
+                height={44}
                 className="w-11 h-11 object-contain relative z-10 group-hover:scale-105 transition-transform duration-300"
               />
             </div>
@@ -35,12 +35,19 @@ export function CustomerLayout({ children }: CustomerLayoutProps) {
               <h1 className="font-bold text-lg bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
                 ZenKoi
               </h1>
-              <p className="text-xs text-muted-foreground leading-tight">Koi Farm Premium</p>
+              <p className="text-xs text-muted-foreground leading-tight">
+                Koi Farm Premium
+              </p>
             </div>
           </Link>
-          
+
           <div className="flex items-center gap-4">
-            <Button asChild variant="ghost" size="icon" className="relative rounded-full">
+            <Button
+              asChild
+              variant="ghost"
+              size="icon"
+              className="relative rounded-full"
+            >
               <Link href="/profile/notifications">
                 <Bell className="h-5 w-5" />
                 <Badge className="absolute -top-2 -right-2 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs bg-red-500 text-white border-0">
@@ -64,7 +71,12 @@ export function CustomerLayout({ children }: CustomerLayoutProps) {
               </div>
             </div>
 
-            <Button asChild variant="ghost" size="icon" className="text-muted-foreground hover:text-destructive rounded-full hover:bg-destructive/20">
+            <Button
+              asChild
+              variant="ghost"
+              size="icon"
+              className="text-muted-foreground hover:text-destructive rounded-full hover:bg-destructive/20"
+            >
               <Link href="/login">
                 <LogOut className="h-5 w-5" />
               </Link>
@@ -76,9 +88,7 @@ export function CustomerLayout({ children }: CustomerLayoutProps) {
       <div className="flex pt-16">
         <CustomerSidebar className="fixed left-0 top-16 z-30 h-[calc(100vh-4rem)]" />
         <div className="flex-1 lg:ml-80">
-          <div className="container mx-auto px-4 py-8 lg:px-8">
-            {children}
-          </div>
+          <div className="container mx-auto px-4 py-8 lg:px-8">{children}</div>
         </div>
       </div>
     </div>

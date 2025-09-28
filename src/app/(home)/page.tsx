@@ -23,20 +23,20 @@ import Image from "next/image";
 import React, { useEffect, useState } from "react";
 
 export default function HomePage() {
-  const [api, setApi] = useState<CarouselApi>()
-  const [isHovered, setIsHovered] = useState(false)
+  const [api, setApi] = useState<CarouselApi>();
+  const [isHovered, setIsHovered] = useState(false);
 
   useEffect(() => {
     if (!api || isHovered) {
-      return
+      return;
     }
 
     const interval = setInterval(() => {
-      api.scrollNext()
-    }, 4000) // 4 seconds
+      api.scrollNext();
+    }, 4000); // 4 seconds
 
-    return () => clearInterval(interval)
-  }, [api, isHovered])
+    return () => clearInterval(interval);
+  }, [api, isHovered]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -83,13 +83,17 @@ export default function HomePage() {
               </div>
               <div className="flex items-center justify-between sm:space-x-8 pt-4">
                 <div className="text-center">
-                  <div className="text-xl sm:text-2xl font-bold text-foreground">500+</div>
+                  <div className="text-xl sm:text-2xl font-bold text-foreground">
+                    500+
+                  </div>
                   <div className="text-xs sm:text-sm text-muted-foreground">
                     Cá Koi chất lượng
                   </div>
                 </div>
                 <div className="text-center">
-                  <div className="text-xl sm:text-2xl font-bold text-foreground">15+</div>
+                  <div className="text-xl sm:text-2xl font-bold text-foreground">
+                    15+
+                  </div>
                   <div className="text-xs sm:text-sm text-muted-foreground">
                     Năm kinh nghiệm
                   </div>
@@ -249,7 +253,10 @@ export default function HomePage() {
                     size: "40cm",
                   },
                 ].map((koi, index) => (
-                  <CarouselItem key={index} className="pl-2 md:pl-4 md:basis-1/2 lg:basis-1/3">
+                  <CarouselItem
+                    key={index}
+                    className="pl-2 md:pl-4 md:basis-1/2 lg:basis-1/3"
+                  >
                     <Card className="border-border hover:shadow-lg transition-all group cursor-pointer pt-0">
                       <div className="aspect-square overflow-hidden rounded-t-lg">
                         <Image
@@ -263,7 +270,9 @@ export default function HomePage() {
                       <CardHeader>
                         <div className="flex justify-between items-start">
                           <div>
-                            <CardTitle className="text-lg">{koi.name}</CardTitle>
+                            <CardTitle className="text-lg">
+                              {koi.name}
+                            </CardTitle>
                             <CardDescription>
                               Tuổi: {koi.age} • Kích thước: {koi.size}
                             </CardDescription>
@@ -409,7 +418,6 @@ export default function HomePage() {
           </div>
         </div>
       </section>
-
     </div>
   );
 }

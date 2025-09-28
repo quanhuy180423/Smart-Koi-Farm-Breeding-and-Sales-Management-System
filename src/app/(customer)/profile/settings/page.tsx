@@ -7,15 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
-import { 
-  Bell, 
-  Shield, 
-  Eye, 
-  Mail, 
-  Save,
-  Trash2,
-  Download
-} from "lucide-react";
+import { Bell, Shield, Eye, Mail, Save, Trash2, Download } from "lucide-react";
 import CustomerLayout from "@/components/customer/CustomerLayout";
 
 export default function SettingsPage() {
@@ -35,11 +27,11 @@ export default function SettingsPage() {
   });
 
   const handleNotificationChange = (key: string, value: boolean) => {
-    setNotifications(prev => ({ ...prev, [key]: value }));
+    setNotifications((prev) => ({ ...prev, [key]: value }));
   };
 
   const handlePrivacyChange = (key: string, value: boolean) => {
-    setPrivacy(prev => ({ ...prev, [key]: value }));
+    setPrivacy((prev) => ({ ...prev, [key]: value }));
   };
 
   return (
@@ -67,40 +59,52 @@ export default function SettingsPage() {
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <Label className="text-base font-medium">Email thông báo</Label>
+                    <Label className="text-base font-medium">
+                      Email thông báo
+                    </Label>
                     <p className="text-sm text-muted-foreground">
                       Nhận thông báo qua email về đơn hàng và cập nhật
                     </p>
                   </div>
                   <Switch
                     checked={notifications.email}
-                    onCheckedChange={(checked: boolean) => handleNotificationChange('email', checked)}
+                    onCheckedChange={(checked: boolean) =>
+                      handleNotificationChange("email", checked)
+                    }
                   />
                 </div>
 
                 <div className="flex items-center justify-between">
                   <div>
-                    <Label className="text-base font-medium">SMS thông báo</Label>
+                    <Label className="text-base font-medium">
+                      SMS thông báo
+                    </Label>
                     <p className="text-sm text-muted-foreground">
                       Nhận tin nhắn SMS về trạng thái đơn hàng
                     </p>
                   </div>
                   <Switch
                     checked={notifications.sms}
-                    onCheckedChange={(checked: boolean) => handleNotificationChange('sms', checked)}
+                    onCheckedChange={(checked: boolean) =>
+                      handleNotificationChange("sms", checked)
+                    }
                   />
                 </div>
 
                 <div className="flex items-center justify-between">
                   <div>
-                    <Label className="text-base font-medium">Thông báo đẩy</Label>
+                    <Label className="text-base font-medium">
+                      Thông báo đẩy
+                    </Label>
                     <p className="text-sm text-muted-foreground">
                       Nhận thông báo đẩy trên trình duyệt
                     </p>
                   </div>
                   <Switch
                     checked={notifications.push}
-                    onCheckedChange={(checked: boolean) => handleNotificationChange('push', checked)}
+                    onCheckedChange={(checked: boolean) =>
+                      handleNotificationChange("push", checked)
+                    }
                   />
                 </div>
 
@@ -108,27 +112,35 @@ export default function SettingsPage() {
 
                 <div className="flex items-center justify-between">
                   <div>
-                    <Label className="text-base font-medium">Cập nhật đơn hàng</Label>
+                    <Label className="text-base font-medium">
+                      Cập nhật đơn hàng
+                    </Label>
                     <p className="text-sm text-muted-foreground">
                       Thông báo về trạng thái giao hàng và thanh toán
                     </p>
                   </div>
                   <Switch
                     checked={notifications.orderUpdates}
-                    onCheckedChange={(checked: boolean) => handleNotificationChange('orderUpdates', checked)}
+                    onCheckedChange={(checked: boolean) =>
+                      handleNotificationChange("orderUpdates", checked)
+                    }
                   />
                 </div>
 
                 <div className="flex items-center justify-between">
                   <div>
-                    <Label className="text-base font-medium">Khuyến mãi và ưu đãi</Label>
+                    <Label className="text-base font-medium">
+                      Khuyến mãi và ưu đãi
+                    </Label>
                     <p className="text-sm text-muted-foreground">
                       Nhận thông tin về các chương trình khuyến mãi
                     </p>
                   </div>
                   <Switch
                     checked={notifications.promotions}
-                    onCheckedChange={(checked: boolean) => handleNotificationChange('promotions', checked)}
+                    onCheckedChange={(checked: boolean) =>
+                      handleNotificationChange("promotions", checked)
+                    }
                   />
                 </div>
 
@@ -141,7 +153,9 @@ export default function SettingsPage() {
                   </div>
                   <Switch
                     checked={notifications.marketing}
-                    onCheckedChange={(checked: boolean) => handleNotificationChange('marketing', checked)}
+                    onCheckedChange={(checked: boolean) =>
+                      handleNotificationChange("marketing", checked)
+                    }
                   />
                 </div>
               </div>
@@ -165,27 +179,35 @@ export default function SettingsPage() {
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <Label className="text-base font-medium">Hiển thị lịch sử mua hàng</Label>
+                    <Label className="text-base font-medium">
+                      Hiển thị lịch sử mua hàng
+                    </Label>
                     <p className="text-sm text-muted-foreground">
                       Cho phép hiển thị lịch sử mua hàng trong hồ sơ công khai
                     </p>
                   </div>
                   <Switch
                     checked={privacy.showPurchases}
-                    onCheckedChange={(checked: boolean) => handlePrivacyChange('showPurchases', checked)}
+                    onCheckedChange={(checked: boolean) =>
+                      handlePrivacyChange("showPurchases", checked)
+                    }
                   />
                 </div>
 
                 <div className="flex items-center justify-between">
                   <div>
-                    <Label className="text-base font-medium">Cho phép liên hệ</Label>
+                    <Label className="text-base font-medium">
+                      Cho phép liên hệ
+                    </Label>
                     <p className="text-sm text-muted-foreground">
                       Cho phép khách hàng khác liên hệ với bạn qua hệ thống
                     </p>
                   </div>
                   <Switch
                     checked={privacy.allowContact}
-                    onCheckedChange={(checked: boolean) => handlePrivacyChange('allowContact', checked)}
+                    onCheckedChange={(checked: boolean) =>
+                      handlePrivacyChange("allowContact", checked)
+                    }
                   />
                 </div>
               </div>
@@ -287,7 +309,9 @@ export default function SettingsPage() {
             <CardContent className="space-y-4">
               <div className="flex items-center justify-between p-4 border rounded-lg">
                 <div>
-                  <Label className="text-base font-medium">Tải xuống dữ liệu</Label>
+                  <Label className="text-base font-medium">
+                    Tải xuống dữ liệu
+                  </Label>
                   <p className="text-sm text-muted-foreground">
                     Tải xuống bản sao tất cả dữ liệu cá nhân của bạn
                   </p>
@@ -300,7 +324,9 @@ export default function SettingsPage() {
 
               <div className="flex items-center justify-between p-4 border rounded-lg border-destructive/20">
                 <div>
-                  <Label className="text-base font-medium text-destructive">Xóa tài khoản</Label>
+                  <Label className="text-base font-medium text-destructive">
+                    Xóa tài khoản
+                  </Label>
                   <p className="text-sm text-muted-foreground">
                     Xóa vĩnh viễn tài khoản và tất cả dữ liệu liên quan
                   </p>

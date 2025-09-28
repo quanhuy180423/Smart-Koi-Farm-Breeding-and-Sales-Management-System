@@ -9,24 +9,24 @@ interface LoadingProps {
   text?: string;
 }
 
-const Loading: React.FC<LoadingProps> = ({ 
-  size = 80, 
-  color = "#0A3D62", 
+const Loading: React.FC<LoadingProps> = ({
+  size = 80,
+  color = "#0A3D62",
   className,
-  text = "Đang tải..."
+  text = "Đang tải...",
 }) => {
   return (
-    <div className={cn(
-      "flex flex-col items-center justify-center min-h-[200px] space-y-4",
-      className
-    )}>
+    <div
+      className={cn(
+        "flex flex-col items-center justify-center min-h-[200px] space-y-4",
+        className,
+      )}
+    >
       <div className="animate-spin-slow">
         <FishSvg size={size} color={color} />
       </div>
       {text && (
-        <p className="text-sm text-muted-foreground animate-pulse">
-          {text}
-        </p>
+        <p className="text-sm text-muted-foreground animate-pulse">{text}</p>
       )}
     </div>
   );
@@ -51,10 +51,10 @@ const LoadingSection: React.FC<LoadingProps> = (props) => {
 };
 
 // Loading spinner only (no text)
-const LoadingSpinner: React.FC<Omit<LoadingProps, 'text'>> = ({ 
-  size = 24, 
-  color = "#0A3D62", 
-  className 
+const LoadingSpinner: React.FC<Omit<LoadingProps, "text">> = ({
+  size = 24,
+  color = "#0A3D62",
+  className,
 }) => {
   return (
     <div className={cn("animate-spin-slow", className)}>
