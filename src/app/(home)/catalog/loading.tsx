@@ -4,7 +4,7 @@ export default function Loading() {
   return (
     <div className="container mx-auto px-4 py-8">
       <LoadingSection 
-        text="Đang tải lịch sử đơn hàng..." 
+        text="Đang tải danh mục cá Koi..." 
         size={80}
         color="#0A3D62"
       />

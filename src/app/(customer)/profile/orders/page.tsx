@@ -29,11 +29,12 @@ import {
   CheckCircle,
   Clock,
   X,
-  ArrowLeft,
   Star,
 } from "lucide-react";
-import Link from "next/link";
 import Image from "next/image";
+import { formatCurrency } from "@/lib/utils/numbers/formatCurrency";
+import { formatDate } from "@/lib/utils/dates/formatDate";
+import CustomerLayout from "@/components/customer/CustomerLayout";
 
 // Type definitions
 interface OrderItem {
@@ -86,7 +87,17 @@ const mockOrders: Order[] = [
         age: "3 năm",
         price: 25000000,
         quantity: 1,
-        image: "/beautiful-sanke-koi-fish-with-red-white-black-patt.jpg",
+        image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/attachments/gen-images/public/beautiful-japanese-koi-fish-swimming-in-clear-pond-1MrDrpINIJ33x6iP0z7Xz4hMlnVc50.jpg",
+      },
+      {
+        id: "2",
+        name: "Kohaku Premium",
+        variety: "Kohaku",
+        size: "35cm",
+        age: "2 năm",
+        price: 15000000,
+        quantity: 1,
+        image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/attachments/gen-images/public/beautiful-red-and-white-kohaku-koi-fish-shXq5nIYD8xv7a5mdkJBQJJ0llXM2v.jpg",
       },
     ],
     shipping: {
@@ -113,7 +124,7 @@ const mockOrders: Order[] = [
         age: "2 năm",
         price: 15000000,
         quantity: 1,
-        image: "/beautiful-red-and-white-kohaku-koi-fish.jpg",
+        image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/attachments/gen-images/public/beautiful-red-and-white-kohaku-koi-fish-shXq5nIYD8xv7a5mdkJBQJJ0llXM2v.jpg",
       },
       {
         id: "3",
@@ -123,7 +134,7 @@ const mockOrders: Order[] = [
         age: "2.5 năm",
         price: 20000000,
         quantity: 1,
-        image: "/beautiful-showa-koi-fish-black-red-white-pattern.jpg",
+        image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/attachments/gen-images/public/beautiful-platinum-ogon-koi-fish-metallic-silver-bNZw5PNFEYXbZMPAY0Zxrvlscb335x.jpg",
       },
     ],
     shipping: {
@@ -150,7 +161,7 @@ const mockOrders: Order[] = [
         age: "1.5 năm",
         price: 12000000,
         quantity: 1,
-        image: "/beautiful-tancho-koi-fish-with-red-circle-on-head.jpg",
+        image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/attachments/gen-images/public/beautiful-japanese-koi-fish-swimming-in-clear-pond-1MrDrpINIJ33x6iP0z7Xz4hMlnVc50.jpg",
       },
     ],
     shipping: {
@@ -177,7 +188,7 @@ const mockOrders: Order[] = [
         age: "2 năm",
         price: 8000000,
         quantity: 1,
-        image: "/beautiful-platinum-ogon-koi-fish-metallic-silver.jpg",
+        image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/attachments/gen-images/public/beautiful-platinum-ogon-koi-fish-metallic-silver-bNZw5PNFEYXbZMPAY0Zxrvlscb335x.jpg",
       },
     ],
     shipping: {
@@ -221,22 +232,6 @@ const statusConfig: Record<
 export default function OrdersPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
-  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
-
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat("vi-VN", {
-      style: "currency",
-      currency: "VND",
-    }).format(price);
-  };
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("vi-VN", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-  };
 
   const filteredOrders = mockOrders.filter((order) => {
     const matchesSearch = order.id
@@ -261,7 +256,7 @@ export default function OrdersPage() {
             <div>
               <CardTitle className="text-lg">Đơn hàng #{order.id}</CardTitle>
               <p className="text-sm text-muted-foreground">
-                {formatDate(order.date)}
+                {formatDate(order.date, "dd/MM/yyyy")}
               </p>
             </div>
             <Badge className={statusConfig[order.status].color}>
@@ -292,34 +287,34 @@ export default function OrdersPage() {
 
           <Separator />
 
-          <div className="flex justify-between items-center">
+          <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-3">
             <div>
               <p className="text-sm text-muted-foreground">Tổng tiền</p>
-              <p className="font-bold text-primary">
-                {formatPrice(order.total)}
+              <p className="font-bold text-lg md:text-base text-primary">
+                {formatCurrency(order.total)}
               </p>
             </div>
-            <div className="flex gap-2">
+            <div className="flex flex-col md:flex-row gap-2">
               <Dialog>
                 <DialogTrigger asChild>
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => setSelectedOrder(order)}
+                    className="w-full md:w-auto"
                   >
                     <Eye className="w-4 h-4 mr-1" />
                     Chi tiết
                   </Button>
                 </DialogTrigger>
-                <DialogContent className="max-w-4xl w-3xl max-h-[80vh] overflow-y-auto ">
+                <DialogContent className="max-w-4xl w-[95vw] md:w-3xl max-h-[90vh] overflow-y-auto p-4 md:p-6">
                   <DialogHeader>
-                    <DialogTitle>Chi tiết đơn hàng #{order.id}</DialogTitle>
+                    <DialogTitle className="text-lg md:text-xl">Chi tiết đơn hàng #{order.id}</DialogTitle>
                   </DialogHeader>
-                  {selectedOrder && <OrderDetails order={selectedOrder} />}
+                  <OrderDetails order={order} />
                 </DialogContent>
               </Dialog>
               {order.status === "delivered" && (
-                <Button size="sm">
+                <Button size="sm" className="w-full md:w-auto">
                   <Star className="w-4 h-4 mr-1" />
                   Đánh giá
                 </Button>
@@ -332,24 +327,24 @@ export default function OrdersPage() {
   };
 
   const OrderDetails = ({ order }: { order: Order }) => (
-    <div className="space-y-6">
-      <div className="grid grid-cols-2 gap-4 text-sm">
-        <div>
-          <p className="text-muted-foreground">Ngày đặt hàng</p>
-          <p className="font-medium">{formatDate(order.date)}</p>
+    <div className="space-y-4 md:space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4 text-sm">
+        <div className="p-3 bg-gray-50 rounded-lg">
+          <p className="text-muted-foreground text-xs">Ngày đặt hàng</p>
+          <p className="font-medium">{formatDate(order.date, "dd/MM/yyyy")}</p>
         </div>
-        <div>
-          <p className="text-muted-foreground">Trạng thái</p>
-          <Badge className={statusConfig[order.status].color}>
+        <div className="p-3 bg-gray-50 rounded-lg">
+          <p className="text-muted-foreground text-xs">Trạng thái</p>
+          <Badge className={`${statusConfig[order.status].color} mt-1`}>
             {statusConfig[order.status].label}
           </Badge>
         </div>
-        <div>
-          <p className="text-muted-foreground">Phương thức thanh toán</p>
-          <p className="font-medium">{order.payment.method}</p>
+        <div className="p-3 bg-gray-50 rounded-lg">
+          <p className="text-muted-foreground text-xs">Phương thức thanh toán</p>
+          <p className="font-medium text-sm">{order.payment.method}</p>
         </div>
-        <div>
-          <p className="text-muted-foreground">Mã vận đơn</p>
+        <div className="p-3 bg-gray-50 rounded-lg">
+          <p className="text-muted-foreground text-xs">Mã vận đơn</p>
           <p className="font-medium">
             {order.shipping.trackingNumber || "Chưa có"}
           </p>
@@ -359,30 +354,34 @@ export default function OrdersPage() {
       <Separator />
 
       <div>
-        <h4 className="font-semibold mb-3">Sản phẩm đã đặt</h4>
+        <h4 className="font-semibold mb-3 text-base">Sản phẩm đã đặt</h4>
         <div className="space-y-3">
           {order.items.map((item: OrderItem) => (
-            <div key={item.id} className="flex gap-3 p-3 border rounded-lg">
-              <div className="relative w-16 h-16 rounded-md overflow-hidden">
-                <Image
-                  src={item.image || "/placeholder.svg"}
-                  alt={item.name}
-                  fill
-                  className="object-cover"
-                />
-              </div>
-              <div className="flex-1">
-                <p className="font-medium">{item.name}</p>
-                <p className="text-sm text-muted-foreground">{item.variety}</p>
-                <p className="text-sm text-muted-foreground">
-                  {item.size} • {item.age}
-                </p>
-                <div className="flex justify-between items-center mt-2">
-                  <span className="text-sm">Số lượng: {item.quantity}</span>
-                  <span className="font-semibold">
-                    {formatPrice(item.price)}
-                  </span>
+            <div key={item.id} className="flex flex-col md:flex-row gap-3 p-3 border rounded-lg">
+              <div className="flex gap-3 md:contents">
+                <div className="relative w-16 h-16 md:w-20 md:h-20 rounded-md overflow-hidden flex-shrink-0">
+                  <Image
+                    src={item.image || "/placeholder.svg"}
+                    alt={item.name}
+                    fill
+                    className="object-cover"
+                  />
                 </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-medium text-sm md:text-base truncate">{item.name}</p>
+                  <p className="text-xs md:text-sm text-muted-foreground">{item.variety}</p>
+                  <p className="text-xs md:text-sm text-muted-foreground">
+                    {item.size} • {item.age}
+                  </p>
+                </div>
+              </div>
+              <div className="flex justify-between items-center md:flex-col md:items-end md:justify-center md:min-w-0 mt-2 md:mt-0">
+                <span className="text-xs md:text-sm text-muted-foreground">
+                  SL: {item.quantity}
+                </span>
+                <span className="font-semibold text-sm md:text-base text-primary">
+                  {formatCurrency(item.price)}
+                </span>
               </div>
             </div>
           ))}
@@ -391,39 +390,34 @@ export default function OrdersPage() {
 
       <Separator />
 
-      <div>
-        <h4 className="font-semibold mb-3">Địa chỉ giao hàng</h4>
-        <p className="text-sm">{order.shipping.address}</p>
+      <div className="p-4 bg-blue-50 rounded-lg">
+        <h4 className="font-semibold mb-2 text-sm md:text-base text-blue-800">Địa chỉ giao hàng</h4>
+        <p className="text-xs md:text-sm text-blue-700 leading-relaxed">{order.shipping.address}</p>
       </div>
 
       <Separator />
 
-      <div className="flex justify-between items-center font-bold text-lg">
-        <span>Tổng cộng:</span>
-        <span className="text-primary">{formatPrice(order.total)}</span>
+      <div className="flex justify-between items-center p-4 bg-primary/5 rounded-lg">
+        <span className="font-bold text-base md:text-lg">Tổng cộng:</span>
+        <span className="font-bold text-lg md:text-xl text-primary">{formatCurrency(order.total)}</span>
       </div>
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-8">
-        <div className="max-w-4xl mx-auto">
-          <div className="flex items-center gap-4 mb-8">
-            <Button asChild variant="ghost" size="sm">
-              <Link href="/profile">
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                Quay lại hồ sơ
-              </Link>
-            </Button>
-            <div>
-              <h1 className="text-3xl font-bold">Đơn hàng của tôi</h1>
-              <p className="text-muted-foreground">
-                Theo dõi và quản lý các đơn hàng
-              </p>
+    <CustomerLayout>
+      <div className="max-w-6xl mx-auto">
+        <div className="flex items-center gap-4 mb-8">
+          <div>
+            <h1 className="text-3xl font-bold">Đơn hàng của tôi</h1>
+            <p className="text-muted-foreground">
+              Theo dõi và quản lý các đơn hàng
+            </p>
             </div>
           </div>
 
+        {/* Desktop Tabs */}
+        <div className="hidden md:block">
           <Tabs defaultValue="all" className="space-y-6">
             <TabsList className="grid w-full grid-cols-5">
               <TabsTrigger value="all">
@@ -443,44 +437,10 @@ export default function OrdersPage() {
               </TabsTrigger>
             </TabsList>
 
-            {/* Search and Filter */}
-            <div className="flex flex-col sm:flex-row gap-4">
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-                <Input
-                  placeholder="Tìm kiếm theo mã đơn hàng..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-full sm:w-[200px]">
-                  <SelectValue placeholder="Lọc theo trạng thái" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Tất cả trạng thái</SelectItem>
-                  <SelectItem value="processing">Đang xử lý</SelectItem>
-                  <SelectItem value="shipping">Đang giao hàng</SelectItem>
-                  <SelectItem value="delivered">Đã giao hàng</SelectItem>
-                  <SelectItem value="cancelled">Đã hủy</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
             <TabsContent value="all" className="space-y-4">
-              {filteredOrders.length > 0 ? (
-                filteredOrders.map((order) => (
-                  <OrderCard key={order.id} order={order} />
-                ))
-              ) : (
-                <div className="text-center py-12">
-                  <Package className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                  <p className="text-muted-foreground">
-                    Không tìm thấy đơn hàng nào
-                  </p>
-                </div>
-              )}
+              {mockOrders.map((order) => (
+                <OrderCard key={order.id} order={order} />
+              ))}
             </TabsContent>
 
             <TabsContent value="processing" className="space-y-4">
@@ -508,7 +468,51 @@ export default function OrdersPage() {
             </TabsContent>
           </Tabs>
         </div>
+
+        {/* Mobile View */}
+        <div className="md:hidden space-y-6">
+          {/* Search and Filter */}
+          <div className="flex flex-col gap-4">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+              <Input
+                placeholder="Tìm kiếm theo mã đơn hàng..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10 rounded-xl border-2 border-border hover:border-primary/50 focus:border-primary transition-colors"
+              />
+            </div>
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="w-full rounded-xl border-2 border-border hover:border-primary/50 focus:border-primary transition-colors">
+                <SelectValue placeholder="Lọc theo trạng thái" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Tất cả trạng thái</SelectItem>
+                <SelectItem value="processing">Đang xử lý</SelectItem>
+                <SelectItem value="shipping">Đang giao hàng</SelectItem>
+                <SelectItem value="delivered">Đã giao hàng</SelectItem>
+                <SelectItem value="cancelled">Đã hủy</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* All Orders */}
+          <div className="space-y-4">
+            {filteredOrders.length > 0 ? (
+              filteredOrders.map((order) => (
+                <OrderCard key={order.id} order={order} />
+              ))
+            ) : (
+              <div className="text-center py-12">
+                <Package className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                <p className="text-muted-foreground">
+                  Không tìm thấy đơn hàng nào
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
-    </div>
+    </CustomerLayout>
   );
 }

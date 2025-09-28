@@ -1,0 +1,23 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://your-domain.com/sitemap.xml
+
+# Block admin routes
+Disallow: /admin/
+Disallow: /api/
+Disallow: /_next/
+Disallow: /.*
+
+# Allow images and static files
+Allow: /images/
+Allow: /assets/
+Allow: /*.css$
+Allow: /*.js$
+Allow: /*.png$
+Allow: /*.jpg$
+Allow: /*.jpeg$
+Allow: /*.gif$
+Allow: /*.svg$
+Allow: /*.webp$

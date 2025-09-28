@@ -1,0 +1,26 @@
+{
+  "name": "ZenKoi - Trang Trại Cá Koi Premium",
+  "short_name": "ZenKoi",
+  "description": "Hệ thống quản lý trang trại cá Koi thông minh và bán hàng chuyên nghiệp",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#1e40af",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/ZenKoi.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/ZenKoi.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["business", "lifestyle"],
+  "lang": "vi"
+}

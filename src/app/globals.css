@@ -10,33 +10,33 @@
   --card-foreground: oklch(0.35 0 0); /* #4b5563 - card text */
   --popover: oklch(1 0 0); /* #ffffff - popover background */
   --popover-foreground: oklch(0.35 0 0); /* #4b5563 - popover text */
-  --primary: oklch(0.55 0.15 200); /* #0891b2 - cyan for aquatic theme */
+  --primary: oklch(0.35 0.12 240); /* #0A3D62 - deep navy blue primary */
   --primary-foreground: oklch(1 0 0); /* #ffffff - text on primary */
-  --secondary: oklch(0.65 0.25 330); /* #ec4899 - pink accent */
-  --secondary-foreground: oklch(1 0 0); /* #ffffff - text on secondary */
+  --secondary: oklch(0.72 0.15 40); /* #D4AF37 - gold secondary for elegance */
+  --secondary-foreground: oklch(0.15 0 0); /* #1a1a1a - dark text on secondary */
   --muted: oklch(0.98 0 0); /* #f9fafb - muted sections */
   --muted-foreground: oklch(0.35 0 0); /* #4b5563 - muted text */
-  --accent: oklch(0.65 0.25 330); /* #ec4899 - accent highlights */
+  --accent: oklch(0.35 0.12 240); /* #0A3D62 - deep navy blue primary */
   --accent-foreground: oklch(1 0 0); /* #ffffff - text on accent */
   --destructive: oklch(0.5 0.25 15); /* #be123c - error color */
   --destructive-foreground: oklch(1 0 0); /* #ffffff - text on destructive */
   --border: oklch(0.92 0 0); /* #e5e7eb - border color */
   --input: oklch(1 0 0); /* #ffffff - input background */
-  --ring: oklch(0.55 0.15 200 / 0.5); /* Primary color with opacity for focus */
-  --chart-1: oklch(0.55 0.15 200); /* Primary cyan */
-  --chart-2: oklch(0.65 0.25 330); /* Accent pink */
-  --chart-3: oklch(0.65 0.2 40); /* Orange complement */
-  --chart-4: oklch(0.65 0.2 40); /* Orange complement */
+  --ring: oklch(0.35 0.12 240 / 0.5); /* Primary color with opacity for focus */
+  --chart-1: oklch(0.35 0.12 240); /* Primary navy */
+  --chart-2: oklch(0.72 0.15 40); /* Gold secondary */
+  --chart-3: oklch(0.55 0.18 200); /* Blue accent */
+  --chart-4: oklch(0.65 0.12 160); /* Teal complement */
   --chart-5: oklch(0.35 0 0); /* Dark gray */
   --radius: 0.5rem; /* Standard border radius */
   --sidebar: oklch(1 0 0);
   --sidebar-foreground: oklch(0.35 0 0);
   --sidebar-primary: oklch(0.98 0 0);
   --sidebar-primary-foreground: oklch(0.35 0 0);
-  --sidebar-accent: oklch(0.65 0.25 330);
+  --sidebar-accent: oklch(0.55 0.18 200);
   --sidebar-accent-foreground: oklch(1 0 0);
   --sidebar-border: oklch(0.92 0 0);
-  --sidebar-ring: oklch(0.55 0.15 200 / 0.5);
+  --sidebar-ring: oklch(0.35 0.12 240 / 0.5);
 }
 
 .dark {
@@ -46,32 +46,32 @@
   --card-foreground: oklch(0.985 0 0);
   --popover: oklch(0.145 0 0);
   --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.55 0.15 200);
+  --primary: oklch(0.45 0.15 240); /* Lighter navy for dark mode */
   --primary-foreground: oklch(1 0 0);
-  --secondary: oklch(0.65 0.25 330);
-  --secondary-foreground: oklch(1 0 0);
+  --secondary: oklch(0.75 0.18 40); /* Brighter gold for dark mode */
+  --secondary-foreground: oklch(0.15 0 0);
   --muted: oklch(0.269 0 0);
   --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.65 0.25 330);
+  --accent: oklch(0.65 0.22 200); /* Brighter blue accent for dark mode */
   --accent-foreground: oklch(1 0 0);
   --destructive: oklch(0.396 0.141 25.723);
   --destructive-foreground: oklch(0.637 0.237 25.331);
   --border: oklch(0.269 0 0);
   --input: oklch(0.269 0 0);
-  --ring: oklch(0.55 0.15 200 / 0.5);
-  --chart-1: oklch(0.55 0.15 200);
-  --chart-2: oklch(0.65 0.25 330);
-  --chart-3: oklch(0.65 0.2 40);
-  --chart-4: oklch(0.65 0.2 40);
+  --ring: oklch(0.45 0.15 240 / 0.5);
+  --chart-1: oklch(0.45 0.15 240);
+  --chart-2: oklch(0.75 0.18 40);
+  --chart-3: oklch(0.65 0.22 200);
+  --chart-4: oklch(0.65 0.15 160);
   --chart-5: oklch(0.708 0 0);
   --sidebar: oklch(0.205 0 0);
   --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.55 0.15 200);
+  --sidebar-primary: oklch(0.45 0.15 240);
   --sidebar-primary-foreground: oklch(1 0 0);
   --sidebar-accent: oklch(0.269 0 0);
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(0.269 0 0);
-  --sidebar-ring: oklch(0.55 0.15 200 / 0.5);
+  --sidebar-ring: oklch(0.45 0.15 240 / 0.5);
 }
 
 @theme inline {
@@ -121,6 +121,16 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+  
+  /* Hide scrollbar but keep functionality */
+  * {
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* Internet Explorer 10+ */
+  }
+  
+  *::-webkit-scrollbar {
+    display: none; /* Safari and Chrome */
   }
 }
 

@@ -3,6 +3,7 @@
 import {
   Sheet,
   SheetContent,
+  SheetFooter,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
@@ -14,6 +15,9 @@ import { ShoppingCart, Plus, Minus, Trash2 } from "lucide-react";
 import { useCartStore } from "@/store/cart-store";
 import Image from "next/image";
 import Link from "next/link";
+import { formatCurrency } from "@/lib/utils/numbers/formatCurrency";
+import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 
 export function CartSheet() {
   const {
@@ -26,47 +30,58 @@ export function CartSheet() {
     getTotalPrice,
   } = useCartStore();
 
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat("vi-VN", {
-      style: "currency",
-      currency: "VND",
-    }).format(price);
-  };
+  const [isClient, setIsClient] = useState(false);
+  const pathname = usePathname();
+  const isProfilePage = pathname?.includes('/profile');
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <SheetTrigger asChild>
         <Button
-          variant="outline"
+          variant={isProfilePage ? "ghost" : "outline"}
           size="icon"
-          className="relative bg-transparent"
+          className={
+            isProfilePage 
+              ? "relative rounded-full" 
+              : "relative bg-transparent cursor-pointer hover:bg-primary/10 hover:border-primary/30 transition-all duration-200 group"
+          }
         >
-          <ShoppingCart className="h-4 w-4" />
-          {getTotalItems() > 0 && (
-            <Badge className="absolute -top-2 -right-2 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs">
+          <ShoppingCart className={
+            isProfilePage 
+              ? "h-5 w-5" 
+              : "h-4 w-4 text-foreground group-hover:text-primary transition-colors duration-200"
+          } />
+          {isClient && getTotalItems() > 0 && (
+            <Badge className="absolute -top-2 -right-2 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs bg-primary text-primary-foreground">
               {getTotalItems()}
             </Badge>
           )}
         </Button>
       </SheetTrigger>
-      <SheetContent className="w-full sm:max-w-lg">
-        <SheetHeader>
-          <SheetTitle>Giỏ hàng ({getTotalItems()} sản phẩm)</SheetTitle>
+      <SheetContent className="w-full sm:max-w-lg rounded-l-lg">
+        <SheetHeader className="py-2">
+          <SheetTitle>
+            Giỏ hàng ({isClient ? getTotalItems() : 0} sản phẩm)
+          </SheetTitle>
         </SheetHeader>
 
-        <div className="flex flex-col h-full">
-          <div className="flex-1 overflow-auto py-4">
-            {items.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-full text-center">
-                <ShoppingCart className="h-12 w-12 text-muted-foreground mb-4" />
-                <p className="text-muted-foreground">Giỏ hàng trống</p>
-                <Button asChild className="mt-4">
-                  <Link href="/catalog" onClick={() => setIsOpen(false)}>
-                    Xem danh mục cá
-                  </Link>
-                </Button>
-              </div>
-            ) : (
+        {items.length === 0 ? (
+          <div className="flex flex-col items-center justify-center h-full text-center">
+            <ShoppingCart className="h-12 w-12 text-muted-foreground mb-4" />
+            <p className="text-muted-foreground">Giỏ hàng trống</p>
+            <Button asChild className="mt-4">
+              <Link href="/catalog" onClick={() => setIsOpen(false)}>
+                Xem danh mục cá
+              </Link>
+            </Button>
+          </div>
+        ) : (
+          <>
+            <div className="flex-1 overflow-auto py-4">
               <div className="space-y-4">
                 {items.map((item) => (
                   <div
@@ -78,6 +93,7 @@ export function CartSheet() {
                         src={item.image || "/placeholder.svg"}
                         alt={item.name}
                         className="object-cover"
+                        fill
                       />
                     </div>
                     <div className="flex-1 min-w-0">
@@ -89,17 +105,17 @@ export function CartSheet() {
                         {item.size} • {item.age}
                       </p>
                       <p className="font-semibold text-primary">
-                        {formatPrice(item.price)}
+                        {formatCurrency(item.price)}
                       </p>
                     </div>
                     <div className="flex flex-col items-end gap-2">
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-6 w-6"
+                        className="h-6 w-6 bg-red-500 hover:bg-red-700"
                         onClick={() => removeItem(item.id)}
                       >
-                        <Trash2 className="h-3 w-3" />
+                        <Trash2 className="h-3 w-3 text-white" />
                       </Button>
                       <div className="flex items-center gap-1">
                         <Button
@@ -130,15 +146,13 @@ export function CartSheet() {
                   </div>
                 ))}
               </div>
-            )}
-          </div>
+            </div>
 
-          {items.length > 0 && (
-            <div className="border-t pt-4 space-y-4">
+            <SheetFooter className="flex-col pt-0">
               <div className="flex justify-between items-center">
                 <span className="font-semibold">Tổng cộng:</span>
                 <span className="font-bold text-lg text-primary">
-                  {formatPrice(getTotalPrice())}
+                  {formatCurrency(getTotalPrice())}
                 </span>
               </div>
               <Separator />
@@ -149,18 +163,16 @@ export function CartSheet() {
                   </Link>
                 </Button>
                 <Button
-                  asChild
                   variant="outline"
                   className="w-full bg-transparent"
+                  onClick={() => setIsOpen(false)}
                 >
-                  <Link href="/catalog" onClick={() => setIsOpen(false)}>
-                    Tiếp tục mua sắm
-                  </Link>
+                  Tiếp tục mua sắm
                 </Button>
               </div>
-            </div>
-          )}
-        </div>
+            </SheetFooter>
+          </>
+        )}
       </SheetContent>
     </Sheet>
   );

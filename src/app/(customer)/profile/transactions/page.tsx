@@ -15,14 +15,13 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Search,
-  ArrowLeft,
   Download,
   CreditCard,
-  ArrowDownLeft,
   Receipt,
   Gift,
 } from "lucide-react";
-import Link from "next/link";
+import { formatCurrency } from "@/lib/utils/numbers/formatCurrency";
+import CustomerLayout from "@/components/customer/CustomerLayout";
 
 // Type definitions
 interface Transaction {
@@ -41,18 +40,12 @@ type TransactionType = "purchase" | "refund" | "reward";
 type TransactionStatus = "completed" | "pending" | "failed";
 type PaymentMethod = "bank_transfer" | "cod" | "wallet" | "credit_card";
 
-interface TransactionTypeConfig {
-  label: string;
-  color: string;
-  icon: React.ComponentType<{ className?: string }>;
-}
-
 interface StatusConfig {
   label: string;
   color: string;
 }
 
-// Mock transaction data
+// Mock transaction data - chỉ giao dịch chi tiêu
 const mockTransactions: Transaction[] = [
   {
     id: "TXN001234",
@@ -100,45 +93,29 @@ const mockTransactions: Transaction[] = [
   },
   {
     id: "TXN001238",
-    date: "2024-01-10",
-    type: "refund",
-    description: "Hoàn tiền cá Koi không phù hợp",
-    amount: 15000000,
+    date: "2024-01-12",
+    type: "purchase",
+    description: "Mua cá Koi Shusui + hệ thống lọc",
+    amount: -18000000,
     status: "completed",
     method: "bank_transfer",
-    orderId: "KOI001230",
-    reference: "REF20240110001",
+    orderId: "KOI001233",
+    reference: "VCB20240112001",
   },
   {
     id: "TXN001239",
     date: "2024-01-05",
-    type: "reward",
-    description: "Điểm thưởng khách hàng VIP",
-    amount: 500000,
+    type: "purchase",
+    description: "Mua thức ăn cao cấp cho cá Koi",
+    amount: -2500000,
     status: "completed",
-    method: "wallet",
-    orderId: null,
-    reference: "VIP20240105001",
+    method: "cod",
+    orderId: "KOI001232",
+    reference: "COD20240105001",
   },
 ];
 
-const transactionTypes: Record<TransactionType, TransactionTypeConfig> = {
-  purchase: {
-    label: "Mua hàng",
-    color: "bg-blue-100 text-blue-800",
-    icon: Receipt,
-  },
-  refund: {
-    label: "Hoàn tiền",
-    color: "bg-green-100 text-green-800",
-    icon: ArrowDownLeft,
-  },
-  reward: {
-    label: "Điểm thưởng",
-    color: "bg-purple-100 text-purple-800",
-    icon: Gift,
-  },
-};
+
 
 const paymentMethods: Record<PaymentMethod, string> = {
   bank_transfer: "Chuyển khoản",
@@ -155,15 +132,10 @@ const statusConfig: Record<TransactionStatus, StatusConfig> = {
 
 export default function TransactionsPage() {
   const [searchTerm, setSearchTerm] = useState("");
-  const [typeFilter, setTypeFilter] = useState("all");
+  const [methodFilter, setMethodFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
 
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat("vi-VN", {
-      style: "currency",
-      currency: "VND",
-    }).format(Math.abs(price));
-  };
+
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("vi-VN", {
@@ -182,85 +154,66 @@ export default function TransactionsPage() {
       (transaction.orderId &&
         transaction.orderId.toLowerCase().includes(searchTerm.toLowerCase()));
 
-    const matchesType = typeFilter === "all" || transaction.type === typeFilter;
+    const matchesMethod = methodFilter === "all" || transaction.method === methodFilter;
     const matchesStatus =
       statusFilter === "all" || transaction.status === statusFilter;
 
-    return matchesSearch && matchesType && matchesStatus;
+    return matchesSearch && matchesMethod && matchesStatus;
   });
-
-  const getTransactionsByType = (type: TransactionType) => {
-    return mockTransactions.filter((transaction) => transaction.type === type);
-  };
 
   const getCustomerStats = () => {
     const totalSpent = mockTransactions
-      .filter((t) => t.type === "purchase")
       .reduce((sum, t) => sum + Math.abs(t.amount), 0);
 
-    const totalRefunded = mockTransactions
-      .filter((t) => t.type === "refund")
-      .reduce((sum, t) => sum + t.amount, 0);
-
-    const totalRewards = mockTransactions
-      .filter((t) => t.type === "reward")
-      .reduce((sum, t) => sum + t.amount, 0);
-
-    return { totalSpent, totalRefunded, totalRewards };
+    return { totalSpent };
   };
 
   const customerStats = getCustomerStats();
 
   const TransactionCard = ({ transaction }: { transaction: Transaction }) => {
-    const TypeIcon = transactionTypes[transaction.type].icon;
-    const isNegative = transaction.amount < 0;
-
     return (
       <Card className="hover:shadow-md transition-shadow">
-        <CardContent className="p-6">
-          <div className="flex items-start justify-between">
-            <div className="flex items-start gap-4">
+        <CardContent className="p-4 md:p-6">
+          <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-3">
+            <div className="flex items-start gap-3 md:gap-4 flex-1">
               <div
-                className={`w-12 h-12 rounded-full flex items-center justify-center ${transactionTypes[transaction.type].color}`}
+                className="w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center bg-blue-100 text-blue-800 flex-shrink-0"
               >
-                <TypeIcon className="w-6 h-6" />
+                <Receipt className="w-5 h-5 md:w-6 md:h-6" />
               </div>
-              <div className="space-y-1">
-                <p className="font-semibold text-lg">
+              <div className="space-y-1 flex-1 min-w-0">
+                <p className="font-semibold text-sm md:text-lg leading-tight">
                   {transaction.description}
                 </p>
-                <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                <div className="flex flex-col md:flex-row md:items-center gap-1 md:gap-3 text-xs md:text-sm text-muted-foreground">
                   <span className="font-medium">
                     {formatDate(transaction.date)}
                   </span>
-                  <span>•</span>
+                  <span className="hidden md:inline">•</span>
                   <span>{paymentMethods[transaction.method]}</span>
                   {transaction.orderId && (
                     <>
-                      <span>•</span>
-                      <span className="font-mono">#{transaction.orderId}</span>
+                      <span className="hidden md:inline">•</span>
+                      <span className="font-mono text-primary">#{transaction.orderId}</span>
                     </>
                   )}
                 </div>
                 {transaction.reference && (
                   <p className="text-xs text-muted-foreground font-mono">
-                    Mã tham chiếu: {transaction.reference}
+                    Mã: {transaction.reference}
                   </p>
                 )}
               </div>
             </div>
-            <div className="text-right space-y-2">
-              <p
-                className={`font-bold text-xl ${isNegative ? "text-red-600" : "text-green-600"}`}
-              >
-                {isNegative ? "-" : "+"}
-                {formatPrice(transaction.amount)}
-              </p>
+            <div className="flex justify-between items-center md:flex-col md:items-end md:text-right md:space-y-2">
               <Badge
-                className={`${statusConfig[transaction.status].color} font-medium`}
+                className={`${statusConfig[transaction.status].color} font-medium text-xs md:order-2`}
               >
                 {statusConfig[transaction.status].label}
               </Badge>
+              <p className="font-bold text-lg md:text-xl text-red-600 md:order-1">
+                -{formatCurrency(Math.abs(transaction.amount))}
+              </p>
             </div>
           </div>
         </CardContent>
@@ -269,142 +222,133 @@ export default function TransactionsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-8">
-        <div className="max-w-6xl mx-auto">
-          <div className="flex items-center gap-4 mb-8">
-            <Button asChild variant="ghost" size="sm">
-              <Link href="/profile">
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                Quay lại
-              </Link>
-            </Button>
-            <div>
-              <h1 className="text-3xl font-bold">Lịch sử giao dịch</h1>
-              <p className="text-muted-foreground">
-                Theo dõi các giao dịch mua bán cá Koi của bạn
-              </p>
-            </div>
+    <CustomerLayout>
+      <div className="max-w-6xl mx-auto">
+        <div className="flex items-center gap-4 mb-8">
+          <div>
+            <h1 className="text-3xl font-bold">Lịch sử chi tiêu</h1>
+            <p className="text-muted-foreground">
+              Theo dõi các giao dịch mua hàng của bạn
+            </p>
           </div>
+        </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-6 md:mb-8">
             <Card className="border-blue-200">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-blue-700">
+                <CardTitle className="text-xs md:text-sm font-medium text-blue-700">
                   Tổng chi tiêu
                 </CardTitle>
-                <Receipt className="h-5 w-5 text-blue-600" />
+                <Receipt className="h-4 w-4 md:h-5 md:w-5 text-blue-600" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-blue-700">
-                  {formatPrice(customerStats.totalSpent)}
+                <div className="text-lg md:text-2xl font-bold text-blue-700">
+                  {formatCurrency(customerStats.totalSpent)}
                 </div>
                 <p className="text-xs text-muted-foreground mt-1">
-                  {mockTransactions.filter((t) => t.type === "purchase").length}{" "}
-                  lần mua hàng
+                  {mockTransactions.length} giao dịch
                 </p>
               </CardContent>
             </Card>
 
             <Card className="border-green-200">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-green-700">
-                  Hoàn tiền
+                <CardTitle className="text-xs md:text-sm font-medium text-green-700">
+                  Chi tiêu trung bình
                 </CardTitle>
-                <ArrowDownLeft className="h-5 w-5 text-green-600" />
+                <CreditCard className="h-4 w-4 md:h-5 md:w-5 text-green-600" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-green-700">
-                  {formatPrice(customerStats.totalRefunded)}
+                <div className="text-lg md:text-2xl font-bold text-green-700">
+                  {formatCurrency(Math.round(customerStats.totalSpent / mockTransactions.length))}
                 </div>
                 <p className="text-xs text-muted-foreground mt-1">
-                  {mockTransactions.filter((t) => t.type === "refund").length}{" "}
-                  giao dịch hoàn tiền
+                  Mỗi lần mua hàng
                 </p>
               </CardContent>
             </Card>
 
             <Card className="border-purple-200">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-purple-700">
-                  Điểm thưởng
+                <CardTitle className="text-xs md:text-sm font-medium text-purple-700">
+                  Giao dịch lớn nhất
                 </CardTitle>
-                <Gift className="h-5 w-5 text-purple-600" />
+                <Gift className="h-4 w-4 md:h-5 md:w-5 text-purple-600" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-purple-700">
-                  {formatPrice(customerStats.totalRewards)}
+                <div className="text-lg md:text-2xl font-bold text-purple-700">
+                  {formatCurrency(Math.max(...mockTransactions.map(t => Math.abs(t.amount))))}
                 </div>
                 <p className="text-xs text-muted-foreground mt-1">
-                  {mockTransactions.filter((t) => t.type === "reward").length}{" "}
-                  lần nhận thưởng
+                  Giá trị cao nhất
                 </p>
               </CardContent>
             </Card>
           </div>
 
+        {/* Desktop Search and Filter */}
+        <div className="hidden md:block mb-6">
+          <div className="flex flex-col lg:flex-row gap-4">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+              <Input
+                placeholder="Tìm kiếm theo mã giao dịch, tên cá Koi hoặc mã đơn hàng..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10 rounded-xl border-2 border-border hover:border-primary/50 focus:border-primary transition-colors"
+              />
+            </div>
+
+            <div className="flex gap-2">
+              <Select value={methodFilter} onValueChange={setMethodFilter}>
+                <SelectTrigger className="w-[180px] rounded-xl border-2 border-border hover:border-primary/50 focus:border-primary transition-colors">
+                  <SelectValue placeholder="Phương thức thanh toán" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Tất cả</SelectItem>
+                  <SelectItem value="bank_transfer">Chuyển khoản</SelectItem>
+                  <SelectItem value="cod">Thanh toán khi nhận</SelectItem>
+                  <SelectItem value="credit_card">Thẻ tín dụng</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="w-[140px] rounded-xl border-2 border-border hover:border-primary/50 focus:border-primary transition-colors">
+                  <SelectValue placeholder="Trạng thái" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Tất cả</SelectItem>
+                  <SelectItem value="completed">Thành công</SelectItem>
+                  <SelectItem value="pending">Đang xử lý</SelectItem>
+                  <SelectItem value="failed">Thất bại</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <Button
+                variant="outline"
+                className="hidden lg:flex bg-transparent rounded-xl"
+              >
+                <Download className="w-4 h-4 mr-2" />
+                Tải về
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        {/* Desktop Tabs */}
+        <div className="hidden md:block">
           <Tabs defaultValue="all" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-4">
+            <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="all">
                 Tất cả ({mockTransactions.length})
               </TabsTrigger>
-              <TabsTrigger value="purchase">
-                Mua hàng ({getTransactionsByType("purchase").length})
+              <TabsTrigger value="bank_transfer">
+                Chuyển khoản ({mockTransactions.filter(t => t.method === "bank_transfer").length})
               </TabsTrigger>
-              <TabsTrigger value="refund">
-                Hoàn tiền ({getTransactionsByType("refund").length})
-              </TabsTrigger>
-              <TabsTrigger value="reward">
-                Điểm thưởng ({getTransactionsByType("reward").length})
+              <TabsTrigger value="cod">
+                Thanh toán khi nhận ({mockTransactions.filter(t => t.method === "cod").length})
               </TabsTrigger>
             </TabsList>
-
-            {/* Search and Filter */}
-            <div className="flex flex-col lg:flex-row gap-4">
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-                <Input
-                  placeholder="Tìm kiếm theo mã giao dịch, tên cá Koi hoặc mã đơn hàng..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
-
-              <div className="flex gap-2">
-                <Select value={typeFilter} onValueChange={setTypeFilter}>
-                  <SelectTrigger className="w-[150px]">
-                    <SelectValue placeholder="Loại giao dịch" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Tất cả</SelectItem>
-                    <SelectItem value="purchase">Mua hàng</SelectItem>
-                    <SelectItem value="refund">Hoàn tiền</SelectItem>
-                    <SelectItem value="reward">Điểm thưởng</SelectItem>
-                  </SelectContent>
-                </Select>
-
-                <Select value={statusFilter} onValueChange={setStatusFilter}>
-                  <SelectTrigger className="w-[140px]">
-                    <SelectValue placeholder="Trạng thái" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Tất cả</SelectItem>
-                    <SelectItem value="completed">Thành công</SelectItem>
-                    <SelectItem value="pending">Đang xử lý</SelectItem>
-                    <SelectItem value="failed">Thất bại</SelectItem>
-                  </SelectContent>
-                </Select>
-
-                <Button
-                  variant="outline"
-                  className="hidden sm:flex bg-transparent"
-                >
-                  <Download className="w-4 h-4 mr-2" />
-                  Tải về
-                </Button>
-              </div>
-            </div>
 
             <TabsContent value="all" className="space-y-4">
               {filteredTransactions.length > 0 ? (
@@ -416,44 +360,114 @@ export default function TransactionsPage() {
                 ))
               ) : (
                 <div className="text-center py-12">
-                  <CreditCard className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                  <p className="text-muted-foreground">Chưa có giao dịch nào</p>
+                  <Receipt className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                  <p className="text-muted-foreground">Không tìm thấy giao dịch nào</p>
                   <p className="text-sm text-muted-foreground mt-2">
-                    Hãy mua cá Koi đầu tiên của bạn!
+                    Thử thay đổi bộ lọc tìm kiếm
                   </p>
                 </div>
               )}
             </TabsContent>
 
-            <TabsContent value="purchase" className="space-y-4">
-              {getTransactionsByType("purchase").map((transaction) => (
-                <TransactionCard
-                  key={transaction.id}
-                  transaction={transaction}
-                />
-              ))}
+            <TabsContent value="bank_transfer" className="space-y-4">
+              {filteredTransactions.filter(t => t.method === "bank_transfer").length > 0 ? (
+                filteredTransactions.filter(t => t.method === "bank_transfer").map((transaction) => (
+                  <TransactionCard
+                    key={transaction.id}
+                    transaction={transaction}
+                  />
+                ))
+              ) : (
+                <div className="text-center py-12">
+                  <Receipt className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                  <p className="text-muted-foreground">Không tìm thấy giao dịch chuyển khoản nào</p>
+                </div>
+              )}
             </TabsContent>
 
-            <TabsContent value="refund" className="space-y-4">
-              {getTransactionsByType("refund").map((transaction) => (
-                <TransactionCard
-                  key={transaction.id}
-                  transaction={transaction}
-                />
-              ))}
-            </TabsContent>
-
-            <TabsContent value="reward" className="space-y-4">
-              {getTransactionsByType("reward").map((transaction) => (
-                <TransactionCard
-                  key={transaction.id}
-                  transaction={transaction}
-                />
-              ))}
+            <TabsContent value="cod" className="space-y-4">
+              {filteredTransactions.filter(t => t.method === "cod").length > 0 ? (
+                filteredTransactions.filter(t => t.method === "cod").map((transaction) => (
+                  <TransactionCard
+                    key={transaction.id}
+                    transaction={transaction}
+                  />
+                ))
+              ) : (
+                <div className="text-center py-12">
+                  <Receipt className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                  <p className="text-muted-foreground">Không tìm thấy giao dịch COD nào</p>
+                </div>
+              )}
             </TabsContent>
           </Tabs>
         </div>
+
+        {/* Mobile View */}
+        <div className="md:hidden space-y-6">
+          {/* Search and Filter */}
+          <div className="space-y-4">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+              <Input
+                placeholder="Tìm kiếm giao dịch..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10 rounded-xl border-2 border-border hover:border-primary/50 focus:border-primary transition-colors"
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-2">
+              <Select value={methodFilter} onValueChange={setMethodFilter}>
+                <SelectTrigger className="w-full rounded-xl border-2 border-border hover:border-primary/50 focus:border-primary transition-colors">
+                  <SelectValue placeholder="Phương thức" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Tất cả</SelectItem>
+                  <SelectItem value="bank_transfer">Chuyển khoản</SelectItem>
+                  <SelectItem value="cod">COD</SelectItem>
+                  <SelectItem value="credit_card">Thẻ tín dụng</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="w-full rounded-xl border-2 border-border hover:border-primary/50 focus:border-primary transition-colors">
+                  <SelectValue placeholder="Trạng thái" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Tất cả</SelectItem>
+                  <SelectItem value="completed">Thành công</SelectItem>
+                  <SelectItem value="pending">Đang xử lý</SelectItem>
+                  <SelectItem value="failed">Thất bại</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          {/* All Transactions */}
+          <div className="space-y-4">
+            {filteredTransactions.length > 0 ? (
+              filteredTransactions.map((transaction) => (
+                <TransactionCard
+                  key={transaction.id}
+                  transaction={transaction}
+                />
+              ))
+            ) : (
+              <div className="text-center py-12">
+                <Receipt className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                <p className="text-muted-foreground">Không tìm thấy giao dịch nào</p>
+                <p className="text-sm text-muted-foreground mt-2">
+                  Thử thay đổi bộ lọc tìm kiếm
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+
+
+
       </div>
-    </div>
+    </CustomerLayout>
   );
 }

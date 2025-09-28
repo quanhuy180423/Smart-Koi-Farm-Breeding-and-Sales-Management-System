@@ -17,7 +17,24 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { User, MapPin, Calendar, Camera, Save, Edit } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { User, MapPin, Calendar, Camera, Save, Edit, Plus } from "lucide-react";
+import { formatCurrency } from "@/lib/utils/numbers/formatCurrency";
+import CustomerLayout from "@/components/customer/CustomerLayout";
+
+type Address = {
+    id: number;
+    name: string;
+    address: string;
+    ward: string;
+    city: string;
+    isDefault: boolean;
+  };
 
 export default function ProfilePage() {
   const [isEditing, setIsEditing] = useState(false);
@@ -35,6 +52,42 @@ export default function ProfilePage() {
     avatar: "/user-avatar.jpg",
   });
 
+  const [addresses, setAddresses] = useState([
+    {
+      id: 1,
+      name: "Nhà riêng",
+      address: "123 Đường ABC",
+      ward: "Phường 1",
+      city: "TP. Hồ Chí Minh",
+      isDefault: true,
+    },
+    {
+      id: 2,
+      name: "Công ty",
+      address: "789 Đường XYZ",
+      ward: "Phường 2",
+      city: "TP. Hồ Chí Minh",
+      isDefault: false,
+    },
+    {
+      id: 3,
+      name: "Nhà bố mẹ",
+      address: "456 Đường DEF",
+      ward: "Phường 5",
+      city: "TP. Hồ Chí Minh",
+      isDefault: false,
+    },
+  ]);
+
+  const [isAddressDialogOpen, setIsAddressDialogOpen] = useState(false);
+  const [editingAddress, setEditingAddress] = useState<Address | null>(null);
+  const [addressForm, setAddressForm] = useState({
+    name: "",
+    address: "",
+    ward: "",
+    city: "hcm",
+  });
+
   const handleInputChange = (field: string, value: string) => {
     setProfileData((prev) => ({ ...prev, [field]: value }));
   };
@@ -45,6 +98,75 @@ export default function ProfilePage() {
     setIsEditing(false);
   };
 
+  const handleSetDefault = (addressId: number) => {
+    setAddresses((prev) =>
+      prev.map((addr) => ({
+        ...addr,
+        isDefault: addr.id === addressId,
+      }))
+    );
+  };
+
+  const handleDeleteAddress = (addressId: number) => {
+    setAddresses((prev) => prev.filter((addr) => addr.id !== addressId));
+  };
+
+  const handleEditAddress = (addressId: number) => {
+    const address = addresses.find(addr => addr.id === addressId);
+    if (address) {
+      setEditingAddress(address);
+      setAddressForm({
+        name: address.name,
+        address: address.address,
+        ward: address.ward,
+        city: address.city === "TP. Hồ Chí Minh" ? "hcm" : address.city,
+      });
+      setIsAddressDialogOpen(true);
+    }
+  };
+
+  const handleAddNewAddress = () => {
+    setEditingAddress(null);
+    setAddressForm({
+      name: "",
+      address: "",
+      ward: "",
+      city: "hcm",
+    });
+    setIsAddressDialogOpen(true);
+  };
+
+  const handleSaveAddress = () => {
+    const cityName = addressForm.city === "hcm" ? "TP. Hồ Chí Minh" : addressForm.city;
+    
+    if (editingAddress) {
+      // Update existing address
+      setAddresses(prev =>
+        prev.map(addr =>
+          addr.id === editingAddress.id
+            ? { ...addr, ...addressForm, city: cityName }
+            : addr
+        )
+      );
+    } else {
+      // Add new address
+      const newAddress = {
+        id: Math.max(...addresses.map(a => a.id)) + 1,
+        ...addressForm,
+        city: cityName,
+        isDefault: addresses.length === 0, // First address is default
+      };
+      setAddresses(prev => [...prev, newAddress]);
+    }
+    
+    setIsAddressDialogOpen(false);
+    setEditingAddress(null);
+  };
+
+  const handleAddressFormChange = (field: string, value: string) => {
+    setAddressForm(prev => ({ ...prev, [field]: value }));
+  };
+
   const customerStats = {
     totalOrders: 12,
     totalSpent: 180000000,
@@ -52,31 +174,24 @@ export default function ProfilePage() {
     loyaltyPoints: 1250,
   };
 
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat("vi-VN", {
-      style: "currency",
-      currency: "VND",
-    }).format(price);
-  };
+
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-8">
-        <div className="max-w-4xl mx-auto">
-          <div className="flex items-center gap-4 mb-8">
-            <div>
-              <h1 className="text-3xl font-bold">Hồ sơ cá nhân</h1>
-              <p className="text-muted-foreground">
-                Quản lý thông tin tài khoản của bạn
-              </p>
-            </div>
+    <CustomerLayout>
+      <div className="max-w-6xl mx-auto">
+        <div className="flex items-center gap-4 mb-6">
+          <div>
+            <h1 className="text-3xl font-bold">Hồ sơ cá nhân</h1>
+            <p className="text-muted-foreground">
+              Quản lý thông tin tài khoản của bạn
+            </p>
           </div>
+        </div>
 
-          <Tabs defaultValue="profile" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-4">
+          <Tabs defaultValue="profile" className="space-y-3">
+            <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="profile">Thông tin</TabsTrigger>
               <TabsTrigger value="address">Địa chỉ</TabsTrigger>
-              <TabsTrigger value="preferences">Sở thích</TabsTrigger>
               <TabsTrigger value="security">Bảo mật</TabsTrigger>
             </TabsList>
 
@@ -148,7 +263,7 @@ export default function ProfilePage() {
                     {/* Personal Information */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <Label htmlFor="fullName">Họ và tên</Label>
+                        <Label htmlFor="fullName" className="mb-2">Họ và tên</Label>
                         <Input
                           id="fullName"
                           value={profileData.fullName}
@@ -156,10 +271,11 @@ export default function ProfilePage() {
                             handleInputChange("fullName", e.target.value)
                           }
                           disabled={!isEditing}
+                          className="border-2 border-border hover:border-primary/50 focus:border-primary transition-colors"
                         />
                       </div>
                       <div>
-                        <Label htmlFor="phone">Số điện thoại</Label>
+                        <Label htmlFor="phone" className="mb-2">Số điện thoại</Label>
                         <Input
                           id="phone"
                           value={profileData.phone}
@@ -167,10 +283,11 @@ export default function ProfilePage() {
                             handleInputChange("phone", e.target.value)
                           }
                           disabled={!isEditing}
+                          className="border-2 border-border hover:border-primary/50 focus:border-primary transition-colors"
                         />
                       </div>
                       <div>
-                        <Label htmlFor="email">Email</Label>
+                        <Label htmlFor="email" className="mb-2">Email</Label>
                         <Input
                           id="email"
                           type="email"
@@ -179,10 +296,11 @@ export default function ProfilePage() {
                             handleInputChange("email", e.target.value)
                           }
                           disabled={!isEditing}
+                          className="border-2 border-border hover:border-primary/50 focus:border-primary transition-colors"
                         />
                       </div>
                       <div>
-                        <Label htmlFor="dateOfBirth">Ngày sinh</Label>
+                        <Label htmlFor="dateOfBirth" className="mb-2">Ngày sinh</Label>
                         <Input
                           id="dateOfBirth"
                           type="date"
@@ -191,10 +309,11 @@ export default function ProfilePage() {
                             handleInputChange("dateOfBirth", e.target.value)
                           }
                           disabled={!isEditing}
+                          className="border-2 border-border hover:border-primary/50 focus:border-primary transition-colors"
                         />
                       </div>
                       <div>
-                        <Label htmlFor="gender">Giới tính</Label>
+                        <Label htmlFor="gender" className="mb-2">Giới tính</Label>
                         <Select
                           value={profileData.gender}
                           onValueChange={(value) =>
@@ -202,7 +321,7 @@ export default function ProfilePage() {
                           }
                           disabled={!isEditing}
                         >
-                          <SelectTrigger>
+                          <SelectTrigger className="border-2 border-border hover:border-primary/50 focus:border-primary transition-colors">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
@@ -215,7 +334,7 @@ export default function ProfilePage() {
                     </div>
 
                     <div>
-                      <Label htmlFor="bio">Giới thiệu bản thân</Label>
+                      <Label htmlFor="bio" className="mb-2">Giới thiệu bản thân</Label>
                       <Textarea
                         id="bio"
                         value={profileData.bio}
@@ -225,6 +344,7 @@ export default function ProfilePage() {
                         disabled={!isEditing}
                         rows={3}
                         placeholder="Chia sẻ về sở thích nuôi cá Koi của bạn..."
+                        className="border-2 border-border hover:border-primary/50 focus:border-primary transition-colors resize-none"
                       />
                     </div>
                   </CardContent>
@@ -277,23 +397,7 @@ export default function ProfilePage() {
                           Tổng chi tiêu
                         </p>
                         <p className="font-semibold">
-                          {formatPrice(customerStats.totalSpent)}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-yellow-100 rounded-full flex items-center justify-center">
-                        <span className="text-yellow-600 font-bold text-sm">
-                          ★
-                        </span>
-                      </div>
-                      <div>
-                        <p className="text-sm text-muted-foreground">
-                          Điểm tích lũy
-                        </p>
-                        <p className="font-semibold">
-                          {customerStats.loyaltyPoints} điểm
+                          {formatCurrency(customerStats.totalSpent)}
                         </p>
                       </div>
                     </div>
@@ -304,133 +408,177 @@ export default function ProfilePage() {
 
             {/* Address Tab */}
             <TabsContent value="address">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <MapPin className="h-5 w-5" />
-                    Địa chỉ giao hàng
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
+              <div className="space-y-6">
+                <div className="flex items-center justify-between">
                   <div>
-                    <Label htmlFor="address">Địa chỉ cụ thể</Label>
-                    <Input
-                      id="address"
-                      value={profileData.address}
-                      onChange={(e) =>
-                        handleInputChange("address", e.target.value)
-                      }
-                      placeholder="Số nhà, tên đường"
-                    />
+                    <h3 className="text-lg font-semibold">Địa chỉ giao hàng</h3>
+                    <p className="text-sm text-muted-foreground">Quản lý các địa chỉ giao hàng của bạn</p>
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div>
-                      <Label htmlFor="ward">Phường/Xã</Label>
-                      <Input
-                        id="ward"
-                        value={profileData.ward}
-                        onChange={(e) =>
-                          handleInputChange("ward", e.target.value)
-                        }
-                        placeholder="Phường/Xã"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="district">Quận/Huyện</Label>
-                      <Input
-                        id="district"
-                        value={profileData.district}
-                        onChange={(e) =>
-                          handleInputChange("district", e.target.value)
-                        }
-                        placeholder="Quận/Huyện"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="city">Tỉnh/Thành phố</Label>
-                      <Select
-                        value={profileData.city}
-                        onValueChange={(value) =>
-                          handleInputChange("city", value)
-                        }
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Chọn tỉnh/thành" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="hanoi">Hà Nội</SelectItem>
-                          <SelectItem value="hcm">TP. Hồ Chí Minh</SelectItem>
-                          <SelectItem value="danang">Đà Nẵng</SelectItem>
-                          <SelectItem value="haiphong">Hải Phong</SelectItem>
-                          <SelectItem value="cantho">Cần Thơ</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-                  <Button>
-                    <Save className="mr-2 h-4 w-4" />
-                    Lưu địa chỉ
+                  <Button onClick={handleAddNewAddress}>
+                    <Plus className="mr-2 h-4 w-4" />
+                    Thêm địa chỉ mới
                   </Button>
-                </CardContent>
-              </Card>
-            </TabsContent>
+                </div>
 
-            {/* Preferences Tab */}
-            <TabsContent value="preferences">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Sở thích cá Koi</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  <div>
-                    <Label className="text-base font-medium">
-                      Giống cá yêu thích
-                    </Label>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-2">
-                      {[
-                        "Kohaku",
-                        "Sanke",
-                        "Showa",
-                        "Tancho",
-                        "Ogon",
-                        "Asagi",
-                        "Shusui",
-                        "Bekko",
-                      ].map((variety) => (
-                        <Badge
-                          key={variety}
-                          variant="outline"
-                          className="justify-center py-2"
+                {/* Address Cards Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {addresses.map((address) => (
+                    <Card 
+                      key={address.id} 
+                      className={`relative ${address.isDefault ? 'border-primary/50 bg-primary/5' : ''}`}
+                    >
+                      {address.isDefault && (
+                        <div className="absolute top-3 right-3">
+                          <Badge variant="default" className="text-xs">
+                            Mặc định
+                          </Badge>
+                        </div>
+                      )}
+                      <CardContent className="p-4">
+                        <div className="space-y-3">
+                          <div className="flex items-start gap-2">
+                            <MapPin className={`h-4 w-4 mt-1 flex-shrink-0 ${address.isDefault ? 'text-primary' : 'text-muted-foreground'}`} />
+                            <div className="min-w-0">
+                              <p className="font-medium">{address.name}</p>
+                              <p className="text-sm text-muted-foreground">
+                                {address.address}, {address.ward}
+                              </p>
+                              <p className="text-sm text-muted-foreground">
+                                {address.city}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="flex gap-2 pt-2">
+                            {address.isDefault ? (
+                              <>
+                                <Button 
+                                  variant="outline" 
+                                  size="sm" 
+                                  className="flex-1"
+                                  onClick={() => handleEditAddress(address.id)}
+                                >
+                                  Chỉnh sửa
+                                </Button>
+                                <Button 
+                                  variant="ghost" 
+                                  size="sm"
+                                  onClick={() => handleDeleteAddress(address.id)}
+                                >
+                                  Xóa
+                                </Button>
+                              </>
+                            ) : (
+                              <>
+                                <Button 
+                                  variant="outline" 
+                                  size="sm" 
+                                  className="flex-1"
+                                  onClick={() => handleSetDefault(address.id)}
+                                >
+                                  Đặt mặc định
+                                </Button>
+                                <Button 
+                                  variant="outline" 
+                                  size="sm"
+                                  onClick={() => handleEditAddress(address.id)}
+                                >
+                                  Sửa
+                                </Button>
+                                <Button 
+                                  variant="ghost" 
+                                  size="sm"
+                                  onClick={() => handleDeleteAddress(address.id)}
+                                >
+                                  Xóa
+                                </Button>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+
+                {/* Address Dialog */}
+                <Dialog open={isAddressDialogOpen} onOpenChange={setIsAddressDialogOpen}>
+                  <DialogContent className="sm:max-w-[500px]">
+                    <DialogHeader>
+                      <DialogTitle>
+                        {editingAddress ? "Chỉnh sửa địa chỉ" : "Thêm địa chỉ mới"}
+                      </DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-4 py-4">
+                      <div>
+                        <Label htmlFor="addressName" className="mb-2">Tên địa chỉ</Label>
+                        <Input
+                          id="addressName"
+                          value={addressForm.name}
+                          onChange={(e) => handleAddressFormChange("name", e.target.value)}
+                          placeholder="VD: Nhà riêng, Công ty, ..."
+                          className="border-2 border-border hover:border-primary/50 focus:border-primary transition-colors"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="addressStreet" className="mb-2">Địa chỉ cụ thể</Label>
+                        <Input
+                          id="addressStreet"
+                          value={addressForm.address}
+                          onChange={(e) => handleAddressFormChange("address", e.target.value)}
+                          placeholder="VD: 123 Đường ABC"
+                          className="border-2 border-border hover:border-primary/50 focus:border-primary transition-colors"
+                        />
+                      </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <Label htmlFor="addressWard" className="mb-2">Phường/Xã</Label>
+                          <Input
+                            id="addressWard"
+                            value={addressForm.ward}
+                            onChange={(e) => handleAddressFormChange("ward", e.target.value)}
+                            placeholder="VD: Phường 1"
+                            className="border-2 border-border hover:border-primary/50 focus:border-primary transition-colors"
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor="addressCity" className="mb-2">Tỉnh/Thành phố</Label>
+                          <Select
+                            value={addressForm.city}
+                            onValueChange={(value) => handleAddressFormChange("city", value)}
+                          >
+                            <SelectTrigger className="w-full border-2 border-border hover:border-primary/50 focus:border-primary transition-colors">
+                              <SelectValue placeholder="Chọn tỉnh/thành" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="hanoi">Hà Nội</SelectItem>
+                              <SelectItem value="hcm">TP. Hồ Chí Minh</SelectItem>
+                              <SelectItem value="danang">Đà Nẵng</SelectItem>
+                              <SelectItem value="haiphong">Hải Phòng</SelectItem>
+                              <SelectItem value="cantho">Cần Thơ</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+                      <div className="flex gap-3 pt-4">
+                        <Button 
+                          onClick={handleSaveAddress}
+                          className="flex-1"
+                          disabled={!addressForm.name || !addressForm.address || !addressForm.ward}
                         >
-                          {variety}
-                        </Badge>
-                      ))}
+                          <Save className="mr-2 h-4 w-4" />
+                          {editingAddress ? "Cập nhật" : "Thêm mới"}
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          onClick={() => setIsAddressDialogOpen(false)}
+                        >
+                          Hủy
+                        </Button>
+                      </div>
                     </div>
-                  </div>
-
-                  <div>
-                    <Label className="text-base font-medium">
-                      Kích thước ưa thích
-                    </Label>
-                    <div className="flex gap-2 mt-2">
-                      <Badge variant="outline">20-30cm</Badge>
-                      <Badge variant="default">30-40cm</Badge>
-                      <Badge variant="outline">40cm+</Badge>
-                    </div>
-                  </div>
-
-                  <div>
-                    <Label className="text-base font-medium">
-                      Ngân sách thường xuyên
-                    </Label>
-                    <div className="flex gap-2 mt-2">
-                      <Badge variant="outline">Dưới 10 triệu</Badge>
-                      <Badge variant="default">10-20 triệu</Badge>
-                      <Badge variant="outline">Trên 20 triệu</Badge>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+                  </DialogContent>
+                </Dialog>
+              </div>
             </TabsContent>
 
             {/* Security Tab */}
@@ -440,31 +588,36 @@ export default function ProfilePage() {
                   <CardTitle>Bảo mật tài khoản</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-6">
-                  <div>
-                    <Label htmlFor="currentPassword">Mật khẩu hiện tại</Label>
-                    <Input
-                      id="currentPassword"
-                      type="password"
-                      placeholder="Nhập mật khẩu hiện tại"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="newPassword">Mật khẩu mới</Label>
-                    <Input
-                      id="newPassword"
-                      type="password"
-                      placeholder="Nhập mật khẩu mới"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="confirmPassword">
-                      Xác nhận mật khẩu mới
-                    </Label>
-                    <Input
-                      id="confirmPassword"
-                      type="password"
-                      placeholder="Xác nhận mật khẩu mới"
-                    />
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                      <Label htmlFor="currentPassword" className="mb-2">Mật khẩu hiện tại</Label>
+                      <Input
+                        id="currentPassword"
+                        type="password"
+                        placeholder="Nhập mật khẩu hiện tại"
+                        className="border-2 border-border hover:border-primary/50 focus:border-primary transition-colors"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="newPassword" className="mb-2">Mật khẩu mới</Label>
+                      <Input
+                        id="newPassword"
+                        type="password"
+                        placeholder="Nhập mật khẩu mới"
+                        className="border-2 border-border hover:border-primary/50 focus:border-primary transition-colors"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="confirmPassword" className="mb-2">
+                        Xác nhận mật khẩu mới
+                      </Label>
+                      <Input
+                        id="confirmPassword"
+                        type="password"
+                        placeholder="Xác nhận mật khẩu mới"
+                        className="border-2 border-border hover:border-primary/50 focus:border-primary transition-colors"
+                      />
+                    </div>
                   </div>
                   <Button>
                     <Save className="mr-2 h-4 w-4" />
@@ -475,7 +628,6 @@ export default function ProfilePage() {
             </TabsContent>
           </Tabs>
         </div>
-      </div>
-    </div>
+    </CustomerLayout>
   );
 }

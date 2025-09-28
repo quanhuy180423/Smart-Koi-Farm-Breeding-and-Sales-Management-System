@@ -1,22 +1,15 @@
 import type React from "react";
 import type { Metadata } from "next";
-import { Suspense } from "react";
-import { Navigation } from "@/components/navigation";
 
 export const metadata: Metadata = {
-  title: "Koi Farm Management - Cá Koi Chất Lượng Cao",
-  description: "Hệ thống quản lý trại cá Koi với công nghệ RFID và AI",
+  title: "Tài khoản - ZenKoi Farm",
+  description: "Quản lý tài khoản và thông tin cá nhân",
 };
 
-export default function CusLayout({
+export default function CustomerLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return (
-    <div>
-      <Navigation />
-      <Suspense fallback={null}>{children}</Suspense>
-    </div>
-  );
+  return <>{children}</>;
 }
