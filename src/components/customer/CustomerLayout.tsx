@@ -59,8 +59,8 @@ export function CustomerLayout({ children }: CustomerLayoutProps) {
             <CartSheet />
 
             <div className="flex items-center gap-2">
-              <Avatar className="h-8 w-8">
-                <AvatarImage src="/user-avatar.jpg" alt="Avatar" />
+              <Avatar className="h-6 w-6">
+                <AvatarImage src="/user.png" alt="Avatar" />
                 <AvatarFallback>
                   <User className="h-4 w-4" />
                 </AvatarFallback>
@@ -75,7 +75,7 @@ export function CustomerLayout({ children }: CustomerLayoutProps) {
               asChild
               variant="ghost"
               size="icon"
-              className="text-muted-foreground hover:text-destructive rounded-full hover:bg-destructive/20"
+              className="text-red-500 rounded-full hover:bg-destructive"
             >
               <Link href="/login">
                 <LogOut className="h-5 w-5" />

@@ -13,13 +13,16 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import {
-  User,
-  ShoppingBag,
-  CreditCard,
+  LayoutDashboard,
+  Fish,
+  Users,
+  Building2,
+  Calendar,
+  Heart,
+  Truck,
   Menu,
   ChevronRight,
-  Settings,
-  Heart,
+  Shield,
   Bell,
 } from "lucide-react";
 import Image from "next/image";
@@ -27,48 +30,60 @@ import Logo from "@/assets/images/ZenKoi.png";
 
 const sidebarItems = [
   {
-    title: "Thông tin cá nhân",
-    href: "/profile" as const,
-    icon: User,
-    description: "Quản lý thông tin tài khoản",
+    title: "Dashboard",
+    href: "/manager" as const,
+    icon: LayoutDashboard,
+    description: "Tổng quan hệ thống",
   },
   {
-    title: "Đơn hàng",
-    href: "/profile/orders" as const,
-    icon: ShoppingBag,
-    description: "Lịch sử mua hàng",
+    title: "Quản lý cá Koi",
+    href: "/manager/koi" as const,
+    icon: Fish,
+    description: "Quản lý đàn cá",
   },
   {
-    title: "Giao dịch",
-    href: "/profile/transactions" as const,
-    icon: CreditCard,
-    description: "Lịch sử thanh toán",
+    title: "Quản lý tài khoản",
+    href: "/manager/accounts" as const,
+    icon: Users,
+    description: "Người dùng hệ thống",
   },
   {
-    title: "Yêu thích",
-    href: "/profile/favorites" as const,
+    title: "Quản lý hồ",
+    href: "/manager/ponds" as const,
+    icon: Building2,
+    description: "Hồ cá và môi trường",
+  },
+  {
+    title: "Lịch làm việc",
+    href: "/manager/schedules" as const,
+    icon: Calendar,
+    description: "Phân công nhân sự",
+  },
+  {
+    title: "Quản lý sinh sản",
+    href: "/manager/breeding" as const,
     icon: Heart,
-    description: "Cá Koi yêu thích",
+    description: "Chu kỳ sinh sản",
+  },
+  {
+    title: "Chi phí vận chuyển",
+    href: "/manager/shipping" as const,
+    icon: Truck,
+    description: "Quản lý giá cước",
   },
   {
     title: "Thông báo",
-    href: "/profile/notifications" as const,
+    href: "/manager/notifications" as const,
     icon: Bell,
-    description: "Thông báo & cập nhật",
-  },
-  {
-    title: "Cài đặt",
-    href: "/profile/settings" as const,
-    icon: Settings,
-    description: "Cài đặt tài khoản",
+    description: "Báo cáo hệ thống",
   },
 ] as const;
 
-interface CustomerSidebarProps {
+interface ManagerSidebarProps {
   className?: string;
 }
 
-export function CustomerSidebar({ className }: CustomerSidebarProps) {
+export function ManagerSidebar({ className }: ManagerSidebarProps) {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
 
@@ -86,9 +101,9 @@ export function CustomerSidebar({ className }: CustomerSidebarProps) {
             />
             <div>
               <SheetTitle className="text-left text-xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                ZenKoi
+                ZenKoi Manager
               </SheetTitle>
-              <p className="text-xs text-muted-foreground">Koi Farm Premium</p>
+              <p className="text-xs text-muted-foreground">Quản lý trang trại</p>
             </div>
           </div>
         </SheetHeader>
@@ -98,7 +113,8 @@ export function CustomerSidebar({ className }: CustomerSidebarProps) {
       <nav className="flex-1 p-4 space-y-2">
         {sidebarItems.map((item) => {
           const Icon = item.icon;
-          const isActive = pathname === item.href;
+          const isActive = pathname === item.href || 
+            (item.href !== "/manager" && pathname.startsWith(item.href));
 
           return (
             <Link key={item.href} href={item.href} onClick={onItemClick}>
@@ -137,6 +153,19 @@ export function CustomerSidebar({ className }: CustomerSidebarProps) {
           );
         })}
       </nav>
+
+      {/* Admin Badge */}
+      <div className="p-4 border-t bg-muted/20">
+        <div className="flex items-center gap-3 px-3 py-2 rounded-lg bg-primary/5 border border-primary/10">
+          <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-primary/10">
+            <Shield className="h-4 w-4 text-primary" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-medium text-primary">Quản lý viên</p>
+            <p className="text-xs text-muted-foreground">Toàn quyền hệ thống</p>
+          </div>
+        </div>
+      </div>
     </div>
   );
 
@@ -170,4 +199,4 @@ export function CustomerSidebar({ className }: CustomerSidebarProps) {
   );
 }
 
-export default CustomerSidebar;
+export default ManagerSidebar;

@@ -13,13 +13,13 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import {
-  User,
-  ShoppingBag,
-  CreditCard,
+  LayoutDashboard,
+  Users,
+  ShoppingCart,
+  Fish,
   Menu,
   ChevronRight,
-  Settings,
-  Heart,
+  Shield,
   Bell,
 } from "lucide-react";
 import Image from "next/image";
@@ -27,48 +27,42 @@ import Logo from "@/assets/images/ZenKoi.png";
 
 const sidebarItems = [
   {
-    title: "Thông tin cá nhân",
-    href: "/profile" as const,
-    icon: User,
-    description: "Quản lý thông tin tài khoản",
+    title: "Dashboard",
+    href: "/sale" as const,
+    icon: LayoutDashboard,
+    description: "Tổng quan bán hàng",
   },
   {
-    title: "Đơn hàng",
-    href: "/profile/orders" as const,
-    icon: ShoppingBag,
-    description: "Lịch sử mua hàng",
+    title: "Quản lý khách hàng",
+    href: "/sale/customers" as const,
+    icon: Users,
+    description: "Thông tin khách hàng",
   },
   {
-    title: "Giao dịch",
-    href: "/profile/transactions" as const,
-    icon: CreditCard,
-    description: "Lịch sử thanh toán",
+    title: "Quản lý đơn hàng",
+    href: "/sale/orders" as const,
+    icon: ShoppingCart,
+    description: "Đơn hàng và trạng thái",
   },
   {
-    title: "Yêu thích",
-    href: "/profile/favorites" as const,
-    icon: Heart,
-    description: "Cá Koi yêu thích",
+    title: "Quản lý cá bán",
+    href: "/sale/fish-for-sale" as const,
+    icon: Fish,
+    description: "Danh sách cá bán",
   },
   {
     title: "Thông báo",
-    href: "/profile/notifications" as const,
+    href: "/sale/notifications" as const,
     icon: Bell,
-    description: "Thông báo & cập nhật",
-  },
-  {
-    title: "Cài đặt",
-    href: "/profile/settings" as const,
-    icon: Settings,
-    description: "Cài đặt tài khoản",
-  },
+    description: "Thông báo hệ thống",
+  }
 ] as const;
 
-interface CustomerSidebarProps {
+interface SaleSidebarProps {
   className?: string;
 }
 
-export function CustomerSidebar({ className }: CustomerSidebarProps) {
+export function SaleSidebar({ className }: SaleSidebarProps) {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
 
@@ -86,9 +80,9 @@ export function CustomerSidebar({ className }: CustomerSidebarProps) {
             />
             <div>
               <SheetTitle className="text-left text-xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                ZenKoi
+                ZenKoi Sale
               </SheetTitle>
-              <p className="text-xs text-muted-foreground">Koi Farm Premium</p>
+              <p className="text-xs text-muted-foreground">Quản lý bán hàng</p>
             </div>
           </div>
         </SheetHeader>
@@ -98,10 +92,11 @@ export function CustomerSidebar({ className }: CustomerSidebarProps) {
       <nav className="flex-1 p-4 space-y-2">
         {sidebarItems.map((item) => {
           const Icon = item.icon;
-          const isActive = pathname === item.href;
+          const isActive = pathname === item.href || 
+            (item.href !== "/sale" && pathname.startsWith(item.href));
 
           return (
-            <Link key={item.href} href={item.href} onClick={onItemClick}>
+            <Link key={item.href} href={{ pathname: item.href }} onClick={onItemClick}>
               <div
                 className={cn(
                   "flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-200 group hover:bg-accent/50 cursor-pointer",
@@ -137,6 +132,19 @@ export function CustomerSidebar({ className }: CustomerSidebarProps) {
           );
         })}
       </nav>
+
+      {/* Sale Badge */}
+      <div className="p-4 border-t bg-muted/20">
+        <div className="flex items-center gap-3 px-3 py-2 rounded-lg bg-primary/5 border border-primary/10">
+          <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-primary/10">
+            <Shield className="h-4 w-4 text-primary" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-medium text-primary">Nhân viên bán hàng</p>
+            <p className="text-xs text-muted-foreground">Quyền truy cập bán hàng</p>
+          </div>
+        </div>
+      </div>
     </div>
   );
 
@@ -170,4 +178,4 @@ export function CustomerSidebar({ className }: CustomerSidebarProps) {
   );
 }
 
-export default CustomerSidebar;
+export default SaleSidebar;
