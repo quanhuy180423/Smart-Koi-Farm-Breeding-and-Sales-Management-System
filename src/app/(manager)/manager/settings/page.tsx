@@ -95,7 +95,7 @@ export default function ManagerSettings() {
 
   const handleSettingChange = <K extends keyof SystemSettings>(
     key: K,
-    value: SystemSettings[K]
+    value: SystemSettings[K],
   ) => {
     setSettings((prev) => ({
       ...prev,
@@ -463,7 +463,7 @@ export default function ManagerSettings() {
                       onChange={(e) =>
                         handleSettingChange(
                           "sessionTimeout",
-                          parseInt(e.target.value) || 30
+                          parseInt(e.target.value) || 30,
                         )
                       }
                       onInput={handleNumericInput}
@@ -484,7 +484,7 @@ export default function ManagerSettings() {
                       onChange={(e) =>
                         handleSettingChange(
                           "passwordExpiry",
-                          parseInt(e.target.value) || 90
+                          parseInt(e.target.value) || 90,
                         )
                       }
                       onInput={handleNumericInput}
@@ -605,7 +605,7 @@ export default function ManagerSettings() {
                       onChange={(e) =>
                         handleSettingChange(
                           "logRetention",
-                          parseInt(e.target.value) || 30
+                          parseInt(e.target.value) || 30,
                         )
                       }
                       onInput={handleNumericInput}

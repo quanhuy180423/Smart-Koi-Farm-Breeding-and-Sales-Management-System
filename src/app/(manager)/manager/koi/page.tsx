@@ -1,20 +1,18 @@
 "use client";
 
 import { useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
-import { 
-  Plus, 
-  Search, 
-  Fish,
-  Edit,
-  Trash2,
-  Eye,
-  Upload
-} from "lucide-react";
+import { Plus, Search, Fish, Edit, Trash2, Eye, Upload } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -146,7 +144,11 @@ const koiData: Koi[] = [
 const getHealthBadge = (health: string) => {
   switch (health) {
     case "Khỏe mạnh":
-      return <Badge variant="default" className="bg-green-100 text-green-800">Khỏe mạnh</Badge>;
+      return (
+        <Badge variant="default" className="bg-green-100 text-green-800">
+          Khỏe mạnh
+        </Badge>
+      );
     case "Điều trị":
       return <Badge variant="destructive">Điều trị</Badge>;
     default:
@@ -157,9 +159,17 @@ const getHealthBadge = (health: string) => {
 const getStatusBadge = (status: string) => {
   switch (status) {
     case "active":
-      return <Badge variant="default" className="bg-blue-100 text-blue-800">Đang nuôi</Badge>;
+      return (
+        <Badge variant="default" className="bg-blue-100 text-blue-800">
+          Đang nuôi
+        </Badge>
+      );
     case "for-sale":
-      return <Badge variant="default" className="bg-green-100 text-green-800">Đang bán</Badge>;
+      return (
+        <Badge variant="default" className="bg-green-100 text-green-800">
+          Đang bán
+        </Badge>
+      );
     case "sold":
       return <Badge variant="secondary">Đã bán</Badge>;
     case "deceased":
@@ -192,9 +202,11 @@ export default function KoiManagement() {
   });
 
   const filteredKoi = koiData.filter((koi) => {
-    const matchesSearch = koi.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         koi.id.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesVariety = varietyFilter === "all" || koi.variety === varietyFilter;
+    const matchesSearch =
+      koi.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      koi.id.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesVariety =
+      varietyFilter === "all" || koi.variety === varietyFilter;
     const matchesPond = pondFilter === "all" || koi.pond === pondFilter;
     const matchesStatus = statusFilter === "all" || koi.status === statusFilter;
     return matchesSearch && matchesVariety && matchesPond && matchesStatus;
@@ -265,7 +277,7 @@ export default function KoiManagement() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {koiData.filter(k => k.status === "active").length}
+              {koiData.filter((k) => k.status === "active").length}
             </div>
           </CardContent>
         </Card>
@@ -276,7 +288,7 @@ export default function KoiManagement() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {koiData.filter(k => k.status === "for-sale").length}
+              {koiData.filter((k) => k.status === "for-sale").length}
             </div>
           </CardContent>
         </Card>
@@ -287,7 +299,7 @@ export default function KoiManagement() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {koiData.filter(k => k.health === "Điều trị").length}
+              {koiData.filter((k) => k.health === "Điều trị").length}
             </div>
           </CardContent>
         </Card>
@@ -389,13 +401,25 @@ export default function KoiManagement() {
                   <TableCell>{koi.price}</TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
-                      <Button variant="ghost" size="icon" onClick={() => handleViewDetails(koi)}>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleViewDetails(koi)}
+                      >
                         <Eye className="h-4 w-4" />
                       </Button>
-                      <Button variant="ghost" size="icon" onClick={() => handleEditKoi(koi)}>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleEditKoi(koi)}
+                      >
                         <Edit className="h-4 w-4" />
                       </Button>
-                      <Button variant="ghost" size="icon" className="text-red-600 hover:bg-red-500">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="text-red-600 hover:bg-red-500"
+                      >
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </div>
@@ -413,17 +437,21 @@ export default function KoiManagement() {
           <DialogContent className="max-w-xl!">
             <DialogHeader className="flex flex-row items-center justify-between">
               <div>
-                <DialogTitle className="text-lg font-semibold">{selectedKoi.name}</DialogTitle>
+                <DialogTitle className="text-lg font-semibold">
+                  {selectedKoi.name}
+                </DialogTitle>
                 <DialogDescription className="text-sm text-muted-foreground">
                   {selectedKoi.id} • {selectedKoi.variety}
                 </DialogDescription>
               </div>
             </DialogHeader>
-            
+
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
-                  <h4 className="font-medium text-muted-foreground">Thuộc tính vật lý</h4>
+                  <h4 className="font-medium text-muted-foreground">
+                    Thuộc tính vật lý
+                  </h4>
                   <div className="mt-2 space-y-2">
                     <div className="flex justify-between">
                       <span>Tuổi:</span>
@@ -443,9 +471,11 @@ export default function KoiManagement() {
                     </div>
                   </div>
                 </div>
-                
+
                 <div>
-                  <h4 className="font-medium text-muted-foreground">Vị trí & Trạng thái</h4>
+                  <h4 className="font-medium text-muted-foreground">
+                    Vị trí & Trạng thái
+                  </h4>
                   <div className="mt-2 space-y-2">
                     <div className="flex justify-between">
                       <span>Hồ:</span>
@@ -457,7 +487,14 @@ export default function KoiManagement() {
                     </div>
                     <div className="flex justify-between">
                       <span>Tình trạng sức khỏe:</span>
-                      <Badge variant={selectedKoi.health === "Khỏe mạnh" ? "default" : "destructive"} className="text-xs">
+                      <Badge
+                        variant={
+                          selectedKoi.health === "Khỏe mạnh"
+                            ? "default"
+                            : "destructive"
+                        }
+                        className="text-xs"
+                      >
                         {selectedKoi.health}
                       </Badge>
                     </div>
@@ -470,16 +507,24 @@ export default function KoiManagement() {
                   </div>
                 </div>
               </div>
-              
+
               <div className="border-t pt-4">
                 <div className="flex justify-between items-center">
                   <div>
                     <h4 className="font-medium">Giá trị thị trường</h4>
-                    <p className="text-2xl font-bold text-primary">{formatCurrency(parseInt(selectedKoi.price.replace(/[^0-9]/g, ""), 10))}</p>
+                    <p className="text-2xl font-bold text-primary">
+                      {formatCurrency(
+                        parseInt(selectedKoi.price.replace(/[^0-9]/g, ""), 10),
+                      )}
+                    </p>
                   </div>
                   <div className="text-right">
-                    <p className="text-sm text-muted-foreground">Kiểm tra sức khỏe lần cuối</p>
-                    <p className="font-medium">{formatDate(selectedKoi.lastHealthCheck, "dd/MM/yyyy")}</p>
+                    <p className="text-sm text-muted-foreground">
+                      Kiểm tra sức khỏe lần cuối
+                    </p>
+                    <p className="font-medium">
+                      {formatDate(selectedKoi.lastHealthCheck, "dd/MM/yyyy")}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -494,28 +539,47 @@ export default function KoiManagement() {
           <DialogContent className="max-w-md">
             <DialogHeader className="flex flex-row items-center justify-between">
               <div>
-                <DialogTitle className="text-lg font-semibold">Thêm cá mới</DialogTitle>
+                <DialogTitle className="text-lg font-semibold">
+                  Thêm cá mới
+                </DialogTitle>
                 <DialogDescription className="text-sm text-muted-foreground">
                   Nhập thông tin chi tiết cho một con cá mới trong kho.
                 </DialogDescription>
               </div>
             </DialogHeader>
-            
+
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="name" className="text-sm font-medium text-gray-700">Tên</Label>
+                  <Label
+                    htmlFor="name"
+                    className="text-sm font-medium text-gray-700"
+                  >
+                    Tên
+                  </Label>
                   <Input
                     id="name"
                     value={newFish.name}
-                    onChange={(e) => setNewFish({...newFish, name: e.target.value})}
+                    onChange={(e) =>
+                      setNewFish({ ...newFish, name: e.target.value })
+                    }
                     placeholder="Nhập tên cá (vd: Sakura)"
                     className="border-2 border-gray-300 focus:border-blue-500 transition-colors"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="variety" className="text-sm font-medium text-gray-700">Giống</Label>
-                  <Select value={newFish.variety} onValueChange={(value) => setNewFish({...newFish, variety: value})}>
+                  <Label
+                    htmlFor="variety"
+                    className="text-sm font-medium text-gray-700"
+                  >
+                    Giống
+                  </Label>
+                  <Select
+                    value={newFish.variety}
+                    onValueChange={(value) =>
+                      setNewFish({ ...newFish, variety: value })
+                    }
+                  >
                     <SelectTrigger className="border-2 border-gray-300 focus:border-blue-500 w-full">
                       <SelectValue placeholder="Chọn giống cá" />
                     </SelectTrigger>
@@ -531,31 +595,52 @@ export default function KoiManagement() {
 
               <div className="grid grid-cols-3 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="age" className="text-sm font-medium text-gray-700">Tuổi</Label>
+                  <Label
+                    htmlFor="age"
+                    className="text-sm font-medium text-gray-700"
+                  >
+                    Tuổi
+                  </Label>
                   <Input
                     id="age"
                     value={newFish.age}
-                    onChange={(e) => setNewFish({...newFish, age: e.target.value})}
+                    onChange={(e) =>
+                      setNewFish({ ...newFish, age: e.target.value })
+                    }
                     placeholder="VD: 2 năm"
                     className="border-2 border-gray-300 focus:border-blue-500 transition-colors"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="size" className="text-sm font-medium text-gray-700">Kích thước</Label>
+                  <Label
+                    htmlFor="size"
+                    className="text-sm font-medium text-gray-700"
+                  >
+                    Kích thước
+                  </Label>
                   <Input
                     id="size"
                     value={newFish.size}
-                    onChange={(e) => setNewFish({...newFish, size: e.target.value})}
+                    onChange={(e) =>
+                      setNewFish({ ...newFish, size: e.target.value })
+                    }
                     placeholder="VD: 45cm"
                     className="border-2 border-gray-300 focus:border-blue-500 transition-colors"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="weight" className="text-sm font-medium text-gray-700">Cân nặng</Label>
+                  <Label
+                    htmlFor="weight"
+                    className="text-sm font-medium text-gray-700"
+                  >
+                    Cân nặng
+                  </Label>
                   <Input
                     id="weight"
                     value={newFish.weight}
-                    onChange={(e) => setNewFish({...newFish, weight: e.target.value})}
+                    onChange={(e) =>
+                      setNewFish({ ...newFish, weight: e.target.value })
+                    }
                     placeholder="VD: 2.1kg"
                     className="border-2 border-gray-300 focus:border-blue-500 transition-colors"
                   />
@@ -564,8 +649,18 @@ export default function KoiManagement() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="pond" className="text-sm font-medium text-gray-700">Hồ</Label>
-                  <Select value={newFish.pond} onValueChange={(value) => setNewFish({...newFish, pond: value})}>
+                  <Label
+                    htmlFor="pond"
+                    className="text-sm font-medium text-gray-700"
+                  >
+                    Hồ
+                  </Label>
+                  <Select
+                    value={newFish.pond}
+                    onValueChange={(value) =>
+                      setNewFish({ ...newFish, pond: value })
+                    }
+                  >
                     <SelectTrigger className="border-2 border-gray-300 focus:border-blue-500 w-full">
                       <SelectValue placeholder="Chọn hồ nuôi" />
                     </SelectTrigger>
@@ -579,8 +674,18 @@ export default function KoiManagement() {
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="origin" className="text-sm font-medium text-gray-700">Xuất xứ</Label>
-                  <Select value={newFish.origin} onValueChange={(value) => setNewFish({...newFish, origin: value})}>
+                  <Label
+                    htmlFor="origin"
+                    className="text-sm font-medium text-gray-700"
+                  >
+                    Xuất xứ
+                  </Label>
+                  <Select
+                    value={newFish.origin}
+                    onValueChange={(value) =>
+                      setNewFish({ ...newFish, origin: value })
+                    }
+                  >
                     <SelectTrigger className="border-2 border-gray-300 focus:border-blue-500 w-full">
                       <SelectValue placeholder="Chọn xuất xứ" />
                     </SelectTrigger>
@@ -595,8 +700,18 @@ export default function KoiManagement() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="gender" className="text-sm font-medium text-gray-700">Giới tính</Label>
-                  <Select value={newFish.gender} onValueChange={(value) => setNewFish({...newFish, gender: value})}>
+                  <Label
+                    htmlFor="gender"
+                    className="text-sm font-medium text-gray-700"
+                  >
+                    Giới tính
+                  </Label>
+                  <Select
+                    value={newFish.gender}
+                    onValueChange={(value) =>
+                      setNewFish({ ...newFish, gender: value })
+                    }
+                  >
                     <SelectTrigger className="border-2 border-gray-300 focus:border-blue-500 w-full">
                       <SelectValue placeholder="Chọn giới tính" />
                     </SelectTrigger>
@@ -607,11 +722,18 @@ export default function KoiManagement() {
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="price" className="text-sm font-medium text-gray-700">Giá (VNĐ)</Label>
+                  <Label
+                    htmlFor="price"
+                    className="text-sm font-medium text-gray-700"
+                  >
+                    Giá (VNĐ)
+                  </Label>
                   <Input
                     id="price"
                     value={newFish.price}
-                    onChange={(e) => setNewFish({...newFish, price: e.target.value})}
+                    onChange={(e) =>
+                      setNewFish({ ...newFish, price: e.target.value })
+                    }
                     placeholder="VD: 8,500,000"
                     className="border-2 border-gray-300 focus:border-blue-500 transition-colors"
                   />
@@ -619,17 +741,19 @@ export default function KoiManagement() {
               </div>
 
               <div>
-                <Label htmlFor="image" className="text-sm font-medium">Hình ảnh</Label>
+                <Label htmlFor="image" className="text-sm font-medium">
+                  Hình ảnh
+                </Label>
                 <div className="mt-2 border-2 border-dashed border-muted-foreground/25 rounded-lg p-4 text-center">
                   <Upload className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
-                  <p className="text-sm text-muted-foreground">Tải lên hình ảnh cá</p>
+                  <p className="text-sm text-muted-foreground">
+                    Tải lên hình ảnh cá
+                  </p>
                 </div>
               </div>
 
               <div className="flex justify-end">
-                <Button onClick={handleAddFish}>
-                  Thêm cá
-                </Button>
+                <Button onClick={handleAddFish}>Thêm cá</Button>
               </div>
             </div>
           </DialogContent>
@@ -642,28 +766,50 @@ export default function KoiManagement() {
           <DialogContent className="max-w-lg">
             <DialogHeader className="flex flex-row items-center justify-between">
               <div>
-                <DialogTitle className="text-lg font-semibold">Chỉnh sửa cá Koi</DialogTitle>
+                <DialogTitle className="text-lg font-semibold">
+                  Chỉnh sửa cá Koi
+                </DialogTitle>
                 <DialogDescription className="text-sm text-muted-foreground">
                   Cập nhật thông tin cho cá {editingKoi.name}.
                 </DialogDescription>
               </div>
             </DialogHeader>
-            
+
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="edit-name" className="text-sm font-medium text-gray-700">Tên</Label>
+                  <Label
+                    htmlFor="edit-name"
+                    className="text-sm font-medium text-gray-700"
+                  >
+                    Tên
+                  </Label>
                   <Input
                     id="edit-name"
                     value={editingKoi.name}
-                    onChange={(e) => setEditingKoi({...editingKoi, name: e.target.value})}
+                    onChange={(e) =>
+                      setEditingKoi({ ...editingKoi, name: e.target.value })
+                    }
                     placeholder="Nhập tên cá (vd: Sakura)"
                     className="border-2 border-gray-300 focus:border-blue-500 transition-colors"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="edit-variety" className="text-sm font-medium text-gray-700">Giống</Label>
-                  <Select value={editingKoi.variety} onValueChange={(value) => setEditingKoi({...editingKoi, variety: value as KoiVariety})}>
+                  <Label
+                    htmlFor="edit-variety"
+                    className="text-sm font-medium text-gray-700"
+                  >
+                    Giống
+                  </Label>
+                  <Select
+                    value={editingKoi.variety}
+                    onValueChange={(value) =>
+                      setEditingKoi({
+                        ...editingKoi,
+                        variety: value as KoiVariety,
+                      })
+                    }
+                  >
                     <SelectTrigger className="border-2 border-gray-300 focus:border-blue-500 w-full">
                       <SelectValue placeholder="Chọn giống cá" />
                     </SelectTrigger>
@@ -679,31 +825,52 @@ export default function KoiManagement() {
 
               <div className="grid grid-cols-3 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="edit-age" className="text-sm font-medium text-gray-700">Tuổi</Label>
+                  <Label
+                    htmlFor="edit-age"
+                    className="text-sm font-medium text-gray-700"
+                  >
+                    Tuổi
+                  </Label>
                   <Input
                     id="edit-age"
                     value={editingKoi.age}
-                    onChange={(e) => setEditingKoi({...editingKoi, age: e.target.value})}
+                    onChange={(e) =>
+                      setEditingKoi({ ...editingKoi, age: e.target.value })
+                    }
                     placeholder="2 năm"
                     className="border-2 border-gray-300 focus:border-blue-500 transition-colors"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="edit-size" className="text-sm font-medium text-gray-700">Kích thước</Label>
+                  <Label
+                    htmlFor="edit-size"
+                    className="text-sm font-medium text-gray-700"
+                  >
+                    Kích thước
+                  </Label>
                   <Input
                     id="edit-size"
                     value={editingKoi.size}
-                    onChange={(e) => setEditingKoi({...editingKoi, size: e.target.value})}
+                    onChange={(e) =>
+                      setEditingKoi({ ...editingKoi, size: e.target.value })
+                    }
                     placeholder="45cm"
                     className="border-2 border-gray-300 focus:border-blue-500 transition-colors"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="edit-weight" className="text-sm font-medium text-gray-700">Cân nặng</Label>
+                  <Label
+                    htmlFor="edit-weight"
+                    className="text-sm font-medium text-gray-700"
+                  >
+                    Cân nặng
+                  </Label>
                   <Input
                     id="edit-weight"
                     value={editingKoi.weight}
-                    onChange={(e) => setEditingKoi({...editingKoi, weight: e.target.value})}
+                    onChange={(e) =>
+                      setEditingKoi({ ...editingKoi, weight: e.target.value })
+                    }
                     placeholder="2.1kg"
                     className="border-2 border-gray-300 focus:border-blue-500 transition-colors"
                   />
@@ -712,8 +879,18 @@ export default function KoiManagement() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="edit-pond" className="text-sm font-medium text-gray-700">Hồ</Label>
-                  <Select value={editingKoi.pond} onValueChange={(value) => setEditingKoi({...editingKoi, pond: value})}>
+                  <Label
+                    htmlFor="edit-pond"
+                    className="text-sm font-medium text-gray-700"
+                  >
+                    Hồ
+                  </Label>
+                  <Select
+                    value={editingKoi.pond}
+                    onValueChange={(value) =>
+                      setEditingKoi({ ...editingKoi, pond: value })
+                    }
+                  >
                     <SelectTrigger className="border-2 border-gray-300 focus:border-blue-500 w-full">
                       <SelectValue placeholder="Chọn hồ nuôi" />
                     </SelectTrigger>
@@ -727,8 +904,21 @@ export default function KoiManagement() {
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="edit-origin" className="text-sm font-medium text-gray-700">Xuất xứ</Label>
-                  <Select value={editingKoi.origin} onValueChange={(value) => setEditingKoi({...editingKoi, origin: value as KoiOrigin})}>
+                  <Label
+                    htmlFor="edit-origin"
+                    className="text-sm font-medium text-gray-700"
+                  >
+                    Xuất xứ
+                  </Label>
+                  <Select
+                    value={editingKoi.origin}
+                    onValueChange={(value) =>
+                      setEditingKoi({
+                        ...editingKoi,
+                        origin: value as KoiOrigin,
+                      })
+                    }
+                  >
                     <SelectTrigger className="border-2 border-gray-300 focus:border-blue-500 w-full">
                       <SelectValue placeholder="Chọn xuất xứ" />
                     </SelectTrigger>
@@ -743,8 +933,21 @@ export default function KoiManagement() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="edit-gender" className="text-sm font-medium text-gray-700">Giới tính</Label>
-                  <Select value={editingKoi.gender} onValueChange={(value) => setEditingKoi({...editingKoi, gender: value as KoiGender})}>
+                  <Label
+                    htmlFor="edit-gender"
+                    className="text-sm font-medium text-gray-700"
+                  >
+                    Giới tính
+                  </Label>
+                  <Select
+                    value={editingKoi.gender}
+                    onValueChange={(value) =>
+                      setEditingKoi({
+                        ...editingKoi,
+                        gender: value as KoiGender,
+                      })
+                    }
+                  >
                     <SelectTrigger className="border-2 border-gray-300 focus:border-blue-500 w-full">
                       <SelectValue placeholder="Chọn giới tính" />
                     </SelectTrigger>
@@ -755,11 +958,18 @@ export default function KoiManagement() {
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="edit-price" className="text-sm font-medium text-gray-700">Giá (VNĐ)</Label>
+                  <Label
+                    htmlFor="edit-price"
+                    className="text-sm font-medium text-gray-700"
+                  >
+                    Giá (VNĐ)
+                  </Label>
                   <Input
                     id="edit-price"
                     value={editingKoi.price}
-                    onChange={(e) => setEditingKoi({...editingKoi, price: e.target.value})}
+                    onChange={(e) =>
+                      setEditingKoi({ ...editingKoi, price: e.target.value })
+                    }
                     placeholder="8,500,000"
                     className="border-2 border-gray-300 focus:border-blue-500 transition-colors"
                   />
@@ -767,8 +977,18 @@ export default function KoiManagement() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="edit-status" className="text-sm font-medium text-gray-700">Trạng thái</Label>
-                <Select value={editingKoi.status} onValueChange={(value) => setEditingKoi({...editingKoi, status: value as KoiStatus})}>
+                <Label
+                  htmlFor="edit-status"
+                  className="text-sm font-medium text-gray-700"
+                >
+                  Trạng thái
+                </Label>
+                <Select
+                  value={editingKoi.status}
+                  onValueChange={(value) =>
+                    setEditingKoi({ ...editingKoi, status: value as KoiStatus })
+                  }
+                >
                   <SelectTrigger className="border-2 border-gray-300 focus:border-blue-500 w-full">
                     <SelectValue placeholder="Chọn trạng thái" />
                   </SelectTrigger>
@@ -782,20 +1002,28 @@ export default function KoiManagement() {
               </div>
 
               <div>
-                <Label htmlFor="edit-image" className="text-sm font-medium text-gray-700">Hình ảnh</Label>
+                <Label
+                  htmlFor="edit-image"
+                  className="text-sm font-medium text-gray-700"
+                >
+                  Hình ảnh
+                </Label>
                 <div className="mt-2 border-2 border-dashed border-muted-foreground/25 rounded-lg p-4 text-center">
                   <Upload className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
-                  <p className="text-sm text-muted-foreground">Thay đổi hình ảnh cá</p>
+                  <p className="text-sm text-muted-foreground">
+                    Thay đổi hình ảnh cá
+                  </p>
                 </div>
               </div>
 
               <div className="flex justify-end space-x-3">
-                <Button variant="outline" onClick={() => setIsEditModalOpen(false)}>
+                <Button
+                  variant="outline"
+                  onClick={() => setIsEditModalOpen(false)}
+                >
                   Hủy
                 </Button>
-                <Button onClick={handleUpdateKoi}>
-                  Cập nhật
-                </Button>
+                <Button onClick={handleUpdateKoi}>Cập nhật</Button>
               </div>
             </div>
           </DialogContent>

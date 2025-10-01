@@ -55,7 +55,7 @@ const sidebarItems = [
     href: "/sale/notifications" as const,
     icon: Bell,
     description: "Thông báo hệ thống",
-  }
+  },
 ] as const;
 
 interface SaleSidebarProps {
@@ -66,7 +66,13 @@ export function SaleSidebar({ className }: SaleSidebarProps) {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
 
-  const SidebarContent = ({ showHeader = false, onItemClick }: { showHeader?: boolean; onItemClick?: () => void }) => (
+  const SidebarContent = ({
+    showHeader = false,
+    onItemClick,
+  }: {
+    showHeader?: boolean;
+    onItemClick?: () => void;
+  }) => (
     <div className="flex flex-col h-full">
       {showHeader && (
         <SheetHeader className="px-4 pt-6 pb-4 border-b bg-gradient-to-r from-background to-muted/30">
@@ -92,11 +98,16 @@ export function SaleSidebar({ className }: SaleSidebarProps) {
       <nav className="flex-1 p-4 space-y-2">
         {sidebarItems.map((item) => {
           const Icon = item.icon;
-          const isActive = pathname === item.href || 
+          const isActive =
+            pathname === item.href ||
             (item.href !== "/sale" && pathname.startsWith(item.href));
 
           return (
-            <Link key={item.href} href={{ pathname: item.href }} onClick={onItemClick}>
+            <Link
+              key={item.href}
+              href={{ pathname: item.href }}
+              onClick={onItemClick}
+            >
               <div
                 className={cn(
                   "flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-200 group hover:bg-accent/50 cursor-pointer",
@@ -140,8 +151,12 @@ export function SaleSidebar({ className }: SaleSidebarProps) {
             <Shield className="h-4 w-4 text-primary" />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-primary">Nhân viên bán hàng</p>
-            <p className="text-xs text-muted-foreground">Quyền truy cập bán hàng</p>
+            <p className="text-sm font-medium text-primary">
+              Nhân viên bán hàng
+            </p>
+            <p className="text-xs text-muted-foreground">
+              Quyền truy cập bán hàng
+            </p>
           </div>
         </div>
       </div>
@@ -170,7 +185,10 @@ export function SaleSidebar({ className }: SaleSidebarProps) {
             </Button>
           </SheetTrigger>
           <SheetContent side="left" className="w-80 p-0">
-            <SidebarContent showHeader={true} onItemClick={() => setIsOpen(false)} />
+            <SidebarContent
+              showHeader={true}
+              onItemClick={() => setIsOpen(false)}
+            />
           </SheetContent>
         </Sheet>
       </div>

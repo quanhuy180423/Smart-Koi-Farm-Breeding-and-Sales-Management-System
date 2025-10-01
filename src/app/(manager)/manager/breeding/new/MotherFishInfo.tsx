@@ -105,7 +105,8 @@ export default function MotherFishInfo({ selectedFish }: MotherFishInfoProps) {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value={selectedFish.id.toString()}>
-                {selectedFish.variety} ID: {selectedFish.name} - {selectedFish.age} - High Quality
+                {selectedFish.variety} ID: {selectedFish.name} -{" "}
+                {selectedFish.age} - High Quality
               </SelectItem>
             </SelectContent>
           </Select>
@@ -136,12 +137,17 @@ export default function MotherFishInfo({ selectedFish }: MotherFishInfoProps) {
       <div className="space-y-8">
         <div>
           <h4 className="text-lg font-bold text-gray-800 mb-5 flex items-center gap-2">
-            <span className="bg-pink-100 text-pink-800 rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold">1</span>
+            <span className="bg-pink-100 text-pink-800 rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold">
+              1
+            </span>
             Phẩm Chất Cơ Bản của Cá Thể
           </h4>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {qualityData.map((item, index) => (
-              <Card key={index} className="bg-gradient-to-br from-pink-50 to-white border-pink-100 hover:shadow-md transition-shadow">
+              <Card
+                key={index}
+                className="bg-gradient-to-br from-pink-50 to-white border-pink-100 hover:shadow-md transition-shadow"
+              >
                 <CardContent className="p-4">
                   <div className="text-sm font-semibold text-gray-700 mb-2">
                     {item.label}
@@ -157,19 +163,22 @@ export default function MotherFishInfo({ selectedFish }: MotherFishInfoProps) {
 
         <div>
           <h4 className="text-lg font-bold text-gray-800 mb-5 flex items-center gap-2">
-            <span className="bg-pink-100 text-pink-800 rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold">2</span>
+            <span className="bg-pink-100 text-pink-800 rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold">
+              2
+            </span>
             Dữ liệu Di truyền & Phả hệ
           </h4>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {geneticData.map((item, index) => (
-              <Card key={index} className="bg-gradient-to-br from-pink-50 to-white border-pink-100 hover:shadow-md transition-shadow">
+              <Card
+                key={index}
+                className="bg-gradient-to-br from-pink-50 to-white border-pink-100 hover:shadow-md transition-shadow"
+              >
                 <CardContent className="p-4">
                   <div className="text-sm font-semibold text-gray-700 mb-2">
                     {item.label}
                   </div>
-                  <div className="text-sm text-gray-900">
-                    {item.value}
-                  </div>
+                  <div className="text-sm text-gray-900">{item.value}</div>
                 </CardContent>
               </Card>
             ))}
@@ -196,12 +205,17 @@ export default function MotherFishInfo({ selectedFish }: MotherFishInfoProps) {
 
         <div>
           <h4 className="text-lg font-bold text-gray-800 mb-5 flex items-center gap-2">
-            <span className="bg-pink-100 text-pink-800 rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold">3</span>
+            <span className="bg-pink-100 text-pink-800 rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold">
+              3
+            </span>
             Sức Khỏe & Độ Tuổi
           </h4>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {healthData.map((item, index) => (
-              <Card key={index} className="bg-gradient-to-br from-pink-50 to-white border-pink-100 hover:shadow-md transition-shadow">
+              <Card
+                key={index}
+                className="bg-gradient-to-br from-pink-50 to-white border-pink-100 hover:shadow-md transition-shadow"
+              >
                 <CardContent className="p-4">
                   <div className="text-sm font-semibold text-gray-700 mb-2">
                     {item.label}
@@ -217,19 +231,22 @@ export default function MotherFishInfo({ selectedFish }: MotherFishInfoProps) {
 
         <div>
           <h4 className="text-lg font-bold text-gray-800 mb-5 flex items-center gap-2">
-            <span className="bg-pink-100 text-pink-800 rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold">4</span>
+            <span className="bg-pink-100 text-pink-800 rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold">
+              4
+            </span>
             Đặc Tính Riêng Biệt Theo Giống
           </h4>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {breedData.map((item, index) => (
-              <Card key={index} className="bg-gradient-to-br from-pink-50 to-white border-pink-100 hover:shadow-md transition-shadow">
+              <Card
+                key={index}
+                className="bg-gradient-to-br from-pink-50 to-white border-pink-100 hover:shadow-md transition-shadow"
+              >
                 <CardContent className="p-4">
                   <div className="text-sm font-semibold text-gray-700 mb-2">
                     {item.label}
                   </div>
-                  <div className="text-sm text-gray-900">
-                    {item.value}
-                  </div>
+                  <div className="text-sm text-gray-900">{item.value}</div>
                 </CardContent>
               </Card>
             ))}
@@ -238,19 +255,22 @@ export default function MotherFishInfo({ selectedFish }: MotherFishInfoProps) {
 
         <div>
           <h4 className="text-lg font-bold text-gray-800 mb-5 flex items-center gap-2">
-            <span className="bg-pink-100 text-pink-800 rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold">5</span>
+            <span className="bg-pink-100 text-pink-800 rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold">
+              5
+            </span>
             Dữ Liệu Lịch Sử Sinh Sản
           </h4>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {breedingData.map((item, index) => (
-              <Card key={index} className="bg-gradient-to-br from-pink-50 to-white border-pink-100 hover:shadow-md transition-shadow">
+              <Card
+                key={index}
+                className="bg-gradient-to-br from-pink-50 to-white border-pink-100 hover:shadow-md transition-shadow"
+              >
                 <CardContent className="p-4">
                   <div className="text-sm font-semibold text-gray-700 mb-2">
                     {item.label}
                   </div>
-                  <div className="text-sm text-gray-900">
-                    {item.value}
-                  </div>
+                  <div className="text-sm text-gray-900">{item.value}</div>
                 </CardContent>
               </Card>
             ))}

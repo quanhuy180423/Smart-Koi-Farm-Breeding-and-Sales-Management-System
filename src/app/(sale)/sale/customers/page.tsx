@@ -1,7 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -119,7 +125,7 @@ export default function CustomersPage() {
       (customer) =>
         customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         customer.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        customer.phone.includes(searchTerm)
+        customer.phone.includes(searchTerm),
     );
     setFilteredCustomers(filtered);
   }, [searchTerm, customers]);
@@ -219,8 +225,12 @@ export default function CustomersPage() {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{mockCustomerStats.totalCustomers}</div>
-            <p className="text-xs text-muted-foreground">+12% so với tháng trước</p>
+            <div className="text-2xl font-bold">
+              {mockCustomerStats.totalCustomers}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              +12% so với tháng trước
+            </p>
           </CardContent>
         </Card>
 
@@ -234,7 +244,9 @@ export default function CustomersPage() {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{mockCustomerStats.newCustomers}</div>
+            <div className="text-2xl font-bold">
+              {mockCustomerStats.newCustomers}
+            </div>
             <p className="text-xs text-muted-foreground">Trong tháng này</p>
           </CardContent>
         </Card>
@@ -249,8 +261,12 @@ export default function CustomersPage() {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{mockCustomerStats.activeCustomers}</div>
-            <p className="text-xs text-muted-foreground">Mua hàng trong 30 ngày</p>
+            <div className="text-2xl font-bold">
+              {mockCustomerStats.activeCustomers}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Mua hàng trong 30 ngày
+            </p>
           </CardContent>
         </Card>
 
@@ -264,8 +280,12 @@ export default function CustomersPage() {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{mockCustomerStats.vipCustomers}</div>
-            <p className="text-xs text-muted-foreground">Chi tiêu {'>'} 50 triệu</p>
+            <div className="text-2xl font-bold">
+              {mockCustomerStats.vipCustomers}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Chi tiêu {">"} 50 triệu
+            </p>
           </CardContent>
         </Card>
       </div>
@@ -306,7 +326,9 @@ export default function CustomersPage() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex flex-wrap items-center gap-2 mb-2">
-                      <h3 className="font-medium text-sm sm:text-base">{customer.name}</h3>
+                      <h3 className="font-medium text-sm sm:text-base">
+                        {customer.name}
+                      </h3>
                       <Badge
                         className={getTierColor(customer.tier)}
                         variant="secondary"
@@ -317,7 +339,9 @@ export default function CustomersPage() {
                         className={getStatusColor(customer.status)}
                         variant="secondary"
                       >
-                        {customer.status === "active" ? "Hoạt động" : "Không hoạt động"}
+                        {customer.status === "active"
+                          ? "Hoạt động"
+                          : "Không hoạt động"}
                       </Badge>
                     </div>
                     <div className="space-y-1 sm:space-y-0 sm:flex sm:items-center sm:gap-4 text-xs sm:text-sm text-muted-foreground">
@@ -342,14 +366,19 @@ export default function CustomersPage() {
                 </div>
                 <div className="flex items-center justify-between sm:justify-end gap-4">
                   <div className="text-left sm:text-right">
-                    <p className="font-medium text-sm sm:text-base">{formatCurrency(customer.totalSpent)}</p>
+                    <p className="font-medium text-sm sm:text-base">
+                      {formatCurrency(customer.totalSpent)}
+                    </p>
                     <p className="text-xs text-muted-foreground">
                       Lần cuối: {customer.lastOrder}
                     </p>
                   </div>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" className="h-8 w-8 p-0 flex-shrink-0">
+                      <Button
+                        variant="ghost"
+                        className="h-8 w-8 p-0 flex-shrink-0"
+                      >
                         <MoreHorizontal className="h-4 w-4" />
                       </Button>
                     </DropdownMenuTrigger>
@@ -374,11 +403,13 @@ export default function CustomersPage() {
               </div>
             ))}
           </div>
-          
+
           {filteredCustomers.length === 0 && (
             <div className="text-center py-8">
               <Users className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-medium mb-2">Không tìm thấy khách hàng</h3>
+              <h3 className="text-lg font-medium mb-2">
+                Không tìm thấy khách hàng
+              </h3>
               <p className="text-muted-foreground">
                 Thử thay đổi từ khóa tìm kiếm hoặc thêm khách hàng mới
               </p>

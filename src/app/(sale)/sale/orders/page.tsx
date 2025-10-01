@@ -1,7 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -81,9 +87,7 @@ const mockOrders = [
     customerId: "CUST002",
     customerName: "Trần Thị Bình",
     customerEmail: "tranthib@email.com",
-    items: [
-      { name: "Koi Sanke", quantity: 1, price: 1800000 },
-    ],
+    items: [{ name: "Koi Sanke", quantity: 1, price: 1800000 }],
     totalAmount: 1800000,
     status: "processing",
     paymentStatus: "paid",
@@ -114,9 +118,7 @@ const mockOrders = [
     customerId: "CUST004",
     customerName: "Phạm Thị Dung",
     customerEmail: "phamthid@email.com",
-    items: [
-      { name: "Koi Tancho", quantity: 1, price: 1500000 },
-    ],
+    items: [{ name: "Koi Tancho", quantity: 1, price: 1500000 }],
     totalAmount: 1500000,
     status: "cancelled",
     paymentStatus: "refunded",
@@ -149,7 +151,7 @@ export default function OrdersPage() {
         (order) =>
           order.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
           order.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          order.customerEmail.toLowerCase().includes(searchTerm.toLowerCase())
+          order.customerEmail.toLowerCase().includes(searchTerm.toLowerCase()),
       );
     }
 
@@ -288,7 +290,9 @@ export default function OrdersPage() {
             <ShoppingCart className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-xl sm:text-2xl font-bold">{mockOrderStats.totalOrders}</div>
+            <div className="text-xl sm:text-2xl font-bold">
+              {mockOrderStats.totalOrders}
+            </div>
           </CardContent>
         </Card>
 
@@ -411,28 +415,37 @@ export default function OrdersPage() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex flex-wrap items-center gap-2 mb-2">
-                      <h3 className="font-bold text-base sm:text-lg">{order.id}</h3>
+                      <h3 className="font-bold text-base sm:text-lg">
+                        {order.id}
+                      </h3>
                       <Badge
                         className={getStatusColor(order.status)}
                         variant="secondary"
                       >
                         <div className="flex items-center gap-1">
                           {getStatusIcon(order.status)}
-                          <span className="hidden sm:inline">{getStatusText(order.status)}</span>
+                          <span className="hidden sm:inline">
+                            {getStatusText(order.status)}
+                          </span>
                         </div>
                       </Badge>
                       <Badge
                         className={getPaymentStatusColor(order.paymentStatus)}
                         variant="secondary"
                       >
-                        <span className="hidden sm:inline">{getPaymentStatusText(order.paymentStatus)}</span>
+                        <span className="hidden sm:inline">
+                          {getPaymentStatusText(order.paymentStatus)}
+                        </span>
                         <span className="sm:hidden">
-                          {order.paymentStatus === "paid" ? "Đã thanh toán" : 
-                           order.paymentStatus === "pending" ? "Chờ thanh toán" : "Hoàn tiền"}
+                          {order.paymentStatus === "paid"
+                            ? "Đã thanh toán"
+                            : order.paymentStatus === "pending"
+                              ? "Chờ thanh toán"
+                              : "Hoàn tiền"}
                         </span>
                       </Badge>
                     </div>
-                    
+
                     <div className="space-y-1 sm:space-y-0 sm:flex sm:items-center sm:gap-4 text-xs sm:text-sm text-muted-foreground mb-2">
                       <div className="flex items-center gap-1">
                         <User className="h-3 w-3 flex-shrink-0" />
@@ -457,7 +470,9 @@ export default function OrdersPage() {
                           {order.items.length} sản phẩm:
                         </span>
                         <div className="font-medium line-clamp-2">
-                          {order.items.map(item => `${item.name} (${item.quantity})`).join(", ")}
+                          {order.items
+                            .map((item) => `${item.name} (${item.quantity})`)
+                            .join(", ")}
                         </div>
                       </div>
                     </div>
@@ -469,18 +484,27 @@ export default function OrdersPage() {
                     )}
                   </div>
                 </div>
-                
+
                 <div className="flex items-center justify-between lg:justify-end gap-4">
                   <div className="text-left lg:text-right">
-                    <p className="font-bold text-base sm:text-lg">{formatCurrency(order.totalAmount)}</p>
+                    <p className="font-bold text-base sm:text-lg">
+                      {formatCurrency(order.totalAmount)}
+                    </p>
                     <p className="text-xs text-muted-foreground">
-                      {order.items.reduce((sum, item) => sum + item.quantity, 0)} sản phẩm
+                      {order.items.reduce(
+                        (sum, item) => sum + item.quantity,
+                        0,
+                      )}{" "}
+                      sản phẩm
                     </p>
                   </div>
-                  
+
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" className="h-8 w-8 p-0 flex-shrink-0">
+                      <Button
+                        variant="ghost"
+                        className="h-8 w-8 p-0 flex-shrink-0"
+                      >
                         <MoreHorizontal className="h-4 w-4" />
                       </Button>
                     </DropdownMenuTrigger>
@@ -505,11 +529,13 @@ export default function OrdersPage() {
               </div>
             ))}
           </div>
-          
+
           {filteredOrders.length === 0 && (
             <div className="text-center py-8">
               <ShoppingCart className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-medium mb-2">Không tìm thấy đơn hàng</h3>
+              <h3 className="text-lg font-medium mb-2">
+                Không tìm thấy đơn hàng
+              </h3>
               <p className="text-muted-foreground">
                 Thử thay đổi từ khóa tìm kiếm hoặc bộ lọc
               </p>

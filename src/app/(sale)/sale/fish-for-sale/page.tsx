@@ -1,7 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -82,7 +88,7 @@ const mockFishForSale = [
     images: ["koi1.jpg", "koi2.jpg"],
   },
   {
-    id: "FISH002", 
+    id: "FISH002",
     name: "Koi Sanke",
     breed: "Sanke",
     age: "1.5 năm",
@@ -107,7 +113,7 @@ const mockFishForSale = [
     name: "Koi Showa",
     breed: "Showa",
     age: "3 năm",
-    size: "52cm", 
+    size: "52cm",
     weight: "3.2kg",
     gender: "Đực",
     origin: "Việt Nam",
@@ -130,7 +136,7 @@ const mockFishForSale = [
     age: "2.5 năm",
     size: "42cm",
     weight: "2.1kg",
-    gender: "Cái", 
+    gender: "Cái",
     origin: "Nhật Bản",
     price: 2800000,
     cost: 2000000,
@@ -169,7 +175,7 @@ export default function FishForSalePage() {
         (fish) =>
           fish.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
           fish.breed.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          fish.id.toLowerCase().includes(searchTerm.toLowerCase())
+          fish.id.toLowerCase().includes(searchTerm.toLowerCase()),
       );
     }
 
@@ -292,7 +298,9 @@ export default function FishForSalePage() {
             <Fish className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-lg sm:text-2xl font-bold">{mockFishStats.totalFish}</div>
+            <div className="text-lg sm:text-2xl font-bold">
+              {mockFishStats.totalFish}
+            </div>
           </CardContent>
         </Card>
 
@@ -372,7 +380,9 @@ export default function FishForSalePage() {
         <CardHeader>
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <CardTitle className="text-lg sm:text-xl">Danh sách cá bán</CardTitle>
+              <CardTitle className="text-lg sm:text-xl">
+                Danh sách cá bán
+              </CardTitle>
               <CardDescription className="text-sm">
                 Quản lý thông tin cá, giá bán và tồn kho
               </CardDescription>
@@ -399,7 +409,10 @@ export default function FishForSalePage() {
                     <SelectItem value="sold_out">Hết hàng</SelectItem>
                   </SelectContent>
                 </Select>
-                <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+                <Select
+                  value={categoryFilter}
+                  onValueChange={setCategoryFilter}
+                >
                   <SelectTrigger className="flex-1 sm:w-32 border border-gray-300">
                     <SelectValue placeholder="Danh mục" />
                   </SelectTrigger>
@@ -423,7 +436,9 @@ export default function FishForSalePage() {
                 <CardHeader className="pb-2 sm:pb-3">
                   <div className="flex items-start justify-between">
                     <div className="flex-1 min-w-0">
-                      <CardTitle className="text-base sm:text-lg mb-1 line-clamp-2">{fish.name}</CardTitle>
+                      <CardTitle className="text-base sm:text-lg mb-1 line-clamp-2">
+                        {fish.name}
+                      </CardTitle>
                       <div className="flex items-center gap-1 sm:gap-2 mb-2 flex-wrap">
                         <Badge
                           className={`${getCategoryColor(fish.category)} text-xs`}
@@ -447,7 +462,10 @@ export default function FishForSalePage() {
                     </div>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-8 w-8 p-0 flex-shrink-0">
+                        <Button
+                          variant="ghost"
+                          className="h-8 w-8 p-0 flex-shrink-0"
+                        >
                           <MoreHorizontal className="h-4 w-4" />
                         </Button>
                       </DropdownMenuTrigger>
@@ -470,7 +488,7 @@ export default function FishForSalePage() {
                     </DropdownMenu>
                   </div>
                 </CardHeader>
-                
+
                 <CardContent className="space-y-3 sm:space-y-4">
                   {/* Fish Details */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 text-sm">
@@ -511,14 +529,18 @@ export default function FishForSalePage() {
                   {/* Price Info */}
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-muted-foreground">Giá bán:</span>
+                      <span className="text-sm text-muted-foreground">
+                        Giá bán:
+                      </span>
                       <span className="font-bold text-base sm:text-lg text-primary">
                         {formatCurrency(fish.price)}
                       </span>
                     </div>
                     <div className="flex items-center justify-between text-sm">
                       <span className="text-muted-foreground">Giá gốc:</span>
-                      <span className="font-medium">{formatCurrency(fish.cost)}</span>
+                      <span className="font-medium">
+                        {formatCurrency(fish.cost)}
+                      </span>
                     </div>
                     <div className="flex items-center justify-between text-sm">
                       <span className="text-muted-foreground">Lợi nhuận:</span>
@@ -539,11 +561,13 @@ export default function FishForSalePage() {
               </Card>
             ))}
           </div>
-          
+
           {filteredFish.length === 0 && (
             <div className="text-center py-8 sm:py-12">
               <Fish className="h-12 w-12 sm:h-16 sm:w-16 text-muted-foreground mx-auto mb-3 sm:mb-4" />
-              <h3 className="text-base sm:text-lg font-medium mb-2">Không tìm thấy cá</h3>
+              <h3 className="text-base sm:text-lg font-medium mb-2">
+                Không tìm thấy cá
+              </h3>
               <p className="text-sm text-muted-foreground mb-4 px-4">
                 Thử thay đổi từ khóa tìm kiếm hoặc bộ lọc
               </p>

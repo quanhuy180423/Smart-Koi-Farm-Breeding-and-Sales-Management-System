@@ -1,15 +1,21 @@
 "use client";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { 
-  Fish, 
-  Users, 
-  Building2, 
-  TrendingUp, 
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Fish,
+  Users,
+  Building2,
+  TrendingUp,
   Calendar,
   Heart,
   Truck,
-  DollarSign
+  DollarSign,
 } from "lucide-react";
 
 const stats = [
@@ -86,11 +92,13 @@ export default function ManagerDashboard() {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{stat.value}</div>
-                <p className={`text-xs ${
-                  stat.changeType === "positive" 
-                    ? "text-green-600" 
-                    : "text-red-600"
-                } flex items-center gap-1`}>
+                <p
+                  className={`text-xs ${
+                    stat.changeType === "positive"
+                      ? "text-green-600"
+                      : "text-red-600"
+                  } flex items-center gap-1`}
+                >
                   <TrendingUp className="h-3 w-3" />
                   {stat.change} so với tháng trước
                 </p>
@@ -138,9 +146,7 @@ export default function ManagerDashboard() {
         <Card>
           <CardHeader>
             <CardTitle>Thống kê nhanh</CardTitle>
-            <CardDescription>
-              Tổng quan về tình trạng hệ thống
-            </CardDescription>
+            <CardDescription>Tổng quan về tình trạng hệ thống</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-center justify-between">
@@ -169,7 +175,9 @@ export default function ManagerDashboard() {
                 <Heart className="h-4 w-4 text-red-600" />
                 <span className="text-sm">Quy trình sinh sản</span>
               </div>
-              <span className="text-sm font-medium text-yellow-600">3 đang thực hiện</span>
+              <span className="text-sm font-medium text-yellow-600">
+                3 đang thực hiện
+              </span>
             </div>
           </CardContent>
         </Card>
