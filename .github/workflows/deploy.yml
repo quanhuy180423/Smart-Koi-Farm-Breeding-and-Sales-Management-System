@@ -39,6 +39,7 @@ jobs:
         uses: amondnet/vercel-action@v25
         with:
           vercel-token: ZVwNp6hM9dxNP2nzkW954p5i
+          vercel-org-id: lLuqx6D3TS0enZtsyNE1m9Lb
           vercel-project-id: prj_DPukNxPKqqToGPSy2iIf9tholj9H
           vercel-args: "--prod=false"
 
@@ -47,7 +48,7 @@ jobs:
         uses: amondnet/vercel-action@v25
         with:
           vercel-token: ZVwNp6hM9dxNP2nzkW954p5i
-          
+          vercel-org-id: lLuqx6D3TS0enZtsyNE1m9Lb
           vercel-project-id: prj_DPukNxPKqqToGPSy2iIf9tholj9H
           vercel-args: "--prod=true"
 
