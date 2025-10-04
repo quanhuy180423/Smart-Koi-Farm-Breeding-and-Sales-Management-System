@@ -11,7 +11,15 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Bell, CheckCircle, AlertTriangle, Info, Eye, Trash2, DollarSign } from "lucide-react";
+import {
+  Bell,
+  CheckCircle,
+  AlertTriangle,
+  Info,
+  Eye,
+  Trash2,
+  DollarSign,
+} from "lucide-react";
 import Link from "next/link";
 
 // Mock data - thay thế bằng dữ liệu thực từ API
@@ -63,7 +71,7 @@ export function NotificationDropdown() {
 
   const markAsRead = (id: string) => {
     setNotifications(
-      notifications.map((n) => (n.id === id ? { ...n, isRead: true } : n))
+      notifications.map((n) => (n.id === id ? { ...n, isRead: true } : n)),
     );
   };
 
@@ -83,7 +91,10 @@ export function NotificationDropdown() {
           )}
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-80 sm:w-96 max-h-[500px] overflow-y-auto">
+      <DropdownMenuContent
+        align="end"
+        className="w-80 sm:w-96 max-h-[500px] overflow-y-auto"
+      >
         <DropdownMenuLabel className="flex items-center justify-between">
           <span className="text-base font-semibold">Thông báo</span>
           {unreadCount > 0 && (
@@ -160,7 +171,7 @@ export function NotificationDropdown() {
                 </div>
               </DropdownMenuItem>
             ))}
-            
+
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild className="justify-center">
               <Link
