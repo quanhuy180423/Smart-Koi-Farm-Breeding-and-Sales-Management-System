@@ -112,7 +112,9 @@ export default function ShippingManagement() {
   const [isBoxDialogOpen, setIsBoxDialogOpen] = useState(false);
   const [isDistanceDialogOpen, setIsDistanceDialogOpen] = useState(false);
   const [editingBox, setEditingBox] = useState<BoxSize | null>(null);
-  const [editingDistance, setEditingDistance] = useState<DistanceRange | null>(null);
+  const [editingDistance, setEditingDistance] = useState<DistanceRange | null>(
+    null,
+  );
 
   const handleEditBox = (box: BoxSize) => {
     setEditingBox(box);
@@ -148,7 +150,9 @@ export default function ShippingManagement() {
     const target = e.currentTarget;
     const value = target.value;
     // Chỉ cho phép số và tối đa một dấu chấm (cho số thập phân)
-    const numericValue = value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');
+    const numericValue = value
+      .replace(/[^0-9.]/g, "")
+      .replace(/(\..*)\./g, "$1");
     if (value !== numericValue) {
       target.value = numericValue;
     }
@@ -196,9 +200,7 @@ export default function ShippingManagement() {
                   open={isBoxDialogOpen}
                   onOpenChange={handleCloseBoxDialog}
                 >
-                  <Button
-                    onClick={handleAddBox}
-                  >
+                  <Button onClick={handleAddBox}>
                     <Plus className="mr-2 h-4 w-4" />
                     Thêm kích thước mới
                   </Button>
@@ -210,10 +212,14 @@ export default function ShippingManagement() {
                         </div>
                         <div>
                           <DialogTitle className="text-xl">
-                            {editingBox ? 'Chỉnh sửa kích thước hộp' : 'Thêm kích thước hộp mới'}
+                            {editingBox
+                              ? "Chỉnh sửa kích thước hộp"
+                              : "Thêm kích thước hộp mới"}
                           </DialogTitle>
                           <DialogDescription className="text-muted-foreground">
-                            {editingBox ? 'Cập nhật thông tin kích thước hộp' : 'Điền thông tin để tạo kích thước hộp mới cho vận chuyển'}
+                            {editingBox
+                              ? "Cập nhật thông tin kích thước hộp"
+                              : "Điền thông tin để tạo kích thước hộp mới cho vận chuyển"}
                           </DialogDescription>
                         </div>
                       </div>
@@ -221,50 +227,65 @@ export default function ShippingManagement() {
                     <div className="space-y-6 py-4">
                       <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
-                          <Label htmlFor="boxName" className="text-sm font-medium">
+                          <Label
+                            htmlFor="boxName"
+                            className="text-sm font-medium"
+                          >
                             Tên hộp <span className="text-red-500">*</span>
                           </Label>
                           <Input
                             id="boxName"
                             placeholder="VD: Mini Box"
-                            defaultValue={editingBox?.name || ''}
+                            defaultValue={editingBox?.name || ""}
                             className="border-gray-300 focus:border-teal-500"
                           />
                         </div>
                         <div className="space-y-2">
-                          <Label htmlFor="fishSize" className="text-sm font-medium">
-                            Size cá chuẩn <span className="text-red-500">*</span>
+                          <Label
+                            htmlFor="fishSize"
+                            className="text-sm font-medium"
+                          >
+                            Size cá chuẩn{" "}
+                            <span className="text-red-500">*</span>
                           </Label>
                           <Input
                             id="fishSize"
                             placeholder="VD: 15cm"
-                            defaultValue={editingBox?.fishSize || ''}
+                            defaultValue={editingBox?.fishSize || ""}
                             className="border-gray-300 focus:border-teal-500"
                           />
                         </div>
                       </div>
-                      
+
                       <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
-                          <Label htmlFor="basePrice" className="text-sm font-medium">
-                            Giá cơ bản (VNĐ) <span className="text-red-500">*</span>
+                          <Label
+                            htmlFor="basePrice"
+                            className="text-sm font-medium"
+                          >
+                            Giá cơ bản (VNĐ){" "}
+                            <span className="text-red-500">*</span>
                           </Label>
                           <Input
                             id="basePrice"
                             placeholder="VD: 50000"
-                            defaultValue={editingBox?.basePrice || ''}
+                            defaultValue={editingBox?.basePrice || ""}
                             onInput={handleNumericInput}
                             className="border-gray-300 focus:border-teal-500"
                           />
                         </div>
                         <div className="space-y-2">
-                          <Label htmlFor="fishCount" className="text-sm font-medium">
-                            Số lượng cá/hộp <span className="text-red-500">*</span>
+                          <Label
+                            htmlFor="fishCount"
+                            className="text-sm font-medium"
+                          >
+                            Số lượng cá/hộp{" "}
+                            <span className="text-red-500">*</span>
                           </Label>
                           <Input
                             id="fishCount"
                             placeholder="VD: 2"
-                            defaultValue={editingBox?.fishCount || ''}
+                            defaultValue={editingBox?.fishCount || ""}
                             onInput={handleNumericInput}
                             className="border-gray-300 focus:border-teal-500"
                           />
@@ -276,21 +297,20 @@ export default function ShippingManagement() {
                           <Info className="h-7 w-7 text-blue-600 -mt-0.5" />
                           <div className="text-sm text-blue-800">
                             <p className="font-medium mb-1">Lưu ý:</p>
-                            <p>Giá cơ bản sẽ được áp dụng cho mỗi hộp theo kích thước. Số lượng cá/hộp giúp xác định sức chứa tối đa.</p>
+                            <p>
+                              Giá cơ bản sẽ được áp dụng cho mỗi hộp theo kích
+                              thước. Số lượng cá/hộp giúp xác định sức chứa tối
+                              đa.
+                            </p>
                           </div>
                         </div>
                       </div>
                     </div>
                     <div className="flex justify-end gap-3 pt-4 border-t">
-                      <Button
-                        variant="outline"
-                        onClick={handleCloseBoxDialog}
-                      >
+                      <Button variant="outline" onClick={handleCloseBoxDialog}>
                         Hủy
                       </Button>
-                      <Button
-                        onClick={handleCloseBoxDialog}
-                      >
+                      <Button onClick={handleCloseBoxDialog}>
                         {editingBox ? (
                           <>
                             <Edit className="mr-2 h-4 w-4" />
@@ -379,9 +399,7 @@ export default function ShippingManagement() {
                   open={isDistanceDialogOpen}
                   onOpenChange={handleCloseDistanceDialog}
                 >
-                  <Button
-                    onClick={handleAddDistance}
-                  >
+                  <Button onClick={handleAddDistance}>
                     <Plus className="mr-2 h-4 w-4" />
                     Thêm khoảng cách mới
                   </Button>
@@ -393,48 +411,64 @@ export default function ShippingManagement() {
                         </div>
                         <div>
                           <DialogTitle className="text-xl">
-                            {editingDistance ? 'Chỉnh sửa khoảng cách vận chuyển' : 'Thêm khoảng cách vận chuyển mới'}
+                            {editingDistance
+                              ? "Chỉnh sửa khoảng cách vận chuyển"
+                              : "Thêm khoảng cách vận chuyển mới"}
                           </DialogTitle>
                           <DialogDescription className="text-muted-foreground">
-                            {editingDistance ? 'Cập nhật thông tin khoảng cách và giá vận chuyển' : 'Thiết lập khoảng cách và giá vận chuyển mới'}
+                            {editingDistance
+                              ? "Cập nhật thông tin khoảng cách và giá vận chuyển"
+                              : "Thiết lập khoảng cách và giá vận chuyển mới"}
                           </DialogDescription>
                         </div>
                       </div>
                     </DialogHeader>
                     <div className="space-y-6 py-4">
                       <div className="space-y-2">
-                        <Label htmlFor="distanceName" className="text-sm font-medium">
-                          Tên khoảng cách <span className="text-red-500">*</span>
+                        <Label
+                          htmlFor="distanceName"
+                          className="text-sm font-medium"
+                        >
+                          Tên khoảng cách{" "}
+                          <span className="text-red-500">*</span>
                         </Label>
                         <Input
                           id="distanceName"
                           placeholder="VD: Nội thành"
-                          defaultValue={editingDistance?.name || ''}
+                          defaultValue={editingDistance?.name || ""}
                           className="border-gray-300 focus:border-teal-500"
                         />
                       </div>
 
                       <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
-                          <Label htmlFor="minDistance" className="text-sm font-medium">
-                            Khoảng cách từ (km) <span className="text-red-500">*</span>
+                          <Label
+                            htmlFor="minDistance"
+                            className="text-sm font-medium"
+                          >
+                            Khoảng cách từ (km){" "}
+                            <span className="text-red-500">*</span>
                           </Label>
                           <Input
                             id="minDistance"
                             placeholder="VD: 0"
-                            defaultValue={editingDistance?.minDistance || ''}
+                            defaultValue={editingDistance?.minDistance || ""}
                             onInput={handleNumericInput}
                             className="border-gray-300 focus:border-teal-500"
                           />
                         </div>
                         <div className="space-y-2">
-                          <Label htmlFor="maxDistance" className="text-sm font-medium">
-                            Khoảng cách đến (km) <span className="text-red-500">*</span>
+                          <Label
+                            htmlFor="maxDistance"
+                            className="text-sm font-medium"
+                          >
+                            Khoảng cách đến (km){" "}
+                            <span className="text-red-500">*</span>
                           </Label>
                           <Input
                             id="maxDistance"
                             placeholder="VD: 20"
-                            defaultValue={editingDistance?.maxDistance || ''}
+                            defaultValue={editingDistance?.maxDistance || ""}
                             onInput={handleNumericInput}
                             className="border-gray-300 focus:border-teal-500"
                           />
@@ -443,25 +477,33 @@ export default function ShippingManagement() {
 
                       <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
-                          <Label htmlFor="pricePerKm" className="text-sm font-medium">
-                            Giá mỗi km (VNĐ) <span className="text-red-500">*</span>
+                          <Label
+                            htmlFor="pricePerKm"
+                            className="text-sm font-medium"
+                          >
+                            Giá mỗi km (VNĐ){" "}
+                            <span className="text-red-500">*</span>
                           </Label>
                           <Input
                             id="pricePerKm"
                             placeholder="VD: 2000"
-                            defaultValue={editingDistance?.pricePerKm || ''}
+                            defaultValue={editingDistance?.pricePerKm || ""}
                             onInput={handleNumericInput}
                             className="border-gray-300 focus:border-teal-500"
                           />
                         </div>
                         <div className="space-y-2">
-                          <Label htmlFor="fixedFee" className="text-sm font-medium">
-                            Phí cố định (VNĐ) <span className="text-red-500">*</span>
+                          <Label
+                            htmlFor="fixedFee"
+                            className="text-sm font-medium"
+                          >
+                            Phí cố định (VNĐ){" "}
+                            <span className="text-red-500">*</span>
                           </Label>
                           <Input
                             id="fixedFee"
                             placeholder="VD: 30000"
-                            defaultValue={editingDistance?.fixedFee || ''}
+                            defaultValue={editingDistance?.fixedFee || ""}
                             onInput={handleNumericInput}
                             className="border-gray-300 focus:border-teal-500"
                           />
@@ -472,12 +514,38 @@ export default function ShippingManagement() {
                         <div className="flex items-start gap-3">
                           <Info className="h-5 w-5 text-blue-600 mt-0.5" />
                           <div className="text-sm text-blue-800">
-                            <p className="font-medium mb-2">Công thức tính phí:</p>
+                            <p className="font-medium mb-2">
+                              Công thức tính phí:
+                            </p>
                             <p className="font-mono bg-white px-2 py-1 rounded text-xs">
                               Tổng phí = Phí cố định + (Khoảng cách × Giá/km)
                             </p>
                             <p className="mt-2 text-xs">
-                              Ví dụ: Với {editingDistance ? editingDistance.maxDistance : '20'}km, giá/km {editingDistance ? editingDistance.pricePerKm.toLocaleString('vi-VN') : '2.000'}₫, phí cố định {editingDistance ? editingDistance.fixedFee.toLocaleString('vi-VN') : '30.000'}₫ → Tổng: {editingDistance ? (editingDistance.fixedFee + editingDistance.maxDistance * editingDistance.pricePerKm).toLocaleString('vi-VN') : '70.000'}₫
+                              Ví dụ: Với{" "}
+                              {editingDistance
+                                ? editingDistance.maxDistance
+                                : "20"}
+                              km, giá/km{" "}
+                              {editingDistance
+                                ? editingDistance.pricePerKm.toLocaleString(
+                                    "vi-VN",
+                                  )
+                                : "2.000"}
+                              ₫, phí cố định{" "}
+                              {editingDistance
+                                ? editingDistance.fixedFee.toLocaleString(
+                                    "vi-VN",
+                                  )
+                                : "30.000"}
+                              ₫ → Tổng:{" "}
+                              {editingDistance
+                                ? (
+                                    editingDistance.fixedFee +
+                                    editingDistance.maxDistance *
+                                      editingDistance.pricePerKm
+                                  ).toLocaleString("vi-VN")
+                                : "70.000"}
+                              ₫
                             </p>
                           </div>
                         </div>
@@ -490,9 +558,7 @@ export default function ShippingManagement() {
                       >
                         Hủy
                       </Button>
-                      <Button
-                        onClick={handleCloseDistanceDialog}
-                      >
+                      <Button onClick={handleCloseDistanceDialog}>
                         {editingDistance ? (
                           <>
                             <Edit className="mr-2 h-4 w-4" />
@@ -574,7 +640,10 @@ export default function ShippingManagement() {
                         <div className="text-xs">
                           Ví dụ ({exampleDistance}km):{" "}
                           <span className="font-medium">
-                            {exampleDistance} x {formatCurrency(distance.pricePerKm)} + {formatCurrency(distance.fixedFee)} = {formatCurrency(exampleCost)}
+                            {exampleDistance} x{" "}
+                            {formatCurrency(distance.pricePerKm)} +{" "}
+                            {formatCurrency(distance.fixedFee)} ={" "}
+                            {formatCurrency(exampleCost)}
                           </span>
                         </div>
                       </CardContent>

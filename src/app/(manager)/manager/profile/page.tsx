@@ -1,22 +1,20 @@
 "use client";
 
 import { useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import {
-  User,
-  Calendar,
-  Shield,
-  Edit,
-  Camera,
-  Save,
-  X
-} from "lucide-react";
+import { User, Calendar, Shield, Edit, Camera, Save, X } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -53,7 +51,7 @@ export default function ManagerProfile() {
     joinDate: "2023-01-15",
     address: "123 Đường ABC, Quận 1, TP.HCM",
     department: "Quản Lý",
-    employeeId: "MGR2023001"
+    employeeId: "MGR2023001",
   });
 
   const [editedProfile, setEditedProfile] = useState<ManagerProfile>(profile);
@@ -69,9 +67,9 @@ export default function ManagerProfile() {
   };
 
   const handleInputChange = (field: keyof ManagerProfile, value: string) => {
-    setEditedProfile(prev => ({
+    setEditedProfile((prev) => ({
       ...prev,
-      [field]: value
+      [field]: value,
     }));
   };
 
@@ -79,7 +77,9 @@ export default function ManagerProfile() {
     <div className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Thông tin cá nhân</h1>
+          <h1 className="text-3xl font-bold tracking-tight">
+            Thông tin cá nhân
+          </h1>
           <p className="text-muted-foreground">
             Quản lý thông tin cá nhân và hồ sơ của bạn
           </p>
@@ -95,7 +95,10 @@ export default function ManagerProfile() {
                 <Avatar className="h-24 w-24">
                   <AvatarImage src={profile.avatar} alt={profile.name} />
                   <AvatarFallback className="text-lg">
-                    {profile.name.split(' ').map(n => n[0]).join('')}
+                    {profile.name
+                      .split(" ")
+                      .map((n) => n[0])
+                      .join("")}
                   </AvatarFallback>
                 </Avatar>
                 <Button
@@ -109,7 +112,10 @@ export default function ManagerProfile() {
               </div>
               <div className="space-y-1">
                 <h3 className="text-xl font-semibold">{profile.name}</h3>
-                <Badge variant="secondary" className="flex items-center gap-1 w-fit mx-auto">
+                <Badge
+                  variant="secondary"
+                  className="flex items-center gap-1 w-fit mx-auto"
+                >
                   <Shield className="h-3 w-3" />
                   {profile.role}
                 </Badge>
@@ -123,12 +129,17 @@ export default function ManagerProfile() {
             </div>
             <div className="flex items-center gap-3 text-sm">
               <Calendar className="h-4 w-4 text-muted-foreground" />
-              <span>Ngày tham gia: {new Date(profile.joinDate).toLocaleDateString('vi-VN')}</span>
+              <span>
+                Ngày tham gia:{" "}
+                {new Date(profile.joinDate).toLocaleDateString("vi-VN")}
+              </span>
             </div>
             <Separator />
             <div className="space-y-2">
               <h4 className="font-medium text-sm">Phòng ban</h4>
-              <p className="text-sm text-muted-foreground">{profile.department}</p>
+              <p className="text-sm text-muted-foreground">
+                {profile.department}
+              </p>
             </div>
           </CardContent>
         </Card>
@@ -169,9 +180,11 @@ export default function ManagerProfile() {
                 <Input
                   id="name"
                   value={isEditing ? editedProfile.name : profile.name}
-                  onChange={(e) => handleInputChange('name', e.target.value)}
+                  onChange={(e) => handleInputChange("name", e.target.value)}
                   disabled={!isEditing}
-                  className={!isEditing ? "bg-muted/50" : "border border-primary"}
+                  className={
+                    !isEditing ? "bg-muted/50" : "border border-primary"
+                  }
                 />
               </div>
 
@@ -181,9 +194,11 @@ export default function ManagerProfile() {
                   id="email"
                   type="email"
                   value={isEditing ? editedProfile.email : profile.email}
-                  onChange={(e) => handleInputChange('email', e.target.value)}
+                  onChange={(e) => handleInputChange("email", e.target.value)}
                   disabled={!isEditing}
-                  className={!isEditing ? "bg-muted/50" : "border border-primary"}
+                  className={
+                    !isEditing ? "bg-muted/50" : "border border-primary"
+                  }
                 />
               </div>
 
@@ -192,9 +207,11 @@ export default function ManagerProfile() {
                 <Input
                   id="phone"
                   value={isEditing ? editedProfile.phone : profile.phone}
-                  onChange={(e) => handleInputChange('phone', e.target.value)}
+                  onChange={(e) => handleInputChange("phone", e.target.value)}
                   disabled={!isEditing}
-                  className={!isEditing ? "bg-muted/50" : "border border-primary"}
+                  className={
+                    !isEditing ? "bg-muted/50" : "border border-primary"
+                  }
                 />
               </div>
 
@@ -214,7 +231,7 @@ export default function ManagerProfile() {
               <Input
                 id="address"
                 value={isEditing ? editedProfile.address : profile.address}
-                onChange={(e) => handleInputChange('address', e.target.value)}
+                onChange={(e) => handleInputChange("address", e.target.value)}
                 disabled={!isEditing}
                 className={!isEditing ? "bg-muted/50" : "border border-primary"}
               />
@@ -237,7 +254,10 @@ export default function ManagerProfile() {
               <Avatar className="h-32 w-32">
                 <AvatarImage src={profile.avatar} alt={profile.name} />
                 <AvatarFallback className="text-2xl">
-                  {profile.name.split(' ').map(n => n[0]).join('')}
+                  {profile.name
+                    .split(" ")
+                    .map((n) => n[0])
+                    .join("")}
                 </AvatarFallback>
               </Avatar>
             </div>
@@ -246,13 +266,14 @@ export default function ManagerProfile() {
                 <Camera className="mr-2 h-4 w-4" />
                 Chọn ảnh
               </Button>
-              <Button variant="outline">
-                Xóa ảnh
-              </Button>
+              <Button variant="outline">Xóa ảnh</Button>
             </div>
           </div>
           <div className="flex justify-end gap-2">
-            <Button variant="outline" onClick={() => setIsAvatarDialogOpen(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setIsAvatarDialogOpen(false)}
+            >
               Hủy
             </Button>
             <Button onClick={() => setIsAvatarDialogOpen(false)}>

@@ -1,7 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -167,7 +173,9 @@ export default function SaleDashboard() {
               )}
               <span
                 className={
-                  mockStats.revenueChange > 0 ? "text-green-600" : "text-red-600"
+                  mockStats.revenueChange > 0
+                    ? "text-green-600"
+                    : "text-red-600"
                 }
               >
                 {Math.abs(mockStats.revenueChange)}%
@@ -227,7 +235,9 @@ export default function SaleDashboard() {
               )}
               <span
                 className={
-                  mockStats.customersChange > 0 ? "text-green-600" : "text-red-600"
+                  mockStats.customersChange > 0
+                    ? "text-green-600"
+                    : "text-red-600"
                 }
               >
                 {Math.abs(mockStats.customersChange)}%
@@ -281,11 +291,15 @@ export default function SaleDashboard() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-                  <span className="text-sm font-medium">Đơn hàng chờ xử lý</span>
+                  <span className="text-sm font-medium">
+                    Đơn hàng chờ xử lý
+                  </span>
                   <Badge variant="secondary">{mockStats.pendingOrders}</Badge>
                 </div>
                 <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-                  <span className="text-sm font-medium">Đơn hàng hoàn thành</span>
+                  <span className="text-sm font-medium">
+                    Đơn hàng hoàn thành
+                  </span>
                   <Badge variant="outline">{mockStats.completedOrders}</Badge>
                 </div>
                 <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
@@ -311,7 +325,10 @@ export default function SaleDashboard() {
               <CardContent>
                 <div className="space-y-4">
                   {mockTopFish.map((fish, index) => (
-                    <div key={index} className="flex items-center justify-between">
+                    <div
+                      key={index}
+                      className="flex items-center justify-between"
+                    >
                       <div className="flex items-center gap-3">
                         <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-xs font-medium">
                           {index + 1}
@@ -360,12 +377,16 @@ export default function SaleDashboard() {
                         <p className="text-sm text-muted-foreground">
                           {order.customer} • {order.fish}
                         </p>
-                        <p className="text-xs text-muted-foreground">{order.date}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {order.date}
+                        </p>
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
                       <div className="text-right">
-                        <p className="font-medium">{formatCurrency(order.amount)}</p>
+                        <p className="font-medium">
+                          {formatCurrency(order.amount)}
+                        </p>
                         <Badge
                           className={getStatusColor(order.status)}
                           variant="secondary"

@@ -1,6 +1,15 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
-import { Heart, Dna, Star, BarChart3, AlertTriangle, FileText, Mars, Venus } from "lucide-react";
+import {
+  Heart,
+  Dna,
+  Star,
+  BarChart3,
+  AlertTriangle,
+  FileText,
+  Mars,
+  Venus,
+} from "lucide-react";
 import Image from "next/image";
 import React from "react";
 
@@ -65,7 +74,10 @@ const riskAssessments = [
   },
 ];
 
-export default function ComparisonSection({ fatherFish, motherFish }: ComparisonSectionProps) {
+export default function ComparisonSection({
+  fatherFish,
+  motherFish,
+}: ComparisonSectionProps) {
   return (
     <section className="w-full bg-white border border-gray-100 shadow-sm rounded-xl p-8 space-y-8">
       <header>
@@ -73,7 +85,9 @@ export default function ComparisonSection({ fatherFish, motherFish }: Comparison
           <div className="w-3 h-8 bg-gradient-to-b from-purple-500 to-pink-500 rounded-full"></div>
           Đánh giá mức độ tương hợp
         </h2>
-        <p className="text-gray-600 text-sm">Phân tích chi tiết về khả năng phối giống và dự đoán kết quả</p>
+        <p className="text-gray-600 text-sm">
+          Phân tích chi tiết về khả năng phối giống và dự đoán kết quả
+        </p>
       </header>
 
       <Card className="border-purple-200 bg-gradient-to-r from-purple-50 via-blue-50 to-pink-50 shadow-lg">
@@ -101,9 +115,7 @@ export default function ComparisonSection({ fatherFish, motherFish }: Comparison
               <div className="text-sm font-bold text-gray-900 text-center mb-1">
                 {fatherFish.name}
               </div>
-              <div className="text-xs text-blue-600 font-medium">
-                Cá Bố
-              </div>
+              <div className="text-xs text-blue-600 font-medium">Cá Bố</div>
             </div>
 
             <div className="flex flex-col items-center">
@@ -133,9 +145,7 @@ export default function ComparisonSection({ fatherFish, motherFish }: Comparison
               <div className="text-sm font-bold text-gray-900 text-center mb-1">
                 {motherFish.name}
               </div>
-              <div className="text-xs text-pink-600 font-medium">
-                Cá Mẹ
-              </div>
+              <div className="text-xs text-pink-600 font-medium">Cá Mẹ</div>
             </div>
           </div>
         </CardContent>
@@ -152,7 +162,10 @@ export default function ComparisonSection({ fatherFish, motherFish }: Comparison
             </h3>
             <div className="space-y-4">
               {geneticData.map((item, index) => (
-                <div key={index} className="flex justify-between items-center p-2 bg-white rounded-lg">
+                <div
+                  key={index}
+                  className="flex justify-between items-center p-2 bg-white rounded-lg"
+                >
                   <span className="text-sm font-medium text-gray-700">
                     {item.label}
                   </span>
@@ -175,7 +188,10 @@ export default function ComparisonSection({ fatherFish, motherFish }: Comparison
             </h3>
             <div className="space-y-4">
               {qualityData.map((item, index) => (
-                <div key={index} className="flex justify-between items-center p-2 bg-white rounded-lg">
+                <div
+                  key={index}
+                  className="flex justify-between items-center p-2 bg-white rounded-lg"
+                >
                   <span className="text-sm font-medium text-gray-700">
                     {item.label}
                   </span>
@@ -211,7 +227,10 @@ export default function ComparisonSection({ fatherFish, motherFish }: Comparison
                 <span className="text-xs text-gray-600">Tỷ lệ thành công:</span>
                 <div className="flex items-center gap-2 mt-1">
                   <div className="flex-1 bg-gray-200 rounded-full h-2">
-                    <div className="bg-blue-500 h-2 rounded-full" style={{width: '92%'}}></div>
+                    <div
+                      className="bg-blue-500 h-2 rounded-full"
+                      style={{ width: "92%" }}
+                    ></div>
                   </div>
                   <span className="text-sm font-bold text-blue-600">92%</span>
                 </div>
@@ -232,7 +251,10 @@ export default function ComparisonSection({ fatherFish, motherFish }: Comparison
                 <span className="text-xs text-gray-600">Tỷ lệ thành công:</span>
                 <div className="flex items-center gap-2 mt-1">
                   <div className="flex-1 bg-gray-200 rounded-full h-2">
-                    <div className="bg-pink-500 h-2 rounded-full" style={{width: '88%'}}></div>
+                    <div
+                      className="bg-pink-500 h-2 rounded-full"
+                      style={{ width: "88%" }}
+                    ></div>
                   </div>
                   <span className="text-sm font-bold text-pink-600">88%</span>
                 </div>
@@ -258,37 +280,61 @@ export default function ComparisonSection({ fatherFish, motherFish }: Comparison
             >
               <CardContent className="px-5">
                 <div className="flex items-start gap-4">
-                  <div className={`rounded-full w-10 h-10 flex items-center justify-center text-lg font-bold flex-shrink-0 ${
-                    assessment.bgColor.includes('green') ? 'bg-green-200 text-green-800 shadow-green-100 shadow-md' :
-                    assessment.bgColor.includes('yellow') ? 'bg-yellow-200 text-yellow-800 shadow-yellow-100 shadow-md' :
-                    'bg-red-200 text-red-800 shadow-red-100 shadow-md'
-                  }`}>
-                    {assessment.bgColor.includes('green') ? '✓' :
-                     assessment.bgColor.includes('yellow') ? '!' : '⚠'}
+                  <div
+                    className={`rounded-full w-10 h-10 flex items-center justify-center text-lg font-bold flex-shrink-0 ${
+                      assessment.bgColor.includes("green")
+                        ? "bg-green-200 text-green-800 shadow-green-100 shadow-md"
+                        : assessment.bgColor.includes("yellow")
+                          ? "bg-yellow-200 text-yellow-800 shadow-yellow-100 shadow-md"
+                          : "bg-red-200 text-red-800 shadow-red-100 shadow-md"
+                    }`}
+                  >
+                    {assessment.bgColor.includes("green")
+                      ? "✓"
+                      : assessment.bgColor.includes("yellow")
+                        ? "!"
+                        : "⚠"}
                   </div>
                   <div className="flex-1">
-                    <div className={`text-sm leading-relaxed ${assessment.textColor} font-medium mb-2`}>
+                    <div
+                      className={`text-sm leading-relaxed ${assessment.textColor} font-medium mb-2`}
+                    >
                       {assessment.message}
                     </div>
                     <div className="flex items-center gap-2">
-                      <div className={`h-1.5 rounded-full flex-1 ${
-                        assessment.bgColor.includes('green') ? 'bg-green-100' :
-                        assessment.bgColor.includes('yellow') ? 'bg-yellow-100' :
-                        'bg-red-100'
-                      }`}>
-                        <div className={`h-1.5 rounded-full transition-all duration-500 ${
-                          assessment.bgColor.includes('green') ? 'bg-green-500 w-3/4' :
-                          assessment.bgColor.includes('yellow') ? 'bg-yellow-500 w-1/2' :
-                          'bg-red-500 w-1/4'
-                        }`}></div>
+                      <div
+                        className={`h-1.5 rounded-full flex-1 ${
+                          assessment.bgColor.includes("green")
+                            ? "bg-green-100"
+                            : assessment.bgColor.includes("yellow")
+                              ? "bg-yellow-100"
+                              : "bg-red-100"
+                        }`}
+                      >
+                        <div
+                          className={`h-1.5 rounded-full transition-all duration-500 ${
+                            assessment.bgColor.includes("green")
+                              ? "bg-green-500 w-3/4"
+                              : assessment.bgColor.includes("yellow")
+                                ? "bg-yellow-500 w-1/2"
+                                : "bg-red-500 w-1/4"
+                          }`}
+                        ></div>
                       </div>
-                      <span className={`text-xs font-bold ${
-                        assessment.bgColor.includes('green') ? 'text-green-700' :
-                        assessment.bgColor.includes('yellow') ? 'text-yellow-700' :
-                        'text-red-700'
-                      }`}>
-                        {assessment.bgColor.includes('green') ? 'Thấp' :
-                         assessment.bgColor.includes('yellow') ? 'Trung bình' : 'Cao'}
+                      <span
+                        className={`text-xs font-bold ${
+                          assessment.bgColor.includes("green")
+                            ? "text-green-700"
+                            : assessment.bgColor.includes("yellow")
+                              ? "text-yellow-700"
+                              : "text-red-700"
+                        }`}
+                      >
+                        {assessment.bgColor.includes("green")
+                          ? "Thấp"
+                          : assessment.bgColor.includes("yellow")
+                            ? "Trung bình"
+                            : "Cao"}
                       </span>
                     </div>
                   </div>
@@ -318,9 +364,7 @@ export default function ComparisonSection({ fatherFish, motherFish }: Comparison
               <span className="text-xs text-gray-500">
                 Lưu ý: Thông tin này sẽ được lưu trong hồ sơ phối giống
               </span>
-              <span className="text-xs text-gray-400">
-                0 / 500 ký tự
-              </span>
+              <span className="text-xs text-gray-400">0 / 500 ký tự</span>
             </div>
           </CardContent>
         </Card>

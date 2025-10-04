@@ -237,7 +237,7 @@ export default function BreedingManagement() {
             <div className="text-2xl font-bold">
               {
                 breedingData.filter(
-                  (b) => b.status === "Đang ấp" || b.status === "Chuẩn bị"
+                  (b) => b.status === "Đang ấp" || b.status === "Chuẩn bị",
                 ).length
               }
             </div>
@@ -348,8 +348,12 @@ export default function BreedingManagement() {
                       </div>
                     </div>
                   </TableCell>
-                  <TableCell>{formatDate(breeding.startDate, "dd/MM/yyyy")}</TableCell>
-                  <TableCell>{formatDate(breeding.expectedHatchDate, "dd/MM/yyyy")}</TableCell>
+                  <TableCell>
+                    {formatDate(breeding.startDate, "dd/MM/yyyy")}
+                  </TableCell>
+                  <TableCell>
+                    {formatDate(breeding.expectedHatchDate, "dd/MM/yyyy")}
+                  </TableCell>
                   <TableCell>{breeding.pond}</TableCell>
                   <TableCell>
                     {breeding.eggCount?.toLocaleString() || "-"}

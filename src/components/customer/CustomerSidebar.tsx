@@ -72,7 +72,13 @@ export function CustomerSidebar({ className }: CustomerSidebarProps) {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
 
-  const SidebarContent = ({ showHeader = false, onItemClick }: { showHeader?: boolean; onItemClick?: () => void }) => (
+  const SidebarContent = ({
+    showHeader = false,
+    onItemClick,
+  }: {
+    showHeader?: boolean;
+    onItemClick?: () => void;
+  }) => (
     <div className="flex flex-col h-full">
       {showHeader && (
         <SheetHeader className="px-4 pt-6 pb-4 border-b bg-gradient-to-r from-background to-muted/30">
@@ -162,7 +168,10 @@ export function CustomerSidebar({ className }: CustomerSidebarProps) {
             </Button>
           </SheetTrigger>
           <SheetContent side="left" className="w-80 p-0">
-            <SidebarContent showHeader={true} onItemClick={() => setIsOpen(false)} />
+            <SidebarContent
+              showHeader={true}
+              onItemClick={() => setIsOpen(false)}
+            />
           </SheetContent>
         </Sheet>
       </div>

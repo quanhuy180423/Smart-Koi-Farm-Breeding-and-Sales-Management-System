@@ -172,13 +172,13 @@ export default function NotificationsPage() {
 
   const markAsRead = (id: string) => {
     setNotifications(
-      notifications.map((n) => (n.id === id ? { ...n, isRead: true } : n))
+      notifications.map((n) => (n.id === id ? { ...n, isRead: true } : n)),
     );
   };
 
   const markAsUnread = (id: string) => {
     setNotifications(
-      notifications.map((n) => (n.id === id ? { ...n, isRead: false } : n))
+      notifications.map((n) => (n.id === id ? { ...n, isRead: false } : n)),
     );
   };
 

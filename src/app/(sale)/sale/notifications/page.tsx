@@ -172,13 +172,13 @@ export default function NotificationsPage() {
 
   const markAsRead = (id: string) => {
     setNotifications(
-      notifications.map((n) => (n.id === id ? { ...n, isRead: true } : n))
+      notifications.map((n) => (n.id === id ? { ...n, isRead: true } : n)),
     );
   };
 
   const markAsUnread = (id: string) => {
     setNotifications(
-      notifications.map((n) => (n.id === id ? { ...n, isRead: false } : n))
+      notifications.map((n) => (n.id === id ? { ...n, isRead: false } : n)),
     );
   };
 
@@ -196,12 +196,18 @@ export default function NotificationsPage() {
     <div className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Thông báo</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
+            Thông báo
+          </h1>
           <p className="text-sm sm:text-base text-muted-foreground">
             Theo dõi các thông báo và cảnh báo hệ thống
           </p>
         </div>
-        <Button variant="outline" onClick={markAllAsRead} className="w-full sm:w-auto">
+        <Button
+          variant="outline"
+          onClick={markAllAsRead}
+          className="w-full sm:w-auto"
+        >
           <CheckCircle className="mr-2 h-4 w-4" />
           <span className="sm:hidden">Đánh dấu tất cả</span>
           <span className="hidden sm:inline">Đánh dấu tất cả đã đọc</span>
@@ -218,21 +224,29 @@ export default function NotificationsPage() {
             <Bell className="h-4 w-4 lg:h-5 lg:w-5 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-lg sm:text-2xl lg:text-3xl font-bold">{notifications.length}</div>
+            <div className="text-lg sm:text-2xl lg:text-3xl font-bold">
+              {notifications.length}
+            </div>
           </CardContent>
         </Card>
         <Card className="lg:hover:shadow-lg lg:transition-shadow">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 lg:pb-3">
-            <CardTitle className="text-xs sm:text-sm lg:text-base font-medium">Chưa đọc</CardTitle>
+            <CardTitle className="text-xs sm:text-sm lg:text-base font-medium">
+              Chưa đọc
+            </CardTitle>
             <BellRing className="h-4 w-4 lg:h-5 lg:w-5 text-red-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-lg sm:text-2xl lg:text-3xl font-bold text-red-600">{unreadCount}</div>
+            <div className="text-lg sm:text-2xl lg:text-3xl font-bold text-red-600">
+              {unreadCount}
+            </div>
           </CardContent>
         </Card>
         <Card className="lg:hover:shadow-lg lg:transition-shadow">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 lg:pb-3">
-            <CardTitle className="text-xs sm:text-sm lg:text-base font-medium">Cảnh báo</CardTitle>
+            <CardTitle className="text-xs sm:text-sm lg:text-base font-medium">
+              Cảnh báo
+            </CardTitle>
             <AlertTriangle className="h-4 w-4 lg:h-5 lg:w-5 text-yellow-600" />
           </CardHeader>
           <CardContent>
@@ -243,7 +257,9 @@ export default function NotificationsPage() {
         </Card>
         <Card className="lg:hover:shadow-lg lg:transition-shadow">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 lg:pb-3">
-            <CardTitle className="text-xs sm:text-sm lg:text-base font-medium">Hôm nay</CardTitle>
+            <CardTitle className="text-xs sm:text-sm lg:text-base font-medium">
+              Hôm nay
+            </CardTitle>
             <Clock className="h-4 w-4 lg:h-5 lg:w-5 text-blue-600" />
           </CardHeader>
           <CardContent>
@@ -260,7 +276,9 @@ export default function NotificationsPage() {
       {/* Notifications List */}
       <Card className="lg:shadow-lg">
         <CardHeader>
-          <CardTitle className="text-lg sm:text-xl">Danh sách thông báo</CardTitle>
+          <CardTitle className="text-lg sm:text-xl">
+            Danh sách thông báo
+          </CardTitle>
           <CardDescription className="text-sm lg:text-base">
             Quản lý và theo dõi tất cả thông báo hệ thống
           </CardDescription>
@@ -341,7 +359,10 @@ export default function NotificationsPage() {
                         <div className="flex items-center gap-2 lg:gap-3 flex-wrap">
                           {getTypeBadge(notification.type)}
                           {getPriorityBadge(notification.priority)}
-                          <Badge variant="outline" className="text-xs lg:text-sm">
+                          <Badge
+                            variant="outline"
+                            className="text-xs lg:text-sm"
+                          >
                             {notification.category}
                           </Badge>
                           <span className="text-xs lg:text-sm text-muted-foreground">

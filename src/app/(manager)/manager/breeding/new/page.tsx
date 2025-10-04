@@ -27,8 +27,12 @@ interface Fish {
 
 export default function Main() {
   const router = useRouter();
-  const [selectedFatherFish, setSelectedFatherFish] = useState<Fish | null>(null);
-  const [selectedMotherFish, setSelectedMotherFish] = useState<Fish | null>(null);
+  const [selectedFatherFish, setSelectedFatherFish] = useState<Fish | null>(
+    null,
+  );
+  const [selectedMotherFish, setSelectedMotherFish] = useState<Fish | null>(
+    null,
+  );
   const [showDetailedInfo, setShowDetailedInfo] = useState(false);
 
   const handleFishSelection = (fatherFish: Fish, motherFish: Fish) => {
@@ -45,7 +49,10 @@ export default function Main() {
 
   const handleCreateBreeding = () => {
     // Logic tạo cặp sinh sản
-    console.log("Creating breeding pair:", { selectedFatherFish, selectedMotherFish });
+    console.log("Creating breeding pair:", {
+      selectedFatherFish,
+      selectedMotherFish,
+    });
     router.push("/manager/breeding");
   };
 
@@ -57,10 +64,9 @@ export default function Main() {
             Thêm cặp sinh sản mới
           </h1>
           <p className="[font-family:'Inter-Regular',Helvetica] font-normal text-gray-600 text-base tracking-[0] leading-6">
-            {showDetailedInfo 
-              ? "Chi tiết thông tin cặp sinh sản - Bạn có thể chọn lại cặp khác nếu cần" 
-              : "Tạo một cặp sinh sản mới với tiêu chí đánh giá thương mại"
-            }
+            {showDetailedInfo
+              ? "Chi tiết thông tin cặp sinh sản - Bạn có thể chọn lại cặp khác nếu cần"
+              : "Tạo một cặp sinh sản mới với tiêu chí đánh giá thương mại"}
           </p>
         </div>
       </header>
@@ -77,19 +83,19 @@ export default function Main() {
                   <FatherFishInfo selectedFish={selectedFatherFish} />
                 </div>
               )}
-              
+
               {/* Mother Fish Info */}
               {selectedMotherFish && (
                 <div className="space-y-4">
                   <MotherFishInfo selectedFish={selectedMotherFish} />
                 </div>
               )}
-              
+
               {/* Compatibility Assessment */}
               {selectedFatherFish && selectedMotherFish && (
-                <ComparisonSection 
-                  fatherFish={selectedFatherFish} 
-                  motherFish={selectedMotherFish} 
+                <ComparisonSection
+                  fatherFish={selectedFatherFish}
+                  motherFish={selectedMotherFish}
                 />
               )}
             </div>
@@ -98,18 +104,11 @@ export default function Main() {
 
         {showDetailedInfo && (
           <div className="flex justify-end gap-4 mt-12">
-            <Button
-              variant="outline"
-              onClick={handleCancel}
-            >
+            <Button variant="outline" onClick={handleCancel}>
               Chọn lại
             </Button>
 
-            <Button 
-              onClick={handleCreateBreeding}
-            >
-              Tạo cặp sinh sản
-            </Button>
+            <Button onClick={handleCreateBreeding}>Tạo cặp sinh sản</Button>
           </div>
         )}
       </main>

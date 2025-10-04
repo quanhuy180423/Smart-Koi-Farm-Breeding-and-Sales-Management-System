@@ -1,7 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -48,7 +54,7 @@ const mockProfile = {
     totalRevenue: 450000000,
     customerSatisfaction: 98,
     averageOrderValue: 3000000,
-  }
+  },
 };
 
 export default function SaleProfilePage() {
@@ -115,9 +121,7 @@ export default function SaleProfilePage() {
                 <User className="h-5 w-5" />
                 Thông tin cơ bản
               </CardTitle>
-              <CardDescription>
-                Thông tin cá nhân và liên hệ
-              </CardDescription>
+              <CardDescription>Thông tin cá nhân và liên hệ</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               {/* Avatar Section */}
@@ -141,7 +145,9 @@ export default function SaleProfilePage() {
                 </div>
                 <div>
                   <h3 className="text-lg font-semibold">{profile.name}</h3>
-                  <p className="text-sm text-muted-foreground">{profile.position}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {profile.position}
+                  </p>
                   <Badge variant="secondary" className="mt-1">
                     <Shield className="h-3 w-3 mr-1" />
                     {profile.department}
@@ -158,7 +164,9 @@ export default function SaleProfilePage() {
                   <Input
                     id="name"
                     value={profile.name}
-                    onChange={(e) => setProfile({...profile, name: e.target.value})}
+                    onChange={(e) =>
+                      setProfile({ ...profile, name: e.target.value })
+                    }
                     disabled={!isEditing}
                   />
                 </div>
@@ -168,7 +176,9 @@ export default function SaleProfilePage() {
                     id="email"
                     type="email"
                     value={profile.email}
-                    onChange={(e) => setProfile({...profile, email: e.target.value})}
+                    onChange={(e) =>
+                      setProfile({ ...profile, email: e.target.value })
+                    }
                     disabled={!isEditing}
                   />
                 </div>
@@ -177,17 +187,15 @@ export default function SaleProfilePage() {
                   <Input
                     id="phone"
                     value={profile.phone}
-                    onChange={(e) => setProfile({...profile, phone: e.target.value})}
+                    onChange={(e) =>
+                      setProfile({ ...profile, phone: e.target.value })
+                    }
                     disabled={!isEditing}
                   />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="startDate">Ngày bắt đầu làm việc</Label>
-                  <Input
-                    id="startDate"
-                    value={profile.startDate}
-                    disabled
-                  />
+                  <Input id="startDate" value={profile.startDate} disabled />
                 </div>
               </div>
 
@@ -196,7 +204,9 @@ export default function SaleProfilePage() {
                 <Input
                   id="address"
                   value={profile.address}
-                  onChange={(e) => setProfile({...profile, address: e.target.value})}
+                  onChange={(e) =>
+                    setProfile({ ...profile, address: e.target.value })
+                  }
                   disabled={!isEditing}
                 />
               </div>
@@ -206,7 +216,9 @@ export default function SaleProfilePage() {
                 <Textarea
                   id="bio"
                   value={profile.bio}
-                  onChange={(e) => setProfile({...profile, bio: e.target.value})}
+                  onChange={(e) =>
+                    setProfile({ ...profile, bio: e.target.value })
+                  }
                   disabled={!isEditing}
                   rows={3}
                 />
@@ -228,11 +240,20 @@ export default function SaleProfilePage() {
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {profile.achievements.map((achievement, index) => (
-                  <div key={index} className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
+                  <div
+                    key={index}
+                    className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg"
+                  >
                     <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                      {achievement.type === 'award' && <Award className="h-5 w-5 text-primary" />}
-                      {achievement.type === 'target' && <Target className="h-5 w-5 text-primary" />}
-                      {achievement.type === 'rating' && <TrendingUp className="h-5 w-5 text-primary" />}
+                      {achievement.type === "award" && (
+                        <Award className="h-5 w-5 text-primary" />
+                      )}
+                      {achievement.type === "target" && (
+                        <Target className="h-5 w-5 text-primary" />
+                      )}
+                      {achievement.type === "rating" && (
+                        <TrendingUp className="h-5 w-5 text-primary" />
+                      )}
                     </div>
                     <div className="flex-1">
                       <p className="text-sm font-medium">{achievement.title}</p>
@@ -253,15 +274,15 @@ export default function SaleProfilePage() {
                 <TrendingUp className="h-5 w-5" />
                 Hiệu suất làm việc
               </CardTitle>
-              <CardDescription>
-                Thống kê tháng này
-              </CardDescription>
+              <CardDescription>Thống kê tháng này</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
                 <div>
                   <p className="text-sm text-muted-foreground">Tổng đơn hàng</p>
-                  <p className="text-2xl font-bold">{profile.stats.totalSales}</p>
+                  <p className="text-2xl font-bold">
+                    {profile.stats.totalSales}
+                  </p>
                 </div>
                 <TrendingUp className="h-8 w-8 text-green-600" />
               </div>
@@ -269,7 +290,9 @@ export default function SaleProfilePage() {
               <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
                 <div>
                   <p className="text-sm text-muted-foreground">Doanh thu</p>
-                  <p className="text-lg font-bold">{formatCurrency(profile.stats.totalRevenue)}</p>
+                  <p className="text-lg font-bold">
+                    {formatCurrency(profile.stats.totalRevenue)}
+                  </p>
                 </div>
                 <TrendingUp className="h-8 w-8 text-blue-600" />
               </div>
@@ -277,15 +300,21 @@ export default function SaleProfilePage() {
               <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
                 <div>
                   <p className="text-sm text-muted-foreground">Hài lòng KH</p>
-                  <p className="text-2xl font-bold">{profile.stats.customerSatisfaction}%</p>
+                  <p className="text-2xl font-bold">
+                    {profile.stats.customerSatisfaction}%
+                  </p>
                 </div>
                 <Award className="h-8 w-8 text-yellow-600" />
               </div>
 
               <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
                 <div>
-                  <p className="text-sm text-muted-foreground">Đơn trung bình</p>
-                  <p className="text-lg font-bold">{formatCurrency(profile.stats.averageOrderValue)}</p>
+                  <p className="text-sm text-muted-foreground">
+                    Đơn trung bình
+                  </p>
+                  <p className="text-lg font-bold">
+                    {formatCurrency(profile.stats.averageOrderValue)}
+                  </p>
                 </div>
                 <Target className="h-8 w-8 text-purple-600" />
               </div>
@@ -305,7 +334,9 @@ export default function SaleProfilePage() {
                 <Mail className="h-4 w-4 text-muted-foreground" />
                 <div>
                   <p className="text-sm font-medium">Email công ty</p>
-                  <p className="text-sm text-muted-foreground">{profile.email}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {profile.email}
+                  </p>
                 </div>
               </div>
 
@@ -313,7 +344,9 @@ export default function SaleProfilePage() {
                 <Phone className="h-4 w-4 text-muted-foreground" />
                 <div>
                   <p className="text-sm font-medium">Điện thoại</p>
-                  <p className="text-sm text-muted-foreground">{profile.phone}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {profile.phone}
+                  </p>
                 </div>
               </div>
 
@@ -321,7 +354,9 @@ export default function SaleProfilePage() {
                 <Calendar className="h-4 w-4 text-muted-foreground" />
                 <div>
                   <p className="text-sm font-medium">Ngày bắt đầu</p>
-                  <p className="text-sm text-muted-foreground">{profile.startDate}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {profile.startDate}
+                  </p>
                 </div>
               </div>
 
@@ -329,7 +364,9 @@ export default function SaleProfilePage() {
                 <MapPin className="h-4 w-4 text-muted-foreground" />
                 <div>
                   <p className="text-sm font-medium">Địa chỉ</p>
-                  <p className="text-sm text-muted-foreground">{profile.address}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {profile.address}
+                  </p>
                 </div>
               </div>
             </CardContent>

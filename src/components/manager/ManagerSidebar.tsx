@@ -87,7 +87,13 @@ export function ManagerSidebar({ className }: ManagerSidebarProps) {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
 
-  const SidebarContent = ({ showHeader = false, onItemClick }: { showHeader?: boolean; onItemClick?: () => void }) => (
+  const SidebarContent = ({
+    showHeader = false,
+    onItemClick,
+  }: {
+    showHeader?: boolean;
+    onItemClick?: () => void;
+  }) => (
     <div className="flex flex-col h-full">
       {showHeader && (
         <SheetHeader className="px-4 pt-6 pb-4 border-b bg-gradient-to-r from-background to-muted/30">
@@ -103,7 +109,9 @@ export function ManagerSidebar({ className }: ManagerSidebarProps) {
               <SheetTitle className="text-left text-xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
                 ZenKoi Manager
               </SheetTitle>
-              <p className="text-xs text-muted-foreground">Quản lý trang trại</p>
+              <p className="text-xs text-muted-foreground">
+                Quản lý trang trại
+              </p>
             </div>
           </div>
         </SheetHeader>
@@ -113,7 +121,8 @@ export function ManagerSidebar({ className }: ManagerSidebarProps) {
       <nav className="flex-1 p-4 space-y-2">
         {sidebarItems.map((item) => {
           const Icon = item.icon;
-          const isActive = pathname === item.href || 
+          const isActive =
+            pathname === item.href ||
             (item.href !== "/manager" && pathname.startsWith(item.href));
 
           return (
@@ -191,7 +200,10 @@ export function ManagerSidebar({ className }: ManagerSidebarProps) {
             </Button>
           </SheetTrigger>
           <SheetContent side="left" className="w-80 p-0">
-            <SidebarContent showHeader={true} onItemClick={() => setIsOpen(false)} />
+            <SidebarContent
+              showHeader={true}
+              onItemClick={() => setIsOpen(false)}
+            />
           </SheetContent>
         </Sheet>
       </div>

@@ -1,20 +1,26 @@
 "use client";
 
 import { useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { 
-  Plus, 
-  Search, 
+import {
+  Plus,
+  Search,
   Users,
   Edit,
   Trash2,
   Eye,
   UserCheck,
   UserX,
-  Shield
+  Shield,
 } from "lucide-react";
 import {
   Table,
@@ -77,7 +83,7 @@ const accountData: Account[] = [
     totalSpent: "50,000,000",
   },
   {
-    id: "ACC002", 
+    id: "ACC002",
     name: "Trần Thị B",
     email: "tranthib@gmail.com",
     phone: "0912345678",
@@ -90,7 +96,7 @@ const accountData: Account[] = [
   {
     id: "ACC003",
     name: "Lê Văn C",
-    email: "levanc@gmail.com", 
+    email: "levanc@gmail.com",
     phone: "0923456789",
     role: "Khách hàng",
     status: "suspended",
@@ -104,7 +110,7 @@ const accountData: Account[] = [
     email: "phamthid@gmail.com",
     phone: "0934567890",
     role: "Quản lý",
-    status: "active", 
+    status: "active",
     joinDate: "2023-05-01",
     totalOrders: 0,
     totalSpent: "0",
@@ -114,20 +120,26 @@ const accountData: Account[] = [
 const getRoleBadge = (role: string) => {
   switch (role) {
     case "Quản lý":
-      return <Badge variant="default" className="bg-purple-100 text-purple-800">
-        <Shield className="mr-1 h-3 w-3" />
-        Quản lý
-      </Badge>;
+      return (
+        <Badge variant="default" className="bg-purple-100 text-purple-800">
+          <Shield className="mr-1 h-3 w-3" />
+          Quản lý
+        </Badge>
+      );
     case "Nhân viên":
-      return <Badge variant="default" className="bg-blue-100 text-blue-800">
-        <UserCheck className="mr-1 h-3 w-3" />
-        Nhân viên
-      </Badge>;
+      return (
+        <Badge variant="default" className="bg-blue-100 text-blue-800">
+          <UserCheck className="mr-1 h-3 w-3" />
+          Nhân viên
+        </Badge>
+      );
     case "Khách hàng":
-      return <Badge variant="outline" className="bg-gray-50 text-gray-700">
-        <Users className="mr-1 h-3 w-3" />
-        Khách hàng
-      </Badge>;
+      return (
+        <Badge variant="outline" className="bg-gray-50 text-gray-700">
+          <Users className="mr-1 h-3 w-3" />
+          Khách hàng
+        </Badge>
+      );
     default:
       return <Badge variant="outline">{role}</Badge>;
   }
@@ -136,7 +148,11 @@ const getRoleBadge = (role: string) => {
 const getStatusBadge = (status: string) => {
   switch (status) {
     case "active":
-      return <Badge variant="default" className="bg-green-100 text-green-800">Hoạt động</Badge>;
+      return (
+        <Badge variant="default" className="bg-green-100 text-green-800">
+          Hoạt động
+        </Badge>
+      );
     case "suspended":
       return <Badge variant="destructive">Tạm khóa</Badge>;
     case "deleted":
@@ -165,10 +181,12 @@ export default function AccountManagement() {
   });
 
   const filteredAccounts = accountData.filter((account) => {
-    const matchesSearch = account.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         account.email.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch =
+      account.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      account.email.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesRole = roleFilter === "all" || account.role === roleFilter;
-    const matchesStatus = statusFilter === "all" || account.status === statusFilter;
+    const matchesStatus =
+      statusFilter === "all" || account.status === statusFilter;
     return matchesSearch && matchesRole && matchesStatus;
   });
 
@@ -205,7 +223,9 @@ export default function AccountManagement() {
     <div className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Quản lý tài khoản</h1>
+          <h1 className="text-3xl font-bold tracking-tight">
+            Quản lý tài khoản
+          </h1>
           <p className="text-muted-foreground">
             Quản lý tài khoản khách hàng, nhân viên và quản lý trong hệ thống
           </p>
@@ -220,7 +240,9 @@ export default function AccountManagement() {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Tổng tài khoản</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Tổng tài khoản
+            </CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -234,7 +256,7 @@ export default function AccountManagement() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {accountData.filter(a => a.role === "Khách hàng").length}
+              {accountData.filter((a) => a.role === "Khách hàng").length}
             </div>
           </CardContent>
         </Card>
@@ -245,18 +267,20 @@ export default function AccountManagement() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {accountData.filter(a => a.role === "Nhân viên").length}
+              {accountData.filter((a) => a.role === "Nhân viên").length}
             </div>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Tài khoản khóa</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Tài khoản khóa
+            </CardTitle>
             <UserX className="h-4 w-4 text-red-600" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {accountData.filter(a => a.status === "suspended").length}
+              {accountData.filter((a) => a.status === "suspended").length}
             </div>
           </CardContent>
         </Card>
@@ -341,13 +365,25 @@ export default function AccountManagement() {
                   <TableCell>{account.totalSpent} VNĐ</TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
-                      <Button variant="ghost" size="icon" onClick={() => handleViewDetails(account)}>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleViewDetails(account)}
+                      >
                         <Eye className="h-4 w-4" />
                       </Button>
-                      <Button variant="ghost" size="icon" onClick={() => handleEditAccount(account)}>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleEditAccount(account)}
+                      >
                         <Edit className="h-4 w-4" />
                       </Button>
-                      <Button variant="ghost" size="icon" className="text-red-600 hover:bg-red-500">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="text-red-600 hover:bg-red-500"
+                      >
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </div>
@@ -365,25 +401,33 @@ export default function AccountManagement() {
           <DialogContent className="max-w-xl">
             <DialogHeader className="flex flex-row items-center justify-between">
               <div>
-                <DialogTitle className="text-lg font-semibold">{selectedAccount.name}</DialogTitle>
+                <DialogTitle className="text-lg font-semibold">
+                  {selectedAccount.name}
+                </DialogTitle>
                 <DialogDescription className="text-sm text-muted-foreground">
                   {selectedAccount.role} • {selectedAccount.email}
                 </DialogDescription>
               </div>
             </DialogHeader>
-            
+
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
-                  <h4 className="font-medium text-muted-foreground">Thông tin cá nhân</h4>
+                  <h4 className="font-medium text-muted-foreground">
+                    Thông tin cá nhân
+                  </h4>
                   <div className="mt-2 space-y-2">
                     <div className="flex justify-between">
                       <span>Email:</span>
-                      <span className="font-medium">{selectedAccount.email}</span>
+                      <span className="font-medium">
+                        {selectedAccount.email}
+                      </span>
                     </div>
                     <div className="flex justify-between">
                       <span>Số điện thoại:</span>
-                      <span className="font-medium">{selectedAccount.phone}</span>
+                      <span className="font-medium">
+                        {selectedAccount.phone}
+                      </span>
                     </div>
                     <div className="flex justify-between">
                       <span>Vai trò:</span>
@@ -395,21 +439,29 @@ export default function AccountManagement() {
                     </div>
                   </div>
                 </div>
-                
+
                 <div>
-                  <h4 className="font-medium text-muted-foreground">Hoạt động</h4>
+                  <h4 className="font-medium text-muted-foreground">
+                    Hoạt động
+                  </h4>
                   <div className="mt-2 space-y-2">
                     <div className="flex justify-between">
                       <span>Ngày tham gia:</span>
-                      <span className="font-medium">{selectedAccount.joinDate}</span>
+                      <span className="font-medium">
+                        {selectedAccount.joinDate}
+                      </span>
                     </div>
                     <div className="flex justify-between">
                       <span>Tổng đơn hàng:</span>
-                      <span className="font-medium">{selectedAccount.totalOrders}</span>
+                      <span className="font-medium">
+                        {selectedAccount.totalOrders}
+                      </span>
                     </div>
                     <div className="flex justify-between">
                       <span>Tổng chi tiêu:</span>
-                      <span className="font-medium">{selectedAccount.totalSpent} VNĐ</span>
+                      <span className="font-medium">
+                        {selectedAccount.totalSpent} VNĐ
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -425,28 +477,47 @@ export default function AccountManagement() {
           <DialogContent className="max-w-md">
             <DialogHeader className="flex flex-row items-center justify-between">
               <div>
-                <DialogTitle className="text-lg font-semibold">Tạo tài khoản mới</DialogTitle>
+                <DialogTitle className="text-lg font-semibold">
+                  Tạo tài khoản mới
+                </DialogTitle>
                 <DialogDescription className="text-sm text-muted-foreground">
                   Nhập thông tin chi tiết cho tài khoản mới trong hệ thống.
                 </DialogDescription>
               </div>
             </DialogHeader>
-            
+
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="name" className="text-sm font-medium text-gray-700">Họ tên</Label>
+                  <Label
+                    htmlFor="name"
+                    className="text-sm font-medium text-gray-700"
+                  >
+                    Họ tên
+                  </Label>
                   <Input
                     id="name"
                     value={newAccount.name}
-                    onChange={(e) => setNewAccount({...newAccount, name: e.target.value})}
+                    onChange={(e) =>
+                      setNewAccount({ ...newAccount, name: e.target.value })
+                    }
                     placeholder="Nhập họ tên (vd: Nguyễn Văn A)"
                     className="border-2 border-gray-300 focus:border-blue-500 transition-colors"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="role" className="text-sm font-medium text-gray-700">Vai trò</Label>
-                  <Select value={newAccount.role} onValueChange={(value) => setNewAccount({...newAccount, role: value})}>
+                  <Label
+                    htmlFor="role"
+                    className="text-sm font-medium text-gray-700"
+                  >
+                    Vai trò
+                  </Label>
+                  <Select
+                    value={newAccount.role}
+                    onValueChange={(value) =>
+                      setNewAccount({ ...newAccount, role: value })
+                    }
+                  >
                     <SelectTrigger className="border-2 border-gray-300 focus:border-blue-500 w-full">
                       <SelectValue placeholder="Chọn vai trò" />
                     </SelectTrigger>
@@ -461,22 +532,36 @@ export default function AccountManagement() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="email" className="text-sm font-medium text-gray-700">Email</Label>
+                  <Label
+                    htmlFor="email"
+                    className="text-sm font-medium text-gray-700"
+                  >
+                    Email
+                  </Label>
                   <Input
                     id="email"
                     type="email"
                     value={newAccount.email}
-                    onChange={(e) => setNewAccount({...newAccount, email: e.target.value})}
+                    onChange={(e) =>
+                      setNewAccount({ ...newAccount, email: e.target.value })
+                    }
                     placeholder="example@gmail.com"
                     className="border-2 border-gray-300 focus:border-blue-500 transition-colors"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="phone" className="text-sm font-medium text-gray-700">Số điện thoại</Label>
+                  <Label
+                    htmlFor="phone"
+                    className="text-sm font-medium text-gray-700"
+                  >
+                    Số điện thoại
+                  </Label>
                   <Input
                     id="phone"
                     value={newAccount.phone}
-                    onChange={(e) => setNewAccount({...newAccount, phone: e.target.value})}
+                    onChange={(e) =>
+                      setNewAccount({ ...newAccount, phone: e.target.value })
+                    }
                     placeholder="0901234567"
                     className="border-2 border-gray-300 focus:border-blue-500 transition-colors"
                   />
@@ -485,23 +570,40 @@ export default function AccountManagement() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="password" className="text-sm font-medium text-gray-700">Mật khẩu</Label>
+                  <Label
+                    htmlFor="password"
+                    className="text-sm font-medium text-gray-700"
+                  >
+                    Mật khẩu
+                  </Label>
                   <Input
                     id="password"
                     type="password"
                     value={newAccount.password}
-                    onChange={(e) => setNewAccount({...newAccount, password: e.target.value})}
+                    onChange={(e) =>
+                      setNewAccount({ ...newAccount, password: e.target.value })
+                    }
                     placeholder="Nhập mật khẩu"
                     className="border-2 border-gray-300 focus:border-blue-500 transition-colors"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="confirmPassword" className="text-sm font-medium text-gray-700">Xác nhận mật khẩu</Label>
+                  <Label
+                    htmlFor="confirmPassword"
+                    className="text-sm font-medium text-gray-700"
+                  >
+                    Xác nhận mật khẩu
+                  </Label>
                   <Input
                     id="confirmPassword"
                     type="password"
                     value={newAccount.confirmPassword}
-                    onChange={(e) => setNewAccount({...newAccount, confirmPassword: e.target.value})}
+                    onChange={(e) =>
+                      setNewAccount({
+                        ...newAccount,
+                        confirmPassword: e.target.value,
+                      })
+                    }
                     placeholder="Nhập lại mật khẩu"
                     className="border-2 border-gray-300 focus:border-blue-500 transition-colors"
                   />
@@ -509,12 +611,13 @@ export default function AccountManagement() {
               </div>
 
               <div className="flex justify-end space-x-3 pt-4">
-                <Button variant="outline" onClick={() => setIsAddModalOpen(false)}>
+                <Button
+                  variant="outline"
+                  onClick={() => setIsAddModalOpen(false)}
+                >
                   Hủy
                 </Button>
-                <Button onClick={handleAddAccount}>
-                  Tạo tài khoản
-                </Button>
+                <Button onClick={handleAddAccount}>Tạo tài khoản</Button>
               </div>
             </div>
           </DialogContent>
@@ -527,28 +630,53 @@ export default function AccountManagement() {
           <DialogContent className="max-w-md">
             <DialogHeader className="flex flex-row items-center justify-between">
               <div>
-                <DialogTitle className="text-lg font-semibold">Chỉnh sửa tài khoản</DialogTitle>
+                <DialogTitle className="text-lg font-semibold">
+                  Chỉnh sửa tài khoản
+                </DialogTitle>
                 <DialogDescription className="text-sm text-muted-foreground">
                   Cập nhật thông tin cho tài khoản {editingAccount.name}.
                 </DialogDescription>
               </div>
             </DialogHeader>
-            
+
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="edit-name" className="text-sm font-medium text-gray-700">Họ tên</Label>
+                  <Label
+                    htmlFor="edit-name"
+                    className="text-sm font-medium text-gray-700"
+                  >
+                    Họ tên
+                  </Label>
                   <Input
                     id="edit-name"
                     value={editingAccount.name}
-                    onChange={(e) => setEditingAccount({...editingAccount, name: e.target.value})}
+                    onChange={(e) =>
+                      setEditingAccount({
+                        ...editingAccount,
+                        name: e.target.value,
+                      })
+                    }
                     placeholder="Nhập họ tên"
                     className="border-2 border-gray-300 focus:border-blue-500 transition-colors"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="edit-role" className="text-sm font-medium text-gray-700">Vai trò</Label>
-                  <Select value={editingAccount.role} onValueChange={(value) => setEditingAccount({...editingAccount, role: value as AccountRole})}>
+                  <Label
+                    htmlFor="edit-role"
+                    className="text-sm font-medium text-gray-700"
+                  >
+                    Vai trò
+                  </Label>
+                  <Select
+                    value={editingAccount.role}
+                    onValueChange={(value) =>
+                      setEditingAccount({
+                        ...editingAccount,
+                        role: value as AccountRole,
+                      })
+                    }
+                  >
                     <SelectTrigger className="border-2 border-gray-300 focus:border-blue-500 w-full">
                       <SelectValue placeholder="Chọn vai trò" />
                     </SelectTrigger>
@@ -563,22 +691,42 @@ export default function AccountManagement() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="edit-email" className="text-sm font-medium text-gray-700">Email</Label>
+                  <Label
+                    htmlFor="edit-email"
+                    className="text-sm font-medium text-gray-700"
+                  >
+                    Email
+                  </Label>
                   <Input
                     id="edit-email"
                     type="email"
                     value={editingAccount.email}
-                    onChange={(e) => setEditingAccount({...editingAccount, email: e.target.value})}
+                    onChange={(e) =>
+                      setEditingAccount({
+                        ...editingAccount,
+                        email: e.target.value,
+                      })
+                    }
                     placeholder="example@gmail.com"
                     className="border-2 border-gray-300 focus:border-blue-500 transition-colors"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="edit-phone" className="text-sm font-medium text-gray-700">Số điện thoại</Label>
+                  <Label
+                    htmlFor="edit-phone"
+                    className="text-sm font-medium text-gray-700"
+                  >
+                    Số điện thoại
+                  </Label>
                   <Input
                     id="edit-phone"
                     value={editingAccount.phone}
-                    onChange={(e) => setEditingAccount({...editingAccount, phone: e.target.value})}
+                    onChange={(e) =>
+                      setEditingAccount({
+                        ...editingAccount,
+                        phone: e.target.value,
+                      })
+                    }
                     placeholder="0901234567"
                     className="border-2 border-gray-300 focus:border-blue-500 transition-colors"
                   />
@@ -586,8 +734,21 @@ export default function AccountManagement() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="edit-status" className="text-sm font-medium text-gray-700">Trạng thái</Label>
-                <Select value={editingAccount.status} onValueChange={(value) => setEditingAccount({...editingAccount, status: value as AccountStatus})}>
+                <Label
+                  htmlFor="edit-status"
+                  className="text-sm font-medium text-gray-700"
+                >
+                  Trạng thái
+                </Label>
+                <Select
+                  value={editingAccount.status}
+                  onValueChange={(value) =>
+                    setEditingAccount({
+                      ...editingAccount,
+                      status: value as AccountStatus,
+                    })
+                  }
+                >
                   <SelectTrigger className="border-2 border-gray-300 focus:border-blue-500 w-full">
                     <SelectValue placeholder="Chọn trạng thái" />
                   </SelectTrigger>
@@ -600,12 +761,13 @@ export default function AccountManagement() {
               </div>
 
               <div className="flex justify-end space-x-3 pt-4">
-                <Button variant="outline" onClick={() => setIsEditModalOpen(false)}>
+                <Button
+                  variant="outline"
+                  onClick={() => setIsEditModalOpen(false)}
+                >
                   Hủy
                 </Button>
-                <Button onClick={handleUpdateAccount}>
-                  Cập nhật
-                </Button>
+                <Button onClick={handleUpdateAccount}>Cập nhật</Button>
               </div>
             </div>
           </DialogContent>
