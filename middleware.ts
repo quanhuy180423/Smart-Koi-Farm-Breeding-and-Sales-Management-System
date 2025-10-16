@@ -3,22 +3,22 @@ import type { NextRequest } from "next/server";
 
 // Define user roles
 export enum UserRole {
-  ADMIN = "admin",
-  CUSTOMER = "customer",
+  MANAGER = "manager",
+  FARM_STAFF = "farm-staff",
   SALE_STAFF = "sale-staff",
+  CUSTOMER = "customer",
   GUEST = "guest",
 }
 
-// Define route protection rules
-const routeProtection = {
-  "/admin": [UserRole.ADMIN],
-  "/": [UserRole.CUSTOMER],
-  "/sale-staff": [UserRole.SALE_STAFF],
-  "/auth": [UserRole.GUEST], // Only guests can access auth pages
+// Define route protection rules (only protected routes are listed)
+const routeProtection: Record<string, UserRole[]> = {
+  "/manager": [UserRole.MANAGER, UserRole.FARM_STAFF],
+  "/sale": [UserRole.SALE_STAFF],
+  // add other protected routes here as needed
 };
 
 // Auth routes (login, register, etc.)
-const authRoutes = ["/auth/sign-in", "/auth/sign-up", "/auth/forgot-password"];
+const authRoutes = ["/login", "/register", "/auth/sign-in", "/auth/sign-up", "/auth/forgot-password"];
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -33,9 +33,8 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Get user role from cookies
-  const userRole =
-    (request.cookies.get("user-role")?.value as UserRole) || UserRole.GUEST;
+  // Get user role from cookies (client writes `user-role` cookie)
+  const userRole = (request.cookies.get("user-role")?.value as UserRole) || UserRole.GUEST;
   const isAuthenticated = userRole !== UserRole.GUEST;
 
   // Check if current route is auth route
@@ -59,7 +58,7 @@ export function middleware(request: NextRequest) {
     if (pathname.startsWith(route)) {
       // If user is not authenticated, redirect to login
       if (!isAuthenticated) {
-        const loginUrl = `/auth/sign-in?redirect=${encodeURIComponent(pathname)}`;
+        const loginUrl = `/login?redirect=${encodeURIComponent(pathname)}`;
         return NextResponse.redirect(new URL(loginUrl, request.url));
       }
 
@@ -82,12 +81,12 @@ export function middleware(request: NextRequest) {
 // Helper function to get dashboard URL based on user role
 function getDashboardUrl(role: UserRole): string {
   switch (role) {
-    case UserRole.ADMIN:
-      return "/admin/dashboard";
+    case UserRole.MANAGER:
+      return "/manager";
+    case UserRole.SALE_STAFF:
+      return "/sale";
     case UserRole.CUSTOMER:
       return "/";
-    case UserRole.SALE_STAFF:
-      return "/sale-staff/dashboard";
     default:
       return "/";
   }

@@ -1,11 +1,14 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import apiService from "@/lib/api/apiClient";
+import fetchAuth, { SignOutRequest } from "@/lib/api/services/fetchAuth";
 
 // Define user roles (same as middleware)
 export enum UserRole {
-  ADMIN = "admin",
-  CUSTOMER = "customer",
+  MANAGER = "manager",
+  FARM_STAFF = "farm-staff",
   SALE_STAFF = "sale-staff",
+  CUSTOMER = "customer",
   GUEST = "guest",
 }
 
@@ -28,6 +31,11 @@ interface AuthState {
   logout: () => void;
   setLoading: (loading: boolean) => void;
   updateUser: (user: Partial<User>) => void;
+  // Token setter: decode JWT, set user and auth state
+  setToken: (token: string | null) => void;
+  // Sign out (call backend to invalidate refresh token then clear state)
+  // Returns true if backend sign-out succeeded or no refresh token was present
+  signOut: (refreshToken?: string) => Promise<boolean>;
 
   // Computed values
   getUserRole: () => UserRole;
@@ -82,6 +90,146 @@ export const useAuthStore = create<AuthState>()(
         }
       },
 
+      setToken: (token: string | null) => {
+        // Clear state if no token
+        if (!token) {
+          set({ user: null, isAuthenticated: false, isLoading: false });
+          if (typeof window !== "undefined") {
+            document.cookie = "user-role=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+          }
+          try {
+            apiService.setAuthToken("");
+          } catch {
+            // ignore
+          }
+          return;
+        }
+
+        try {
+          // Helper to base64url-decode the payload
+          const base64UrlToJson = (b64Url: string) => {
+            let s = b64Url.replace(/-/g, "+").replace(/_/g, "/");
+            while (s.length % 4) s += "=";
+            if (typeof window !== "undefined" && typeof window.atob === "function") {
+              const decoded = window.atob(s);
+              // Percent-encode to properly decode utf-8 characters
+              const pct = Array.prototype.map
+                .call(decoded, (c: string) => {
+                  return "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2);
+                })
+                .join("");
+              return decodeURIComponent(pct);
+            }
+            // Node environment
+            const buff = Buffer.from(s, "base64");
+            return buff.toString("utf-8");
+          };
+
+          const parts = token.split(".");
+          if (parts.length < 2) throw new Error("invalid token");
+          const payloadJson = base64UrlToJson(parts[1]);
+          const payload = JSON.parse(payloadJson) as Record<string, unknown>;
+
+          const rawRoleValue =
+            (payload["Role"] as unknown) ||
+            (payload["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"] as unknown) ||
+            (payload["role"] as unknown) ||
+            "Guest";
+
+          const rawRole = String(rawRoleValue ?? "Guest");
+
+          const mapRole = (r: string): UserRole => {
+            const rr = (r || "").toLowerCase();
+            if (rr.includes("manager")) return UserRole.MANAGER;
+            if (rr.includes("farm")) return UserRole.FARM_STAFF;
+            if (rr.includes("sale")) return UserRole.SALE_STAFF;
+            if (rr.includes("customer") || rr.includes("cust")) return UserRole.CUSTOMER;
+            return UserRole.GUEST;
+          };
+
+          const role = mapRole(rawRole);
+
+          const idVal = payload["Id"] ?? payload["id"] ?? "";
+          const emailVal = payload["Email"] ?? payload["email"] ?? "";
+          const nameVal = payload["Name"] ?? payload["name"] ?? undefined;
+
+          const user: User = {
+            id: String(idVal || ""),
+            email: String(emailVal || ""),
+            username: nameVal ? String(nameVal) : (String(emailVal || "").split("@")[0] || ""),
+            role,
+            name: nameVal ? String(nameVal) : undefined,
+          };
+
+          // Persist token in API client
+          try {
+            apiService.setAuthToken(token);
+          } catch {
+            // ignore
+          }
+
+          // Set store and cookie
+          set({ user, isAuthenticated: true, isLoading: false });
+          if (typeof window !== "undefined") {
+            document.cookie = `user-role=${role}; path=/; max-age=86400`;
+          }
+        } catch {
+          // On error, ensure we clear any auth state
+          set({ user: null, isAuthenticated: false, isLoading: false });
+        }
+      },
+
+      signOut: async (refreshToken?: string) => {
+        // Helper to read cookie by name
+        const readCookie = (name: string) => {
+          if (typeof window === "undefined") return null;
+          const match = document.cookie.split(";").map((c) => c.trim()).find((c) => c.startsWith(name + "="));
+          if (!match) return null;
+          return decodeURIComponent(match.split("=")[1] || "");
+        };
+
+        let success = false;
+        try {
+          // If not provided, try to read refresh token from cookie
+          const tokenToSend = refreshToken ?? readCookie("refresh-token");
+          if (tokenToSend) {
+            const req: SignOutRequest = { refreshToken: tokenToSend };
+            try {
+              const resp = await fetchAuth.signOut(req);
+              success = !!(resp && resp.isSuccess && resp.result?.isSuccess);
+            } catch (e) {
+              // API failed — mark as failure, but do not throw
+              console.warn("signOut API failed", e);
+              success = false;
+            }
+          } else {
+            // No refresh token to revoke — consider this a success for local logout
+            success = true;
+          }
+
+          // If backend sign-out succeeded, clear client state
+          if (success) {
+            set({ user: null, isAuthenticated: false, isLoading: false });
+            if (typeof window !== "undefined") {
+              document.cookie = "user-role=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+              document.cookie = "auth-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+              document.cookie = "refresh-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+            }
+
+            try {
+              apiService.setAuthToken("");
+            } catch {
+              // ignore
+            }
+          }
+        } catch {
+          // unexpected error, treat as failure
+          success = false;
+        }
+
+        return success;
+      },
+
       getUserRole: () => {
         return get().user?.role || UserRole.GUEST;
       },
@@ -94,10 +242,10 @@ export const useAuthStore = create<AuthState>()(
         const userRole = get().getUserRole();
 
         // Define route permissions (same as middleware)
-        const routePermissions: Record<string, UserRole[]> = {
-          "/admin": [UserRole.ADMIN],
+          const routePermissions: Record<string, UserRole[]> = {
+          "/manager": [UserRole.MANAGER, UserRole.FARM_STAFF],
           "/customer": [UserRole.CUSTOMER],
-          "/sale-staff": [UserRole.SALE_STAFF],
+          "/sale": [UserRole.SALE_STAFF],
         };
 
         // Check if route requires specific role
@@ -183,17 +331,25 @@ export const authHelpers = {
 
       // Mock login response based on email
       let user: User;
-      if (email.includes("admin")) {
+      if (email.includes("manager") || email.includes("admin")) {
         user = {
           id: "1",
           email,
-          username: "admin",
-          role: UserRole.ADMIN,
-          name: "Admin User",
+          username: "manager",
+          role: UserRole.MANAGER,
+          name: "Manager User",
+        };
+      } else if (email.includes("farm")) {
+        user = {
+          id: "2",
+          email,
+          username: "farm-staff",
+          role: UserRole.FARM_STAFF,
+          name: "Farm Staff",
         };
       } else if (email.includes("sale")) {
         user = {
-          id: "2",
+          id: "3",
           email,
           username: "sale-staff",
           role: UserRole.SALE_STAFF,
@@ -201,7 +357,7 @@ export const authHelpers = {
         };
       } else {
         user = {
-          id: "3",
+          id: "4",
           email,
           username: "customer",
           role: UserRole.CUSTOMER,
@@ -209,7 +365,9 @@ export const authHelpers = {
         };
       }
 
-      useAuthStore.getState().login(user);
+  // use _password to avoid unused param lint (placeholder until real API)
+  void _password;
+  useAuthStore.getState().login(user);
       return { success: true, user };
     } catch (error) {
       console.error("Login error:", error);
@@ -237,7 +395,9 @@ export const authHelpers = {
         name: username,
       };
 
-      useAuthStore.getState().login(user);
+  // use _password to avoid unused param lint (placeholder until real API)
+  void _password;
+  useAuthStore.getState().login(user);
       return { success: true, user };
     } catch (error) {
       console.error("Register error:", error);

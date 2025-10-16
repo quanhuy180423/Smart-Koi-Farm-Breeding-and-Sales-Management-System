@@ -18,15 +18,18 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { toast } from "react-hot-toast";
-import { authHelpers } from "@/store/auth-store";
 import Logo from "@/assets/images/Logo_ZenKoi.png";
+import { RegisterRequest, Roles } from "@/lib/api/services/fetchAuth";
+import { useRegister } from "@/hooks/useAuth";
 
 const registerSchema = z
   .object({
     email: z.string().email("Email không hợp lệ"),
-    username: z.string().min(3, "Tên người dùng phải có ít nhất 3 ký tự"),
+    userName: z.string().min(3, "Tên người dùng phải có ít nhất 3 ký tự"),
     password: z.string().min(6, "Mật khẩu phải có ít nhất 6 ký tự"),
     confirmPassword: z.string(),
+    fullName: z.string().min(3, "Họ và tên phải có ít nhất 3 ký tự"),
+    phoneNumber: z.string().min(7, "Số điện thoại không hợp lệ"),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Mật khẩu xác nhận không khớp",
@@ -38,7 +41,8 @@ type RegisterForm = z.infer<typeof registerSchema>;
 export default function SignUpPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const { register: registerUserMutation, isLoading: isRegistering } =
+    useRegister();
 
   const {
     register,
@@ -49,26 +53,23 @@ export default function SignUpPage() {
   });
 
   const onSubmit = async (data: RegisterForm) => {
-    setIsLoading(true);
-    try {
-      const result = await authHelpers.register(
-        data.email,
-        data.username,
-        data.password,
-      );
+    // build payload matching RegisterRequest
+    const payload: RegisterRequest = {
+      email: data.email,
+      userName: data.userName,
+      password: data.password,
+      confirmPassword: data.confirmPassword,
+      fullName: data.fullName,
+      phoneNumber: data.phoneNumber,
+      role: Roles.Customer,
+    };
 
-      if (result.success) {
-        toast.success("Đăng ký thành công! Chào mừng bạn đến với ZenKoi.");
-        // Redirect to customer dashboard
-        window.location.href = "/customer/dashboard";
-      } else {
-        toast.error(result.error || "Đăng ký thất bại. Vui lòng thử lại.");
-      }
-    } catch (error) {
-      console.error("Register error:", error);
-      toast.error("Đăng ký thất bại. Vui lòng thử lại.");
-    } finally {
-      setIsLoading(false);
+    // call mutation from hook
+    try {
+      registerUserMutation(payload);
+    } catch (err) {
+      console.error("Registration error:", err);
+      toast.error("Đã có lỗi xảy ra khi đăng ký. Vui lòng thử lại sau.");
     }
   };
 
@@ -151,21 +152,63 @@ export default function SignUpPage() {
 
                 <div className="space-y-2">
                   <Label
-                    htmlFor="username"
+                    htmlFor="userName"
+                    className="text-foreground font-medium text-sm"
+                  >
+                    Tên người dùng
+                  </Label>
+                  <Input
+                    id="userName"
+                    type="text"
+                    placeholder="Nhập tên đăng nhập..."
+                    {...register("userName")}
+                    className="bg-input/50 border-border/60 focus:ring-primary/30 focus:border-primary transition-all duration-200 h-10 px-3 hover:border-primary/50"
+                  />
+                  {errors.userName && (
+                    <p className="text-xs text-destructive font-medium flex items-center gap-1">
+                      {errors.userName.message}
+                    </p>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <Label
+                    htmlFor="fullName"
                     className="text-foreground font-medium text-sm"
                   >
                     Họ và tên
                   </Label>
                   <Input
-                    id="username"
+                    id="fullName"
                     type="text"
                     placeholder="Nhập họ và tên..."
-                    {...register("username")}
+                    {...register("fullName")}
                     className="bg-input/50 border-border/60 focus:ring-primary/30 focus:border-primary transition-all duration-200 h-10 px-3 hover:border-primary/50"
                   />
-                  {errors.username && (
+                  {errors.fullName && (
                     <p className="text-xs text-destructive font-medium flex items-center gap-1">
-                      {errors.username.message}
+                      {errors.fullName.message}
+                    </p>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <Label
+                    htmlFor="phoneNumber"
+                    className="text-foreground font-medium text-sm"
+                  >
+                    Số điện thoại
+                  </Label>
+                  <Input
+                    id="phoneNumber"
+                    type="tel"
+                    placeholder="Nhập số điện thoại..."
+                    {...register("phoneNumber")}
+                    className="bg-input/50 border-border/60 focus:ring-primary/30 focus:border-primary transition-all duration-200 h-10 px-3 hover:border-primary/50"
+                  />
+                  {errors.phoneNumber && (
+                    <p className="text-xs text-destructive font-medium flex items-center gap-1">
+                      {errors.phoneNumber.message}
                     </p>
                   )}
                 </div>
@@ -246,11 +289,11 @@ export default function SignUpPage() {
 
                 <Button
                   type="submit"
-                  disabled={isLoading}
+                  disabled={isRegistering}
                   className="w-full bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-primary-foreground font-semibold py-2.5 h-10 transition-all duration-300 hover:scale-[1.02] hover:shadow-lg hover:shadow-primary/25 disabled:opacity-50 disabled:scale-100 disabled:shadow-none relative overflow-hidden group"
                 >
                   <span className="relative z-10">
-                    {isLoading ? (
+                    {isRegistering ? (
                       <div className="flex items-center justify-center gap-2">
                         <div className="w-3.5 h-3.5 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin"></div>
                         Đang tạo tài khoản...
@@ -268,7 +311,7 @@ export default function SignUpPage() {
                 <Button
                   type="button"
                   variant="outline"
-                  disabled={isLoading}
+                  disabled={isRegistering}
                   className="w-full bg-white/50 hover:bg-white/70 hover:text-black border-border/60 text-foreground font-medium py-2.5 h-10 transition-all duration-300 hover:scale-[1.02] hover:shadow-md relative overflow-hidden group disabled:opacity-50 disabled:scale-100"
                 >
                   <div className="flex items-center justify-center gap-2.5">
