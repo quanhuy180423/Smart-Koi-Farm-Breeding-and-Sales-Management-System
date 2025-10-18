@@ -7,11 +7,17 @@ import axios, {
 import { deleteCookie } from "cookies-next";
 // import { useAuthStore } from "@/lib/store/authStore";
 
+export interface ErrorsData {
+  key: string;
+  value: string;
+}
+
 // API error response data structure
 export interface ApiErrorData {
-  message?: string;
-  code?: string | number;
-  [key: string]: unknown;
+  statusCode: string;
+  isSuccess: boolean;
+  message: string;
+  errors: ErrorsData[];
 }
 
 // Error interface
@@ -74,7 +80,7 @@ export class ApiService {
 
         return config;
       },
-      (error) => Promise.reject(error),
+      (error) => Promise.reject(error)
     );
 
     // Response interceptor
@@ -93,11 +99,16 @@ export class ApiService {
             error.response?.data?.message ||
             error.message ||
             "Unknown error occurred",
-          error: error.response?.data || { message: error.message },
+          error: {
+            statusCode: error.response?.data?.statusCode || "",
+            isSuccess: error.response?.data?.isSuccess || false,
+            message: error.response?.data?.message || "",
+            errors: error.response?.data?.errors || [],
+          },
         };
 
         return Promise.reject(apiError);
-      },
+      }
     );
   }
 
@@ -131,7 +142,7 @@ export class ApiService {
 
   // Generic request method
   private async request<T>(
-    config: AxiosRequestConfig,
+    config: AxiosRequestConfig
   ): Promise<ApiResponse<T>> {
     // Handle FormData in config.data
     if (config.data instanceof FormData) {
@@ -168,7 +179,7 @@ export class ApiService {
   // POST request
   async post<T, D = Record<string, unknown> | FormData>(
     url: string,
-    data?: D,
+    data?: D
   ): Promise<ApiResponse<T>> {
     return this.request<T>({
       method: "POST",
@@ -180,7 +191,7 @@ export class ApiService {
   // PUT request
   async put<T, D = Record<string, unknown> | FormData>(
     url: string,
-    data?: D,
+    data?: D
   ): Promise<ApiResponse<T>> {
     return this.request<T>({
       method: "PUT",
@@ -192,7 +203,7 @@ export class ApiService {
   // DELETE request
   async delete<T>(
     url: string,
-    params?: RequestParams,
+    params?: RequestParams
   ): Promise<ApiResponse<T>> {
     return this.request<T>({
       method: "DELETE",
@@ -204,7 +215,7 @@ export class ApiService {
   // PATCH request
   async patch<T, D = Record<string, unknown> | FormData>(
     url: string,
-    data?: D,
+    data?: D
   ): Promise<ApiResponse<T>> {
     return this.request<T>({
       method: "PATCH",
@@ -219,7 +230,7 @@ export class ApiService {
     files: File | File[],
     fieldName = "file",
     additionalData?: Record<string, string | number | boolean>,
-    onProgress?: (percentage: number) => void,
+    onProgress?: (percentage: number) => void
   ): Promise<ApiResponse<T>> {
     const formData = new FormData();
 
@@ -246,7 +257,7 @@ export class ApiService {
       onUploadProgress: onProgress
         ? (progressEvent) => {
             const percentage = Math.round(
-              (progressEvent.loaded * 100) / (progressEvent.total || 100),
+              (progressEvent.loaded * 100) / (progressEvent.total || 100)
             );
             onProgress(percentage);
           }
@@ -271,7 +282,7 @@ const apiService = new ApiService(
       // Dispatch logout event for other components to listen to
       window.dispatchEvent(new Event("logout"));
     }
-  },
+  }
 );
 
 export default apiService;

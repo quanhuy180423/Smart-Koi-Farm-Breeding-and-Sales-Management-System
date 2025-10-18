@@ -7,7 +7,7 @@ import * as z from "zod";
 import Link from "next/link";
 import Image from "next/image";
 import { Eye, EyeOff } from "lucide-react";
-import { useSearchParams } from "next/navigation";
+// search params are handled by the login hook; not needed here
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -19,21 +19,20 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { toast } from "react-hot-toast";
-import { authHelpers } from "@/store/auth-store";
+import { useLogin } from "@/hooks/useAuth";
 import Logo from "@/assets/images/Logo_ZenKoi.png";
 
 const loginSchema = z.object({
-  email: z.string().email("Email không hợp lệ"),
+  userNameOrEmail: z.string().min(1, "Vui lòng nhập email hoặc username"),
   password: z.string().min(6, "Mật khẩu phải có ít nhất 6 ký tự"),
+  rememberMe: z.boolean().optional(),
 });
 
 type LoginForm = z.infer<typeof loginSchema>;
 
 export default function SignInPage() {
   const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const searchParams = useSearchParams();
-  const redirectUrl = searchParams.get("redirect") || "/";
+  const { login, isLoading } = useLogin();
 
   const {
     register,
@@ -43,30 +42,17 @@ export default function SignInPage() {
     resolver: zodResolver(loginSchema),
   });
 
-  const onSubmit = async (data: LoginForm) => {
-    setIsLoading(true);
-    try {
-      const result = await authHelpers.login(data.email, data.password);
-
-      if (result.success) {
-        toast.success("Đăng nhập thành công!");
-        // Redirect to the intended page or dashboard
-        const targetUrl =
-          redirectUrl && redirectUrl.startsWith("/") ? redirectUrl : "/";
-        window.location.href = targetUrl;
-      } else {
-        toast.error(result.error || "Đăng nhập thất bại. Vui lòng thử lại.");
-      }
-    } catch (error) {
-      console.error("Login error:", error);
-      toast.error("Đăng nhập thất bại. Vui lòng thử lại.");
-    } finally {
-      setIsLoading(false);
-    }
+  const onSubmit = (data: LoginForm) => {
+    // Call the login hook; it handles toasts, token persistence and redirect
+    login({
+      userNameOrEmail: data.userNameOrEmail,
+      password: data.password,
+      rememberMe: data.rememberMe,
+    });
   };
 
   const handleGoogleLogin = async () => {
-    setIsLoading(true);
+    // rely on isLoading state from login hook
     try {
       // Placeholder for Google OAuth integration
       toast.success("Tính năng đăng nhập Google sẽ được tích hợp sớm!");
@@ -79,8 +65,6 @@ export default function SignInPage() {
     } catch (error) {
       console.error("Google login error:", error);
       toast.error("Đăng nhập Google thất bại. Vui lòng thử lại.");
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -141,21 +125,21 @@ export default function SignInPage() {
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-2">
                 <div className="space-y-2">
                   <Label
-                    htmlFor="email"
+                    htmlFor="userNameOrEmail"
                     className="text-foreground font-medium text-sm"
                   >
-                    Địa chỉ Email
+                    Email hoặc Username
                   </Label>
                   <Input
-                    id="email"
-                    type="email"
-                    placeholder="Nhập email của bạn..."
-                    {...register("email")}
+                    id="userNameOrEmail"
+                    type="text"
+                    placeholder="Nhập email hoặc username..."
+                    {...register("userNameOrEmail")}
                     className="bg-input/50 border-border/60 focus:ring-primary/30 focus:border-primary transition-all duration-200 h-10 px-3 hover:border-primary/50"
                   />
-                  {errors.email && (
+                  {errors.userNameOrEmail && (
                     <p className="text-xs text-destructive font-medium flex items-center gap-1">
-                      {errors.email.message}
+                      {errors.userNameOrEmail?.message}
                     </p>
                   )}
                 </div>
@@ -200,6 +184,7 @@ export default function SignInPage() {
                   <label className="flex items-center space-x-1.5 cursor-pointer group">
                     <input
                       type="checkbox"
+                      {...register("rememberMe")}
                       className="w-3.5 h-3.5 rounded border-border/60 text-primary focus:ring-primary/30 transition-all duration-200"
                     />
                     <span className="text-muted-foreground group-hover:text-foreground transition-colors duration-200">

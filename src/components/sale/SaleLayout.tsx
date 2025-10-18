@@ -15,6 +15,8 @@ import Link from "next/link";
 import Image from "next/image";
 import logo from "@/assets/images/Logo_ZenKoi.png";
 import SaleSidebar from "./SaleSidebar";
+import { useEffect } from "react";
+import { useAuthStore, UserRole } from "@/store/auth-store";
 import { NotificationDropdown } from "./NotificationDropdown";
 
 interface SaleLayoutProps {
@@ -22,6 +24,12 @@ interface SaleLayoutProps {
 }
 
 export function SaleLayout({ children }: SaleLayoutProps) {
+  useEffect(() => {
+    const role = useAuthStore.getState().getUserRole();
+    if (role !== UserRole.SALE_STAFF) {
+      window.location.href = "/login";
+    }
+  }, []);
   return (
     <div className="min-h-screen bg-background">
       {/* Sale Header */}

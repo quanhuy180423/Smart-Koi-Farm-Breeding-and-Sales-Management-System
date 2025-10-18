@@ -16,12 +16,22 @@ import ManagerSidebar from "@/components/manager/ManagerSidebar";
 import { NotificationDropdown } from "@/components/manager/NotificationDropdown";
 import Image from "next/image";
 import logo from "@/assets/images/Logo_ZenKoi.png";
+import { useEffect } from "react";
+import { useAuthStore, UserRole } from "@/store/auth-store";
 
 interface ManagerLayoutProps {
   children: React.ReactNode;
 }
 
 export function ManagerLayout({ children }: ManagerLayoutProps) {
+  // client-side guard: only allow managers and farm staff here
+  useEffect(() => {
+    const role = useAuthStore.getState().getUserRole();
+    if (role !== UserRole.MANAGER && role !== UserRole.FARM_STAFF) {
+      // Not allowed: send to login
+      window.location.href = "/login";
+    }
+  }, []);
   return (
     <div className="min-h-screen bg-background">
       {/* Manager Header */}
