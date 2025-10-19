@@ -126,6 +126,33 @@ export const fetchAuth = {
       throw error;
     }
   },
+  // Reset password - called from the link user receives by email
+  resetPassword: async (data: {
+    email: string;
+    newPassword: string;
+    confirmedNewPassword: string;
+    token: string;
+  }) => {
+    try {
+      const response = await apiService.post<
+        {
+          statusCode: string;
+          isSuccess: boolean;
+          message: string;
+          result?: { isSuccess?: boolean; message?: string };
+        },
+        {
+          email: string;
+          newPassword: string;
+          confirmedNewPassword: string;
+          token: string;
+        }
+      >("/api/Accounts/reset-password", data);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
 };
 
 export default fetchAuth;

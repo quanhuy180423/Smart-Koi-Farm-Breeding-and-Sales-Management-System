@@ -383,3 +383,59 @@ export function useForgotPassword() {
     clearError: () => setError(null),
   };
 }
+
+// Reset password hook - for the page that handles the emailed link
+export function useResetPassword() {
+  const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
+
+  const {
+    mutate,
+    mutateAsync,
+    isPending: isLoading,
+  } = useMutation({
+    mutationFn: async (data: {
+      email: string;
+      newPassword: string;
+      confirmedNewPassword: string;
+      token: string;
+    }) => {
+      return await fetchAuth.resetPassword(data);
+    },
+    onSuccess: (response: {
+      statusCode: string;
+      isSuccess: boolean;
+      message: string;
+      result?: { isSuccess?: boolean; message?: string };
+    }) => {
+      if (response?.isSuccess) {
+        const message =
+          response?.result?.message ||
+          response?.message ||
+          "Mật khẩu đã được thay đổi.";
+        toast.success(message);
+        router.push("/login");
+      } else {
+        setError(response?.message || "Đặt lại mật khẩu thất bại");
+        toast.error(response?.message || "Đặt lại mật khẩu thất bại");
+      }
+    },
+    onError: (err: ApiError) => {
+      if (err?.error?.message) {
+        setError(err?.error?.message || "Đặt lại mật khẩu thất bại");
+        toast.error(err?.error?.message || "Đặt lại mật khẩu thất bại");
+      } else {
+        setError(err?.message || "Đặt lại mật khẩu thất bại");
+        toast.error(err?.message || "Đặt lại mật khẩu thất bại");
+      }
+    },
+  });
+
+  return {
+    resetPassword: mutate,
+    resetPasswordAsync: mutateAsync,
+    isLoading,
+    error,
+    clearError: () => setError(null),
+  };
+}
