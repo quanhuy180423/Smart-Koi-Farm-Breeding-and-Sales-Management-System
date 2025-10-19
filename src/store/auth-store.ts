@@ -95,7 +95,8 @@ export const useAuthStore = create<AuthState>()(
         if (!token) {
           set({ user: null, isAuthenticated: false, isLoading: false });
           if (typeof window !== "undefined") {
-            document.cookie = "user-role=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+            document.cookie =
+              "user-role=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
           }
           try {
             apiService.setAuthToken("");
@@ -110,7 +111,10 @@ export const useAuthStore = create<AuthState>()(
           const base64UrlToJson = (b64Url: string) => {
             let s = b64Url.replace(/-/g, "+").replace(/_/g, "/");
             while (s.length % 4) s += "=";
-            if (typeof window !== "undefined" && typeof window.atob === "function") {
+            if (
+              typeof window !== "undefined" &&
+              typeof window.atob === "function"
+            ) {
               const decoded = window.atob(s);
               // Percent-encode to properly decode utf-8 characters
               const pct = Array.prototype.map
@@ -132,7 +136,9 @@ export const useAuthStore = create<AuthState>()(
 
           const rawRoleValue =
             (payload["Role"] as unknown) ||
-            (payload["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"] as unknown) ||
+            (payload[
+              "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
+            ] as unknown) ||
             (payload["role"] as unknown) ||
             "Guest";
 
@@ -143,7 +149,8 @@ export const useAuthStore = create<AuthState>()(
             if (rr.includes("manager")) return UserRole.MANAGER;
             if (rr.includes("farm")) return UserRole.FARM_STAFF;
             if (rr.includes("sale")) return UserRole.SALE_STAFF;
-            if (rr.includes("customer") || rr.includes("cust")) return UserRole.CUSTOMER;
+            if (rr.includes("customer") || rr.includes("cust"))
+              return UserRole.CUSTOMER;
             return UserRole.GUEST;
           };
 
@@ -156,7 +163,9 @@ export const useAuthStore = create<AuthState>()(
           const user: User = {
             id: String(idVal || ""),
             email: String(emailVal || ""),
-            username: nameVal ? String(nameVal) : (String(emailVal || "").split("@")[0] || ""),
+            username: nameVal
+              ? String(nameVal)
+              : String(emailVal || "").split("@")[0] || "",
             role,
             name: nameVal ? String(nameVal) : undefined,
           };
@@ -183,7 +192,10 @@ export const useAuthStore = create<AuthState>()(
         // Helper to read cookie by name
         const readCookie = (name: string) => {
           if (typeof window === "undefined") return null;
-          const match = document.cookie.split(";").map((c) => c.trim()).find((c) => c.startsWith(name + "="));
+          const match = document.cookie
+            .split(";")
+            .map((c) => c.trim())
+            .find((c) => c.startsWith(name + "="));
           if (!match) return null;
           return decodeURIComponent(match.split("=")[1] || "");
         };
@@ -211,9 +223,12 @@ export const useAuthStore = create<AuthState>()(
           if (success) {
             set({ user: null, isAuthenticated: false, isLoading: false });
             if (typeof window !== "undefined") {
-              document.cookie = "user-role=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
-              document.cookie = "auth-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
-              document.cookie = "refresh-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+              document.cookie =
+                "user-role=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+              document.cookie =
+                "auth-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+              document.cookie =
+                "refresh-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
             }
 
             try {
@@ -242,7 +257,7 @@ export const useAuthStore = create<AuthState>()(
         const userRole = get().getUserRole();
 
         // Define route permissions (same as middleware)
-          const routePermissions: Record<string, UserRole[]> = {
+        const routePermissions: Record<string, UserRole[]> = {
           "/manager": [UserRole.MANAGER, UserRole.FARM_STAFF],
           "/customer": [UserRole.CUSTOMER],
           "/sale": [UserRole.SALE_STAFF],
@@ -365,9 +380,9 @@ export const authHelpers = {
         };
       }
 
-  // use _password to avoid unused param lint (placeholder until real API)
-  void _password;
-  useAuthStore.getState().login(user);
+      // use _password to avoid unused param lint (placeholder until real API)
+      void _password;
+      useAuthStore.getState().login(user);
       return { success: true, user };
     } catch (error) {
       console.error("Login error:", error);
@@ -395,9 +410,9 @@ export const authHelpers = {
         name: username,
       };
 
-  // use _password to avoid unused param lint (placeholder until real API)
-  void _password;
-  useAuthStore.getState().login(user);
+      // use _password to avoid unused param lint (placeholder until real API)
+      void _password;
+      useAuthStore.getState().login(user);
       return { success: true, user };
     } catch (error) {
       console.error("Register error:", error);
@@ -407,3 +422,28 @@ export const authHelpers = {
     }
   },
 };
+
+// Listen to global logout events dispatched by the API client (e.g. on 401).
+// This lets the auth store control cookie clearing and backend sign-out in one place.
+if (typeof window !== "undefined") {
+  const handleGlobalLogout = async () => {
+    try {
+      // Try a graceful sign out which will call backend if refresh-token exists
+      const ok = await useAuthStore.getState().signOut();
+      if (!ok) {
+        // If signOut returned false, fallback to local logout to ensure UI clears
+        useAuthStore.getState().logout();
+      }
+    } catch {
+      // Always fallback to clearing local state
+      useAuthStore.getState().logout();
+    }
+  };
+
+  window.addEventListener("logout", handleGlobalLogout);
+
+  // Optionally remove listener when the page unloads
+  window.addEventListener("beforeunload", () => {
+    window.removeEventListener("logout", handleGlobalLogout);
+  });
+}

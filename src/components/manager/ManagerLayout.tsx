@@ -17,6 +17,7 @@ import ManagerSidebar from "@/components/manager/ManagerSidebar";
 import Image from "next/image";
 import logo from "@/assets/images/Logo_ZenKoi.png";
 import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { useAuthStore, UserRole } from "@/store/auth-store";
 
 interface ManagerLayoutProps {
@@ -25,13 +26,14 @@ interface ManagerLayoutProps {
 
 export function ManagerLayout({ children }: ManagerLayoutProps) {
   // client-side guard: only allow managers and farm staff here
+  const router = useRouter();
   useEffect(() => {
     const role = useAuthStore.getState().getUserRole();
     if (role !== UserRole.MANAGER && role !== UserRole.FARM_STAFF) {
       // Not allowed: send to login
-      window.location.href = "/login";
+      router.push("/login");
     }
-  }, []);
+  }, [router]);
   return (
     <div className="min-h-screen bg-background">
       {/* Manager Header */}
