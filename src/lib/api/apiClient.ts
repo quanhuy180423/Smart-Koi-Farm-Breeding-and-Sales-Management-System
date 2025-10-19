@@ -4,20 +4,14 @@ import axios, {
   AxiosRequestConfig,
   AxiosResponse,
 } from "axios";
-import { deleteCookie } from "cookies-next";
+// cookie helpers intentionally not imported here; auth store manages cookie lifecycle
 // import { useAuthStore } from "@/lib/store/authStore";
-
-export interface ErrorsData {
-  key: string;
-  value: string;
-}
 
 // API error response data structure
 export interface ApiErrorData {
-  statusCode: string;
+  statusCode: number;
   isSuccess: boolean;
   message: string;
-  errors: ErrorsData[];
 }
 
 // Error interface
@@ -100,10 +94,9 @@ export class ApiService {
             error.message ||
             "Unknown error occurred",
           error: {
-            statusCode: error.response?.data?.statusCode || "",
+            statusCode: error.response?.data.statusCode || 500,
             isSuccess: error.response?.data?.isSuccess || false,
             message: error.response?.data?.message || "",
-            errors: error.response?.data?.errors || [],
           },
         };
 
@@ -273,13 +266,9 @@ const apiService = new ApiService(
   () => {
     // Handle 401 errors by clearing auth state
     if (typeof window !== "undefined") {
-      // Clear auth token from cookies
-      deleteCookie("auth-token", { path: "/" });
-
-      // Clear auth store
-      // useAuthStore.getState().logout();
-
-      // Dispatch logout event for other components to listen to
+      // Dispatch logout event for other components to handle.
+      // Do NOT delete auth cookies here — leave cookie removal to the auth store's signOut/logout
+      // so the app can call backend sign-out and perform cleanup in a single place.
       window.dispatchEvent(new Event("logout"));
     }
   }
