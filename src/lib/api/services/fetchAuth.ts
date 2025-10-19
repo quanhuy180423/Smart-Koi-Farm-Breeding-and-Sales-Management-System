@@ -66,7 +66,7 @@ export const fetchAuth = {
     try {
       const response = await apiService.post<RegisterResponse, RegisterRequest>(
         "/api/Accounts/sign-up",
-        data
+        data,
       );
       return response.data;
     } catch (error) {
@@ -78,7 +78,7 @@ export const fetchAuth = {
     try {
       const response = await apiService.post<LoginResponse, LoginRequest>(
         "/api/Accounts/authen",
-        data
+        data,
       );
       return response.data;
     } catch (error) {
@@ -90,8 +90,64 @@ export const fetchAuth = {
     try {
       const response = await apiService.post<SignOutResponse, SignOutRequest>(
         "/api/Accounts/sign-out",
-        data
+        data,
       );
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+  // Google sign-in using idToken (backend will validate token and return normal login response)
+  authenGoogle: async (data: { idToken: string }): Promise<LoginResponse> => {
+    try {
+      const response = await apiService.post<
+        LoginResponse,
+        { idToken: string }
+      >("/api/Accounts/authen-google", data);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+  // Forgot password - sends reset link if email exists
+  forgotPassword: async (data: { email: string }) => {
+    try {
+      const response = await apiService.post<
+        {
+          statusCode: string;
+          isSuccess: boolean;
+          message: string;
+          result?: { isSuccess: boolean; message?: string };
+        },
+        { email: string }
+      >("/api/Accounts/forgot-password", data);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+  // Reset password - called from the link user receives by email
+  resetPassword: async (data: {
+    email: string;
+    newPassword: string;
+    confirmedNewPassword: string;
+    token: string;
+  }) => {
+    try {
+      const response = await apiService.post<
+        {
+          statusCode: string;
+          isSuccess: boolean;
+          message: string;
+          result?: { isSuccess?: boolean; message?: string };
+        },
+        {
+          email: string;
+          newPassword: string;
+          confirmedNewPassword: string;
+          token: string;
+        }
+      >("/api/Accounts/reset-password", data);
       return response.data;
     } catch (error) {
       throw error;

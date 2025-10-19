@@ -18,7 +18,13 @@ const routeProtection: Record<string, UserRole[]> = {
 };
 
 // Auth routes (login, register, etc.)
-const authRoutes = ["/login", "/register", "/auth/sign-in", "/auth/sign-up", "/auth/forgot-password"];
+const authRoutes = [
+  "/login",
+  "/register",
+  "/auth/sign-in",
+  "/auth/sign-up",
+  "/auth/forgot-password",
+];
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -34,7 +40,8 @@ export function middleware(request: NextRequest) {
   }
 
   // Get user role from cookies (client writes `user-role` cookie)
-  const userRole = (request.cookies.get("user-role")?.value as UserRole) || UserRole.GUEST;
+  const userRole =
+    (request.cookies.get("user-role")?.value as UserRole) || UserRole.GUEST;
   const isAuthenticated = userRole !== UserRole.GUEST;
 
   // Check if current route is auth route

@@ -16,8 +16,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { toast } from "react-hot-toast";
+import { useForgotPassword } from "@/hooks/useAuth";
 import Logo from "@/assets/images/Logo_ZenKoi.png";
+import toast from "react-hot-toast";
 
 const forgotPasswordSchema = z.object({
   email: z.string().email("Email không hợp lệ"),
@@ -26,7 +27,7 @@ const forgotPasswordSchema = z.object({
 type ForgotPasswordForm = z.infer<typeof forgotPasswordSchema>;
 
 export default function ForgotPasswordPage() {
-  const [isLoading, setIsLoading] = useState(false);
+  // local loading state removed; use mutation's isLoading
   const [isSubmitted, setIsSubmitted] = useState(false);
 
   const {
@@ -37,19 +38,17 @@ export default function ForgotPasswordPage() {
     resolver: zodResolver(forgotPasswordSchema),
   });
 
-  const onSubmit = async (data: ForgotPasswordForm) => {
-    setIsLoading(true);
-    try {
-      // TODO: Implement forgot password API call
-      console.log("Forgot password data:", data);
-      toast.success("Email khôi phục mật khẩu đã được gửi!");
-      setIsSubmitted(true);
-    } catch (error) {
-      console.error("Forgot password error:", error);
-      toast.error("Gửi email thất bại. Vui lòng thử lại.");
-    } finally {
-      setIsLoading(false);
-    }
+  const { forgotPassword, isLoading: isMutating } = useForgotPassword();
+
+  const onSubmit = (data: ForgotPasswordForm) => {
+    // Use the hook's mutation; it shows toasts on success/error
+    forgotPassword(
+      { email: data.email },
+      {
+        onSuccess: () => setIsSubmitted(true),
+        onError: (error) => toast.error(error.message),
+      },
+    );
   };
 
   if (isSubmitted) {
@@ -329,11 +328,11 @@ export default function ForgotPasswordPage() {
 
                 <Button
                   type="submit"
-                  disabled={isLoading}
+                  disabled={isMutating}
                   className="w-full bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-primary-foreground font-semibold py-2.5 h-10 transition-all duration-300 hover:scale-[1.02] hover:shadow-lg hover:shadow-primary/25 disabled:opacity-50 disabled:scale-100 disabled:shadow-none relative overflow-hidden group"
                 >
                   <span className="relative z-10">
-                    {isLoading ? (
+                    {isMutating ? (
                       <div className="flex items-center justify-center gap-2">
                         <div className="w-3.5 h-3.5 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin"></div>
                         Đang gửi...

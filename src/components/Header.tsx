@@ -5,25 +5,21 @@ import { Button } from "@/components/ui/button";
 import { CartSheet } from "@/components/cart-sheet";
 import { Menu, X, User } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import Image from "next/image";
 import logo from "@/assets/images/Logo_ZenKoi.png";
 import { Separator } from "./ui/separator";
-import { useAuthStore, UserRole } from "@/store/auth-store";
+import { useAuthStore } from "@/store/auth-store";
 // router not needed here; using window.location for navigation to avoid typing issues
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
-  
+
   const { isAuthenticated, user } = useAuthStore();
-  const accountHref: "/manager" | "/sale" | "/" =
-    user?.role === UserRole.MANAGER || user?.role === UserRole.FARM_STAFF
-      ? "/manager"
-      : user?.role === UserRole.SALE_STAFF
-      ? "/sale"
-      : "/";
+  const router = useRouter();
 
   // Close menu when clicking outside
   useEffect(() => {
@@ -119,21 +115,31 @@ export function Header() {
             <div className="hidden sm:block">
               {isAuthenticated ? (
                 <div className="flex items-center gap-3">
-                  <Button onClick={() => { window.location.href = accountHref; }} className="bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-primary-foreground font-medium px-4 py-2.5 h-auto transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-primary/25 relative overflow-hidden group rounded-xl cursor-pointer">
+                  <Button
+                    onClick={() => {
+                      router.push("/profile");
+                    }}
+                    className="bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-primary-foreground font-medium px-4 py-2.5 h-auto transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-primary/25 relative overflow-hidden group rounded-xl cursor-pointer"
+                  >
                     <span className="relative z-10 flex items-center gap-2">
                       <User className="w-4 h-4" />
-                      {user?.name || user?.username || "Tài khoản"}
+                      <span className="hover:underline cursor-pointer">
+                        {user?.name || user?.username || "Tài khoản"}
+                      </span>
                     </span>
                   </Button>
-                  <Button variant="outline" onClick={async () => {
+                  <Button
+                    variant="outline"
+                    onClick={async () => {
                       const ok = await useAuthStore.getState().signOut();
-                        if (ok) {
+                      if (ok) {
                         toast.success("Đăng xuất thành công");
-                        window.location.href = '/login';
+                        router.push("/login");
                       } else {
                         toast.error("Đăng xuất thất bại");
                       }
-                    }}>
+                    }}
+                  >
                     Đăng xuất
                   </Button>
                 </div>
@@ -217,20 +223,32 @@ export function Header() {
               <div className="px-4 flex flex-row gap-3">
                 {isAuthenticated ? (
                   <>
-                    <Button onClick={() => { setIsMenuOpen(false); window.location.href = accountHref; }} className="w-full justify-center bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-primary-foreground font-medium">
+                    <Button
+                      onClick={() => {
+                        setIsMenuOpen(false);
+                        router.push("/profile");
+                      }}
+                      className="w-full justify-center bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-primary-foreground font-medium"
+                    >
                       <User className="w-4 h-4 mr-2" />
-                      {user?.name || user?.username || "Tài khoản"}
+                      <span className="hover:underline cursor-pointer">
+                        {user?.name || user?.username || "Tài khoản"}
+                      </span>
                     </Button>
-                    <Button variant="outline" className="w-full justify-center" onClick={async () => {
+                    <Button
+                      variant="outline"
+                      className="w-full justify-center"
+                      onClick={async () => {
                         const ok = await useAuthStore.getState().signOut();
                         setIsMenuOpen(false);
                         if (ok) {
                           toast.success("Đăng xuất thành công");
-                          window.location.href = '/login';
+                          router.push("/login");
                         } else {
                           toast.error("Đăng xuất thất bại");
                         }
-                      }}>
+                      }}
+                    >
                       Đăng xuất
                     </Button>
                   </>
@@ -251,7 +269,10 @@ export function Header() {
                       onClick={() => setIsMenuOpen(false)}
                       className="flex-1"
                     >
-                      <Button variant="outline" className="w-full justify-center">
+                      <Button
+                        variant="outline"
+                        className="w-full justify-center"
+                      >
                         Đăng ký
                       </Button>
                     </Link>
