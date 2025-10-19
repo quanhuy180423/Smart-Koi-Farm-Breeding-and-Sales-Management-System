@@ -2,7 +2,6 @@
 
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,9 +10,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Bell, User, LogOut, Settings, CircleUserRound } from "lucide-react";
+import { User, LogOut, Settings, CircleUserRound } from "lucide-react";
 import Link from "next/link";
 import ManagerSidebar from "@/components/manager/ManagerSidebar";
+import { NotificationDropdown } from "@/components/manager/NotificationDropdown";
 import Image from "next/image";
 import logo from "@/assets/images/Logo_ZenKoi.png";
 import { useEffect } from "react";
@@ -65,19 +65,7 @@ export function ManagerLayout({ children }: ManagerLayoutProps) {
 
           <div className="flex items-center gap-4">
             {/* Notifications */}
-            <Button
-              asChild
-              variant="ghost"
-              size="icon"
-              className="relative rounded-full"
-            >
-              <Link href={"/manager/notifications" as const}>
-                <Bell className="h-5 w-5" />
-                <Badge className="absolute -top-2 -right-2 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs bg-red-500 text-white border-0">
-                  5
-                </Badge>
-              </Link>
-            </Button>
+            <NotificationDropdown />
 
             {/* User Dropdown */}
             <DropdownMenu>
