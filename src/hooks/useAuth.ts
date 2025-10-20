@@ -95,7 +95,7 @@ export function useLogin() {
     onSuccess: (response: LoginResponse, variables?: LoginRequest) => {
       // Backend uses { isSuccess, message, result: { token, refreshToken }}
       if (response?.isSuccess) {
-        const token = response.result?.token;
+        const token = response.result?.accessToken;
         const refreshToken = response.result?.refreshToken;
 
         if (token) {
@@ -232,7 +232,7 @@ export function useGoogleLogin() {
         variables?: { idToken: string; rememberMe?: boolean },
       ) => {
         if (response?.isSuccess) {
-          const token = response.result?.token;
+          const token = response.result?.accessToken;
           const refreshToken = response.result?.refreshToken;
 
           if (token) {
@@ -317,7 +317,7 @@ export async function loginWithGoogle(idToken: string, rememberMe?: boolean) {
   try {
     const response = await fetchAuth.authenGoogle({ idToken });
     if (response?.isSuccess) {
-      const token = response.result?.token;
+      const token = response.result?.accessToken;
       const refreshToken = response.result?.refreshToken;
 
       if (token) {

@@ -341,19 +341,15 @@ export default function SignUpPage() {
 
               {/* Google Login */}
               <div className="mt-4 flex justify-center w-full">
-                <GoogleOAuthProvider
-                  clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || ""}
-                >
-                  <div className="w-full [&_button]:w-full">
-                    <GoogleLogin
-                      onSuccess={onLoginWithGoogle}
-                      onError={() => {
-                        toast.error("Đăng nhập Google thất bại");
-                      }}
-                      useOneTap={false}
-                    />
-                  </div>
-                </GoogleOAuthProvider>
+                <div className="w-full [&_button]:w-full">
+                  <GoogleLogin
+                    onSuccess={onLoginWithGoogle}
+                    onError={() => {
+                      toast.error("Đăng nhập Google thất bại");
+                    }}
+                    useOneTap={false}
+                  />
+                </div>
               </div>
 
               {/* Decorative divider */}

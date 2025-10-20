@@ -41,7 +41,7 @@ export interface LoginResponse {
   isSuccess: boolean;
   message: string;
   result?: {
-    token?: string;
+    accessToken?: string;
     refreshToken?: string;
   };
 }
