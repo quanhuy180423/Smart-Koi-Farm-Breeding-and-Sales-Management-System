@@ -11,7 +11,9 @@ interface ProvidersProps {
 export function Providers({ children }: ProvidersProps) {
   return (
     <QueryProviders>
-      <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || ""}>
+      <GoogleOAuthProvider
+        clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || ""}
+      >
         <Suspense>{children}</Suspense>
       </GoogleOAuthProvider>
     </QueryProviders>
