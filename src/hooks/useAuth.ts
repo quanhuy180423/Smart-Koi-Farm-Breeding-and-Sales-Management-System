@@ -9,7 +9,7 @@ import fetchAuth, {
   LoginResponse,
 } from "@/lib/api/services/fetchAuth";
 import toast from "react-hot-toast";
-import { ApiError } from "@/lib/api/apiClient";
+import { ApiError, BaseResponse } from "@/lib/api/apiClient";
 import { setCookie } from "cookies-next";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuthStore, UserRole } from "@/store/auth-store";
@@ -30,7 +30,10 @@ export function useRegister() {
       // Lưu request data để sử dụng trong error handler
       return fetchAuth.register(data);
     },
-    onSuccess: (response: RegisterResponse, variables: RegisterRequest) => {
+    onSuccess: (
+      response: BaseResponse<RegisterResponse>,
+      variables: RegisterRequest,
+    ) => {
       if (response.isSuccess) {
         setSuccess(true);
         setKeyVariable(variables.email);
@@ -90,9 +93,12 @@ export function useLogin() {
       // guard against undefined credentials when mutate() is called without vars
       const vars = credentials ?? ({} as LoginRequest);
       const response = await fetchAuth.login(vars);
-      return response as LoginResponse;
+      return response;
     },
-    onSuccess: (response: LoginResponse, variables?: LoginRequest) => {
+    onSuccess: (
+      response: BaseResponse<LoginResponse>,
+      variables?: LoginRequest,
+    ) => {
       // Backend uses { isSuccess, message, result: { token, refreshToken }}
       if (response?.isSuccess) {
         const token = response.result?.accessToken;
@@ -225,10 +231,10 @@ export function useGoogleLogin() {
       mutationFn: async (data?: { idToken: string; rememberMe?: boolean }) => {
         const idToken = data?.idToken ?? "";
         const resp = await fetchAuth.authenGoogle({ idToken });
-        return resp as LoginResponse;
+        return resp;
       },
       onSuccess: (
-        response: LoginResponse,
+        response: BaseResponse<LoginResponse>,
         variables?: { idToken: string; rememberMe?: boolean },
       ) => {
         if (response?.isSuccess) {
