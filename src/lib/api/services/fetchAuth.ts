@@ -65,7 +65,7 @@ const baseUrl = "/api/Accounts";
 export const fetchAuth = {
   // Register new user
   register: async (
-    data: RegisterRequest
+    data: RegisterRequest,
   ): Promise<BaseResponse<RegisterResponse>> => {
     try {
       const response = await apiService.post<
@@ -103,7 +103,7 @@ export const fetchAuth = {
   },
   // Google sign-in using idToken (backend will validate token and return normal login response)
   authenGoogle: async (
-    data: LogginGoogleRequest
+    data: LogginGoogleRequest,
   ): Promise<BaseResponse<LoginResponse>> => {
     try {
       const response = await apiService.post<

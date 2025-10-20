@@ -30,7 +30,10 @@ export function useRegister() {
       // Lưu request data để sử dụng trong error handler
       return fetchAuth.register(data);
     },
-    onSuccess: (response: BaseResponse<RegisterResponse>, variables: RegisterRequest) => {
+    onSuccess: (
+      response: BaseResponse<RegisterResponse>,
+      variables: RegisterRequest,
+    ) => {
       if (response.isSuccess) {
         setSuccess(true);
         setKeyVariable(variables.email);
@@ -92,7 +95,10 @@ export function useLogin() {
       const response = await fetchAuth.login(vars);
       return response;
     },
-    onSuccess: (response: BaseResponse<LoginResponse>, variables?: LoginRequest) => {
+    onSuccess: (
+      response: BaseResponse<LoginResponse>,
+      variables?: LoginRequest,
+    ) => {
       // Backend uses { isSuccess, message, result: { token, refreshToken }}
       if (response?.isSuccess) {
         const token = response.result?.accessToken;
@@ -225,7 +231,7 @@ export function useGoogleLogin() {
       mutationFn: async (data?: { idToken: string; rememberMe?: boolean }) => {
         const idToken = data?.idToken ?? "";
         const resp = await fetchAuth.authenGoogle({ idToken });
-        return resp
+        return resp;
       },
       onSuccess: (
         response: BaseResponse<LoginResponse>,
