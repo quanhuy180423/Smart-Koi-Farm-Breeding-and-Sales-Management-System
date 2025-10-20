@@ -124,7 +124,7 @@ export function Header() {
                     <span className="relative z-10 flex items-center gap-2">
                       <User className="w-4 h-4" />
                       <span className="hover:underline cursor-pointer">
-                        {user?.name || user?.username || "Tài khoản"}
+                        {user?.name || "Tài khoản"}
                       </span>
                     </span>
                   </Button>

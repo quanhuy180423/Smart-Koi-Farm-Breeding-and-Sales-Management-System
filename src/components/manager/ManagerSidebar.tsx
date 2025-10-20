@@ -24,6 +24,7 @@ import {
   ChevronRight,
   Shield,
   Bell,
+  Grid2X2,
 } from "lucide-react";
 import Image from "next/image";
 import Logo from "@/assets/images/ZenKoi.png";
@@ -46,6 +47,12 @@ const sidebarItems = [
     href: "/manager/accounts" as const,
     icon: Users,
     description: "Người dùng hệ thống",
+  },
+  {
+    title: "Quản lý khu",
+    href: "/manager/area" as const,
+    icon: Grid2X2,
+    description: "Quản lý các khu vực trong trang trại",
   },
   {
     title: "Quản lý hồ",
