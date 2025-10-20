@@ -14,8 +14,8 @@ export interface AreaRequest {
 }
 
 export interface SuccessResponse<T> {
-    message: string;
-    data: T;
+  message: string;
+  data: T;
 }
 
 const baseUrl = "/api/Area";
@@ -25,7 +25,9 @@ export const areaService = {
     const response = await apiService.get<BaseResponse<Area[]>>(`${baseUrl}`);
     return response.data;
   },
-  addArea: async (area: Partial<AreaRequest>): Promise<BaseResponse<SuccessResponse<Area>>> => {
+  addArea: async (
+    area: Partial<AreaRequest>,
+  ): Promise<BaseResponse<SuccessResponse<Area>>> => {
     const response = await apiService.post<
       BaseResponse<SuccessResponse<Area>>,
       Partial<AreaRequest>
@@ -34,7 +36,7 @@ export const areaService = {
   },
   updateArea: async (
     id: number,
-    area: Partial<AreaRequest>
+    area: Partial<AreaRequest>,
   ): Promise<BaseResponse<string>> => {
     const response = await apiService.put<
       BaseResponse<string>,
@@ -42,10 +44,12 @@ export const areaService = {
     >(`${baseUrl}/${id}`, area);
     return response.data;
   },
-  deleteArea: async(id: number) : Promise<BaseResponse<string>> => {
-    const response = await apiService.delete<BaseResponse<string>>(`${baseUrl}/${id}`);
+  deleteArea: async (id: number): Promise<BaseResponse<string>> => {
+    const response = await apiService.delete<BaseResponse<string>>(
+      `${baseUrl}/${id}`,
+    );
     return response.data;
-  }
+  },
 };
 
 export default areaService;

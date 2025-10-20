@@ -1,5 +1,9 @@
 import { BaseResponse } from "@/lib/api/apiClient";
-import areaService, { Area, AreaRequest, SuccessResponse } from "@/lib/api/services/fetchArea";
+import areaService, {
+  Area,
+  AreaRequest,
+  SuccessResponse,
+} from "@/lib/api/services/fetchArea";
 import { useAuthStore } from "@/store/auth-store";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ApiError } from "next/dist/server/api-utils";
@@ -84,8 +88,7 @@ export function useDeleteArea() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (id: number) =>
-      areaService.deleteArea(id),
+    mutationFn: (id: number) => areaService.deleteArea(id),
     onSuccess: (data: BaseResponse<string>) => {
       if (data.isSuccess) {
         queryClient.invalidateQueries({ queryKey: ["area"] });
