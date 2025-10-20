@@ -16,9 +16,10 @@ import ManagerSidebar from "@/components/manager/ManagerSidebar";
 import { NotificationDropdown } from "@/components/manager/NotificationDropdown";
 import Image from "next/image";
 import logo from "@/assets/images/Logo_ZenKoi.png";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useAuthStore, UserRole } from "@/store/auth-store";
+import { useAuthStore } from "@/store/auth-store";
+import toast from "react-hot-toast";
 
 interface ManagerLayoutProps {
   children: React.ReactNode;
@@ -27,13 +28,15 @@ interface ManagerLayoutProps {
 export function ManagerLayout({ children }: ManagerLayoutProps) {
   // client-side guard: only allow managers and farm staff here
   const router = useRouter();
+  const [mounted, setMounted] = useState<boolean>(false);
+
   useEffect(() => {
-    const role = useAuthStore.getState().getUserRole();
-    if (role !== UserRole.MANAGER && role !== UserRole.FARM_STAFF) {
-      // Not allowed: send to login
-      router.push("/login");
-    }
-  }, [router]);
+    setMounted(true);
+  }, []);
+  const { user } = useAuthStore();
+
+  if (!mounted) return null; // render chỉ khi client đã mount
+
   return (
     <div className="min-h-screen bg-background">
       {/* Manager Header */}
@@ -82,7 +85,7 @@ export function ManagerLayout({ children }: ManagerLayoutProps) {
                   </Avatar>
                   <div className="hidden sm:block text-left">
                     <p className="text-sm font-medium text-muted-foreground">
-                      Nguyễn Văn Quản lý
+                      {user?.name}
                     </p>
                     <p className="text-xs text-muted-foreground">
                       Quản lý trang trại
@@ -112,14 +115,20 @@ export function ManagerLayout({ children }: ManagerLayoutProps) {
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem asChild>
-                  <Link
-                    href="/login"
-                    className="flex items-center text-red-600 cursor-pointer hover:bg-red-600 hover:text-white focus:bg-red-600 focus:text-white transition-colors group"
-                  >
-                    <LogOut className="mr-2 h-4 w-4 group-hover:text-white" />
-                    Đăng xuất
-                  </Link>
+                <DropdownMenuItem
+                  className="flex items-center text-red-600 cursor-pointer hover:bg-red-600 hover:text-white focus:bg-red-600 focus:text-white transition-colors group"
+                  onClick={async () => {
+                    const ok = await useAuthStore.getState().signOut();
+                    if (ok) {
+                      toast.success("Đăng xuất thành công");
+                      router.push("/login");
+                    } else {
+                      toast.error("Đăng xuất thất bại");
+                    }
+                  }}
+                >
+                  <LogOut className="mr-2 h-4 w-4 group-hover:text-white" />
+                  Đăng xuất
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

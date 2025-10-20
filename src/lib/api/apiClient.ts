@@ -33,6 +33,14 @@ export interface RequestParams {
   [key: string]: string | number | boolean | undefined | null | string[];
 }
 
+// Basic Response from Backend
+export interface BaseResponse<T> {
+  statusCode: string;
+  isSuccess: boolean;
+  message: string;
+  result: T;
+}
+
 // API service class
 export class ApiService {
   private client: AxiosInstance;
