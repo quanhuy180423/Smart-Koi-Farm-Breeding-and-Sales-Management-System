@@ -14,7 +14,6 @@ import { setCookie } from "cookies-next";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuthStore, UserRole } from "@/store/auth-store";
 
-// Register hook
 export function useRegister() {
   // const router = useRouter();
   const [error, setError] = useState<string | null>(null);
@@ -69,19 +68,15 @@ export function useRegister() {
   };
 }
 
-// Login hook
 export function useLogin() {
   const queryClient = useQueryClient();
-  // auth-store currently manages user/role state; token persistence is handled here
   const [error, setError] = useState<string | null>(null);
   const [needsOtpVerification, setNeedsOtpVerification] = useState(false);
   const [verifyKey, setVerifyKey] = useState<string | null>(null);
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  // Small helper to build cookie options
   const getAuthCookieConfig = (rememberMe?: boolean) => {
-    // If rememberMe set, keep cookie for 30 days, otherwise session cookie
     return rememberMe
       ? { path: "/", maxAge: 60 * 60 * 24 * 30 }
       : { path: "/" };
@@ -89,8 +84,6 @@ export function useLogin() {
 
   const { mutate: login, isPending: isLoading } = useMutation({
     mutationFn: async (credentials?: LoginRequest) => {
-      // Call the backend login endpoint
-      // guard against undefined credentials when mutate() is called without vars
       const vars = credentials ?? ({} as LoginRequest);
       const response = await fetchAuth.login(vars);
       return response;
@@ -99,16 +92,13 @@ export function useLogin() {
       response: BaseResponse<LoginResponse>,
       variables?: LoginRequest,
     ) => {
-      // Backend uses { isSuccess, message, result: { token, refreshToken }}
       if (response?.isSuccess) {
         const token = response.result?.accessToken;
         const refreshToken = response.result?.refreshToken;
 
         if (token) {
-          // Let the auth store decode the token, set user/role, and wire ApiService
           try {
             useAuthStore.getState().setToken(token);
-            // Also persist raw token cookie for other uses (optional)
             setCookie(
               "auth-token",
               token,
@@ -130,7 +120,6 @@ export function useLogin() {
             }
           }
 
-          // Invalidate queries
           queryClient.invalidateQueries({ queryKey: ["auth", "login"] });
           queryClient.invalidateQueries({ queryKey: ["users", "profile"] });
           setError(null);
@@ -145,7 +134,6 @@ export function useLogin() {
             );
             return;
           } else {
-            // No redirect param, route user based on role decoded from token in the auth store
             const role = useAuthStore.getState().getUserRole();
             let destination = "/";
             switch (role) {
@@ -156,7 +144,6 @@ export function useLogin() {
                 destination = "/sale";
                 break;
               case UserRole.CUSTOMER:
-                // Customers should land on the public homepage
                 destination = "/";
                 break;
               default:
@@ -170,7 +157,6 @@ export function useLogin() {
         }
       }
 
-      // Handle OTP scenarios if API signals it via message
       if (
         response?.message &&
         /OTP|Mã OTP|đã được gửi|chưa được xác thực/i.test(response.message)
@@ -216,7 +202,6 @@ export function useLogin() {
   };
 }
 
-// Google login hook (mirrors useLogin behavior but for Google idToken)
 export function useGoogleLogin() {
   const queryClient = useQueryClient();
   const [error, setError] = useState<string | null>(null);
@@ -318,7 +303,6 @@ export function useGoogleLogin() {
   };
 }
 
-// Programmatic Google login helper (use outside of React hooks if you need)
 export async function loginWithGoogle(idToken: string, rememberMe?: boolean) {
   try {
     const response = await fetchAuth.authenGoogle({ idToken });
@@ -350,7 +334,6 @@ export async function loginWithGoogle(idToken: string, rememberMe?: boolean) {
   }
 }
 
-// Forgot password hook
 export function useForgotPassword() {
   const [error, setError] = useState<string | null>(null);
   const { mutate, isPending: isLoading } = useMutation({
@@ -390,7 +373,6 @@ export function useForgotPassword() {
   };
 }
 
-// Reset password hook - for the page that handles the emailed link
 export function useResetPassword() {
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();

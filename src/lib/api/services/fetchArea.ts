@@ -1,6 +1,6 @@
 import apiService, { BaseResponse } from "../apiClient";
 
-export interface Area {
+export interface AreaResponse {
   id: number;
   areaName: string;
   totalAreaSQM: number;
@@ -21,15 +21,17 @@ export interface SuccessResponse<T> {
 const baseUrl = "/api/Area";
 
 export const areaService = {
-  getAreas: async (): Promise<BaseResponse<Area[]>> => {
-    const response = await apiService.get<BaseResponse<Area[]>>(`${baseUrl}`);
+  getAreas: async (): Promise<BaseResponse<AreaResponse[]>> => {
+    const response = await apiService.get<BaseResponse<AreaResponse[]>>(
+      `${baseUrl}`,
+    );
     return response.data;
   },
   addArea: async (
     area: Partial<AreaRequest>,
-  ): Promise<BaseResponse<SuccessResponse<Area>>> => {
+  ): Promise<BaseResponse<SuccessResponse<AreaResponse>>> => {
     const response = await apiService.post<
-      BaseResponse<SuccessResponse<Area>>,
+      BaseResponse<SuccessResponse<AreaResponse>>,
       Partial<AreaRequest>
     >(`${baseUrl}`, area);
     return response.data;

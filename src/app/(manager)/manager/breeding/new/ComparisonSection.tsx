@@ -1,5 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
+import { KoiFishResponse } from "@/lib/api/services/fetchKoiFish";
 import {
   Heart,
   Dna,
@@ -13,25 +14,9 @@ import {
 import Image from "next/image";
 import React from "react";
 
-interface Fish {
-  id: number;
-  name: string;
-  variety: string;
-  size: string;
-  age: string;
-  price: number;
-  origin: string;
-  breeder: string;
-  image: string;
-  gender: string;
-  bloodline: string;
-  certificates: string[];
-  compatibility: string[];
-}
-
 interface ComparisonSectionProps {
-  fatherFish: Fish;
-  motherFish: Fish;
+  fatherFish: KoiFishResponse;
+  motherFish: KoiFishResponse;
 }
 
 const geneticData = [
@@ -101,8 +86,8 @@ export default function ComparisonSection({
               <div className="relative mb-4">
                 <div className="w-24 h-24 rounded-2xl border-4 border-blue-200 overflow-hidden shadow-lg bg-gradient-to-br from-blue-50 to-white">
                   <Image
-                    src={fatherFish.image || "/placeholder.svg"}
-                    alt={fatherFish.name}
+                    src={fatherFish.imagesVideos || "/placeholder.svg"}
+                    alt={fatherFish.rfid}
                     width={96}
                     height={96}
                     className="w-full h-full object-cover"
@@ -113,7 +98,7 @@ export default function ComparisonSection({
                 </div>
               </div>
               <div className="text-sm font-bold text-gray-900 text-center mb-1">
-                {fatherFish.name}
+                {fatherFish.rfid}
               </div>
               <div className="text-xs text-blue-600 font-medium">Cá Bố</div>
             </div>
@@ -131,8 +116,8 @@ export default function ComparisonSection({
               <div className="relative mb-4">
                 <div className="w-24 h-24 rounded-2xl border-4 border-pink-200 overflow-hidden shadow-lg bg-gradient-to-br from-pink-50 to-white">
                   <Image
-                    src={motherFish.image || "/placeholder.svg"}
-                    alt={motherFish.name}
+                    src={motherFish.imagesVideos || "/placeholder.svg"}
+                    alt={motherFish.rfid}
                     width={96}
                     height={96}
                     className="w-full h-full object-cover"
@@ -143,7 +128,7 @@ export default function ComparisonSection({
                 </div>
               </div>
               <div className="text-sm font-bold text-gray-900 text-center mb-1">
-                {motherFish.name}
+                {motherFish.rfid}
               </div>
               <div className="text-xs text-pink-600 font-medium">Cá Mẹ</div>
             </div>

@@ -63,7 +63,6 @@ export interface ForgotPasswordRequest {
 const baseUrl = "/api/Accounts";
 
 export const fetchAuth = {
-  // Register new user
   register: async (
     data: RegisterRequest,
   ): Promise<BaseResponse<RegisterResponse>> => {
@@ -77,7 +76,6 @@ export const fetchAuth = {
       throw error;
     }
   },
-  // Login
   login: async (data: LoginRequest): Promise<BaseResponse<LoginResponse>> => {
     try {
       const response = await apiService.post<
@@ -89,7 +87,6 @@ export const fetchAuth = {
       throw error;
     }
   },
-  // Sign out (invalidate refresh token)
   signOut: async (data: SignOutRequest): Promise<BaseResponse<Response>> => {
     try {
       const response = await apiService.post<
@@ -101,7 +98,6 @@ export const fetchAuth = {
       throw error;
     }
   },
-  // Google sign-in using idToken (backend will validate token and return normal login response)
   authenGoogle: async (
     data: LogginGoogleRequest,
   ): Promise<BaseResponse<LoginResponse>> => {
@@ -115,7 +111,6 @@ export const fetchAuth = {
       throw error;
     }
   },
-  // Forgot password - sends reset link if email exists
   forgotPassword: async (data: ForgotPasswordRequest) => {
     try {
       const response = await apiService.post<
@@ -127,7 +122,6 @@ export const fetchAuth = {
       throw error;
     }
   },
-  // Reset password - called from the link user receives by email
   resetPassword: async (data: ResetPasswordRequest) => {
     try {
       const response = await apiService.post<

@@ -6,28 +6,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { KoiFishResponse } from "@/lib/api/services/fetchKoiFish";
+import { DATE_FORMATS, formatDate } from "@/lib/utils/dates";
 import { Venus } from "lucide-react";
 import Image from "next/image";
 import React from "react";
 
-interface Fish {
-  id: number;
-  name: string;
-  variety: string;
-  size: string;
-  age: string;
-  price: number;
-  origin: string;
-  breeder: string;
-  image: string;
-  gender: string;
-  bloodline: string;
-  certificates: string[];
-  compatibility: string[];
-}
-
 interface MotherFishInfoProps {
-  selectedFish: Fish;
+  selectedFish: KoiFishResponse;
 }
 
 const qualityData = [
@@ -105,8 +91,9 @@ export default function MotherFishInfo({ selectedFish }: MotherFishInfoProps) {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value={selectedFish.id.toString()}>
-                {selectedFish.variety} ID: {selectedFish.name} -{" "}
-                {selectedFish.age} - High Quality
+                {selectedFish.variety.varietyName} ID: {selectedFish.rfid} -{" "}
+                {formatDate(selectedFish.birthDate, DATE_FORMATS.MEDIUM_DATE)} -{" "}
+                {selectedFish.healthStatus}
               </SelectItem>
             </SelectContent>
           </Select>
@@ -116,8 +103,8 @@ export default function MotherFishInfo({ selectedFish }: MotherFishInfoProps) {
           <div className="relative mb-4">
             <div className="w-36 h-36 rounded-2xl border-4 border-pink-100 overflow-hidden shadow-lg bg-gradient-to-br from-pink-50 to-white">
               <Image
-                src={selectedFish.image || "/placeholder.svg"}
-                alt={selectedFish.name}
+                src={selectedFish.imagesVideos || "/placeholder.svg"}
+                alt={selectedFish.rfid}
                 width={144}
                 height={144}
                 className="w-full h-full object-cover"
@@ -128,7 +115,7 @@ export default function MotherFishInfo({ selectedFish }: MotherFishInfoProps) {
             </div>
           </div>
           <h3 className="text-lg font-bold text-gray-900 text-center">
-            {selectedFish.name}
+            {selectedFish.rfid}
           </h3>
           <p className="text-sm text-pink-600 font-medium mt-1">Cá Mẹ</p>
         </div>

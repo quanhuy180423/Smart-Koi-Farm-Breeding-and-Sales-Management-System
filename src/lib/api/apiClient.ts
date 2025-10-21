@@ -12,6 +12,7 @@ export interface ApiErrorData {
   statusCode: number;
   isSuccess: boolean;
   message: string;
+  result: string;
 }
 
 // Error interface
@@ -39,6 +40,20 @@ export interface BaseResponse<T> {
   isSuccess: boolean;
   message: string;
   result: T;
+}
+
+export interface PagedResponse<T> {
+  pageIndex: number;
+  totalPages: number;
+  totalItems: number;
+  hasPreviousPage: boolean;
+  hasNextPage: boolean;
+  data: T[];
+}
+
+export interface PagingRequest {
+  pageIndex: number;
+  pageSize: number;
 }
 
 // API service class
@@ -105,6 +120,7 @@ export class ApiService {
             statusCode: error.response?.data.statusCode || 500,
             isSuccess: error.response?.data?.isSuccess || false,
             message: error.response?.data?.message || "",
+            result: error.response?.data?.result || "",
           },
         };
 
