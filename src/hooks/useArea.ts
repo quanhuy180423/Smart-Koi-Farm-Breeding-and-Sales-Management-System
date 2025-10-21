@@ -1,7 +1,7 @@
 import { BaseResponse } from "@/lib/api/apiClient";
 import areaService, {
-  Area,
   AreaRequest,
+  AreaResponse,
   SuccessResponse,
 } from "@/lib/api/services/fetchArea";
 import { useAuthStore } from "@/store/auth-store";
@@ -14,20 +14,14 @@ interface AreaUpdatePayload {
   area: Partial<AreaRequest>;
 }
 
-// Get area hooks
-export function useArea() {
+export function useGetAreas() {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
   return useQuery({
     queryKey: ["area"],
     queryFn: () => areaService.getAreas(),
     enabled: isAuthenticated,
-    select: (data: BaseResponse<Area[]>): BaseResponse<Area[]> => ({
-      statusCode: data.statusCode,
-      isSuccess: data.isSuccess,
-      message: data.message,
-      result: data.result || [],
-    }),
+    select: (data: BaseResponse<AreaResponse[]>): AreaResponse[] => data.result,
     retry: (failureCount, error: unknown) => {
       // Don't retry on 401 errors
       if (
@@ -43,16 +37,14 @@ export function useArea() {
     },
   });
 }
-// Get area by id hook
 
-// Add area hook
 export function useAddArea() {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: (areaData: Partial<AreaRequest>) =>
       areaService.addArea(areaData),
-    onSuccess: (data: BaseResponse<SuccessResponse<Area>>) => {
+    onSuccess: (data: BaseResponse<SuccessResponse<AreaResponse>>) => {
       if (data.isSuccess) {
         queryClient.invalidateQueries({ queryKey: ["area"] });
       }
@@ -64,7 +56,6 @@ export function useAddArea() {
   });
 }
 
-// Edit area hook
 export function useUpdateArea() {
   const queryClient = useQueryClient();
 
@@ -83,7 +74,6 @@ export function useUpdateArea() {
   });
 }
 
-// Delete area hook
 export function useDeleteArea() {
   const queryClient = useQueryClient();
 

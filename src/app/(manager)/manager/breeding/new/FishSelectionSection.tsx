@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -23,144 +23,17 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import Image from "next/image";
-
-interface Fish {
-  id: number;
-  name: string;
-  variety: string;
-  size: string;
-  age: string;
-  price: number;
-  origin: string;
-  breeder: string;
-  image: string;
-  gender: string;
-  bloodline: string;
-  certificates: string[];
-  compatibility: string[];
-}
+import { Gender, KoiFishResponse } from "@/lib/api/services/fetchKoiFish";
+import { useGetKoiFishes } from "@/hooks/useKoiFish";
+import toast from "react-hot-toast";
+import { DATE_FORMATS, formatDate } from "@/lib/utils/dates";
 
 interface FishSelectionProps {
-  onSelection: (fatherFish: Fish, motherFish: Fish) => void;
+  onSelection: (
+    fatherFish: KoiFishResponse,
+    motherFish: KoiFishResponse,
+  ) => void;
 }
-
-const availableFatherFish: Fish[] = [
-  {
-    id: 2,
-    name: "Sanke Jumbo S-012",
-    variety: "Sanke",
-    size: "45cm",
-    age: "3 năm",
-    price: 25000000,
-    origin: "Nhật Bản",
-    breeder: "Dainichi Koi Farm",
-    image:
-      "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/attachments/gen-images/public/beautiful-sanke-koi-fish-with-red-white-black-patt-Yi3gY3TBXBXyG0ma5FJmxrVS1ujTFx.jpg",
-    gender: "Đực",
-    bloodline: "Dainichi",
-    certificates: ["Chứng nhận nguồn gốc", "Kiểm tra sức khỏe", "Giải thưởng"],
-    compatibility: ["Kohaku", "Showa", "Asagi"],
-  },
-  {
-    id: 4,
-    name: "Tancho Goshiki T-008",
-    variety: "Tancho",
-    size: "30cm",
-    age: "1.5 năm",
-    price: 12000000,
-    origin: "Việt Nam",
-    breeder: "Koi Farm VN",
-    image:
-      "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/attachments/gen-images/public/beautiful-tancho-koi-fish-with-red-circle-on-head-NVCbNPDkURfrY4hyyTab01P0wkoXPB.jpg",
-    gender: "Đực",
-    bloodline: "Local Breed",
-    certificates: ["Kiểm tra sức khỏe"],
-    compatibility: ["Kohaku", "Ogon"],
-  },
-  {
-    id: 6,
-    name: "Asagi High Quality A-015",
-    variety: "Asagi",
-    size: "42cm",
-    age: "3 năm",
-    price: 18000000,
-    origin: "Nhật Bản",
-    breeder: "Marudo Koi Farm",
-    image:
-      "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/attachments/gen-images/public/beautiful-asagi-koi-fish-blue-scales-orange-belly-amok9CoRuLRj6W4Exiwl54aXBzji3w.jpg",
-    gender: "Đực",
-    bloodline: "Marudo",
-    certificates: ["Chứng nhận nguồn gốc", "Kiểm tra sức khỏe"],
-    compatibility: ["Sanke", "Ogon"],
-  },
-  {
-    id: 7,
-    name: "Showa Champion S-021",
-    variety: "Showa",
-    size: "40cm",
-    age: "2.5 năm",
-    price: 22000000,
-    origin: "Nhật Bản",
-    breeder: "Omosako Koi Farm",
-    image:
-      "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/attachments/gen-images/public/beautiful-showa-koi-fish-black-red-white.jpg",
-    gender: "Đực",
-    bloodline: "Omosako",
-    certificates: ["Chứng nhận nguồn gốc", "Kiểm tra sức khỏe", "Giải thưởng"],
-    compatibility: ["Kohaku", "Sanke"],
-  },
-];
-
-const availableMotherFish: Fish[] = [
-  {
-    id: 5,
-    name: "Ogon Platinum O-003",
-    variety: "Ogon",
-    size: "38cm",
-    age: "2 năm",
-    price: 8000000,
-    origin: "Việt Nam",
-    breeder: "Koi Farm VN",
-    image:
-      "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/attachments/gen-images/public/beautiful-platinum-ogon-koi-fish-metallic-silver-bNZw5PNFEYXbZMPAY0Zxrvlscb335x.jpg",
-    gender: "Cái",
-    bloodline: "Local Breed",
-    certificates: ["Kiểm tra sức khỏe"],
-    compatibility: ["Tancho", "Asagi"],
-  },
-  {
-    id: 1,
-    name: "Kohaku Premium K-007",
-    variety: "Kohaku",
-    size: "35cm",
-    age: "2 năm",
-    price: 15000000,
-    origin: "Nhật Bản",
-    breeder: "Sakai Fish Farm",
-    image:
-      "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/attachments/gen-images/public/beautiful-red-and-white-kohaku-koi-fish-shXq5nIYD8xv7a5mdkJBQJJ0llXM2v.jpg",
-    gender: "Cái",
-    bloodline: "Sakai",
-    certificates: ["Chứng nhận nguồn gốc", "Kiểm tra sức khỏe"],
-    compatibility: ["Sanke", "Showa", "Tancho"],
-  },
-  {
-    id: 8,
-    name: "Tancho Premium T-008",
-    variety: "Tancho",
-    size: "30cm",
-    age: "3 tuổi",
-    price: 8000000,
-    origin: "Nhật Bản",
-    breeder: "Koi Farm VN",
-    image:
-      "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/attachments/gen-images/public/beautiful-tancho-koi-fish-with-red-circle-on-head.jpg",
-    gender: "Cái",
-    bloodline: "Local Breed",
-    certificates: ["Kiểm tra sức khỏe"],
-    compatibility: ["Kohaku", "Asagi"],
-  },
-];
 
 export function FishSelectionSection({ onSelection }: FishSelectionProps) {
   const [selectedFatherId, setSelectedFatherId] = useState<number | null>(null);
@@ -174,18 +47,55 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
   const [breedingPurpose, setBreedingPurpose] = useState("");
   const [additionalRequirements, setAdditionalRequirements] = useState("");
 
-  const selectedFather = availableFatherFish.find(
+  // Pagination
+  const [pageIndexMale, setPageIndexMale] = useState(1);
+  const [pageIndexFemale, setPageIndexFemale] = useState(1);
+  const pageSize = 6;
+
+  const {
+    data: fatherKoiResponse,
+    isError: isGetMaleKoisErr,
+    refetch: refetchMale,
+  } = useGetKoiFishes({
+    pageIndex: pageIndexMale,
+    pageSize,
+    gender: Gender.MALE,
+  });
+  const {
+    data: motherKoiResponse,
+    isError: isGetFemaleKoisErr,
+    refetch: refetchFemale,
+  } = useGetKoiFishes({
+    pageIndex: pageIndexFemale,
+    pageSize,
+    gender: Gender.FEMALE,
+  });
+
+  useEffect(() => {
+    refetchMale();
+  }, [pageIndexMale, refetchMale]);
+  useEffect(() => {
+    refetchFemale();
+  }, [pageIndexFemale, refetchFemale]);
+
+  if (isGetMaleKoisErr) toast.error("Lỗi tải danh sách cá bố");
+  if (isGetFemaleKoisErr) toast.error("Lỗi tải danh sách cá mẹ");
+
+  const selectedFather = fatherKoiResponse?.data.find(
     (f) => f.id === selectedFatherId,
   );
-  const selectedMother = availableMotherFish.find(
+  const selectedMother = motherKoiResponse?.data.find(
     (f) => f.id === selectedMotherId,
   );
 
-  const parseNumberFromString = (s: string) => {
-    const m = s.match(/\d+(?:[\.,]\d+)?/);
-    if (!m) return NaN;
-    return Number(m[0].replace(",", "."));
+  const compatibilityScore = 100;
+  const handleContinue = () => {
+    if (selectedFather && selectedMother)
+      onSelection(selectedFather, selectedMother);
   };
+
+  const [isFatherDialogOpen, setIsFatherDialogOpen] = useState(false);
+  const [isMotherDialogOpen, setIsMotherDialogOpen] = useState(false);
 
   const handleNumericInput = (e: React.FormEvent<HTMLInputElement>) => {
     const target = e.currentTarget;
@@ -199,37 +109,13 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
     }
   };
 
-  const getCompatibilityScore = () => {
-    if (!selectedFather || !selectedMother) return null;
-
-    const isCompatible = selectedFather.compatibility.includes(
-      selectedMother.variety,
-    );
-    const sizeDiff = Math.abs(
-      parseNumberFromString(selectedFather.size) -
-        parseNumberFromString(selectedMother.size),
-    );
-    const sizeCompatible = !Number.isNaN(sizeDiff) && sizeDiff <= 10;
-    const ageDiff = Math.abs(
-      parseNumberFromString(selectedFather.age) -
-        parseNumberFromString(selectedMother.age),
-    );
-    const ageCompatible = !Number.isNaN(ageDiff) && ageDiff <= 1;
-
-    let score = 0;
-    if (isCompatible) score += 40;
-    if (sizeCompatible) score += 30;
-    if (ageCompatible) score += 30;
-
-    return Math.min(score, 100);
-  };
-
-  const compatibilityScore = getCompatibilityScore();
-
-  const handleContinue = () => {
-    if (selectedFather && selectedMother) {
-      onSelection(selectedFather, selectedMother);
-    }
+  const handleUnchooseFish = (
+    e: React.MouseEvent<HTMLButtonElement>,
+    type: "father" | "mother",
+  ) => {
+    e.preventDefault();
+    if (type === "father") setSelectedFatherId(null);
+    else setSelectedMotherId(null);
   };
 
   const CircularSelector = ({
@@ -237,14 +123,20 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
     selected,
     onSelect,
     availableKoi,
+    isOpen,
+    setIsOpen,
+    pageIndex,
+    setPageIndex,
   }: {
     type: "father" | "mother";
-    selected: Fish | null;
-    onSelect: (koi: Fish) => void;
-    availableKoi: Fish[];
+    selected: KoiFishResponse | null;
+    onSelect: (koi: KoiFishResponse) => void;
+    availableKoi: KoiFishResponse[];
+    isOpen: boolean;
+    setIsOpen: (open: boolean) => void;
+    pageIndex: number;
+    setPageIndex: (index: number) => void;
   }) => {
-    const [isOpen, setIsOpen] = useState(false);
-
     return (
       <div className="flex flex-col items-center">
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -254,19 +146,17 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
                 <div className="relative">
                   <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-white shadow-lg group-hover:scale-105 transition-transform duration-300">
                     <Image
-                      src={selected.image || "/placeholder.svg"}
-                      alt={selected.name}
+                      src={selected.imagesVideos || "/placeholder.svg"}
+                      alt={selected.rfid}
                       width={128}
                       height={128}
                       className="w-full h-full object-cover"
                     />
                   </div>
                   <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (type === "father") setSelectedFatherId(null);
-                      else setSelectedMotherId(null);
-                    }}
+                    onClick={(e: React.MouseEvent<HTMLButtonElement>) =>
+                      handleUnchooseFish(e, type)
+                    }
                     className="absolute -top-2 -right-2 w-8 h-8 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-colors shadow-lg"
                   >
                     <X className="h-4 w-4" />
@@ -307,8 +197,8 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
                 >
                   <div className="relative overflow-hidden rounded-t-lg">
                     <Image
-                      src={fish.image || "/placeholder.svg"}
-                      alt={fish.name}
+                      src={fish.imagesVideos || "/placeholder.svg"}
+                      alt={fish.rfid}
                       width={300}
                       height={240}
                       className="w-full h-52 object-cover"
@@ -326,15 +216,12 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
                   </div>
 
                   <CardContent className="px-4 space-y-3">
-                    <div>
-                      <h3 className="font-bold text-base mb-1 text-gray-900">
-                        {fish.name}
-                      </h3>
-                      <p className="text-sm font-medium text-blue-600 mb-2">
-                        {fish.variety}
-                      </p>
-                    </div>
-
+                    <h3 className="font-bold text-base mb-1 text-gray-900">
+                      {fish.rfid}
+                    </h3>
+                    <p className="text-sm font-medium text-blue-600 mb-2">
+                      {fish.variety.varietyName}
+                    </p>
                     <div className="grid grid-cols-2 gap-2 text-sm">
                       <div className="flex items-center gap-2">
                         <Ruler className="h-4 w-4 text-blue-500" />
@@ -342,17 +229,8 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
                       </div>
                       <div className="flex items-center gap-2">
                         <Calendar className="h-4 w-4 text-green-500" />
-                        <span className="text-gray-700">{fish.age}</span>
-                      </div>
-                    </div>
-
-                    <div className="pt-2 border-t border-gray-100">
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-xs text-gray-500">
-                          Nguồn gốc:
-                        </span>
-                        <span className="text-xs font-medium text-gray-700">
-                          {fish.origin}
+                        <span className="text-gray-700">
+                          {formatDate(fish.birthDate, DATE_FORMATS.MEDIUM_DATE)}
                         </span>
                       </div>
                     </div>
@@ -360,21 +238,42 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
                 </Card>
               ))}
             </div>
+
+            {/* Pagination inside Dialog */}
+            <div className="flex justify-center gap-2 mt-4">
+              <Button
+                size="sm"
+                onClick={() => setPageIndex(Math.max(pageIndex - 1, 1))}
+                disabled={pageIndex === 1}
+              >
+                {"<"}
+              </Button>
+              <span className="px-2">{pageIndex}</span>
+              <Button
+                size="sm"
+                onClick={() => setPageIndex(pageIndex + 1)}
+                disabled={availableKoi.length < pageSize}
+              >
+                {">"}
+              </Button>
+            </div>
           </DialogContent>
         </Dialog>
 
-        {/* Fish name and info below circle */}
+        {/* Fish name */}
         <div className="mt-4 text-center max-w-[140px]">
           {selected ? (
             <>
-              <h3 className="font-semibold text-sm mb-1">{selected.name}</h3>
+              <h3 className="font-semibold text-sm mb-1">{selected.rfid}</h3>
               <p className="text-xs text-muted-foreground">
                 {type === "father" ? "Cá Bố" : "Cá Mẹ"}
               </p>
               <div className="flex items-center justify-center gap-2 mt-1 text-xs text-muted-foreground">
                 <span>{selected.size}</span>
                 <span>•</span>
-                <span>{selected.age}</span>
+                <span>
+                  {formatDate(selected.birthDate, DATE_FORMATS.MEDIUM_DATE)}
+                </span>
               </div>
             </>
           ) : (
@@ -390,10 +289,10 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
   return (
     <section className="w-full bg-white rounded-lg border border-solid border-gray-200 shadow-[0px_1px_2px_#0000000d] p-6 space-y-6">
       <header>
-        <h2 className="[font-family:'Inter-SemiBold',Helvetica] font-semibold text-gray-900 text-lg tracking-[0] leading-7">
+        <h2 className="font-semibold text-gray-900 text-lg">
           Nhập liệu chỉ sinh sản
         </h2>
-        <p className="[font-family:'Inter-Regular',Helvetica] font-normal text-gray-600 text-sm tracking-[0] leading-5 mt-2">
+        <p className="text-gray-600 text-sm mt-2">
           Chọn phương thức tạo cặp sinh sản
         </p>
       </header>
@@ -405,65 +304,58 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
         </TabsList>
 
         <TabsContent value="select-fish" className="space-y-6 mt-6">
-          <div className="flex flex-col items-center gap-8">
-            {/* Circular Selection Interface */}
-            <div className="flex items-center justify-center gap-8 md:gap-16">
-              {/* Male Selection */}
-              <CircularSelector
-                type="father"
-                selected={selectedFather || null}
-                onSelect={(koi) => setSelectedFatherId(koi.id)}
-                availableKoi={availableFatherFish}
-              />
-
-              {/* Heart in the middle */}
-              <div className="flex flex-col items-center">
-                <div
-                  className={`w-16 h-16 rounded-full flex items-center justify-center transition-all duration-500 ${
-                    selectedFather && selectedMother
-                      ? "bg-gradient-to-r from-pink-500 to-red-500 animate-pulse shadow-lg"
-                      : "bg-pink-500"
-                  }`}
-                >
-                  <Heart
-                    className={`h-8 w-8 ${selectedFather && selectedMother ? "text-white" : "text-white"} fill-white`}
-                  />
+          <div className="flex items-center justify-center gap-8 md:gap-16">
+            <CircularSelector
+              type="father"
+              selected={selectedFather || null}
+              onSelect={(koi) => setSelectedFatherId(koi.id)}
+              availableKoi={fatherKoiResponse?.data || []}
+              isOpen={isFatherDialogOpen}
+              setIsOpen={setIsFatherDialogOpen}
+              pageIndex={pageIndexMale}
+              setPageIndex={setPageIndexMale}
+            />
+            <div className="flex flex-col items-center">
+              <div
+                className={`w-16 h-16 rounded-full flex items-center justify-center transition-all duration-500 ${
+                  selectedFather && selectedMother
+                    ? "bg-gradient-to-r from-pink-500 to-red-500 animate-pulse shadow-lg"
+                    : "bg-pink-500"
+                }`}
+              >
+                <Heart className="h-8 w-8 text-white fill-white" />
+              </div>
+              {selectedFather && selectedMother && (
+                <div className="mt-2 text-center text-xs text-gray-700">
+                  Tương hợp: <strong>{compatibilityScore}%</strong>
                 </div>
-                <p className="text-xs text-gray-600 mt-2">Phối giống</p>
-                {selectedFather &&
-                  selectedMother &&
-                  compatibilityScore !== null && (
-                    <div className="mt-2 text-center text-xs text-gray-700">
-                      <div>
-                        Tương hợp: <strong>{compatibilityScore}%</strong>
-                      </div>
-                    </div>
-                  )}
-              </div>
-
-              {/* Female Selection */}
-              <CircularSelector
-                type="mother"
-                selected={selectedMother || null}
-                onSelect={(koi) => setSelectedMotherId(koi.id)}
-                availableKoi={availableMotherFish}
-              />
+              )}
             </div>
-
-            {/* Continue Button */}
-            {selectedFather && selectedMother && (
-              <div className="flex justify-center pt-6">
-                <Button
-                  onClick={handleContinue}
-                  className="h-auto px-8 py-3 text-base shadow-md rounded-xl"
-                >
-                  Tiếp tục đánh giá tương hợp
-                </Button>
-              </div>
-            )}
+            <CircularSelector
+              type="mother"
+              selected={selectedMother || null}
+              onSelect={(koi) => setSelectedMotherId(koi.id)}
+              availableKoi={motherKoiResponse?.data || []}
+              isOpen={isMotherDialogOpen}
+              setIsOpen={setIsMotherDialogOpen}
+              pageIndex={pageIndexFemale}
+              setPageIndex={setPageIndexFemale}
+            />
           </div>
+
+          {selectedFather && selectedMother && (
+            <div className="flex justify-center pt-6">
+              <Button
+                onClick={handleContinue}
+                className="h-auto px-8 py-3 text-base shadow-md rounded-xl"
+              >
+                Tiếp tục đánh giá tương hợp
+              </Button>
+            </div>
+          )}
         </TabsContent>
 
+        {/* Tab "Theo tiêu chí" */}
         <TabsContent value="criteria" className="space-y-6 mt-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-4">

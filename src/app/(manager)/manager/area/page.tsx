@@ -3,7 +3,7 @@
 import { useState } from "react";
 import {
   useAddArea,
-  useArea,
+  useGetAreas,
   useDeleteArea,
   useUpdateArea,
 } from "@/hooks/useArea"; // import hook bạn vừa tạo
@@ -32,27 +32,27 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Area } from "@/lib/api/services/fetchArea";
+import { AreaResponse } from "@/lib/api/services/fetchArea";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import toast from "react-hot-toast";
 
 export default function AreaManagement() {
   const [searchTerm, setSearchTerm] = useState<string>("");
-  const [selectedArea, setSelectedArea] = useState<Area | null>(null);
+  const [selectedArea, setSelectedArea] = useState<AreaResponse | null>(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState<boolean>(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState<boolean>(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false);
-  const [editingArea, setEditingArea] = useState<Area | null>(null);
+  const [editingArea, setEditingArea] = useState<AreaResponse | null>(null);
   const [newArea, setNewArea] = useState({
     areaName: "",
     totalAreaSQM: "",
     description: "",
   });
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
-  const [areaToDelete, setAreaToDelete] = useState<Area | null>(null);
+  const [areaToDelete, setAreaToDelete] = useState<AreaResponse | null>(null);
 
-  const { data: areasFromApi, isLoading } = useArea();
+  const { data: areasFromApi, isLoading } = useGetAreas();
   const { isPending: isAdding, mutateAsync: addAreaAsync } = useAddArea();
   const { isPending: isEditting, mutateAsync: updateAreaAsync } =
     useUpdateArea();
@@ -60,16 +60,16 @@ export default function AreaManagement() {
     useDeleteArea();
 
   const filteredAreas =
-    areasFromApi?.result?.filter((area) =>
+    areasFromApi?.filter((area: AreaResponse) =>
       area.areaName.toLowerCase().includes(searchTerm.toLowerCase()),
     ) || [];
 
-  const handleViewDetails = (area: Area) => {
+  const handleViewDetails = (area: AreaResponse) => {
     setSelectedArea(area);
     setIsDetailModalOpen(true);
   };
 
-  const handleEditArea = (area: Area) => {
+  const handleEditArea = (area: AreaResponse) => {
     setEditingArea(area);
     setIsEditModalOpen(true);
   };
