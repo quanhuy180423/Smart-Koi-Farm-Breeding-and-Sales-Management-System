@@ -4,14 +4,14 @@ import { MoreHorizontal } from "lucide-react";
 // Utility Functions
 type ComponentProps<
   T extends
-  | keyof React.JSX.IntrinsicElements
-  | React.JSXElementConstructor<unknown>,
+    | keyof React.JSX.IntrinsicElements
+    | React.JSXElementConstructor<unknown>,
 > =
   T extends React.JSXElementConstructor<infer Props>
-  ? Props
-  : T extends keyof React.JSX.IntrinsicElements
-  ? React.JSX.IntrinsicElements[T]
-  : Record<string, unknown>;
+    ? Props
+    : T extends keyof React.JSX.IntrinsicElements
+      ? React.JSX.IntrinsicElements[T]
+      : Record<string, unknown>;
 
 const cn = (...classes: (string | undefined | null | false)[]) =>
   classes.filter(Boolean).join(" ");
@@ -258,12 +258,16 @@ const PaginationSection = ({
             <PaginationFirst
               onClick={handleFirstPage}
               aria-disabled={!hasPreviousPage}
-              className={cn(!hasPreviousPage && "pointer-events-none opacity-50")}
+              className={cn(
+                !hasPreviousPage && "pointer-events-none opacity-50",
+              )}
             />
             <PaginationPrevious
               onClick={handlePrevPage}
               aria-disabled={!hasPreviousPage}
-              className={cn(!hasPreviousPage && "pointer-events-none opacity-50")}
+              className={cn(
+                !hasPreviousPage && "pointer-events-none opacity-50",
+              )}
             />
           </PaginationItem>
 
@@ -281,7 +285,6 @@ const PaginationSection = ({
               className={cn(!hasNextPage && "pointer-events-none opacity-50")}
             />
           </PaginationItem>
-
         </PaginationContent>
       </Pagination>
 

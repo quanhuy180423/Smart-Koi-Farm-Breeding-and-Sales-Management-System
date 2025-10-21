@@ -23,7 +23,7 @@ export function useGetAreas(request: AreaSearchParams) {
     queryFn: () => areaService.getAreas(request),
     enabled: isAuthenticated,
     select: (
-      data: BaseResponse<PagedResponse<AreaResponse>>
+      data: BaseResponse<PagedResponse<AreaResponse>>,
     ): PagedResponse<AreaResponse> => data.result,
     retry: (failureCount, error: unknown) => {
       if (

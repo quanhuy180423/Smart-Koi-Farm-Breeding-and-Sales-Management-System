@@ -33,7 +33,7 @@ const baseUrl = "/api/Area";
 
 export const areaService = {
   getAreas: async (
-    request: AreaSearchParams
+    request: AreaSearchParams,
   ): Promise<BaseResponse<PagedResponse<AreaResponse>>> => {
     const filter = toRequestParams(request);
     const response = await apiService.get<
@@ -42,7 +42,7 @@ export const areaService = {
     return response.data;
   },
   addArea: async (
-    area: Partial<AreaRequest>
+    area: Partial<AreaRequest>,
   ): Promise<BaseResponse<SuccessResponse<AreaResponse>>> => {
     const response = await apiService.post<
       BaseResponse<SuccessResponse<AreaResponse>>,
@@ -52,7 +52,7 @@ export const areaService = {
   },
   updateArea: async (
     id: number,
-    area: Partial<AreaRequest>
+    area: Partial<AreaRequest>,
   ): Promise<BaseResponse<string>> => {
     const response = await apiService.put<
       BaseResponse<string>,
@@ -62,7 +62,7 @@ export const areaService = {
   },
   deleteArea: async (id: number): Promise<BaseResponse<string>> => {
     const response = await apiService.delete<BaseResponse<string>>(
-      `${baseUrl}/${id}`
+      `${baseUrl}/${id}`,
     );
     return response.data;
   },

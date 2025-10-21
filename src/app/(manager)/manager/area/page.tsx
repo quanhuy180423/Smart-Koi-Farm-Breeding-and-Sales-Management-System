@@ -54,7 +54,7 @@ export default function AreaManagement() {
     description: "",
   });
 
-  const pageSizeOptions = [10, 20, 50, 100]
+  const pageSizeOptions = [10, 20, 50, 100];
 
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
   const [areaToDelete, setAreaToDelete] = useState<AreaResponse | null>(null);
@@ -62,7 +62,11 @@ export default function AreaManagement() {
   const pageIndex = Number(searchParams.get("pageIndex")) || 1;
   const pageSize = Number(searchParams.get("pageSize")) || pageSizeOptions[0];
 
-  const { data: areas, isLoading } = useGetAreas({ pageIndex, pageSize, search: searchTerm });
+  const { data: areas, isLoading } = useGetAreas({
+    pageIndex,
+    pageSize,
+    search: searchTerm,
+  });
   const { isPending: isAdding, mutateAsync: addAreaAsync } = useAddArea();
   const { isPending: isEditting, mutateAsync: updateAreaAsync } =
     useUpdateArea();
@@ -115,7 +119,7 @@ export default function AreaManagement() {
       });
       setIsAddModalOpen(false);
       setNewArea({ areaName: "", totalAreaSQM: "", description: "" });
-    } catch { }
+    } catch {}
   };
 
   const handleUpdateArea = async () => {
@@ -136,7 +140,7 @@ export default function AreaManagement() {
       });
       setIsEditModalOpen(false);
       setEditingArea(null);
-    } catch { }
+    } catch {}
   };
 
   return (
@@ -422,7 +426,7 @@ export default function AreaManagement() {
                   await deleteAreaAsync(areaToDelete.id);
                   setIsDeleteModalOpen(false);
                   setAreaToDelete(null);
-                } catch { }
+                } catch {}
               }}
             >
               {isDeleting ? "Đang xóa..." : "Xóa"}
