@@ -35,7 +35,7 @@ import { DATE_FORMATS, formatDate } from "@/lib/utils/dates";
 
 function getStatusBadge(status: string) {
   let badgeText = status;
-  let colorClass = "bg-gray-100 text-gray-700"; 
+  let colorClass = "bg-gray-100 text-gray-700";
 
   switch (status) {
     case "Pairing":
@@ -182,7 +182,12 @@ export default function BreedingManagement() {
                         <TableCell className="truncate">
                           {process.femaleKoiName}
                         </TableCell>
-                        <TableCell>{formatDate(process.startDate, DATE_FORMATS.MEDIUM_DATE)}</TableCell>
+                        <TableCell>
+                          {formatDate(
+                            process.startDate,
+                            DATE_FORMATS.MEDIUM_DATE,
+                          )}
+                        </TableCell>
                         <TableCell className="truncate">
                           {process.pondName}
                         </TableCell>

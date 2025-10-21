@@ -22,7 +22,9 @@ const baseUrl = "/api/Area";
 
 export const areaService = {
   getAreas: async (): Promise<BaseResponse<AreaResponse[]>> => {
-    const response = await apiService.get<BaseResponse<AreaResponse[]>>(`${baseUrl}`);
+    const response = await apiService.get<BaseResponse<AreaResponse[]>>(
+      `${baseUrl}`,
+    );
     return response.data;
   },
   addArea: async (
