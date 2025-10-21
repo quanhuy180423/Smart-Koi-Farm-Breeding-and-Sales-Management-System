@@ -36,8 +36,12 @@ import { AreaResponse } from "@/lib/api/services/fetchArea";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import toast from "react-hot-toast";
+import { PaginationSection } from "@/components/common/PaginationSection";
+import { useRouter, useSearchParams } from "next/navigation";
 
 export default function AreaManagement() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [selectedArea, setSelectedArea] = useState<AreaResponse | null>(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState<boolean>(false);
@@ -49,10 +53,20 @@ export default function AreaManagement() {
     totalAreaSQM: "",
     description: "",
   });
+
+  const pageSizeOptions = [10, 20, 50, 100];
+
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
   const [areaToDelete, setAreaToDelete] = useState<AreaResponse | null>(null);
 
-  const { data: areasFromApi, isLoading } = useGetAreas();
+  const pageIndex = Number(searchParams.get("pageIndex")) || 1;
+  const pageSize = Number(searchParams.get("pageSize")) || pageSizeOptions[0];
+
+  const { data: areas, isLoading } = useGetAreas({
+    pageIndex,
+    pageSize,
+    search: searchTerm,
+  });
   const { isPending: isAdding, mutateAsync: addAreaAsync } = useAddArea();
   const { isPending: isEditting, mutateAsync: updateAreaAsync } =
     useUpdateArea();
@@ -60,9 +74,26 @@ export default function AreaManagement() {
     useDeleteArea();
 
   const filteredAreas =
-    areasFromApi?.filter((area: AreaResponse) =>
+    areas?.data.filter((area: AreaResponse) =>
       area.areaName.toLowerCase().includes(searchTerm.toLowerCase()),
     ) || [];
+
+  // Phân trang
+  const totalRecords = areas?.totalItems || 0;
+  const totalPages = Math.ceil(totalRecords / pageSize) || 1;
+
+  const handlePageChange = (page: number) => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("pageIndex", page.toString());
+    router.push(`?${params.toString()}`);
+  };
+
+  const handlePageSizeChange = (size: number) => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("pageSize", size.toString());
+    params.set("pageIndex", "1");
+    router.push(`?${params.toString()}`);
+  };
 
   const handleViewDetails = (area: AreaResponse) => {
     setSelectedArea(area);
@@ -147,54 +178,68 @@ export default function AreaManagement() {
           {isLoading ? (
             <p>Đang tải dữ liệu...</p>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>STT</TableHead>
-                  <TableHead>Tên khu vực</TableHead>
-                  <TableHead>Diện tích (m²)</TableHead>
-                  <TableHead>Mô tả</TableHead>
-                  <TableHead>Thao tác</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredAreas.map((area, index) => (
-                  <TableRow key={area.id}>
-                    <TableCell className="font-medium">{index + 1}</TableCell>
-                    <TableCell>{area.areaName}</TableCell>
-                    <TableCell>{area.totalAreaSQM}</TableCell>
-                    <TableCell>{area.description}</TableCell>
-                    <TableCell className="space-x-2">
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => handleViewDetails(area)}
-                      >
-                        <Eye className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => handleEditArea(area)}
-                      >
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        className="text-red-600"
-                        onClick={() => {
-                          setAreaToDelete(area);
-                          setIsDeleteModalOpen(true);
-                        }}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </TableCell>
+            <>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>STT</TableHead>
+                    <TableHead>Tên khu vực</TableHead>
+                    <TableHead>Diện tích (m²)</TableHead>
+                    <TableHead>Mô tả</TableHead>
+                    <TableHead>Thao tác</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {filteredAreas.map((area, index) => (
+                    <TableRow key={area.id}>
+                      <TableCell className="font-medium">{index + 1}</TableCell>
+                      <TableCell>{area.areaName}</TableCell>
+                      <TableCell>{area.totalAreaSQM}</TableCell>
+                      <TableCell>{area.description}</TableCell>
+                      <TableCell className="space-x-2">
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => handleViewDetails(area)}
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => handleEditArea(area)}
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="text-red-600"
+                          onClick={() => {
+                            setAreaToDelete(area);
+                            setIsDeleteModalOpen(true);
+                          }}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+
+              <PaginationSection
+                totalPosts={totalRecords}
+                postsPerPage={pageSize}
+                currentPage={pageIndex}
+                setCurrentPage={handlePageChange}
+                totalPages={totalPages}
+                setPageSize={handlePageSizeChange}
+                hasNextPage={areas?.hasNextPage}
+                hasPreviousPage={areas?.hasPreviousPage}
+                pageSizeOptions={pageSizeOptions}
+              />
+            </>
           )}
         </CardContent>
       </Card>

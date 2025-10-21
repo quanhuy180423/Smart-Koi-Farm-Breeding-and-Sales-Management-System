@@ -178,6 +178,8 @@ type TPaginationSectionProps = {
   totalPages?: number;
   setPageSize?: (size: number) => void;
   pageSizeOptions?: number[];
+  hasNextPage?: boolean;
+  hasPreviousPage?: boolean;
 };
 
 const PaginationSection = ({
@@ -188,6 +190,8 @@ const PaginationSection = ({
   totalPages,
   setPageSize,
   pageSizeOptions = [10, 20, 50, 100],
+  hasNextPage = false,
+  hasPreviousPage = false,
 }: TPaginationSectionProps) => {
   const pageCount =
     totalPages ??
@@ -251,15 +255,35 @@ const PaginationSection = ({
       <Pagination>
         <PaginationContent>
           <PaginationItem>
-            <PaginationFirst onClick={handleFirstPage} />
-            <PaginationPrevious onClick={handlePrevPage} />
+            <PaginationFirst
+              onClick={handleFirstPage}
+              aria-disabled={!hasPreviousPage}
+              className={cn(
+                !hasPreviousPage && "pointer-events-none opacity-50",
+              )}
+            />
+            <PaginationPrevious
+              onClick={handlePrevPage}
+              aria-disabled={!hasPreviousPage}
+              className={cn(
+                !hasPreviousPage && "pointer-events-none opacity-50",
+              )}
+            />
           </PaginationItem>
 
           {renderPages()}
 
           <PaginationItem>
-            <PaginationNext onClick={handleNextPage} />
-            <PaginationLast onClick={handleLastPage} />
+            <PaginationNext
+              onClick={handleNextPage}
+              aria-disabled={!hasNextPage}
+              className={cn(!hasNextPage && "pointer-events-none opacity-50")}
+            />
+            <PaginationLast
+              onClick={handleLastPage}
+              aria-disabled={!hasNextPage}
+              className={cn(!hasNextPage && "pointer-events-none opacity-50")}
+            />
           </PaginationItem>
         </PaginationContent>
       </Pagination>

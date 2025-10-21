@@ -1,4 +1,9 @@
-import apiService, { BaseResponse } from "../apiClient";
+import toRequestParams from "@/lib/utils/params";
+import apiService, {
+  BaseResponse,
+  PagedResponse,
+  PagingRequest,
+} from "../apiClient";
 
 export interface AreaResponse {
   id: number;
@@ -18,13 +23,22 @@ export interface SuccessResponse<T> {
   data: T;
 }
 
+export interface AreaSearchParams extends PagingRequest {
+  search?: string;
+  minTotalAreaSQM?: number;
+  maxTotalAreaSQM?: number;
+}
+
 const baseUrl = "/api/Area";
 
 export const areaService = {
-  getAreas: async (): Promise<BaseResponse<AreaResponse[]>> => {
-    const response = await apiService.get<BaseResponse<AreaResponse[]>>(
-      `${baseUrl}`,
-    );
+  getAreas: async (
+    request: AreaSearchParams,
+  ): Promise<BaseResponse<PagedResponse<AreaResponse>>> => {
+    const filter = toRequestParams(request);
+    const response = await apiService.get<
+      BaseResponse<PagedResponse<AreaResponse>>
+    >(`${baseUrl}`, { ...filter });
     return response.data;
   },
   addArea: async (

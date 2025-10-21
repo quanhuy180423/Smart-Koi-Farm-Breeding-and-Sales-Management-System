@@ -1,7 +1,8 @@
-import { BaseResponse } from "@/lib/api/apiClient";
+import { BaseResponse, PagedResponse } from "@/lib/api/apiClient";
 import areaService, {
   AreaRequest,
   AreaResponse,
+  AreaSearchParams,
   SuccessResponse,
 } from "@/lib/api/services/fetchArea";
 import { useAuthStore } from "@/store/auth-store";
@@ -14,16 +15,17 @@ interface AreaUpdatePayload {
   area: Partial<AreaRequest>;
 }
 
-export function useGetAreas() {
+export function useGetAreas(request: AreaSearchParams) {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
   return useQuery({
-    queryKey: ["area"],
-    queryFn: () => areaService.getAreas(),
+    queryKey: ["area", request.pageIndex, request.pageSize],
+    queryFn: () => areaService.getAreas(request),
     enabled: isAuthenticated,
-    select: (data: BaseResponse<AreaResponse[]>): AreaResponse[] => data.result,
+    select: (
+      data: BaseResponse<PagedResponse<AreaResponse>>,
+    ): PagedResponse<AreaResponse> => data.result,
     retry: (failureCount, error: unknown) => {
-      // Don't retry on 401 errors
       if (
         error &&
         typeof error === "object" &&
@@ -32,7 +34,6 @@ export function useGetAreas() {
       ) {
         return false;
       }
-      // Retry up to 2 times for other errors
       return failureCount < 2;
     },
   });
