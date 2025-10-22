@@ -49,7 +49,7 @@ export interface PondSearchParams extends PagingRequest {
 
 export const pondService = {
   getPonds: async (
-    request: PondSearchParams
+    request: PondSearchParams,
   ): Promise<BaseResponse<PagedResponse<PondResponse>>> => {
     const filter = toRequestParams(request);
     const response = await apiService.get<

@@ -30,7 +30,7 @@ export default function MotherFishInfo({ selectedFish }: MotherFishInfoProps) {
     {
       label: "Kích thước (Size)",
       value: getFishSizeLabel(selectedFish.size),
-    }
+    },
   ];
 
   const healthAgeData = [
@@ -59,7 +59,7 @@ export default function MotherFishInfo({ selectedFish }: MotherFishInfoProps) {
     {
       label: "Phả hệ (Bloodline)",
       value: "Dainichi Bloodline, Generation 3, Premium Gin Rin traits",
-    }
+    },
   ];
 
   return (
@@ -82,7 +82,8 @@ export default function MotherFishInfo({ selectedFish }: MotherFishInfoProps) {
             <SelectContent>
               <SelectItem value={selectedFish.id.toString()}>
                 {selectedFish.variety.varietyName} RFID: {selectedFish.rfid} -{" "}
-                {getAge(selectedFish.birthDate)} tuổi - Sức khỏe: {getHealthStatusLabel(selectedFish.healthStatus)}
+                {getAge(selectedFish.birthDate)} tuổi - Sức khỏe:{" "}
+                {getHealthStatusLabel(selectedFish.healthStatus)}
               </SelectItem>
             </SelectContent>
           </Select>
@@ -118,7 +119,9 @@ export default function MotherFishInfo({ selectedFish }: MotherFishInfoProps) {
             </span>
             Phẩm Chất Cơ Bản của Cá Thể
           </h4>
-          <div className={`grid grid-cols-1 md:grid-cols-${basicQualityData.length} gap-4`}>
+          <div
+            className={`grid grid-cols-1 md:grid-cols-${basicQualityData.length} gap-4`}
+          >
             {basicQualityData.map((item, index) => (
               <Card
                 key={index}
@@ -144,7 +147,9 @@ export default function MotherFishInfo({ selectedFish }: MotherFishInfoProps) {
             </span>
             Dữ liệu Di truyền & Phả hệ
           </h4>
-          <div className={`grid grid-cols-1 md:grid-cols-${geneticData.length} gap-4`}>
+          <div
+            className={`grid grid-cols-1 md:grid-cols-${geneticData.length} gap-4`}
+          >
             {geneticData.map((item, index) => (
               <Card
                 key={index}
@@ -168,7 +173,9 @@ export default function MotherFishInfo({ selectedFish }: MotherFishInfoProps) {
             </span>
             Sức Khỏe & Độ Tuổi
           </h4>
-          <div className={`grid grid-cols-1 md:grid-cols-${healthAgeData.length} gap-4`}>
+          <div
+            className={`grid grid-cols-1 md:grid-cols-${healthAgeData.length} gap-4`}
+          >
             {healthAgeData.map((item, index) => (
               <Card
                 key={index}
@@ -194,7 +201,9 @@ export default function MotherFishInfo({ selectedFish }: MotherFishInfoProps) {
             </span>
             Đặc Tính Riêng Biệt Theo Giống
           </h4>
-          <div className={`grid grid-cols-1 md:grid-cols-${breedData.length} gap-4`}>
+          <div
+            className={`grid grid-cols-1 md:grid-cols-${breedData.length} gap-4`}
+          >
             {breedData.map((item, index) => (
               <Card
                 key={index}
@@ -218,7 +227,9 @@ export default function MotherFishInfo({ selectedFish }: MotherFishInfoProps) {
             </span>
             Dữ Liệu Lịch Sử Sinh Sản
           </h4>
-          <div className={`grid grid-cols-1 md:grid-cols-${breedData.length} gap-4`}>
+          <div
+            className={`grid grid-cols-1 md:grid-cols-${breedData.length} gap-4`}
+          >
             {breedData.map((item, index) => (
               <Card
                 key={index}

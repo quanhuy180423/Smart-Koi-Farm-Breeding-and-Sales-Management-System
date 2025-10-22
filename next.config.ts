@@ -31,7 +31,7 @@ const nextConfig: NextConfig = {
         hostname: "topanh.com",
         port: "",
         pathname: "/**",
-      }
+      },
     ],
   },
 };

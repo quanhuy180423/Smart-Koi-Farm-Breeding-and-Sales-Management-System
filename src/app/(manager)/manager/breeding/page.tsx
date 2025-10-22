@@ -32,7 +32,11 @@ import { useGetBreedingProcesses } from "@/hooks/useBreedingProcess";
 import { PaginationSection } from "@/components/common/PaginationSection";
 import { BreedingProcessResponse } from "@/lib/api/services/fetchBreedingProcess";
 import { DATE_FORMATS, formatDate } from "@/lib/utils/dates";
-import { getBreedingResultLabel, getBreedingStatusLabel, getHealthStatusLabel } from "@/lib/utils/enum";
+import {
+  getBreedingResultLabel,
+  getBreedingStatusLabel,
+  getHealthStatusLabel,
+} from "@/lib/utils/enum";
 
 export default function BreedingManagement() {
   const router = useRouter();
@@ -149,20 +153,40 @@ export default function BreedingManagement() {
                           {formatDate(
                             process.startDate,
                             DATE_FORMATS.MEDIUM_DATE,
-                          )} - {formatDate(
+                          )}{" "}
+                          -{" "}
+                          {formatDate(
                             process.endDate,
                             DATE_FORMATS.MEDIUM_DATE,
                           )}
                         </TableCell>
 
-                        <TableCell>{(() => {
-                          const label = getBreedingStatusLabel(process.status)
-                          return <Badge className={`font-semibold ${label.colorClass}`}>{label.label}</Badge>
-                        })()}</TableCell>
+                        <TableCell>
+                          {(() => {
+                            const label = getBreedingStatusLabel(
+                              process.status,
+                            );
+                            return (
+                              <Badge
+                                className={`font-semibold ${label.colorClass}`}
+                              >
+                                {label.label}
+                              </Badge>
+                            );
+                          })()}
+                        </TableCell>
                         <TableCell className="truncate">
                           {(() => {
-                            const label = getBreedingResultLabel(process.result)
-                            return <Badge className={`font-semibold ${label.colorClass}`}>{label.label}</Badge>
+                            const label = getBreedingResultLabel(
+                              process.result,
+                            );
+                            return (
+                              <Badge
+                                className={`font-semibold ${label.colorClass}`}
+                              >
+                                {label.label}
+                              </Badge>
+                            );
                           })()}
                         </TableCell>
                         <TableCell className="text-center space-x-2">
