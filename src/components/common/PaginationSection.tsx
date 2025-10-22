@@ -1,5 +1,11 @@
 import * as React from "react";
-import { MoreHorizontal } from "lucide-react";
+import {
+  MoreHorizontal,
+  ChevronRight,
+  ChevronLeft,
+  ChevronsRight,
+  ChevronsLeft,
+} from "lucide-react";
 
 // Utility Functions
 type ComponentProps<
@@ -105,7 +111,9 @@ const PaginationFirst = ({
     className={cn("gap-1", className)}
     {...props}
   >
-    <span className="text-lg font-semibold">{"<<"}</span>
+    <span className="text-lg font-semibold">
+      <ChevronsLeft />
+    </span>
   </PaginationLink>
 );
 PaginationFirst.displayName = "PaginationFirst";
@@ -120,7 +128,9 @@ const PaginationPrevious = ({
     className={cn("gap-1", className)}
     {...props}
   >
-    <span className="text-lg font-semibold">{"<"}</span>
+    <span className="text-lg font-semibold">
+      <ChevronLeft />
+    </span>
   </PaginationLink>
 );
 PaginationPrevious.displayName = "PaginationPrevious";
@@ -135,7 +145,9 @@ const PaginationNext = ({
     className={cn("gap-1", className)}
     {...props}
   >
-    <span className="text-lg font-semibold">{">"}</span>
+    <span className="text-lg font-semibold">
+      <ChevronRight />
+    </span>
   </PaginationLink>
 );
 PaginationNext.displayName = "PaginationNext";
@@ -150,7 +162,9 @@ const PaginationLast = ({
     className={cn("gap-1", className)}
     {...props}
   >
-    <span className="text-lg font-semibold">{">>"}</span>
+    <span className="text-lg font-semibold">
+      <ChevronsRight />
+    </span>
   </PaginationLink>
 );
 PaginationLast.displayName = "PaginationLast";
@@ -171,7 +185,7 @@ const PaginationEllipsis = ({
 PaginationEllipsis.displayName = "PaginationEllipsis";
 
 type TPaginationSectionProps = {
-  totalPosts?: number;
+  totalItems?: number;
   postsPerPage?: number;
   currentPage: number;
   setCurrentPage: (page: number) => void;
@@ -183,7 +197,7 @@ type TPaginationSectionProps = {
 };
 
 const PaginationSection = ({
-  totalPosts,
+  totalItems,
   postsPerPage,
   currentPage,
   setCurrentPage,
@@ -195,7 +209,7 @@ const PaginationSection = ({
 }: TPaginationSectionProps) => {
   const pageCount =
     totalPages ??
-    (totalPosts && postsPerPage ? Math.ceil(totalPosts / postsPerPage) : 1);
+    (totalItems && postsPerPage ? Math.ceil(totalItems / postsPerPage) : 1);
 
   const pageNumbers = Array.from({ length: pageCount }, (_, i) => i + 1);
 

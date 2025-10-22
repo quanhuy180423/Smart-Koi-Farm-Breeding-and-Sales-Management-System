@@ -35,25 +35,28 @@ import { DATE_FORMATS, formatDate } from "@/lib/utils/dates";
 import {
   getBreedingResultLabel,
   getBreedingStatusLabel,
-  getHealthStatusLabel,
 } from "@/lib/utils/enum";
 
 export default function BreedingManagement() {
   const router = useRouter();
   const searchParams = useSearchParams();
+
+  // Delete
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [breedingToDelete, setBreedingToDelete] =
     useState<BreedingProcessResponse>();
 
+  // Detail
+  const [isDetailOpen, setIsDetailOpen] = useState(false);
+  const [selectedBreeding, setSelectedBreeding] =
+    useState<BreedingProcessResponse | null>(null);
+
+  // Pagination
   const pageIndex = Number(searchParams.get("pageIndex")) || 1;
   const pageSize = Number(searchParams.get("pageSize")) || 10;
 
   const { data, isLoading } = useGetBreedingProcesses({ pageIndex, pageSize });
   const breedingProcesses = data?.data || [];
-
-  // Phân trang
-  const totalRecords = data?.totalItems || 0;
-  const totalPages = Math.ceil(totalRecords / pageSize) || 1;
 
   const handlePageChange = (page: number) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -214,11 +217,11 @@ export default function BreedingManagement() {
 
               {/* 📄 Pagination Section */}
               <PaginationSection
-                totalPosts={totalRecords}
+                totalItems={data?.totalItems}
                 postsPerPage={pageSize}
                 currentPage={pageIndex}
                 setCurrentPage={handlePageChange}
-                totalPages={totalPages}
+                totalPages={data?.totalPages}
                 setPageSize={handlePageSizeChange}
                 hasNextPage={data?.hasNextPage}
                 hasPreviousPage={data?.hasPreviousPage}
