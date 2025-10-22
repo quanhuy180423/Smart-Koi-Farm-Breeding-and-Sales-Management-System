@@ -1,8 +1,4 @@
-import {
-  ApiError,
-  BaseResponse,
-  PagedResponse,
-} from "@/lib/api/apiClient";
+import { ApiError, BaseResponse, PagedResponse } from "@/lib/api/apiClient";
 import breedingProcessService, {
   BreedingProcessCreateRequest,
   BreedingProcessResponse,
