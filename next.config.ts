@@ -18,6 +18,20 @@ const nextConfig: NextConfig = {
         port: "",
         pathname: "/**",
       },
+      // Link ảnh được upload từ API
+      {
+        protocol: "https",
+        hostname: "res.cloudinary.com",
+        port: "",
+        pathname: "/**",
+      },
+      // Làm tạm cho một số data ở db còn dùng
+      {
+        protocol: "https",
+        hostname: "topanh.com",
+        port: "",
+        pathname: "/**",
+      },
     ],
   },
 };

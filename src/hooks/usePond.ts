@@ -1,13 +1,13 @@
+import { BaseResponse, PagedResponse } from "@/lib/api/apiClient";
 import {
-  BaseResponse,
-  PagedResponse,
-  PagingRequest,
-} from "@/lib/api/apiClient";
-import { PondResponse, pondService } from "@/lib/api/services/fetchPond";
+  PondResponse,
+  PondSearchParams,
+  pondService,
+} from "@/lib/api/services/fetchPond";
 import { useAuthStore } from "@/store/auth-store";
 import { useQuery } from "@tanstack/react-query";
 
-export function useGetPonds(request: PagingRequest) {
+export function useGetPonds(request: PondSearchParams) {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
   return useQuery({

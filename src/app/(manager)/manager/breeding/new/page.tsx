@@ -19,9 +19,13 @@ import {
 } from "@/components/ui/dialog";
 import { useGetPonds } from "@/hooks/usePond";
 
-import { PondResponse } from "@/lib/api/services/fetchPond";
-import { PagingRequest } from "@/lib/api/apiClient";
+import {
+  PondResponse,
+  PondSearchParams,
+  PondStatus,
+} from "@/lib/api/services/fetchPond";
 import { useAddBreedingProcess } from "@/hooks/useBreedingProcess";
+import { getPondStatusLabel } from "@/lib/utils/enum";
 
 const PAGE_SIZE = 3;
 
@@ -35,18 +39,17 @@ function PondSelectionList({
   onSelectPond,
 }: PondSelectionListProps) {
   const [currentPage, setCurrentPage] = useState(1);
-  const request: PagingRequest = {
+  const request: PondSearchParams = {
     pageIndex: currentPage,
     pageSize: PAGE_SIZE,
+    status: PondStatus.EMPTY,
   };
 
   const { data: pondsData, isFetching } = useGetPonds(request);
   const ponds = pondsData?.data || [];
-  // Sử dụng totalRecords thay vì totalItems như trong code gốc, giả định PagedResponse dùng totalRecords
   const totalPages = pondsData
     ? Math.ceil(pondsData.totalItems / PAGE_SIZE)
     : 0;
-  // Ghi chú: Nếu API của bạn dùng totalItems thì thay totalRecords bằng totalItems
 
   const handleNextPage = () => {
     if (currentPage < totalPages) {
@@ -57,38 +60,6 @@ function PondSelectionList({
   const handlePrevPage = () => {
     if (currentPage > 1) {
       setCurrentPage(currentPage - 1);
-    }
-  };
-
-  // HÀM HỖ TRỢ HIỂN THỊ TRẠNG THÁI HỒ ĐÃ ĐƯỢC CẬP NHẬT
-  const getStatusStyles = (status: string) => {
-    // Chuyển đổi trạng thái từ enum (giả định API trả về các giá trị "Empty", "Active", "Maintenance")
-    switch (status) {
-      case "Active":
-        return {
-          text: "Đang Hoạt Động",
-          className:
-            "text-xs font-medium text-green-700 bg-green-100 px-2 py-0.5 rounded-full",
-        };
-      case "Empty":
-        return {
-          text: "Trống",
-          className:
-            "text-xs font-medium text-gray-700 bg-gray-100 px-2 py-0.5 rounded-full",
-        };
-      case "Maintenance":
-        return {
-          text: "Bảo Trì",
-          className:
-            "text-xs font-medium text-yellow-700 bg-yellow-100 px-2 py-0.5 rounded-full",
-        };
-      default:
-        // Dành cho các trạng thái không xác định
-        return {
-          text: status,
-          className:
-            "text-xs font-medium text-red-700 bg-red-100 px-2 py-0.5 rounded-full",
-        };
     }
   };
 
@@ -106,7 +77,7 @@ function PondSelectionList({
         ) : (
           ponds.map((pond: PondResponse) => {
             const isSelected = selectedPondId === pond.id.toString();
-            const status = getStatusStyles(pond.pondStatus); // Lấy style trạng thái
+            const status = getPondStatusLabel(pond.pondStatus);
 
             return (
               <div
@@ -123,8 +94,7 @@ function PondSelectionList({
                     <p className="font-medium text-gray-800 truncate">
                       {pond.pondName}
                     </p>
-                    {/* Hiển thị trạng thái hồ đã được dịch */}
-                    <span className={status.className}>{status.text}</span>
+                    <span className={status.colorClass}>{status.label}</span>
                   </div>
                   <p className="text-sm text-gray-500">
                     Loại: {pond.pondTypeName} | Kích thước: {pond.lengthMeters}m

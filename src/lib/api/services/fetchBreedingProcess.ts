@@ -1,3 +1,4 @@
+import toRequestParams from "@/lib/utils/params";
 import apiService, {
   BaseResponse,
   PagedResponse,
@@ -26,15 +27,22 @@ export enum BreedingResult {
 
 export interface BreedingProcessResponse {
   id: number;
+  code: string;
   maleKoiId: number;
-  maleKoiName: string;
+  maleKoiRFID: string;
+  maleKoiVariety: string;
   femaleKoiId: number;
-  femaleKoiName: string;
+  femaleKoiRFID: string;
+  femaleKoiVariety: string;
   pondId: number;
   pondName: string;
   startDate: string;
+  endDate: string;
   status: BreedingStatus;
   result: BreedingResult;
+  note: string;
+  totalFishQualified: number;
+  totalPackage: number;
   koiFishes: KoiFishResponse[];
 }
 
@@ -49,13 +57,31 @@ export interface BreedingProcessCreateRequest {
   pondId: number;
 }
 
+export interface BreedingProcessSearchParams extends PagingRequest {
+  search?: string;
+  maleKoiId?: number;
+  femaleKoiId?: number;
+  pondId?: number;
+  status?: BreedingStatus;
+  result?: BreedingResult;
+  minTotalFishQualified?: number;
+  maxTotalFishQualified?: number;
+  minTotalPackage?: number;
+  maxTotalPackage?: number;
+  startDateFrom?: string;
+  startDateTo?: string;
+  endDateFrom?: string;
+  endDateTo?: string;
+}
+
 export const breedingProcessService = {
   getBreedingProcesses: async (
-    request: PagingRequest,
+    request: BreedingProcessSearchParams,
   ): Promise<BaseResponse<PagedResponse<BreedingProcessResponse>>> => {
+    const filter = toRequestParams(request);
     const response = await apiService.get<
       BaseResponse<PagedResponse<BreedingProcessResponse>>
-    >(`${baseUrl}`, { ...request });
+    >(`${baseUrl}`, { ...filter });
     return response.data;
   },
   addBreedingProcess: async (

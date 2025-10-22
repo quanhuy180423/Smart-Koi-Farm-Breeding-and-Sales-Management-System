@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { Eye, Edit, Trash2, Plus, Loader2 } from "lucide-react";
+import { Eye, Trash2, Plus, Loader2 } from "lucide-react";
 import { useState } from "react";
 import {
   Card,
@@ -32,44 +32,11 @@ import { useGetBreedingProcesses } from "@/hooks/useBreedingProcess";
 import { PaginationSection } from "@/components/common/PaginationSection";
 import { BreedingProcessResponse } from "@/lib/api/services/fetchBreedingProcess";
 import { DATE_FORMATS, formatDate } from "@/lib/utils/dates";
-
-function getStatusBadge(status: string) {
-  let badgeText = status;
-  let colorClass = "bg-gray-100 text-gray-700";
-
-  switch (status) {
-    case "Pairing":
-      badgeText = "Ghép Cặp";
-      colorClass = "bg-indigo-100 text-indigo-700 hover:bg-indigo-100";
-      break;
-    case "Spawned":
-      badgeText = "Đã Đẻ";
-      colorClass = "bg-yellow-100 text-yellow-700 hover:bg-yellow-100";
-      break;
-    case "EggBatch":
-      badgeText = "Trứng Cá";
-      colorClass = "bg-cyan-100 text-cyan-700 hover:bg-cyan-100";
-      break;
-    case "FryFish":
-      badgeText = "Cá Con";
-      colorClass = "bg-teal-100 text-teal-700 hover:bg-teal-100";
-      break;
-    case "Classification":
-      badgeText = "Phân Loại";
-      colorClass = "bg-purple-100 text-purple-700 hover:bg-purple-100";
-      break;
-    case "Complete":
-      badgeText = "Hoàn Thành";
-      colorClass = "bg-green-100 text-green-700 hover:bg-green-100";
-      break;
-    case "Failed":
-      badgeText = "Thất Bại";
-      colorClass = "bg-red-100 text-red-700 hover:bg-red-100";
-      break;
-  }
-
-  return <Badge className={`font-semibold ${colorClass}`}>{badgeText}</Badge>;
-}
+import {
+  getBreedingResultLabel,
+  getBreedingStatusLabel,
+  getHealthStatusLabel,
+} from "@/lib/utils/enum";
 
 export default function BreedingManagement() {
   const router = useRouter();
@@ -82,10 +49,10 @@ export default function BreedingManagement() {
   const pageSize = Number(searchParams.get("pageSize")) || 10;
 
   const { data, isLoading } = useGetBreedingProcesses({ pageIndex, pageSize });
-  const breedingProcesses = data?.result?.data || [];
+  const breedingProcesses = data?.data || [];
 
   // Phân trang
-  const totalRecords = data?.result?.totalItems || 0;
+  const totalRecords = data?.totalItems || 0;
   const totalPages = Math.ceil(totalRecords / pageSize) || 1;
 
   const handlePageChange = (page: number) => {
@@ -152,12 +119,12 @@ export default function BreedingManagement() {
               <Table className="table-fixed w-full">
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="w-[20%]">Cá đực</TableHead>
-                    <TableHead className="w-[20%]">Cá cái</TableHead>
-                    <TableHead className="w-[15%]">Ngày bắt đầu</TableHead>
-                    <TableHead className="w-[15%]">Hồ</TableHead>
-                    <TableHead className="w-[15%]">Trạng thái</TableHead>
-                    <TableHead className="w-[15%] text-center">
+                    <TableHead className="w-[10%]">Cá đực</TableHead>
+                    <TableHead className="w-[10%]">Cá cái</TableHead>
+                    <TableHead className="w-[20%]">Ngày diễn ra</TableHead>
+                    <TableHead className="w-[20%]">Trạng thái</TableHead>
+                    <TableHead className="w-[20%]">Kết quả</TableHead>
+                    <TableHead className="w-[20%] text-center">
                       Thao tác
                     </TableHead>
                   </TableRow>
@@ -177,27 +144,54 @@ export default function BreedingManagement() {
                     breedingProcesses.map((process) => (
                       <TableRow key={process.id}>
                         <TableCell className="truncate">
-                          {process.maleKoiName}
+                          RFID: {process.maleKoiRFID}
                         </TableCell>
                         <TableCell className="truncate">
-                          {process.femaleKoiName}
+                          RFID: {process.femaleKoiRFID}
                         </TableCell>
                         <TableCell>
                           {formatDate(
                             process.startDate,
                             DATE_FORMATS.MEDIUM_DATE,
+                          )}{" "}
+                          -{" "}
+                          {formatDate(
+                            process.endDate,
+                            DATE_FORMATS.MEDIUM_DATE,
                           )}
                         </TableCell>
-                        <TableCell className="truncate">
-                          {process.pondName}
+
+                        <TableCell>
+                          {(() => {
+                            const label = getBreedingStatusLabel(
+                              process.status,
+                            );
+                            return (
+                              <Badge
+                                className={`font-semibold ${label.colorClass}`}
+                              >
+                                {label.label}
+                              </Badge>
+                            );
+                          })()}
                         </TableCell>
-                        <TableCell>{getStatusBadge(process.status)}</TableCell>
+                        <TableCell className="truncate">
+                          {(() => {
+                            const label = getBreedingResultLabel(
+                              process.result,
+                            );
+                            return (
+                              <Badge
+                                className={`font-semibold ${label.colorClass}`}
+                              >
+                                {label.label}
+                              </Badge>
+                            );
+                          })()}
+                        </TableCell>
                         <TableCell className="text-center space-x-2">
                           <Button size="sm" variant="ghost" title="Chi tiết">
                             <Eye className="h-4 w-4" />
-                          </Button>
-                          <Button size="sm" variant="ghost" title="Chỉnh sửa">
-                            <Edit className="h-4 w-4" />
                           </Button>
                           <Button
                             size="sm"
@@ -226,6 +220,8 @@ export default function BreedingManagement() {
                 setCurrentPage={handlePageChange}
                 totalPages={totalPages}
                 setPageSize={handlePageSizeChange}
+                hasNextPage={data?.hasNextPage}
+                hasPreviousPage={data?.hasPreviousPage}
               />
             </>
           )}
@@ -244,8 +240,8 @@ export default function BreedingManagement() {
           <p>
             Bạn có chắc chắn muốn xóa đợt lai{" "}
             <span className="font-semibold text-red-600">
-              {breedingToDelete?.maleKoiName} -{" "}
-              {breedingToDelete?.femaleKoiName}
+              {breedingToDelete?.maleKoiRFID} -{" "}
+              {breedingToDelete?.femaleKoiRFID}
             </span>
             ?
           </p>
