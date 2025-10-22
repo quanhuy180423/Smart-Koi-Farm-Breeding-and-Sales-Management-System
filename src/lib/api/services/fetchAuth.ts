@@ -60,11 +60,16 @@ export interface ForgotPasswordRequest {
   email: string;
 }
 
+export interface RenewTokenRequest {
+  accessToken: string;
+  refreshToken: string;
+}
+
 const baseUrl = "/api/Accounts";
 
 export const fetchAuth = {
   register: async (
-    data: RegisterRequest,
+    data: RegisterRequest
   ): Promise<BaseResponse<RegisterResponse>> => {
     try {
       const response = await apiService.post<
@@ -99,7 +104,7 @@ export const fetchAuth = {
     }
   },
   authenGoogle: async (
-    data: LogginGoogleRequest,
+    data: LogginGoogleRequest
   ): Promise<BaseResponse<LoginResponse>> => {
     try {
       const response = await apiService.post<
