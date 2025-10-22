@@ -25,7 +25,6 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import {
   GoogleLogin,
-  GoogleOAuthProvider,
   CredentialResponse,
 } from "@react-oauth/google";
 import { useGoogleLogin } from "@/hooks/useAuth";

@@ -2,9 +2,6 @@ import { BaseResponse } from "@/lib/api/apiClient";
 import classificationStageService, {
   ClassificationStageResponse,
 } from "@/lib/api/services/fetchClassificationStage";
-import eggBatchService, {
-  EggBatchResponse,
-} from "@/lib/api/services/fetchEggBatch";
 import { useAuthStore } from "@/store/auth-store";
 import { useQuery } from "@tanstack/react-query";
 

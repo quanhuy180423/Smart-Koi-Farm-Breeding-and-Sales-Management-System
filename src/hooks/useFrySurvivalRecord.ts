@@ -1,7 +1,4 @@
 import { BaseResponse, PagedResponse } from "@/lib/api/apiClient";
-import eggBatchService, {
-  EggBatchResponse,
-} from "@/lib/api/services/fetchEggBatch";
 import frySurvivalRecordService, {
   FrySurvivalRecordResponse,
   FrySurvivalRecordSearchParams,

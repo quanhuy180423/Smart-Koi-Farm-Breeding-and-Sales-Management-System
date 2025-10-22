@@ -24,7 +24,6 @@ import Logo from "@/assets/images/Logo_ZenKoi.png";
 import {
   CredentialResponse,
   GoogleLogin,
-  GoogleOAuthProvider,
 } from "@react-oauth/google";
 
 const loginSchema = z.object({

@@ -1,7 +1,4 @@
 import { BaseResponse } from "@/lib/api/apiClient";
-import eggBatchService, {
-  EggBatchResponse,
-} from "@/lib/api/services/fetchEggBatch";
 import fryFishService, {
   FryFishResponse,
 } from "@/lib/api/services/fetchFryFish";

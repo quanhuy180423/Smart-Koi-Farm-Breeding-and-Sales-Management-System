@@ -4,9 +4,6 @@ import {
   PagedResponse,
   PagingRequest,
 } from "@/lib/api/apiClient";
-import eggBatchService, {
-  EggBatchResponse,
-} from "@/lib/api/services/fetchEggBatch";
 import incubationDailyRecordService from "@/lib/api/services/fetchIncubationDailyRecord";
 import { useAuthStore } from "@/store/auth-store";
 import { useQuery } from "@tanstack/react-query";

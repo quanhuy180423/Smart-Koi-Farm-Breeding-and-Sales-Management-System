@@ -1,6 +1,5 @@
 import apiService, { BaseResponse } from "../apiClient";
 import { ClassificationRecordResponse } from "./fetchClassificationRecord";
-import { PondBasicResponse } from "./fetchPond";
 
 const baseUrl = "/api/ClassificationStage";
 
