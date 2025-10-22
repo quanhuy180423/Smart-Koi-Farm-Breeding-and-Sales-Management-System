@@ -140,7 +140,7 @@ export class ApiService {
           headers: {
             "Content-Type": "application/json",
           },
-        }
+        },
       );
 
       if (
@@ -227,7 +227,7 @@ export class ApiService {
 
         return config;
       },
-      (error) => Promise.reject(error)
+      (error) => Promise.reject(error),
     );
 
     this.client.interceptors.response.use(
@@ -302,7 +302,7 @@ export class ApiService {
         };
 
         return Promise.reject(apiError);
-      }
+      },
     );
   }
 
@@ -336,7 +336,7 @@ export class ApiService {
 
   // Generic request method
   private async request<T>(
-    config: AxiosRequestConfig
+    config: AxiosRequestConfig,
   ): Promise<ApiResponse<T>> {
     // Handle FormData in config.data
     if (config.data instanceof FormData) {
@@ -373,7 +373,7 @@ export class ApiService {
   // POST request
   async post<T, D = Record<string, unknown> | FormData>(
     url: string,
-    data?: D
+    data?: D,
   ): Promise<ApiResponse<T>> {
     return this.request<T>({
       method: "POST",
@@ -385,7 +385,7 @@ export class ApiService {
   // PUT request
   async put<T, D = Record<string, unknown> | FormData>(
     url: string,
-    data?: D
+    data?: D,
   ): Promise<ApiResponse<T>> {
     return this.request<T>({
       method: "PUT",
@@ -397,7 +397,7 @@ export class ApiService {
   // DELETE request
   async delete<T>(
     url: string,
-    params?: RequestParams
+    params?: RequestParams,
   ): Promise<ApiResponse<T>> {
     return this.request<T>({
       method: "DELETE",
@@ -409,7 +409,7 @@ export class ApiService {
   // PATCH request
   async patch<T, D = Record<string, unknown> | FormData>(
     url: string,
-    data?: D
+    data?: D,
   ): Promise<ApiResponse<T>> {
     return this.request<T>({
       method: "PATCH",
@@ -424,7 +424,7 @@ export class ApiService {
     files: File | File[],
     fieldName = "file",
     additionalData?: Record<string, string | number | boolean>,
-    onProgress?: (percentage: number) => void
+    onProgress?: (percentage: number) => void,
   ): Promise<ApiResponse<T>> {
     const formData = new FormData();
 
@@ -451,7 +451,7 @@ export class ApiService {
       onUploadProgress: onProgress
         ? (progressEvent) => {
             const percentage = Math.round(
-              (progressEvent.loaded * 100) / (progressEvent.total || 100)
+              (progressEvent.loaded * 100) / (progressEvent.total || 100),
             );
             onProgress(percentage);
           }
@@ -472,7 +472,7 @@ const apiService = new ApiService(
       // so the app can call backend sign-out and perform cleanup in a single place.
       window.dispatchEvent(new Event("logout"));
     }
-  }
+  },
 );
 
 export default apiService;
