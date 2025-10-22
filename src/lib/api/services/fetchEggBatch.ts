@@ -23,10 +23,10 @@ export interface EggBatchResponse {
 
 export const eggBatchService = {
   getEggBatchByBreedingId: async (
-    breedId: number | undefined
+    breedId: number | undefined,
   ): Promise<BaseResponse<EggBatchResponse>> => {
     const response = await apiService.get<BaseResponse<EggBatchResponse>>(
-      `${baseUrl}/by-breeding/${breedId}`
+      `${baseUrl}/by-breeding/${breedId}`,
     );
     return response.data;
   },

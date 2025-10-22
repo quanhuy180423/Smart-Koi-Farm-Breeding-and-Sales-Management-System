@@ -13,7 +13,7 @@ import { useQuery } from "@tanstack/react-query";
 
 export function useGetIncubationDailyRecordByEggBatchId(
   eggBatchId: number | undefined,
-  request: PagingRequest
+  request: PagingRequest,
 ) {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
@@ -22,11 +22,11 @@ export function useGetIncubationDailyRecordByEggBatchId(
     queryFn: () =>
       incubationDailyRecordService.getIncubationDailyRecordByEggBatchId(
         eggBatchId,
-        request
+        request,
       ),
     enabled: isAuthenticated && eggBatchId !== undefined,
     select: (
-      data: BaseResponse<PagedResponse<IncubationDailyRecordResponse>>
+      data: BaseResponse<PagedResponse<IncubationDailyRecordResponse>>,
     ): PagedResponse<IncubationDailyRecordResponse> => data.result,
     retry: (failureCount, error: unknown) => {
       if (

@@ -6,7 +6,7 @@ import { useAuthStore } from "@/store/auth-store";
 import { useQuery } from "@tanstack/react-query";
 
 export function useGetEggBatchByBreedingProcessId(
-  breedingId: number | undefined
+  breedingId: number | undefined,
 ) {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 

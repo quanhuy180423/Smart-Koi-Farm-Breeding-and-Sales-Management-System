@@ -10,7 +10,7 @@ import { useAuthStore } from "@/store/auth-store";
 import { useQuery } from "@tanstack/react-query";
 
 export function useGetFrySurvivalRecords(
-  request: FrySurvivalRecordSearchParams
+  request: FrySurvivalRecordSearchParams,
 ) {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
@@ -19,7 +19,7 @@ export function useGetFrySurvivalRecords(
     queryFn: () => frySurvivalRecordService.getFrySurvivalRecords(request),
     enabled: isAuthenticated,
     select: (
-      data: BaseResponse<PagedResponse<FrySurvivalRecordResponse>>
+      data: BaseResponse<PagedResponse<FrySurvivalRecordResponse>>,
     ): PagedResponse<FrySurvivalRecordResponse> => data.result,
     retry: (failureCount, error: unknown) => {
       if (

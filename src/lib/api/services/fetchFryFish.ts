@@ -23,10 +23,10 @@ export interface FryFishResponse {
 
 export const fryFishService = {
   getFryFishByBreedingId: async (
-    breedId: number | undefined
+    breedId: number | undefined,
   ): Promise<BaseResponse<FryFishResponse>> => {
     const response = await apiService.get<BaseResponse<FryFishResponse>>(
-      `${baseUrl}/by-breeding/${breedId}`
+      `${baseUrl}/by-breeding/${breedId}`,
     );
     return response.data;
   },
