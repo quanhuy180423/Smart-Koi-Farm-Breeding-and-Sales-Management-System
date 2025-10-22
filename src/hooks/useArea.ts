@@ -19,7 +19,7 @@ export function useGetAreas(request: AreaSearchParams) {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
   return useQuery({
-    queryKey: ["area", request.pageIndex, request.pageSize],
+    queryKey: ["area", request],
     queryFn: () => areaService.getAreas(request),
     enabled: isAuthenticated,
     select: (

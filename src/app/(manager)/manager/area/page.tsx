@@ -110,7 +110,7 @@ export default function AreaManagement() {
       });
       setIsAddModalOpen(false);
       setNewArea({ areaName: "", totalAreaSQM: "", description: "" });
-    } catch { }
+    } catch {}
   };
 
   const handleUpdateArea = async () => {
@@ -131,7 +131,7 @@ export default function AreaManagement() {
       });
       setIsEditModalOpen(false);
       setEditingArea(null);
-    } catch { }
+    } catch {}
   };
 
   return (
@@ -417,7 +417,7 @@ export default function AreaManagement() {
                   await deleteAreaAsync(areaToDelete.id);
                   setIsDeleteModalOpen(false);
                   setAreaToDelete(null);
-                } catch { }
+                } catch {}
               }}
             >
               {isDeleting ? "Đang xóa..." : "Xóa"}

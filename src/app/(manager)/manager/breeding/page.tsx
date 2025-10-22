@@ -36,6 +36,7 @@ import {
   getBreedingResultLabel,
   getBreedingStatusLabel,
 } from "@/lib/utils/enum";
+import { BreedingDetailDialog } from "./BreedingDetailDialog";
 
 export default function BreedingManagement() {
   const router = useRouter();
@@ -73,11 +74,11 @@ export default function BreedingManagement() {
 
   const handleDelete = async () => {
     try {
-      toast.success("Đã xóa đợt lai thành công");
+      toast.success("Đã hủy đợt lai thành công");
       setIsDeleteModalOpen(false);
       setBreedingToDelete(undefined);
     } catch {
-      toast.error("Xóa thất bại");
+      toast.error("Hủy thất bại");
     }
   };
 
@@ -124,8 +125,8 @@ export default function BreedingManagement() {
                   <TableRow>
                     <TableHead className="w-[10%]">Cá đực</TableHead>
                     <TableHead className="w-[10%]">Cá cái</TableHead>
-                    <TableHead className="w-[20%]">Ngày diễn ra</TableHead>
-                    <TableHead className="w-[20%]">Trạng thái</TableHead>
+                    <TableHead className="w-[20%]">Thời gian diễn ra</TableHead>
+                    <TableHead className="w-[20%]">Giai đoạn</TableHead>
                     <TableHead className="w-[20%]">Kết quả</TableHead>
                     <TableHead className="w-[20%] text-center">
                       Thao tác
@@ -193,14 +194,23 @@ export default function BreedingManagement() {
                           })()}
                         </TableCell>
                         <TableCell className="text-center space-x-2">
-                          <Button size="sm" variant="ghost" title="Chi tiết">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            title="Chi tiết"
+                            onClick={() => {
+                              setSelectedBreeding(process);
+                              setIsDetailOpen(true);
+                            }}
+                          >
                             <Eye className="h-4 w-4" />
                           </Button>
+
                           <Button
                             size="sm"
                             variant="ghost"
                             className="text-red-600"
-                            title="Xóa"
+                            title="Hủy"
                             onClick={() => {
                               setBreedingToDelete(process);
                               setIsDeleteModalOpen(true);
@@ -235,13 +245,13 @@ export default function BreedingManagement() {
       <Dialog open={isDeleteModalOpen} onOpenChange={setIsDeleteModalOpen}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>Xác nhận xóa đợt lai</DialogTitle>
+            <DialogTitle>Xác nhận hủy đợt lai</DialogTitle>
             <DialogDescription>
               Hành động này không thể hoàn tác.
             </DialogDescription>
           </DialogHeader>
           <p>
-            Bạn có chắc chắn muốn xóa đợt lai{" "}
+            Bạn có chắc chắn muốn hủy đợt lai{" "}
             <span className="font-semibold text-red-600">
               {breedingToDelete?.maleKoiRFID} -{" "}
               {breedingToDelete?.femaleKoiRFID}
@@ -253,17 +263,23 @@ export default function BreedingManagement() {
               variant="outline"
               onClick={() => setIsDeleteModalOpen(false)}
             >
-              Hủy
+              Quay lại
             </Button>
             <Button
               className="bg-red-600 hover:bg-red-700"
               onClick={handleDelete}
             >
-              Xóa
+              Hủy
             </Button>
           </div>
         </DialogContent>
       </Dialog>
+
+      <BreedingDetailDialog
+        isOpen={isDetailOpen}
+        onOpenChange={setIsDetailOpen}
+        breedingProcess={selectedBreeding}
+      />
     </div>
   );
 }
