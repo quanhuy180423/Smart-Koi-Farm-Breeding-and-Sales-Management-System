@@ -21,11 +21,7 @@ import {
 import { toast } from "react-hot-toast";
 import { useGoogleLogin, useLogin } from "@/hooks/useAuth";
 import Logo from "@/assets/images/Logo_ZenKoi.png";
-import {
-  CredentialResponse,
-  GoogleLogin,
-  GoogleOAuthProvider,
-} from "@react-oauth/google";
+import { CredentialResponse, GoogleLogin } from "@react-oauth/google";
 
 const loginSchema = z.object({
   userNameOrEmail: z.string().min(1, "Vui lòng nhập email hoặc username"),

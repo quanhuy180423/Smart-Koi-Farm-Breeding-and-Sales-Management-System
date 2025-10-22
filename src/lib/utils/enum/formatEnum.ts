@@ -46,7 +46,7 @@ const breedingStatusMeta: Record<BreedingStatus, Label> = {
     colorClass: "bg-yellow-100 text-yellow-700 hover:bg-yellow-100",
   },
   [BreedingStatus.EGG_BATCH]: {
-    label: "Trứng Cá",
+    label: "Ấp trứng",
     colorClass: "bg-cyan-100 text-cyan-700 hover:bg-cyan-100",
   },
   [BreedingStatus.FRY_FISH]: {

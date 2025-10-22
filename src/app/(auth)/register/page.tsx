@@ -23,11 +23,7 @@ import { RegisterRequest, Roles } from "@/lib/api/services/fetchAuth";
 import { useRegister } from "@/hooks/useAuth";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
-import {
-  GoogleLogin,
-  GoogleOAuthProvider,
-  CredentialResponse,
-} from "@react-oauth/google";
+import { GoogleLogin, CredentialResponse } from "@react-oauth/google";
 import { useGoogleLogin } from "@/hooks/useAuth";
 
 const registerSchema = z

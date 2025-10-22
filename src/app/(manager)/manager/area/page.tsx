@@ -73,15 +73,6 @@ export default function AreaManagement() {
   const { isPending: isDeleting, mutateAsync: deleteAreaAsync } =
     useDeleteArea();
 
-  const filteredAreas =
-    areas?.data.filter((area: AreaResponse) =>
-      area.areaName.toLowerCase().includes(searchTerm.toLowerCase()),
-    ) || [];
-
-  // Phân trang
-  const totalRecords = areas?.totalItems || 0;
-  const totalPages = Math.ceil(totalRecords / pageSize) || 1;
-
   const handlePageChange = (page: number) => {
     const params = new URLSearchParams(searchParams.toString());
     params.set("pageIndex", page.toString());
@@ -190,7 +181,7 @@ export default function AreaManagement() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredAreas.map((area, index) => (
+                  {areas?.data.map((area, index) => (
                     <TableRow key={area.id}>
                       <TableCell className="font-medium">{index + 1}</TableCell>
                       <TableCell>{area.areaName}</TableCell>
@@ -229,11 +220,11 @@ export default function AreaManagement() {
               </Table>
 
               <PaginationSection
-                totalPosts={totalRecords}
+                totalItems={areas?.totalItems}
                 postsPerPage={pageSize}
                 currentPage={pageIndex}
                 setCurrentPage={handlePageChange}
-                totalPages={totalPages}
+                totalPages={areas?.totalPages}
                 setPageSize={handlePageSizeChange}
                 hasNextPage={areas?.hasNextPage}
                 hasPreviousPage={areas?.hasPreviousPage}
