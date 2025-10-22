@@ -7,13 +7,14 @@ import {
 import breedingProcessService, {
   BreedingProcessCreateRequest,
   BreedingProcessResponse,
+  BreedingProcessSearchParams,
 } from "@/lib/api/services/fetchBreedingProcess";
 import { useAuthStore } from "@/store/auth-store";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 
-export function useGetBreedingProcesses(request: PagingRequest) {
+export function useGetBreedingProcesses(request: BreedingProcessSearchParams) {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
   return useQuery({
@@ -21,13 +22,8 @@ export function useGetBreedingProcesses(request: PagingRequest) {
     queryFn: () => breedingProcessService.getBreedingProcesses(request),
     enabled: isAuthenticated,
     select: (
-      data: BaseResponse<PagedResponse<BreedingProcessResponse>>,
-    ): BaseResponse<PagedResponse<BreedingProcessResponse>> => ({
-      statusCode: data.statusCode,
-      isSuccess: data.isSuccess,
-      message: data.message,
-      result: data.result,
-    }),
+      data: BaseResponse<PagedResponse<BreedingProcessResponse>>
+    ): PagedResponse<BreedingProcessResponse> => data.result,
     retry: (failureCount, error: unknown) => {
       if (
         error &&
@@ -58,7 +54,7 @@ export function useAddBreedingProcess() {
     },
     onError: (error: ApiError) => {
       toast.error(
-        error.error?.result || "Có lỗi xảy ra khi cập nhật thông tin",
+        error.error?.result || "Có lỗi xảy ra khi cập nhật thông tin"
       );
     },
   });

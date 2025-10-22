@@ -27,6 +27,7 @@ import { Gender, KoiFishResponse } from "@/lib/api/services/fetchKoiFish";
 import { useGetKoiFishes } from "@/hooks/useKoiFish";
 import toast from "react-hot-toast";
 import { DATE_FORMATS, formatDate } from "@/lib/utils/dates";
+import getFishSizeLabel from "@/lib/utils/enum";
 
 interface FishSelectionProps {
   onSelection: (
@@ -146,7 +147,7 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
                 <div className="relative">
                   <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-white shadow-lg group-hover:scale-105 transition-transform duration-300">
                     <Image
-                      src={selected.imagesVideos || "/placeholder.svg"}
+                      src={selected.images[0] || "/ZenKoi.png"}
                       alt={selected.rfid}
                       width={128}
                       height={128}
@@ -197,7 +198,7 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
                 >
                   <div className="relative overflow-hidden rounded-t-lg">
                     <Image
-                      src={fish.imagesVideos || "/placeholder.svg"}
+                      src={fish.images[0] || "/ZenKoi.png"}
                       alt={fish.rfid}
                       width={300}
                       height={240}
@@ -269,7 +270,7 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
                 {type === "father" ? "Cá Bố" : "Cá Mẹ"}
               </p>
               <div className="flex items-center justify-center gap-2 mt-1 text-xs text-muted-foreground">
-                <span>{selected.size}</span>
+                <span>{getFishSizeLabel(selected.size)}</span>
                 <span>•</span>
                 <span>
                   {formatDate(selected.birthDate, DATE_FORMATS.MEDIUM_DATE)}

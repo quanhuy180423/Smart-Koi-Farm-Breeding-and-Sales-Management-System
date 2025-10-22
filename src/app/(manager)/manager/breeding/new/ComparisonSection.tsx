@@ -86,7 +86,7 @@ export default function ComparisonSection({
               <div className="relative mb-4">
                 <div className="w-24 h-24 rounded-2xl border-4 border-blue-200 overflow-hidden shadow-lg bg-gradient-to-br from-blue-50 to-white">
                   <Image
-                    src={fatherFish.imagesVideos || "/placeholder.svg"}
+                    src={fatherFish.images[0] || "/ZenKoi.png"}
                     alt={fatherFish.rfid}
                     width={96}
                     height={96}
@@ -116,7 +116,7 @@ export default function ComparisonSection({
               <div className="relative mb-4">
                 <div className="w-24 h-24 rounded-2xl border-4 border-pink-200 overflow-hidden shadow-lg bg-gradient-to-br from-pink-50 to-white">
                   <Image
-                    src={motherFish.imagesVideos || "/placeholder.svg"}
+                    src={motherFish.images[0] || "/ZenKoi.png"}
                     alt={motherFish.rfid}
                     width={96}
                     height={96}

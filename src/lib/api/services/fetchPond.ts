@@ -1,8 +1,15 @@
+import toRequestParams from "@/lib/utils/params";
 import apiService, {
   BaseResponse,
   PagedResponse,
   PagingRequest,
 } from "../apiClient";
+
+export enum PondStatus {
+  EMPTY = "Empty",
+  ACTIVE = "Active",
+  MAINTENANCE = "Maintenance",
+}
 
 export interface PondBasicResponse {
   id: number;
@@ -13,7 +20,7 @@ export interface PondResponse {
   id: number;
   pondName: string;
   location: string;
-  pondStatus: string;
+  pondStatus: PondStatus;
   capacityLiters: number;
   depthMeters: number;
   lengthMeters: number;
@@ -27,13 +34,27 @@ export interface PondResponse {
 
 const baseUrl = "/api/Pond";
 
+export interface PondSearchParams extends PagingRequest {
+  search?: string;
+  status?: PondStatus;
+  areaId?: number;
+  pondTypeId?: number;
+  minCapacityLiters?: number;
+  maxCapacityLiters?: number;
+  minDepthMeters?: number;
+  maxDepthMeters?: number;
+  createdFrom?: string;
+  createdTo?: string;
+}
+
 export const pondService = {
   getPonds: async (
-    request: PagingRequest,
+    request: PondSearchParams
   ): Promise<BaseResponse<PagedResponse<PondResponse>>> => {
+    const filter = toRequestParams(request);
     const response = await apiService.get<
       BaseResponse<PagedResponse<PondResponse>>
-    >(`${baseUrl}`, { ...request });
+    >(`${baseUrl}`, { ...filter });
     return response.data;
   },
 };

@@ -7,7 +7,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { KoiFishResponse } from "@/lib/api/services/fetchKoiFish";
-import { DATE_FORMATS, formatDate } from "@/lib/utils/dates";
+import getAge from "@/lib/utils/dates/age";
+import getFishSizeLabel, { getHealthStatusLabel } from "@/lib/utils/enum";
 import { Venus } from "lucide-react";
 import Image from "next/image";
 import React from "react";
@@ -16,62 +17,51 @@ interface MotherFishInfoProps {
   selectedFish: KoiFishResponse;
 }
 
-const qualityData = [
-  {
-    label: "Chất lượng da (Shiroji)",
-    value: "Good - Da trắng nhẹ ngả xanh",
-  },
-  {
-    label: "Màu sắc (Hi/Sumi)",
-    value: "Excellent - Vảy xanh đậm, đều",
-  },
-  {
-    label: "Dáng vẻ (Body Shape)",
-    value: "Excellent - Thân hình cân đối",
-  },
-];
-
-const geneticData = [
-  {
-    label: "Phả hệ (Bloodline)",
-    value: "Maruyama Farm, Generation 2, Classic Asagi traits",
-  },
-];
-
-const healthData = [
-  {
-    label: "Sức khỏe tổng quát",
-    value: "Excellent - Hoàn toàn khỏe mạnh",
-  },
-  {
-    label: "Độ tuổi",
-    value: "3 tuổi (tối ưu cho sinh sản)",
-  },
-];
-
-const breedData = [
-  {
-    label: "Giống cá",
-    value: "Asagi",
-  },
-  {
-    label: "Đặc tính giống",
-    value: "Vảy xanh trên lưng đẹp, Hi cam ở bụng cân đối.",
-  },
-];
-
-const breedingData = [
-  {
-    label: "Thành tích sinh sản",
-    value: "2 lần sinh sản, kết quả tương đối tốt",
-  },
-  {
-    label: "Tỷ lệ cá con khỏe mạnh",
-    value: "88%",
-  },
-];
-
 export default function MotherFishInfo({ selectedFish }: MotherFishInfoProps) {
+  const basicQualityData = [
+    {
+      label: "Nguồn gốc (Origin)",
+      value: selectedFish.origin ?? "Không rõ",
+    },
+    {
+      label: "Dáng vẻ (Body Shape)",
+      value: selectedFish.bodyShape,
+    },
+    {
+      label: "Kích thước (Size)",
+      value: getFishSizeLabel(selectedFish.size),
+    }
+  ];
+
+  const healthAgeData = [
+    {
+      label: "Sức khỏe tổng quát",
+      value: getHealthStatusLabel(selectedFish.healthStatus),
+    },
+    {
+      label: "Độ tuổi",
+      value: `${getAge(selectedFish.birthDate)} tuổi`,
+    },
+  ];
+
+  const breedData = [
+    {
+      label: "Giống cá",
+      value: selectedFish.variety.varietyName,
+    },
+    {
+      label: "Đặc tính giống",
+      value: selectedFish.variety.characteristic,
+    },
+  ];
+
+  const geneticData = [
+    {
+      label: "Phả hệ (Bloodline)",
+      value: "Dainichi Bloodline, Generation 3, Premium Gin Rin traits",
+    }
+  ];
+
   return (
     <div className="w-full bg-white border border-gray-100 shadow-sm rounded-xl p-8">
       <div className="mb-8">
@@ -91,9 +81,8 @@ export default function MotherFishInfo({ selectedFish }: MotherFishInfoProps) {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value={selectedFish.id.toString()}>
-                {selectedFish.variety.varietyName} ID: {selectedFish.rfid} -{" "}
-                {formatDate(selectedFish.birthDate, DATE_FORMATS.MEDIUM_DATE)} -{" "}
-                {selectedFish.healthStatus}
+                {selectedFish.variety.varietyName} RFID: {selectedFish.rfid} -{" "}
+                {getAge(selectedFish.birthDate)} tuổi - Sức khỏe: {getHealthStatusLabel(selectedFish.healthStatus)}
               </SelectItem>
             </SelectContent>
           </Select>
@@ -103,7 +92,7 @@ export default function MotherFishInfo({ selectedFish }: MotherFishInfoProps) {
           <div className="relative mb-4">
             <div className="w-36 h-36 rounded-2xl border-4 border-pink-100 overflow-hidden shadow-lg bg-gradient-to-br from-pink-50 to-white">
               <Image
-                src={selectedFish.imagesVideos || "/placeholder.svg"}
+                src={selectedFish.images[0] || "/ZenKoi.png"}
                 alt={selectedFish.rfid}
                 width={144}
                 height={144}
@@ -129,8 +118,8 @@ export default function MotherFishInfo({ selectedFish }: MotherFishInfoProps) {
             </span>
             Phẩm Chất Cơ Bản của Cá Thể
           </h4>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {qualityData.map((item, index) => (
+          <div className={`grid grid-cols-1 md:grid-cols-${basicQualityData.length} gap-4`}>
+            {basicQualityData.map((item, index) => (
               <Card
                 key={index}
                 className="bg-gradient-to-br from-pink-50 to-white border-pink-100 hover:shadow-md transition-shadow"
@@ -155,7 +144,7 @@ export default function MotherFishInfo({ selectedFish }: MotherFishInfoProps) {
             </span>
             Dữ liệu Di truyền & Phả hệ
           </h4>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className={`grid grid-cols-1 md:grid-cols-${geneticData.length} gap-4`}>
             {geneticData.map((item, index) => (
               <Card
                 key={index}
@@ -169,24 +158,6 @@ export default function MotherFishInfo({ selectedFish }: MotherFishInfoProps) {
                 </CardContent>
               </Card>
             ))}
-
-            <Card className="bg-gradient-to-br from-pink-50 to-white border-pink-100 hover:shadow-md transition-shadow">
-              <CardContent className="p-4">
-                <div className="text-sm font-semibold text-gray-700 mb-2">
-                  Thông số di truyền
-                </div>
-                <div className="space-y-2">
-                  <div className="text-xs">
-                    <span className="font-semibold text-black">Cận huyết:</span>
-                    <span className="text-red-600 font-medium"> 1.2%</span>
-                  </div>
-                  <div className="text-xs">
-                    <span className="font-semibold text-black">Đột biến:</span>
-                    <span className="text-blue-600 font-medium"> 1.5%</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
           </div>
         </div>
 
@@ -197,8 +168,8 @@ export default function MotherFishInfo({ selectedFish }: MotherFishInfoProps) {
             </span>
             Sức Khỏe & Độ Tuổi
           </h4>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {healthData.map((item, index) => (
+          <div className={`grid grid-cols-1 md:grid-cols-${healthAgeData.length} gap-4`}>
+            {healthAgeData.map((item, index) => (
               <Card
                 key={index}
                 className="bg-gradient-to-br from-pink-50 to-white border-pink-100 hover:shadow-md transition-shadow"
@@ -223,7 +194,7 @@ export default function MotherFishInfo({ selectedFish }: MotherFishInfoProps) {
             </span>
             Đặc Tính Riêng Biệt Theo Giống
           </h4>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className={`grid grid-cols-1 md:grid-cols-${breedData.length} gap-4`}>
             {breedData.map((item, index) => (
               <Card
                 key={index}
@@ -247,8 +218,8 @@ export default function MotherFishInfo({ selectedFish }: MotherFishInfoProps) {
             </span>
             Dữ Liệu Lịch Sử Sinh Sản
           </h4>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {breedingData.map((item, index) => (
+          <div className={`grid grid-cols-1 md:grid-cols-${breedData.length} gap-4`}>
+            {breedData.map((item, index) => (
               <Card
                 key={index}
                 className="bg-gradient-to-br from-pink-50 to-white border-pink-100 hover:shadow-md transition-shadow"
