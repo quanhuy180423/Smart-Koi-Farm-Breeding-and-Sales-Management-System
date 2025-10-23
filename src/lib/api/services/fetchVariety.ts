@@ -27,7 +27,7 @@ const baseUrl = "/api/Variety";
 
 const varietyService = {
   getVarieties: async (
-    request: VarietySearchParams
+    request: VarietySearchParams,
   ): Promise<BaseResponse<PagedResponse<VarietyResponse>>> => {
     const filter = toRequestParams(request);
     const response = await apiService.get<
@@ -36,7 +36,7 @@ const varietyService = {
     return response.data;
   },
   addVariety: async (
-    request: Partial<VarietyRequest>
+    request: Partial<VarietyRequest>,
   ): Promise<BaseResponse<VarietyResponse>> => {
     const response = await apiService.post<
       BaseResponse<VarietyResponse>,
@@ -46,7 +46,7 @@ const varietyService = {
   },
   updateVariety: async (
     id: number,
-    request: Partial<VarietyRequest>
+    request: Partial<VarietyRequest>,
   ): Promise<BaseResponse<boolean>> => {
     const response = await apiService.put<
       BaseResponse<boolean>,
@@ -56,7 +56,7 @@ const varietyService = {
   },
   deleteVariety: async (id: number): Promise<BaseResponse<boolean>> => {
     const response = await apiService.delete<BaseResponse<boolean>>(
-      `${baseUrl}/${id}`
+      `${baseUrl}/${id}`,
     );
     return response.data;
   },

@@ -83,10 +83,7 @@ export default function PondTypeManagement() {
     }));
   }, [debounceSearchTerm]);
 
-  const {
-    data: pondTypesData,
-    isLoading,
-  } = useGetPondTypes(searchParams);
+  const { data: pondTypesData, isLoading } = useGetPondTypes(searchParams);
 
   const pondTypes: PondTypeResponse[] = pondTypesData?.data || [];
   const totalCount = pondTypesData?.totalItems || 0;
@@ -237,7 +234,9 @@ export default function PondTypeManagement() {
                     <TableHead className="w-[20%]">Tên Loại Hồ</TableHead>
                     <TableHead className="w-[20%]">Sức chứa KG (Lít)</TableHead>
                     <TableHead className="w-[35%]">Mô tả</TableHead>
-                    <TableHead className="w-[20%] text-center">Thao tác</TableHead>
+                    <TableHead className="w-[20%] text-center">
+                      Thao tác
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -253,7 +252,8 @@ export default function PondTypeManagement() {
                         <TableCell className="font-medium">
                           {index +
                             1 +
-                            (searchParams.pageIndex - 1) * searchParams.pageSize}
+                            (searchParams.pageIndex - 1) *
+                              searchParams.pageSize}
                         </TableCell>
                         <TableCell>{type.typeName}</TableCell>
                         <TableCell>

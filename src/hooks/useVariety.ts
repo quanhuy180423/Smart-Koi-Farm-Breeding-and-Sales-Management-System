@@ -21,7 +21,7 @@ export function useGetVarieties(request: VarietySearchParams) {
     queryFn: () => varietyService.getVarieties(request),
     enabled: isAuthenticated,
     select: (
-      data: BaseResponse<PagedResponse<VarietyResponse>>
+      data: BaseResponse<PagedResponse<VarietyResponse>>,
     ): PagedResponse<VarietyResponse> => data?.result,
     retry: (failureCount, error: unknown) => {
       if (

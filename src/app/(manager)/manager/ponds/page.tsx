@@ -450,7 +450,8 @@ export default function PondManagement() {
                         <TableCell className="font-medium">
                           {index +
                             1 +
-                            (searchParams.pageIndex - 1) * searchParams.pageSize}
+                            (searchParams.pageIndex - 1) *
+                              searchParams.pageSize}
                         </TableCell>
                         <TableCell>{pond.pondName}</TableCell>
                         <TableCell>{pond.areaName || "N/A"}</TableCell>
