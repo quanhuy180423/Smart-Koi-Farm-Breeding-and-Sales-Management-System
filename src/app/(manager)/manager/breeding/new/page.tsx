@@ -153,7 +153,7 @@ export default function Main() {
 
   const [showPondModal, setShowPondModal] = useState(false);
   const [selectedPond, setSelectedPond] = useState<string | null>(null);
-  const [selectedPondName, setSelectedPondName] = useState<string | null>(null); // Thêm state lưu tên hồ
+  const [selectedPondName, setSelectedPondName] = useState<string | null>(null);
 
   const { mutateAsync: addBreedingProcessAsync, isPending } =
     useAddBreedingProcess();
@@ -182,11 +182,9 @@ export default function Main() {
 
   const handleCreateBreeding = async () => {
     if (!selectedPond || !selectedFatherFish || !selectedMotherFish) {
-      // Trường hợp này không xảy ra nếu nút được disable đúng
       return;
     }
 
-    // Thêm loading state vào nút bằng cách dùng `isPending`
     try {
       await addBreedingProcessAsync({
         femaleKoiId: selectedMotherFish.id,
@@ -194,15 +192,11 @@ export default function Main() {
         pondId: Number(selectedPond),
       });
       router.push("/manager/breeding");
-    } catch (error) {
-      console.error("Lỗi tạo cặp sinh sản:", error);
-      // Có thể thêm toast/thông báo lỗi ở đây
-    }
+    } catch {}
   };
 
   const handleConfirmPondSelection = () => {
     setShowPondModal(false);
-    // Sau khi chọn hồ, người dùng sẽ nhấn nút 'Tạo cặp sinh sản'
   };
 
   const selectedPondDisplay = selectedPondName
@@ -255,7 +249,6 @@ export default function Main() {
                 />
               )}
 
-              {/* KHỐI CHỌN HỒ ĐƯỢC THÊM VÀO ĐÂY */}
               <div className="p-6 border rounded-lg bg-gray-50 flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <MapPin className="w-5 h-5 text-blue-600" />
@@ -272,7 +265,6 @@ export default function Main() {
                   {selectedPond ? "Thay đổi hồ" : "Chọn hồ sinh sản"}
                 </Button>
               </div>
-              {/* KẾT THÚC KHỐI CHỌN HỒ */}
             </div>
           )}
         </div>
@@ -298,14 +290,12 @@ export default function Main() {
         )}
       </main>
 
-      {/* Popup chọn hồ (Đã chuyển thành List phân trang) */}
       <Dialog open={showPondModal} onOpenChange={setShowPondModal}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Chọn hồ sinh sản</DialogTitle>
           </DialogHeader>
 
-          {/* Component List phân trang */}
           <PondSelectionList
             selectedPondId={selectedPond}
             onSelectPond={handleSelectPond}

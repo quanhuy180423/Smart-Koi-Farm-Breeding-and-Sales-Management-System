@@ -47,6 +47,18 @@ export interface PondSearchParams extends PagingRequest {
   createdTo?: string;
 }
 
+export interface PondRequest {
+  pondTypeId: number;
+  areaId: number;
+  pondName: string;
+  location: string;
+  pondStatus: PondStatus;
+  capacityLiters: number;
+  depthMeters: number;
+  lengthMeters: number;
+  widthMeters: number;
+}
+
 export const pondService = {
   getPonds: async (
     request: PondSearchParams,
@@ -55,6 +67,31 @@ export const pondService = {
     const response = await apiService.get<
       BaseResponse<PagedResponse<PondResponse>>
     >(`${baseUrl}`, { ...filter });
+    return response.data;
+  },
+  addPond: async (
+    pond: Partial<PondRequest>,
+  ): Promise<BaseResponse<PondResponse>> => {
+    const response = await apiService.post<
+      BaseResponse<PondResponse>,
+      Partial<PondRequest>
+    >(`${baseUrl}`, pond);
+    return response.data;
+  },
+  updatePond: async (
+    id: number,
+    pond: Partial<PondRequest>,
+  ): Promise<BaseResponse<boolean>> => {
+    const response = await apiService.put<
+      BaseResponse<boolean>,
+      Partial<PondRequest>
+    >(`${baseUrl}/${id}`, pond);
+    return response.data;
+  },
+  deletePond: async (id: number): Promise<BaseResponse<string>> => {
+    const response = await apiService.delete<BaseResponse<string>>(
+      `${baseUrl}/${id}`,
+    );
     return response.data;
   },
 };
