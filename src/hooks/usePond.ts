@@ -83,7 +83,7 @@ export function useDeletePond() {
       if (data.isSuccess) {
         queryClient.invalidateQueries({ queryKey: ["ponds"] });
       }
-      toast.success(data.message || "Xóa sửa hồ thành công");
+      toast.success(data.message || "Xóa hồ thành công");
     },
     onError: (error: ApiError) => {
       toast.error(error.message || "Có lỗi xảy ra khi cập nhật thông tin");

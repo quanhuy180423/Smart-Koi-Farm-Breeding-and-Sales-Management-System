@@ -380,7 +380,6 @@ export default function PondManagement() {
         </Button>
       </div>
 
-      {/* 2. Stats Cards */}
       <PondStats
         totalCount={totalCount}
         totalFish={totalFish}
@@ -388,7 +387,6 @@ export default function PondManagement() {
         maintenancePondsCount={maintenancePondsCount}
       />
 
-      {/* Ponds Table */}
       <Card>
         <CardHeader>
           <CardTitle>Danh sách hồ cá</CardTitle>
@@ -524,7 +522,6 @@ export default function PondManagement() {
             </TableBody>
           </Table>
 
-          {/* Tích hợp Pagination Component */}
           {totalCount > 0 && (
             <PaginationSection
               totalItems={totalCount}
@@ -540,7 +537,6 @@ export default function PondManagement() {
         </CardContent>
       </Card>
 
-      {/* 1. Area Selection Dialog */}
       <AreaSelectionDialog
         isOpen={isAreaSelectionOpen}
         onOpenChange={setIsAreaSelectionOpen}
@@ -552,7 +548,6 @@ export default function PondManagement() {
         }
       />
 
-      {/* 1b. PondType Selection Dialog (NEW) */}
       <PondTypeSelectionDialog
         isOpen={isPondTypeSelectionOpen}
         onOpenChange={setIsPondTypeSelectionOpen}
@@ -564,7 +559,6 @@ export default function PondManagement() {
         }
       />
 
-      {/* 0. Delete Confirmation Dialog (NEW) */}
       <DeletePondConfirmDialog
         isOpen={isDeleteConfirmOpen}
         onOpenChange={setIsDeleteConfirmOpen}
@@ -573,14 +567,12 @@ export default function PondManagement() {
         isPending={deletePondMutation.isPending}
       />
 
-      {/* 5. View Details Modal */}
       <PondDetailModal
         isOpen={isDetailModalOpen}
         onOpenChange={setIsDetailModalOpen}
         selectedPond={selectedPond}
       />
 
-      {/* 3. Add New Pond Modal */}
       <AddPondModal
         isOpen={isAddModalOpen}
         onOpenChange={setIsAddModalOpen}
@@ -594,7 +586,6 @@ export default function PondManagement() {
         getPondTypeNameById={getPondTypeNameById}
       />
 
-      {/* 4. Edit Pond Modal */}
       <EditPondModal
         isOpen={isEditModalOpen}
         onOpenChange={setIsEditModalOpen}

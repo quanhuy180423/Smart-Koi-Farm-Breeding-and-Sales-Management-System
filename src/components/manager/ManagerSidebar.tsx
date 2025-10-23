@@ -25,6 +25,7 @@ import {
   Shield,
   Bell,
   Grid2X2,
+  BookMinus,
 } from "lucide-react";
 import Image from "next/image";
 import Logo from "@/assets/images/ZenKoi.png";
@@ -59,6 +60,12 @@ const sidebarItems = [
     href: "/manager/ponds" as const,
     icon: Building2,
     description: "Hồ cá và môi trường",
+  },
+  {
+    title: "Quản lý loại hồ",
+    href: "/manager/pond-types" as const,
+    icon: BookMinus,
+    description: "Quản lý các loại của hồ"
   },
   {
     title: "Lịch làm việc",
