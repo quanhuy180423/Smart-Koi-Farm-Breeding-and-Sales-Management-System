@@ -23,7 +23,7 @@ export function useGetPonds(request: PondSearchParams) {
     queryFn: () => pondService.getPonds(request),
     enabled: isAuthenticated,
     select: (
-      data: BaseResponse<PagedResponse<PondResponse>>
+      data: BaseResponse<PagedResponse<PondResponse>>,
     ): PagedResponse<PondResponse> => data?.result,
     retry: (failureCount, error: unknown) => {
       if (

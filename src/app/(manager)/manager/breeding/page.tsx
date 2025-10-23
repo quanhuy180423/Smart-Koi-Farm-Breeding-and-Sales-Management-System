@@ -29,7 +29,10 @@ import {
 import { Badge } from "@/components/ui/badge";
 import toast from "react-hot-toast";
 import { useGetBreedingProcesses } from "@/hooks/useBreedingProcess";
-import { PAGE_SIZE_OPTIONS_DEFAULT, PaginationSection } from "@/components/common/PaginationSection";
+import {
+  PAGE_SIZE_OPTIONS_DEFAULT,
+  PaginationSection,
+} from "@/components/common/PaginationSection";
 import {
   BreedingProcessResponse,
   BreedingProcessSearchParams,
@@ -60,12 +63,14 @@ export default function BreedingManagement() {
   const [debounceSearchTerm, setDebounceSearchTerm] = useState<string>("");
 
   // Pagination State
-  const [searchParams, setSearchParams] = useState<BreedingProcessSearchParams>({
-    pageIndex: 1,
-    pageSize: PAGE_SIZE_OPTIONS_DEFAULT[0],
-    search: "",
-    status: undefined,
-  });
+  const [searchParams, setSearchParams] = useState<BreedingProcessSearchParams>(
+    {
+      pageIndex: 1,
+      pageSize: PAGE_SIZE_OPTIONS_DEFAULT[0],
+      search: "",
+      status: undefined,
+    },
+  );
 
   // Fetch Data
   const { data, isLoading } = useGetBreedingProcesses(searchParams);

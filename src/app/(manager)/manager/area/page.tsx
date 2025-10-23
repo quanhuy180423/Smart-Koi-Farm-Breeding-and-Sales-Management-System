@@ -37,7 +37,10 @@ import { AreaResponse, AreaSearchParams } from "@/lib/api/services/fetchArea";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import toast from "react-hot-toast";
-import { PAGE_SIZE_OPTIONS_DEFAULT, PaginationSection } from "@/components/common/PaginationSection";
+import {
+  PAGE_SIZE_OPTIONS_DEFAULT,
+  PaginationSection,
+} from "@/components/common/PaginationSection";
 
 export default function AreaManagement() {
   // Loại bỏ useRouter và useSearchParams
@@ -84,7 +87,6 @@ export default function AreaManagement() {
       pageIndex: 1,
     }));
   }, [debounceSearchTerm]);
-
 
   // Lấy dữ liệu Area
   const { data: areasData, isLoading } = useGetAreas(searchParams);
@@ -140,7 +142,7 @@ export default function AreaManagement() {
       });
       setIsAddModalOpen(false);
       setNewArea({ areaName: "", totalAreaSQM: "", description: "" });
-    } catch { }
+    } catch {}
   };
 
   const handleUpdateArea = async () => {
@@ -161,7 +163,7 @@ export default function AreaManagement() {
       });
       setIsEditModalOpen(false);
       setEditingArea(null);
-    } catch { }
+    } catch {}
   };
 
   const handleDeleteArea = async () => {
@@ -170,7 +172,7 @@ export default function AreaManagement() {
       await deleteAreaAsync(areaToDelete.id);
       setIsDeleteModalOpen(false);
       setAreaToDelete(null);
-    } catch { }
+    } catch {}
   };
 
   return (
@@ -225,7 +227,10 @@ export default function AreaManagement() {
                 <TableBody>
                   {areas.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={5} className="text-center text-gray-500 py-6">
+                      <TableCell
+                        colSpan={5}
+                        className="text-center text-gray-500 py-6"
+                      >
                         Không có dữ liệu khu vực
                       </TableCell>
                     </TableRow>
@@ -233,7 +238,10 @@ export default function AreaManagement() {
                     areas.map((area, index) => (
                       <TableRow key={area.id}>
                         <TableCell className="font-medium">
-                          {index + 1 + (searchParams.pageIndex - 1) * searchParams.pageSize}
+                          {index +
+                            1 +
+                            (searchParams.pageIndex - 1) *
+                              searchParams.pageSize}
                         </TableCell>
                         <TableCell>{area.areaName}</TableCell>
                         <TableCell>{area.totalAreaSQM}</TableCell>

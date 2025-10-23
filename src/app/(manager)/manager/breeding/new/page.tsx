@@ -82,10 +82,11 @@ function PondSelectionList({
             return (
               <div
                 key={pond.id}
-                className={`flex justify-between items-start p-3 rounded-lg border cursor-pointer transition-colors ${isSelected
-                  ? "border-blue-500 bg-blue-50 ring-2 ring-blue-500"
-                  : "border-gray-200 hover:bg-gray-50"
-                  }`}
+                className={`flex justify-between items-start p-3 rounded-lg border cursor-pointer transition-colors ${
+                  isSelected
+                    ? "border-blue-500 bg-blue-50 ring-2 ring-blue-500"
+                    : "border-gray-200 hover:bg-gray-50"
+                }`}
                 onClick={() => onSelectPond(pond.id.toString(), pond.pondName)}
               >
                 <div className="flex-1 min-w-0">
@@ -191,7 +192,7 @@ export default function Main() {
         pondId: Number(selectedPond),
       });
       router.push("/manager/breeding");
-    } catch { }
+    } catch {}
   };
 
   const handleConfirmPondSelection = () => {

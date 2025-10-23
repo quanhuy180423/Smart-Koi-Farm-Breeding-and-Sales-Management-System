@@ -2,14 +2,7 @@
 
 import * as React from "react";
 import { useState, useMemo, useEffect } from "react";
-import {
-  Plus,
-  Search,
-  Edit,
-  Trash2,
-  Eye,
-  Loader2,
-} from "lucide-react";
+import { Plus, Search, Edit, Trash2, Eye, Loader2 } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -211,7 +204,8 @@ export default function PondManagement() {
       lengthMeters: "",
       widthMeters: "",
       areaId: availableAreas.length > 0 ? String(availableAreas[0].id) : "",
-      pondTypeId: availablePondTypes.length > 0 ? String(availablePondTypes[0].id) : "",
+      pondTypeId:
+        availablePondTypes.length > 0 ? String(availablePondTypes[0].id) : "",
       pondStatus: PondStatus.EMPTY,
     });
     setIsAddModalOpen(true);
@@ -258,7 +252,8 @@ export default function PondManagement() {
   };
 
   const handleUpdatePond = () => {
-    if (!editingPond || !editPondForm.areaId || !editPondForm.pondTypeId) return;
+    if (!editingPond || !editPondForm.areaId || !editPondForm.pondTypeId)
+      return;
 
     const payload: Partial<PondRequest> = {
       pondName: editPondForm.pondName,
@@ -283,12 +278,14 @@ export default function PondManagement() {
     );
   };
 
-  const handleDeletePond = (pond: PondResponse) => { // Sửa: Nhận đối tượng pond
+  const handleDeletePond = (pond: PondResponse) => {
+    // Sửa: Nhận đối tượng pond
     setPondToDelete(pond);
     setIsDeleteConfirmOpen(true);
   };
 
-  const handleConfirmDelete = () => { // NEW
+  const handleConfirmDelete = () => {
+    // NEW
     if (pondToDelete) {
       deletePondMutation.mutate(pondToDelete.id, {
         onSuccess: () => {
@@ -298,11 +295,10 @@ export default function PondManagement() {
         onError: () => {
           // toast.error được xử lý trong hook useDeletePond
           setIsDeleteConfirmOpen(false);
-        }
+        },
       });
     }
   };
-
 
   const handleOpenAreaSelection = (context: "new" | "edit") => {
     setCurrentAreaSelectionContext(context);
@@ -463,7 +459,9 @@ export default function PondManagement() {
                 ponds.map((pond, index) => (
                   <TableRow key={pond.id}>
                     <TableCell className="font-medium">
-                      {index + 1 + (searchParams.pageIndex - 1) * searchParams.pageSize}
+                      {index +
+                        1 +
+                        (searchParams.pageIndex - 1) * searchParams.pageSize}
                     </TableCell>
                     <TableCell>{pond.pondName}</TableCell>
                     <TableCell>{pond.areaName || "N/A"}</TableCell>
@@ -471,7 +469,9 @@ export default function PondManagement() {
                       {pond.lengthMeters}m × {pond.widthMeters}m (
                       {pond.depthMeters}m sâu)
                     </TableCell>
-                    <TableCell>{pond.capacityLiters.toLocaleString()} Lít</TableCell>
+                    <TableCell>
+                      {pond.capacityLiters.toLocaleString()} Lít
+                    </TableCell>
                     <TableCell>
                       <span
                         className={
@@ -481,7 +481,9 @@ export default function PondManagement() {
                         {getPondStatusLabel(pond.pondStatus).label}
                       </span>
                     </TableCell>
-                    <TableCell>{formatDate(pond.createdAt, "dd/MM/yyyy")}</TableCell>
+                    <TableCell>
+                      {formatDate(pond.createdAt, "dd/MM/yyyy")}
+                    </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
                         <Button

@@ -61,7 +61,7 @@ export interface PondRequest {
 
 export const pondService = {
   getPonds: async (
-    request: PondSearchParams
+    request: PondSearchParams,
   ): Promise<BaseResponse<PagedResponse<PondResponse>>> => {
     const filter = toRequestParams(request);
     const response = await apiService.get<
@@ -70,7 +70,7 @@ export const pondService = {
     return response.data;
   },
   addPond: async (
-    pond: Partial<PondRequest>
+    pond: Partial<PondRequest>,
   ): Promise<BaseResponse<PondResponse>> => {
     const response = await apiService.post<
       BaseResponse<PondResponse>,
@@ -80,7 +80,7 @@ export const pondService = {
   },
   updatePond: async (
     id: number,
-    pond: Partial<PondRequest>
+    pond: Partial<PondRequest>,
   ): Promise<BaseResponse<boolean>> => {
     const response = await apiService.put<
       BaseResponse<boolean>,

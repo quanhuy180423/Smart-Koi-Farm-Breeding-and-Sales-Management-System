@@ -226,7 +226,9 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
                     <div className="grid grid-cols-2 gap-2 text-sm">
                       <div className="flex items-center gap-2">
                         <Ruler className="h-4 w-4 text-blue-500" />
-                        <span className="text-gray-700">{getFishSizeLabel(fish.size)}</span>
+                        <span className="text-gray-700">
+                          {getFishSizeLabel(fish.size)}
+                        </span>
                       </div>
                       <div className="flex items-center gap-2">
                         <Calendar className="h-4 w-4 text-green-500" />
