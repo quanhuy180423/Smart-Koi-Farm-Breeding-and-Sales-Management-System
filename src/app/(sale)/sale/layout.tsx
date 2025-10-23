@@ -1,5 +1,8 @@
 import SaleLayout from "@/components/sale/SaleLayout";
-import { redirectMultipleRestrictedRoles, RoleRedirectRule } from "@/lib/utils/authUtil";
+import {
+  redirectMultipleRestrictedRoles,
+  RoleRedirectRule,
+} from "@/lib/utils/authUtil";
 
 export default async function Layout({
   children,
