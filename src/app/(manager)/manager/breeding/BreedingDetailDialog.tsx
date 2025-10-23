@@ -346,9 +346,14 @@ export const BreedingDetailDialog = ({
                                   className="h-12 text-center text-gray-500"
                                 >
                                   {isLoadingDailyRecords ||
-                                  isFetchingDailyRecords
-                                    ? "Đang tải dữ liệu..."
-                                    : "Chưa có bản ghi theo dõi ấp trứng."}
+                                  isFetchingDailyRecords ? (
+                                    <div className="flex items-center justify-center py-10 text-gray-500">
+                                      <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                                      Đang tải dữ liệu...
+                                    </div>
+                                  ) : (
+                                    "Chưa có bản ghi theo dõi ấp trứng."
+                                  )}
                                 </TableCell>
                               </TableRow>
                             )}
@@ -504,9 +509,15 @@ export const BreedingDetailDialog = ({
                                   colSpan={5}
                                   className="h-12 text-center text-gray-500"
                                 >
-                                  {isLoadingFryRecords || isFetchingFryRecords
-                                    ? "Đang tải dữ liệu..."
-                                    : "Chưa có bản ghi theo dõi sống sót."}
+                                  {isLoadingFryRecords ||
+                                  isFetchingFryRecords ? (
+                                    <div className="flex items-center justify-center py-10 text-gray-500">
+                                      <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                                      Đang tải dữ liệu...
+                                    </div>
+                                  ) : (
+                                    "Chưa có bản ghi theo dõi sống sót."
+                                  )}
                                 </TableCell>
                               </TableRow>
                             )}

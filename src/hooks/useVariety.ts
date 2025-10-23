@@ -1,29 +1,28 @@
 import { ApiError, BaseResponse, PagedResponse } from "@/lib/api/apiClient";
-import {
-  PondTypeRequest,
-  PondTypeResponse,
-  PondTypeSearchParams,
-  pondTypeService,
-} from "@/lib/api/services/fetchPondType";
+import varietyService, {
+  VarietyRequest,
+  VarietyResponse,
+  VarietySearchParams,
+} from "@/lib/api/services/fetchVariety";
 import { useAuthStore } from "@/store/auth-store";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 
-interface PondTypeUpdatePayload {
+interface VarietyUpdatePayload {
   id: number;
-  pondType: Partial<PondTypeRequest>;
+  variety: Partial<VarietyRequest>;
 }
 
-export function useGetPondTypes(request: PondTypeSearchParams) {
+export function useGetVarieties(request: VarietySearchParams) {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
   return useQuery({
-    queryKey: ["pond-types", request],
-    queryFn: () => pondTypeService.getPondTypes(request),
+    queryKey: ["variety", request],
+    queryFn: () => varietyService.getVarieties(request),
     enabled: isAuthenticated,
     select: (
-      data: BaseResponse<PagedResponse<PondTypeResponse>>,
-    ): PagedResponse<PondTypeResponse> => data?.result,
+      data: BaseResponse<PagedResponse<VarietyResponse>>,
+    ): PagedResponse<VarietyResponse> => data?.result,
     retry: (failureCount, error: unknown) => {
       if (
         error &&
@@ -38,17 +37,17 @@ export function useGetPondTypes(request: PondTypeSearchParams) {
   });
 }
 
-export function useAddPondType() {
+export function useAddVariety() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (pondType: Partial<PondTypeRequest>) =>
-      pondTypeService.addPondType(pondType),
-    onSuccess: (data: BaseResponse<PondTypeRequest>) => {
+    mutationFn: (variety: Partial<VarietyRequest>) =>
+      varietyService.addVariety(variety),
+    onSuccess: (data: BaseResponse<VarietyResponse>) => {
       if (data.isSuccess) {
-        queryClient.invalidateQueries({ queryKey: ["pond-types"] });
+        queryClient.invalidateQueries({ queryKey: ["variety"] });
       }
-      toast.success(data.message || "Tạo loại hồ thành công");
+      toast.success(data.message || "Tạo giống cá thành công");
     },
     onError: (error: ApiError) => {
       toast.error(error.message || "Có lỗi xảy ra khi cập nhật thông tin");
@@ -56,17 +55,17 @@ export function useAddPondType() {
   });
 }
 
-export function useUpdatePondType() {
+export function useUpdateVariety() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (payload: PondTypeUpdatePayload) =>
-      pondTypeService.updatePondType(payload.id, payload.pondType),
+    mutationFn: (payload: VarietyUpdatePayload) =>
+      varietyService.updateVariety(payload.id, payload.variety),
     onSuccess: (data: BaseResponse<boolean>) => {
       if (data.isSuccess) {
-        queryClient.invalidateQueries({ queryKey: ["pond-types"] });
+        queryClient.invalidateQueries({ queryKey: ["variety"] });
       }
-      toast.success(data.message || "Chỉnh sửa loại hồ thành công");
+      toast.success(data.message || "Chỉnh sửa giống cá thành công");
     },
     onError: (error: ApiError) => {
       toast.error(error.message || "Có lỗi xảy ra khi cập nhật thông tin");
@@ -74,16 +73,16 @@ export function useUpdatePondType() {
   });
 }
 
-export function useDeletePondType() {
+export function useDeleteVariety() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (id: number) => pondTypeService.deletePondType(id),
+    mutationFn: (id: number) => varietyService.deleteVariety(id),
     onSuccess: (data: BaseResponse<boolean>) => {
       if (data.isSuccess) {
-        queryClient.invalidateQueries({ queryKey: ["pond-types"] });
+        queryClient.invalidateQueries({ queryKey: ["variety"] });
       }
-      toast.success(data.message || "Xóa loại hồ thành công");
+      toast.success(data.message || "Xóa giống cá thành công");
     },
     onError: (error: ApiError) => {
       toast.error(error.message || "Có lỗi xảy ra khi cập nhật thông tin");

@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-// Loại bỏ useRouter, useSearchParams
 import {
   useAddArea,
   useGetAreas,
@@ -43,8 +42,6 @@ import {
 } from "@/components/common/PaginationSection";
 
 export default function AreaManagement() {
-  // Loại bỏ useRouter và useSearchParams
-
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [debounceSearchTerm, setDebounceSearchTerm] = useState<string>("");
 
@@ -54,7 +51,6 @@ export default function AreaManagement() {
   const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false);
   const [editingArea, setEditingArea] = useState<AreaResponse | null>(null);
 
-  // State quản lý tham số phân trang và tìm kiếm (đồng bộ với PondManagement)
   const [searchParams, setSearchParams] = useState<AreaSearchParams>({
     pageIndex: 1,
     pageSize: PAGE_SIZE_OPTIONS_DEFAULT[0],
@@ -70,7 +66,6 @@ export default function AreaManagement() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
   const [areaToDelete, setAreaToDelete] = useState<AreaResponse | null>(null);
 
-  // --- Logic Debounce Search ---
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebounceSearchTerm(searchTerm);
@@ -78,8 +73,6 @@ export default function AreaManagement() {
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
-  // --- Logic Update Search Params ---
-  // Khi debounceSearchTerm thay đổi, cập nhật searchParams và reset về trang 1
   useEffect(() => {
     setSearchParams((prev) => ({
       ...prev,
@@ -88,10 +81,8 @@ export default function AreaManagement() {
     }));
   }, [debounceSearchTerm]);
 
-  // Lấy dữ liệu Area
   const { data: areasData, isLoading } = useGetAreas(searchParams);
 
-  // Lấy dữ liệu và thông tin phân trang
   const areas = areasData?.data || [];
   const totalItems = areasData?.totalItems || 0;
   const totalPages = areasData?.totalPages || 1;
@@ -102,7 +93,6 @@ export default function AreaManagement() {
   const { isPending: isDeleting, mutateAsync: deleteAreaAsync } =
     useDeleteArea();
 
-  // --- Pagination Handlers (Cập nhật state cục bộ) ---
   const handlePageChange = (page: number) => {
     setSearchParams((prev) => ({
       ...prev,
@@ -114,7 +104,7 @@ export default function AreaManagement() {
     setSearchParams((prev) => ({
       ...prev,
       pageSize: size,
-      pageIndex: 1, // Reset về trang 1 khi thay đổi pageSize
+      pageIndex: 1,
     }));
   };
 
@@ -190,7 +180,6 @@ export default function AreaManagement() {
         </Button>
       </div>
 
-      {/* Table */}
       <Card>
         <CardHeader>
           <CardTitle>Danh sách khu vực</CardTitle>
@@ -279,7 +268,6 @@ export default function AreaManagement() {
                 </TableBody>
               </Table>
 
-              {/* Pagination Section */}
               {totalItems > 0 && (
                 <PaginationSection
                   totalItems={totalItems}
@@ -297,7 +285,6 @@ export default function AreaManagement() {
         </CardContent>
       </Card>
 
-      {/* Modal thêm */}
       <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
@@ -356,7 +343,6 @@ export default function AreaManagement() {
         </DialogContent>
       </Dialog>
 
-      {/* Modal chỉnh sửa */}
       <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
@@ -423,7 +409,6 @@ export default function AreaManagement() {
         </DialogContent>
       </Dialog>
 
-      {/* Detail Modal */}
       <Dialog open={isDetailModalOpen} onOpenChange={setIsDetailModalOpen}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
@@ -453,7 +438,6 @@ export default function AreaManagement() {
         </DialogContent>
       </Dialog>
 
-      {/* Delete Confirmation Modal */}
       <Dialog open={isDeleteModalOpen} onOpenChange={setIsDeleteModalOpen}>
         <DialogContent className="max-w-md">
           <DialogHeader>
