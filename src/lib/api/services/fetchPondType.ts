@@ -28,7 +28,7 @@ export interface PondTypeRequest {
 
 export const pondTypeService = {
   getPondTypes: async (
-    request: PondTypeSearchParams
+    request: PondTypeSearchParams,
   ): Promise<BaseResponse<PagedResponse<PondTypeResponse>>> => {
     const filter = toRequestParams(request);
     const response = await apiService.get<
@@ -37,7 +37,7 @@ export const pondTypeService = {
     return response.data;
   },
   addPondType: async (
-    request: Partial<PondTypeRequest>
+    request: Partial<PondTypeRequest>,
   ): Promise<BaseResponse<PondTypeResponse>> => {
     const response = await apiService.post<
       BaseResponse<PondTypeResponse>,
@@ -47,7 +47,7 @@ export const pondTypeService = {
   },
   updatePondType: async (
     id: number,
-    request: Partial<PondTypeRequest>
+    request: Partial<PondTypeRequest>,
   ): Promise<BaseResponse<boolean>> => {
     const response = await apiService.put<
       BaseResponse<boolean>,
@@ -57,7 +57,7 @@ export const pondTypeService = {
   },
   deletePondType: async (id: number): Promise<BaseResponse<boolean>> => {
     const response = await apiService.delete<BaseResponse<boolean>>(
-      `${baseUrl}/${id}`
+      `${baseUrl}/${id}`,
     );
     return response.data;
   },

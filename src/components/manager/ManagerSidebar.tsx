@@ -65,7 +65,7 @@ const sidebarItems = [
     title: "Quản lý loại hồ",
     href: "/manager/pond-types" as const,
     icon: BookMinus,
-    description: "Quản lý các loại của hồ"
+    description: "Quản lý các loại của hồ",
   },
   {
     title: "Lịch làm việc",
