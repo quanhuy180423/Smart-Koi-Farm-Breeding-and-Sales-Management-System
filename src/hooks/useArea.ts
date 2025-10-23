@@ -3,7 +3,6 @@ import areaService, {
   AreaRequest,
   AreaResponse,
   AreaSearchParams,
-  SuccessResponse,
 } from "@/lib/api/services/fetchArea";
 import { useAuthStore } from "@/store/auth-store";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -23,7 +22,7 @@ export function useGetAreas(request: AreaSearchParams) {
     queryFn: () => areaService.getAreas(request),
     enabled: isAuthenticated,
     select: (
-      data: BaseResponse<PagedResponse<AreaResponse>>,
+      data: BaseResponse<PagedResponse<AreaResponse>>
     ): PagedResponse<AreaResponse> => data.result,
     retry: (failureCount, error: unknown) => {
       if (
@@ -45,11 +44,11 @@ export function useAddArea() {
   return useMutation({
     mutationFn: (areaData: Partial<AreaRequest>) =>
       areaService.addArea(areaData),
-    onSuccess: (data: BaseResponse<SuccessResponse<AreaResponse>>) => {
+    onSuccess: (data: BaseResponse<AreaResponse>) => {
       if (data.isSuccess) {
         queryClient.invalidateQueries({ queryKey: ["area"] });
       }
-      toast.success(data.result.message || "Tạo khu vực thành công");
+      toast.success(data.message || "Tạo khu vực thành công");
     },
     onError: (error: ApiError) => {
       toast.error(error.message || "Có lỗi xảy ra khi cập nhật thông tin");
@@ -67,7 +66,7 @@ export function useUpdateArea() {
       if (data.isSuccess) {
         queryClient.invalidateQueries({ queryKey: ["area"] });
       }
-      toast.success(data.result || "Chỉnh sửa khu vực thành công");
+      toast.success(data.message || "Chỉnh sửa khu vực thành công");
     },
     onError: (error: ApiError) => {
       toast.error(error.message || "Có lỗi xảy ra khi cập nhật thông tin");
@@ -84,7 +83,7 @@ export function useDeleteArea() {
       if (data.isSuccess) {
         queryClient.invalidateQueries({ queryKey: ["area"] });
       }
-      toast.success(data.result || "Xóa sửa khu vực thành công");
+      toast.success(data.message || "Xóa sửa khu vực thành công");
     },
     onError: (error: ApiError) => {
       toast.error(error.message || "Có lỗi xảy ra khi cập nhật thông tin");

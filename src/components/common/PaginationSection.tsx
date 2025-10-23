@@ -10,14 +10,14 @@ import {
 // Utility Functions
 type ComponentProps<
   T extends
-    | keyof React.JSX.IntrinsicElements
-    | React.JSXElementConstructor<unknown>,
+  | keyof React.JSX.IntrinsicElements
+  | React.JSXElementConstructor<unknown>,
 > =
   T extends React.JSXElementConstructor<infer Props>
-    ? Props
-    : T extends keyof React.JSX.IntrinsicElements
-      ? React.JSX.IntrinsicElements[T]
-      : Record<string, unknown>;
+  ? Props
+  : T extends keyof React.JSX.IntrinsicElements
+  ? React.JSX.IntrinsicElements[T]
+  : Record<string, unknown>;
 
 const cn = (...classes: (string | undefined | null | false)[]) =>
   classes.filter(Boolean).join(" ");
@@ -196,6 +196,8 @@ type TPaginationSectionProps = {
   hasPreviousPage?: boolean;
 };
 
+export const PAGE_SIZE_OPTIONS_DEFAULT: number[] = [10, 20, 50, 100]
+
 const PaginationSection = ({
   totalItems,
   postsPerPage,
@@ -203,7 +205,7 @@ const PaginationSection = ({
   setCurrentPage,
   totalPages,
   setPageSize,
-  pageSizeOptions = [10, 20, 50, 100],
+  pageSizeOptions = PAGE_SIZE_OPTIONS_DEFAULT,
   hasNextPage = false,
   hasPreviousPage = false,
 }: TPaginationSectionProps) => {
@@ -245,7 +247,7 @@ const PaginationSection = ({
       renderedPages.unshift(
         <PaginationEllipsis
           key="ellipsis-start"
-          onClick={() => setCurrentPage(activePages[0] - 1)}
+          onClick={() => { }}
         />,
       );
     }
@@ -254,9 +256,7 @@ const PaginationSection = ({
       renderedPages.push(
         <PaginationEllipsis
           key="ellipsis-end"
-          onClick={() =>
-            setCurrentPage(activePages[activePages.length - 1] + 1)
-          }
+          onClick={() => { }}
         />,
       );
     }

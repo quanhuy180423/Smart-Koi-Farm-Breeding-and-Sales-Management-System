@@ -103,7 +103,7 @@ export default function FatherFishInfo({ selectedFish }: FatherFishInfoProps) {
           <div className="relative mb-4">
             <div className="w-36 h-36 rounded-2xl border-4 border-blue-100 overflow-hidden shadow-lg bg-gradient-to-br from-blue-50 to-white">
               <Image
-                src={selectedFish.images[0] || "/ZenKoi.png"}
+                src={selectedFish.images[0]}
                 alt={selectedFish.rfid}
                 width={144}
                 height={144}

@@ -18,11 +18,6 @@ export interface AreaRequest {
   description?: string;
 }
 
-export interface SuccessResponse<T> {
-  message: string;
-  data: T;
-}
-
 export interface AreaSearchParams extends PagingRequest {
   search?: string;
   minTotalAreaSQM?: number;
@@ -43,9 +38,9 @@ export const areaService = {
   },
   addArea: async (
     area: Partial<AreaRequest>,
-  ): Promise<BaseResponse<SuccessResponse<AreaResponse>>> => {
+  ): Promise<BaseResponse<AreaResponse>> => {
     const response = await apiService.post<
-      BaseResponse<SuccessResponse<AreaResponse>>,
+      BaseResponse<AreaResponse>,
       Partial<AreaRequest>
     >(`${baseUrl}`, area);
     return response.data;

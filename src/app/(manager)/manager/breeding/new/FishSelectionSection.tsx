@@ -147,7 +147,7 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
                 <div className="relative">
                   <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-white shadow-lg group-hover:scale-105 transition-transform duration-300">
                     <Image
-                      src={selected.images[0] || "/ZenKoi.png"}
+                      src={selected.images[0]}
                       alt={selected.rfid}
                       width={128}
                       height={128}
@@ -198,7 +198,7 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
                 >
                   <div className="relative overflow-hidden rounded-t-lg">
                     <Image
-                      src={fish.images[0] || "/ZenKoi.png"}
+                      src={fish.images[0]}
                       alt={fish.rfid}
                       width={300}
                       height={240}
@@ -226,7 +226,7 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
                     <div className="grid grid-cols-2 gap-2 text-sm">
                       <div className="flex items-center gap-2">
                         <Ruler className="h-4 w-4 text-blue-500" />
-                        <span className="text-gray-700">{fish.size}</span>
+                        <span className="text-gray-700">{getFishSizeLabel(fish.size)}</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <Calendar className="h-4 w-4 text-green-500" />

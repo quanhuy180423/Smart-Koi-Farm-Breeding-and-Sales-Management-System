@@ -1,8 +1,8 @@
 "use client";
 
-import { useRouter, useSearchParams } from "next/navigation";
-import { Eye, Trash2, Plus, Loader2 } from "lucide-react";
-import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Eye, Trash2, Plus, Loader2, Search } from "lucide-react";
+import { useEffect, useState } from "react";
 import {
   Card,
   CardContent,
@@ -29,18 +29,21 @@ import {
 import { Badge } from "@/components/ui/badge";
 import toast from "react-hot-toast";
 import { useGetBreedingProcesses } from "@/hooks/useBreedingProcess";
-import { PaginationSection } from "@/components/common/PaginationSection";
-import { BreedingProcessResponse } from "@/lib/api/services/fetchBreedingProcess";
+import { PAGE_SIZE_OPTIONS_DEFAULT, PaginationSection } from "@/components/common/PaginationSection";
+import {
+  BreedingProcessResponse,
+  BreedingProcessSearchParams,
+} from "@/lib/api/services/fetchBreedingProcess";
 import { DATE_FORMATS, formatDate } from "@/lib/utils/dates";
 import {
   getBreedingResultLabel,
   getBreedingStatusLabel,
 } from "@/lib/utils/enum";
 import { BreedingDetailDialog } from "./BreedingDetailDialog";
+import { Input } from "@/components/ui/input";
 
 export default function BreedingManagement() {
   const router = useRouter();
-  const searchParams = useSearchParams();
 
   // Delete
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -52,24 +55,52 @@ export default function BreedingManagement() {
   const [selectedBreeding, setSelectedBreeding] =
     useState<BreedingProcessResponse | null>(null);
 
-  // Pagination
-  const pageIndex = Number(searchParams.get("pageIndex")) || 1;
-  const pageSize = Number(searchParams.get("pageSize")) || 10;
+  // Search & Debounce
+  const [searchTerm, setSearchTerm] = useState<string>("");
+  const [debounceSearchTerm, setDebounceSearchTerm] = useState<string>("");
 
-  const { data, isLoading } = useGetBreedingProcesses({ pageIndex, pageSize });
+  // Pagination State
+  const [searchParams, setSearchParams] = useState<BreedingProcessSearchParams>({
+    pageIndex: 1,
+    pageSize: PAGE_SIZE_OPTIONS_DEFAULT[0],
+    search: "",
+    status: undefined,
+  });
+
+  // Fetch Data
+  const { data, isLoading } = useGetBreedingProcesses(searchParams);
   const breedingProcesses = data?.data || [];
+  const totalItems = data?.totalItems || 0;
+  const totalPages = data?.totalPages || 1;
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebounceSearchTerm(searchTerm);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
+  useEffect(() => {
+    setSearchParams((prev) => ({
+      ...prev,
+      search: debounceSearchTerm,
+      pageIndex: 1,
+    }));
+  }, [debounceSearchTerm]);
 
   const handlePageChange = (page: number) => {
-    const params = new URLSearchParams(searchParams.toString());
-    params.set("pageIndex", page.toString());
-    router.push(`?${params.toString()}`);
+    setSearchParams((prev) => ({
+      ...prev,
+      pageIndex: page,
+    }));
   };
 
   const handlePageSizeChange = (size: number) => {
-    const params = new URLSearchParams(searchParams.toString());
-    params.set("pageSize", size.toString());
-    params.set("pageIndex", "1");
-    router.push(`?${params.toString()}`);
+    setSearchParams((prev) => ({
+      ...prev,
+      pageSize: size,
+      pageIndex: 1,
+    }));
   };
 
   const handleDelete = async () => {
@@ -113,6 +144,20 @@ export default function BreedingManagement() {
           </CardDescription>
         </CardHeader>
         <CardContent>
+          <div className="border rounded-lg p-4 mb-6 bg-muted/10">
+            <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
+              <div className="relative md:col-span-2">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Tìm kiếm..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="border-2 border-gray-400 pl-10"
+                />
+              </div>
+            </div>
+          </div>
+
           {isLoading ? (
             <div className="flex items-center justify-center py-10 text-gray-500">
               <Loader2 className="w-5 h-5 mr-2 animate-spin" />
@@ -225,17 +270,18 @@ export default function BreedingManagement() {
                 </TableBody>
               </Table>
 
-              {/* 📄 Pagination Section */}
-              <PaginationSection
-                totalItems={data?.totalItems}
-                postsPerPage={pageSize}
-                currentPage={pageIndex}
-                setCurrentPage={handlePageChange}
-                totalPages={data?.totalPages}
-                setPageSize={handlePageSizeChange}
-                hasNextPage={data?.hasNextPage}
-                hasPreviousPage={data?.hasPreviousPage}
-              />
+              {totalItems > 0 && (
+                <PaginationSection
+                  totalItems={totalItems}
+                  postsPerPage={searchParams.pageSize}
+                  currentPage={searchParams.pageIndex}
+                  setCurrentPage={handlePageChange}
+                  totalPages={totalPages}
+                  setPageSize={handlePageSizeChange}
+                  hasNextPage={data?.hasNextPage}
+                  hasPreviousPage={data?.hasPreviousPage}
+                />
+              )}
             </>
           )}
         </CardContent>
@@ -275,6 +321,7 @@ export default function BreedingManagement() {
         </DialogContent>
       </Dialog>
 
+      {/* Detail Dialog */}
       <BreedingDetailDialog
         isOpen={isDetailOpen}
         onOpenChange={setIsDetailOpen}
