@@ -4,6 +4,9 @@ import axios, {
   AxiosRequestConfig,
   AxiosResponse,
 } from "axios";
+import { getCookie, setCookie } from "cookies-next";
+import { LoginResponse, RenewTokenRequest } from "./services/fetchAuth";
+import { useAuthStore } from "@/store/auth-store";
 // cookie helpers intentionally not imported here; auth store manages cookie lifecycle
 // import { useAuthStore } from "@/lib/store/authStore";
 
@@ -56,11 +59,20 @@ export interface PagingRequest {
   pageSize: number;
 }
 
+export interface FailedRequestQueueItem {
+  resolve: (value: AxiosResponse<unknown>) => void;
+  reject: (reason?: ApiError) => void;
+  config: AxiosRequestConfig;
+}
+
 // API service class
 export class ApiService {
   private client: AxiosInstance;
   private authToken: string | null = null;
   private onAuthError?: () => void;
+
+  private isRefreshing = false;
+  private failedQueue: FailedRequestQueueItem[] = [];
 
   constructor(baseURL: string, timeout = 10000, onAuthError?: () => void) {
     this.client = axios.create({
@@ -80,17 +92,135 @@ export class ApiService {
     this.authToken = token;
   }
 
+  // Phương thức xử lý hàng đợi các request thất bại
+  private processQueue(error: ApiError | null): void {
+    this.failedQueue.forEach((prom) => {
+      if (error) {
+        prom.reject(error);
+      } else {
+        this.client(prom.config)
+          .then(prom.resolve)
+          .catch((err: AxiosError<ApiErrorData>) => {
+            const apiError: ApiError = {
+              status: err.response?.status,
+              message:
+                err.response?.data?.message ||
+                err.message ||
+                "Unknown error occurred during request retry",
+              error: {
+                statusCode: err.response?.data?.statusCode || 500,
+                isSuccess: err.response?.data?.isSuccess || false,
+                message: err.response?.data?.message || "",
+                result: err.response?.data?.result || "",
+              },
+            };
+            prom.reject(apiError);
+          });
+      }
+    });
+    this.failedQueue = [];
+  }
+
+  private async refreshAccessToken(): Promise<string | null> {
+    // **Ghi chú:** Cần lấy refreshToken từ cookie/storage tại đây
+    const refreshToken = getCookie("refresh-token")?.toString() || "";
+    const accessToken = getCookie("auth-token")?.toString() || "";
+    if (!refreshToken) return null;
+
+    const request: RenewTokenRequest = {
+      accessToken: accessToken,
+      refreshToken: refreshToken,
+    };
+
+    try {
+      const refreshResponse = await axios.post<BaseResponse<LoginResponse>>(
+        `${this.client.defaults.baseURL}/api/Accounts/renew-token`,
+        request,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        },
+      );
+
+      if (
+        refreshResponse.data.isSuccess &&
+        refreshResponse.data.result?.accessToken
+      ) {
+        const newAccessToken = refreshResponse.data.result.accessToken;
+        const newRefreshToken = refreshResponse.data.result.refreshToken;
+
+        this.setAuthToken(newAccessToken);
+
+        this.client.defaults.headers.common.Authorization = `Bearer ${newAccessToken}`;
+
+        setCookie("auth-token", newAccessToken);
+        if (newRefreshToken) setCookie("refresh-token", newRefreshToken);
+        useAuthStore.getState().setToken(newAccessToken);
+
+        return newAccessToken;
+      }
+    } catch (error) {
+      console.error("Token refresh failed", error);
+    }
+    return null;
+  }
+
   // Setup request/response interceptors
+  // private setupInterceptors(): void {
+  //   // Request interceptor
+  //   this.client.interceptors.request.use(
+  //     (config) => {
+  //       // Add auth header if token exists
+  //       if (this.authToken) {
+  //         config.headers.Authorization = `Bearer ${this.authToken}`;
+  //       }
+
+  //       // Handle FormData automatically
+  //       if (config.data instanceof FormData) {
+  //         delete config.headers["Content-Type"];
+  //       }
+
+  //       return config;
+  //     },
+  //     (error) => Promise.reject(error)
+  //   );
+
+  //   // Response interceptor
+  //   this.client.interceptors.response.use(
+  //     (response) => response,
+  //     (error: AxiosError<ApiErrorData>) => {
+  //       // Handle authentication errors
+  //       if (error.response?.status === 401 && this.onAuthError) {
+  //         this.onAuthError();
+  //       }
+
+  //       // Standardize error format
+  //       const apiError: ApiError = {
+  //         status: error.response?.status,
+  //         message:
+  //           error.response?.data?.message ||
+  //           error.message ||
+  //           "Unknown error occurred",
+  //         error: {
+  //           statusCode: error.response?.data.statusCode || 500,
+  //           isSuccess: error.response?.data?.isSuccess || false,
+  //           message: error.response?.data?.message || "",
+  //           result: error.response?.data?.result || "",
+  //         },
+  //       };
+
+  //       return Promise.reject(apiError);
+  //     }
+  //   );
+  // }
   private setupInterceptors(): void {
-    // Request interceptor
     this.client.interceptors.request.use(
       (config) => {
-        // Add auth header if token exists
         if (this.authToken) {
           config.headers.Authorization = `Bearer ${this.authToken}`;
         }
 
-        // Handle FormData automatically
         if (config.data instanceof FormData) {
           delete config.headers["Content-Type"];
         }
@@ -100,16 +230,63 @@ export class ApiService {
       (error) => Promise.reject(error),
     );
 
-    // Response interceptor
     this.client.interceptors.response.use(
       (response) => response,
-      (error: AxiosError<ApiErrorData>) => {
-        // Handle authentication errors
-        if (error.response?.status === 401 && this.onAuthError) {
-          this.onAuthError();
+      async (error: AxiosError<ApiErrorData>) => {
+        const originalRequest = error.config as AxiosRequestConfig & {
+          _retry?: boolean;
+        };
+
+        const isAuthError = error.response?.status === 401;
+
+        if (isAuthError && !originalRequest._retry) {
+          originalRequest._retry = true;
+
+          if (this.isRefreshing) {
+            return new Promise((resolve, reject) => {
+              this.failedQueue.push({
+                config: originalRequest,
+                resolve,
+                reject: (reason) => reject(reason),
+              });
+            });
+          }
+
+          this.isRefreshing = true;
+
+          const newPromise = new Promise((resolve, reject) => {
+            this.failedQueue.push({
+              config: originalRequest,
+              resolve,
+              reject: (reason) => reject(reason),
+            });
+          });
+
+          const newAccessToken = await this.refreshAccessToken();
+
+          if (newAccessToken) {
+            this.processQueue(null);
+          } else {
+            const apiError: ApiError = {
+              status: 401,
+              message: "Authentication failed. Please log in again.",
+            };
+            this.processQueue(apiError);
+            if (this.onAuthError) {
+              this.onAuthError();
+            }
+          }
+
+          this.isRefreshing = false;
+          return newPromise;
         }
 
-        // Standardize error format
+        if (isAuthError && this.onAuthError) {
+          if (originalRequest._retry) {
+            this.onAuthError();
+          }
+        }
+
         const apiError: ApiError = {
           status: error.response?.status,
           message:

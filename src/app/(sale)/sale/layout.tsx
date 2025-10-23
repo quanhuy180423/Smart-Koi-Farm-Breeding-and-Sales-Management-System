@@ -1,17 +1,21 @@
 import SaleLayout from "@/components/sale/SaleLayout";
-import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
+import {
+  redirectMultipleRestrictedRoles,
+  RoleRedirectRule,
+} from "@/lib/utils/authUtil";
 
 export default async function Layout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const cookieStore = await cookies();
-  const role = cookieStore.get?.("user-role")?.value ?? "guest";
-  if (role !== "sale-staff") {
-    redirect("/login");
-  }
+  const redirectRules: RoleRedirectRule[] = [
+    { role: "manager", redirectPath: "/manager" },
+    { role: "customer", redirectPath: "/" },
+    { role: "guest", redirectPath: "/" },
+  ];
+
+  await redirectMultipleRestrictedRoles(redirectRules);
 
   return <SaleLayout>{children}</SaleLayout>;
 }

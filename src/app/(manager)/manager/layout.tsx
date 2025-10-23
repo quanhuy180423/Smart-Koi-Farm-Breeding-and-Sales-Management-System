@@ -1,17 +1,21 @@
 import ManagerLayout from "@/components/manager/ManagerLayout";
-import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
+import {
+  redirectMultipleRestrictedRoles,
+  RoleRedirectRule,
+} from "@/lib/utils/authUtil";
 
 export default async function Layout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const cookieStore = await cookies();
-  const role = cookieStore.get?.("user-role")?.value ?? "guest";
-  if (role !== "manager" && role !== "farm-staff") {
-    redirect("/login");
-  }
+  const redirectRules: RoleRedirectRule[] = [
+    { role: "sale-staff", redirectPath: "/sale" },
+    { role: "customer", redirectPath: "/" },
+    { role: "guest", redirectPath: "/" },
+  ];
+
+  await redirectMultipleRestrictedRoles(redirectRules);
 
   return <ManagerLayout>{children}</ManagerLayout>;
 }

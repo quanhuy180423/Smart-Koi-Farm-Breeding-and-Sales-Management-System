@@ -60,6 +60,11 @@ export interface ForgotPasswordRequest {
   email: string;
 }
 
+export interface RenewTokenRequest {
+  accessToken: string;
+  refreshToken: string;
+}
+
 const baseUrl = "/api/Accounts";
 
 export const fetchAuth = {
