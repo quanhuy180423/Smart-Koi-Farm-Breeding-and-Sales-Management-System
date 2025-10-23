@@ -270,9 +270,9 @@ export const BreedingDetailDialog = ({
                   date={
                     eggBatch?.hatchingTime
                       ? formatDate(
-                          eggBatch.hatchingTime,
-                          DATE_FORMATS.MEDIUM_DATE,
-                        )
+                        eggBatch.hatchingTime,
+                        DATE_FORMATS.MEDIUM_DATE,
+                      )
                       : "Chưa có"
                   }
                   status={getProcessStatus(
@@ -284,10 +284,10 @@ export const BreedingDetailDialog = ({
                     currentBreedingStatus,
                     BreedingStatus.EGG_BATCH,
                   ) !== "Sắp tới" &&
-                  getProcessStatus(
-                    currentBreedingStatus,
-                    BreedingStatus.EGG_BATCH,
-                  ) !== "Thất bại" ? (
+                    getProcessStatus(
+                      currentBreedingStatus,
+                      BreedingStatus.EGG_BATCH,
+                    ) !== "Thất bại" ? (
                     <div className="space-y-3">
                       {/* Thống kê nhanh */}
                       <p className="text-muted-foreground">
@@ -346,8 +346,11 @@ export const BreedingDetailDialog = ({
                                   className="h-12 text-center text-gray-500"
                                 >
                                   {isLoadingDailyRecords ||
-                                  isFetchingDailyRecords
-                                    ? "Đang tải dữ liệu..."
+                                    isFetchingDailyRecords
+                                    ? <div className="flex items-center justify-center py-10 text-gray-500">
+                                      <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                                      Đang tải dữ liệu...
+                                    </div>
                                     : "Chưa có bản ghi theo dõi ấp trứng."}
                                 </TableCell>
                               </TableRow>
@@ -386,7 +389,7 @@ export const BreedingDetailDialog = ({
                                 onClick={handleIncubationNextPage}
                                 disabled={
                                   incubationDailyRecords.pageIndex ===
-                                    incubationDailyRecords.totalPages ||
+                                  incubationDailyRecords.totalPages ||
                                   isFetchingDailyRecords
                                 }
                               >
@@ -438,10 +441,10 @@ export const BreedingDetailDialog = ({
                     currentBreedingStatus,
                     BreedingStatus.FRY_FISH,
                   ) !== "Sắp tới" &&
-                  getProcessStatus(
-                    currentBreedingStatus,
-                    BreedingStatus.FRY_FISH,
-                  ) !== "Thất bại" ? (
+                    getProcessStatus(
+                      currentBreedingStatus,
+                      BreedingStatus.FRY_FISH,
+                    ) !== "Thất bại" ? (
                     <div className="space-y-3">
                       <p className="text-muted-foreground">
                         Cá bột được chuyển từ hồ:{" "}
@@ -505,7 +508,10 @@ export const BreedingDetailDialog = ({
                                   className="h-12 text-center text-gray-500"
                                 >
                                   {isLoadingFryRecords || isFetchingFryRecords
-                                    ? "Đang tải dữ liệu..."
+                                    ? <div className="flex items-center justify-center py-10 text-gray-500">
+                                      <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                                      Đang tải dữ liệu...
+                                    </div>
                                     : "Chưa có bản ghi theo dõi sống sót."}
                                 </TableCell>
                               </TableRow>
@@ -544,7 +550,7 @@ export const BreedingDetailDialog = ({
                                 onClick={handleFrySurvivalNextPage}
                                 disabled={
                                   frySurvivalPagingRequest.pageIndex >=
-                                    frySurvivalRecords.totalPages ||
+                                  frySurvivalRecords.totalPages ||
                                   isFetchingFryRecords
                                 }
                               >
@@ -598,9 +604,9 @@ export const BreedingDetailDialog = ({
                       dữ liệu tuyển chọn...
                     </div>
                   ) : getProcessStatus(
-                      currentBreedingStatus,
-                      BreedingStatus.CLASSIFICATION,
-                    ) !== "Sắp tới" &&
+                    currentBreedingStatus,
+                    BreedingStatus.CLASSIFICATION,
+                  ) !== "Sắp tới" &&
                     getProcessStatus(
                       currentBreedingStatus,
                       BreedingStatus.CLASSIFICATION,

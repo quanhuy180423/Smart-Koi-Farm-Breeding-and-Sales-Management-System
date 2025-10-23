@@ -148,7 +148,7 @@ export default function PondManagement() {
     }));
   }, [debounceSearchTerm, statusFilter]);
 
-  const { data: pondsData, isLoading, isFetching } = useGetPonds(searchParams);
+  const { data: pondsData, isLoading } = useGetPonds(searchParams);
 
   const ponds: PondResponse[] = pondsData?.data || [];
   const totalCount = pondsData?.totalItems || 0;
@@ -356,15 +356,6 @@ export default function PondManagement() {
     [pondsData],
   );
 
-  if (isLoading && !isFetching) {
-    return (
-      <div className="flex flex-1 items-center justify-center p-8">
-        <Loader2 className="mr-2 h-8 w-8 animate-spin" />
-        <span className="text-lg">Đang tải dữ liệu hồ cá...</span>
-      </div>
-    );
-  }
-
   return (
     <div className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
       <div className="flex items-center justify-between">
@@ -426,113 +417,115 @@ export default function PondManagement() {
             </div>
           </div>
 
-          {isFetching && !isLoading && (
-            <div className="flex items-center justify-center p-2 text-sm text-blue-500">
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          {isLoading ? (
+            <div className="flex items-center justify-center py-10 text-gray-500">
+              <Loader2 className="w-5 h-5 mr-2 animate-spin" />
               Đang tải dữ liệu...
             </div>
-          )}
-
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>STT</TableHead>
-                <TableHead>Tên hồ</TableHead>
-                <TableHead>Khu vực</TableHead>
-                <TableHead>Kích thước</TableHead>
-                <TableHead>Sức chứa (Lít)</TableHead>
-                <TableHead>Trạng thái</TableHead>
-                <TableHead>Ngày tạo</TableHead>
-                <TableHead>Thao tác</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {ponds.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={8} className="h-24 text-center">
-                    Không tìm thấy hồ cá nào.
-                  </TableCell>
-                </TableRow>
-              ) : (
-                ponds.map((pond, index) => (
-                  <TableRow key={pond.id}>
-                    <TableCell className="font-medium">
-                      {index +
-                        1 +
-                        (searchParams.pageIndex - 1) * searchParams.pageSize}
-                    </TableCell>
-                    <TableCell>{pond.pondName}</TableCell>
-                    <TableCell>{pond.areaName || "N/A"}</TableCell>
-                    <TableCell>
-                      {pond.lengthMeters}m × {pond.widthMeters}m (
-                      {pond.depthMeters}m sâu)
-                    </TableCell>
-                    <TableCell>
-                      {pond.capacityLiters.toLocaleString()} Lít
-                    </TableCell>
-                    <TableCell>
-                      <span
-                        className={
-                          getPondStatusLabel(pond.pondStatus).colorClass
-                        }
-                      >
-                        {getPondStatusLabel(pond.pondStatus).label}
-                      </span>
-                    </TableCell>
-                    <TableCell>
-                      {formatDate(pond.createdAt, "dd/MM/yyyy")}
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleViewDetails(pond)}
-                          title="Xem chi tiết"
-                        >
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleEditPond(pond)}
-                          title="Chỉnh sửa"
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="text-red-600 hover:text-red-800"
-                          onClick={() => handleDeletePond(pond)}
-                          title="Xóa hồ"
-                          disabled={deletePondMutation.isPending}
-                        >
-                          {deletePondMutation.isPending ? (
-                            <Loader2 className="h-4 w-4 animate-spin" />
-                          ) : (
-                            <Trash2 className="h-4 w-4" />
-                          )}
-                        </Button>
-                      </div>
-                    </TableCell>
+          ) : (
+            <>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>STT</TableHead>
+                    <TableHead>Tên hồ</TableHead>
+                    <TableHead>Khu vực</TableHead>
+                    <TableHead>Kích thước</TableHead>
+                    <TableHead>Sức chứa (Lít)</TableHead>
+                    <TableHead>Trạng thái</TableHead>
+                    <TableHead>Ngày tạo</TableHead>
+                    <TableHead>Thao tác</TableHead>
                   </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
+                </TableHeader>
+                <TableBody>
+                  {ponds.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={8} className="h-24 text-center">
+                        Không tìm thấy hồ cá nào.
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    ponds.map((pond, index) => (
+                      <TableRow key={pond.id}>
+                        <TableCell className="font-medium">
+                          {index +
+                            1 +
+                            (searchParams.pageIndex - 1) * searchParams.pageSize}
+                        </TableCell>
+                        <TableCell>{pond.pondName}</TableCell>
+                        <TableCell>{pond.areaName || "N/A"}</TableCell>
+                        <TableCell>
+                          {pond.lengthMeters}m × {pond.widthMeters}m (
+                          {pond.depthMeters}m sâu)
+                        </TableCell>
+                        <TableCell>
+                          {pond.capacityLiters.toLocaleString()} Lít
+                        </TableCell>
+                        <TableCell>
+                          <span
+                            className={
+                              getPondStatusLabel(pond.pondStatus).colorClass
+                            }
+                          >
+                            {getPondStatusLabel(pond.pondStatus).label}
+                          </span>
+                        </TableCell>
+                        <TableCell>
+                          {formatDate(pond.createdAt, "dd/MM/yyyy")}
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleViewDetails(pond)}
+                              title="Xem chi tiết"
+                            >
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleEditPond(pond)}
+                              title="Chỉnh sửa"
+                            >
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="text-red-600 hover:text-red-800"
+                              onClick={() => handleDeletePond(pond)}
+                              title="Xóa hồ"
+                              disabled={deletePondMutation.isPending}
+                            >
+                              {deletePondMutation.isPending ? (
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                              ) : (
+                                <Trash2 className="h-4 w-4" />
+                              )}
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
 
-          {totalCount > 0 && (
-            <PaginationSection
-              totalItems={totalCount}
-              postsPerPage={searchParams.pageSize}
-              currentPage={searchParams.pageIndex}
-              setCurrentPage={handleSetCurrentPage}
-              totalPages={totalPages}
-              setPageSize={handleSetPageSize}
-              hasNextPage={pondsData?.hasNextPage}
-              hasPreviousPage={pondsData?.hasPreviousPage}
-            />
+              {totalCount > 0 && (
+                <PaginationSection
+                  totalItems={totalCount}
+                  postsPerPage={searchParams.pageSize}
+                  currentPage={searchParams.pageIndex}
+                  setCurrentPage={handleSetCurrentPage}
+                  totalPages={totalPages}
+                  setPageSize={handleSetPageSize}
+                  hasNextPage={pondsData?.hasNextPage}
+                  hasPreviousPage={pondsData?.hasPreviousPage}
+                />
+              )}
+            </>
           )}
         </CardContent>
       </Card>

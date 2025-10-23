@@ -26,6 +26,7 @@ import {
   Bell,
   Grid2X2,
   BookMinus,
+  FileSpreadsheet,
 } from "lucide-react";
 import Image from "next/image";
 import Logo from "@/assets/images/ZenKoi.png";
@@ -44,10 +45,22 @@ const sidebarItems = [
     description: "Quản lý đàn cá",
   },
   {
+    title: "Quản lý sinh sản",
+    href: "/manager/breeding" as const,
+    icon: Heart,
+    description: "Chu kỳ sinh sản",
+  },
+  {
     title: "Quản lý tài khoản",
     href: "/manager/accounts" as const,
     icon: Users,
     description: "Người dùng hệ thống",
+  },
+  {
+    title: "Lịch làm việc",
+    href: "/manager/schedules" as const,
+    icon: Calendar,
+    description: "Phân công nhân sự",
   },
   {
     title: "Quản lý khu",
@@ -68,16 +81,10 @@ const sidebarItems = [
     description: "Quản lý các loại của hồ",
   },
   {
-    title: "Lịch làm việc",
-    href: "/manager/schedules" as const,
-    icon: Calendar,
-    description: "Phân công nhân sự",
-  },
-  {
-    title: "Quản lý sinh sản",
-    href: "/manager/breeding" as const,
-    icon: Heart,
-    description: "Chu kỳ sinh sản",
+    title: "Quản lý giống cá",
+    href: "/manager/varieties" as const,
+    icon: FileSpreadsheet,
+    description: "Quản lý các loại của hồ",
   },
   {
     title: "Chi phí vận chuyển",

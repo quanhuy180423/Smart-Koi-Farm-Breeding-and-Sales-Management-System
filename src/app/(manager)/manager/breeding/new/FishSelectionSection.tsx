@@ -101,7 +101,6 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
   const handleNumericInput = (e: React.FormEvent<HTMLInputElement>) => {
     const target = e.currentTarget;
     const value = target.value;
-    // Chỉ cho phép số và tối đa một dấu chấm (cho số thập phân)
     const numericValue = value
       .replace(/[^0-9.]/g, "")
       .replace(/(\..*)\./g, "$1");
@@ -242,7 +241,6 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
               ))}
             </div>
 
-            {/* Pagination inside Dialog */}
             <div className="flex justify-center gap-2 mt-4">
               <Button
                 size="sm"
@@ -263,7 +261,6 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
           </DialogContent>
         </Dialog>
 
-        {/* Fish name */}
         <div className="mt-4 text-center max-w-[140px]">
           {selected ? (
             <>
@@ -358,7 +355,6 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
           )}
         </TabsContent>
 
-        {/* Tab "Theo tiêu chí" */}
         <TabsContent value="criteria" className="space-y-6 mt-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-4">

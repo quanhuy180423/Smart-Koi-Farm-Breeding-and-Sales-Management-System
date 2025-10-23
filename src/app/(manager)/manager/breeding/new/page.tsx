@@ -9,7 +9,7 @@ import FatherFishInfo from "./FatherFishInfo";
 import MotherFishInfo from "./MotherFishInfo";
 import ComparisonSection from "./ComparisonSection";
 import { KoiFishResponse } from "@/lib/api/services/fetchKoiFish";
-import { ArrowLeft, ArrowRight, Check, MapPin } from "lucide-react"; // Thêm MapPin
+import { ArrowLeft, ArrowRight, Check, Loader2, MapPin } from "lucide-react"; // Thêm MapPin
 import {
   Dialog,
   DialogContent,
@@ -67,8 +67,9 @@ function PondSelectionList({
     <div className="space-y-4">
       <div className="max-h-60 overflow-y-auto space-y-2 pr-2">
         {isFetching && ponds.length === 0 ? (
-          <div className="text-center text-sm text-gray-500 py-4">
-            Đang tải hồ...
+          <div className="flex items-center justify-center py-10 text-gray-500">
+            <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+            Đang tải dữ liệu...
           </div>
         ) : ponds.length === 0 ? (
           <div className="text-center text-sm text-gray-500 py-4">
@@ -82,11 +83,10 @@ function PondSelectionList({
             return (
               <div
                 key={pond.id}
-                className={`flex justify-between items-start p-3 rounded-lg border cursor-pointer transition-colors ${
-                  isSelected
+                className={`flex justify-between items-start p-3 rounded-lg border cursor-pointer transition-colors ${isSelected
                     ? "border-blue-500 bg-blue-50 ring-2 ring-blue-500"
                     : "border-gray-200 hover:bg-gray-50"
-                }`}
+                  }`}
                 onClick={() => onSelectPond(pond.id.toString(), pond.pondName)}
               >
                 <div className="flex-1 min-w-0">
@@ -192,7 +192,7 @@ export default function Main() {
         pondId: Number(selectedPond),
       });
       router.push("/manager/breeding");
-    } catch {}
+    } catch { }
   };
 
   const handleConfirmPondSelection = () => {

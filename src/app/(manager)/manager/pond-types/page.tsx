@@ -86,7 +86,6 @@ export default function PondTypeManagement() {
   const {
     data: pondTypesData,
     isLoading,
-    isFetching,
   } = useGetPondTypes(searchParams);
 
   const pondTypes: PondTypeResponse[] = pondTypesData?.data || [];
@@ -188,15 +187,6 @@ export default function PondTypeManagement() {
     }
   };
 
-  if (isLoading && !isFetching) {
-    return (
-      <div className="flex flex-1 items-center justify-center p-8">
-        <Loader2 className="mr-2 h-8 w-8 animate-spin" />
-        <span className="text-lg">Đang tải dữ liệu loại hồ...</span>
-      </div>
-    );
-  }
-
   return (
     <div className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
       {/* Header */}
@@ -233,96 +223,98 @@ export default function PondTypeManagement() {
             />
           </div>
 
-          {isFetching && !isLoading && (
-            <div className="flex items-center justify-center p-2 text-sm text-blue-500">
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          {isLoading ? (
+            <div className="flex items-center justify-center py-10 text-gray-500">
+              <Loader2 className="w-5 h-5 mr-2 animate-spin" />
               Đang tải dữ liệu...
             </div>
-          )}
-
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-[5%]">STT</TableHead>
-                <TableHead className="w-[20%]">Tên Loại Hồ</TableHead>
-                <TableHead className="w-[20%]">Sức chứa KG (Lít)</TableHead>
-                <TableHead className="w-[35%]">Mô tả</TableHead>
-                <TableHead className="w-[20%] text-center">Thao tác</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {pondTypes.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={5} className="h-24 text-center">
-                    Không tìm thấy loại hồ nào.
-                  </TableCell>
-                </TableRow>
-              ) : (
-                pondTypes.map((type, index) => (
-                  <TableRow key={type.id}>
-                    <TableCell className="font-medium">
-                      {index +
-                        1 +
-                        (searchParams.pageIndex - 1) * searchParams.pageSize}
-                    </TableCell>
-                    <TableCell>{type.typeName}</TableCell>
-                    <TableCell>
-                      {type.recommendedCapacity.toLocaleString()}
-                    </TableCell>
-                    <TableCell className="truncate">
-                      {type.description || "N/A"}
-                    </TableCell>
-                    <TableCell className="text-center">
-                      <div className="flex items-center justify-center gap-2">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleViewDetails(type)}
-                          title="Xem chi tiết"
-                        >
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleEditPondType(type)}
-                          title="Chỉnh sửa"
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="text-red-600 hover:text-red-800"
-                          onClick={() => handleDeletePondType(type)}
-                          title="Xóa loại hồ"
-                          disabled={deletePondTypeMutation.isPending}
-                        >
-                          {deletePondTypeMutation.isPending ? (
-                            <Loader2 className="h-4 w-4 animate-spin" />
-                          ) : (
-                            <Trash2 className="h-4 w-4" />
-                          )}
-                        </Button>
-                      </div>
-                    </TableCell>
+          ) : (
+            <>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-[5%]">STT</TableHead>
+                    <TableHead className="w-[20%]">Tên Loại Hồ</TableHead>
+                    <TableHead className="w-[20%]">Sức chứa KG (Lít)</TableHead>
+                    <TableHead className="w-[35%]">Mô tả</TableHead>
+                    <TableHead className="w-[20%] text-center">Thao tác</TableHead>
                   </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
+                </TableHeader>
+                <TableBody>
+                  {pondTypes.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={5} className="h-24 text-center">
+                        Không tìm thấy loại hồ nào.
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    pondTypes.map((type, index) => (
+                      <TableRow key={type.id}>
+                        <TableCell className="font-medium">
+                          {index +
+                            1 +
+                            (searchParams.pageIndex - 1) * searchParams.pageSize}
+                        </TableCell>
+                        <TableCell>{type.typeName}</TableCell>
+                        <TableCell>
+                          {type.recommendedCapacity.toLocaleString()}
+                        </TableCell>
+                        <TableCell className="truncate">
+                          {type.description || "N/A"}
+                        </TableCell>
+                        <TableCell className="text-center">
+                          <div className="flex items-center justify-center gap-2">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleViewDetails(type)}
+                              title="Xem chi tiết"
+                            >
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleEditPondType(type)}
+                              title="Chỉnh sửa"
+                            >
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="text-red-600 hover:text-red-800"
+                              onClick={() => handleDeletePondType(type)}
+                              title="Xóa loại hồ"
+                              disabled={deletePondTypeMutation.isPending}
+                            >
+                              {deletePondTypeMutation.isPending ? (
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                              ) : (
+                                <Trash2 className="h-4 w-4" />
+                              )}
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
 
-          {totalCount > 0 && (
-            <PaginationSection
-              totalItems={totalCount}
-              postsPerPage={searchParams.pageSize}
-              currentPage={searchParams.pageIndex}
-              setCurrentPage={handleSetCurrentPage}
-              totalPages={totalPages}
-              setPageSize={handleSetPageSize}
-              hasNextPage={pondTypesData?.hasNextPage}
-              hasPreviousPage={pondTypesData?.hasPreviousPage}
-            />
+              {totalCount > 0 && (
+                <PaginationSection
+                  totalItems={totalCount}
+                  postsPerPage={searchParams.pageSize}
+                  currentPage={searchParams.pageIndex}
+                  setCurrentPage={handleSetCurrentPage}
+                  totalPages={totalPages}
+                  setPageSize={handleSetPageSize}
+                  hasNextPage={pondTypesData?.hasNextPage}
+                  hasPreviousPage={pondTypesData?.hasPreviousPage}
+                />
+              )}
+            </>
           )}
         </CardContent>
       </Card>
