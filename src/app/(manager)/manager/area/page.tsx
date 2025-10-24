@@ -293,6 +293,7 @@ export default function AreaManagement() {
                           <Button
                             size="sm"
                             variant="ghost"
+                            title="Chi tiết"
                             onClick={() => handleViewDetails(area)}
                           >
                             <Eye className="h-4 w-4" />
@@ -300,6 +301,7 @@ export default function AreaManagement() {
                           <Button
                             size="sm"
                             variant="ghost"
+                            title="Chỉnh sửa"
                             onClick={() => handleEditArea(area)}
                           >
                             <Edit className="h-4 w-4" />
@@ -308,6 +310,7 @@ export default function AreaManagement() {
                             size="sm"
                             variant="ghost"
                             className="text-red-600"
+                            title="Xóa"
                             onClick={() => {
                               setAreaToDelete(area);
                               setIsDeleteModalOpen(true);
