@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { useState, useEffect } from "react";
-import { Plus, Search, Edit, Trash2, Eye, Loader2 } from "lucide-react";
+import { Plus, Search, Edit, Trash2, Eye, Loader2, Filter } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -40,6 +40,9 @@ import AddVarietyModal from "./AddVarietyModal";
 import EditVarietyModal from "./EditVarietyModal";
 import VarietyDetailModal from "./VarietyDetailModal";
 import DeleteVarietyConfirmDialog from "./DeleteVarietyConfirmDialogProps";
+import { useDebounce } from "@/hooks/useDebounce";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
 
 export interface VarietyFormState {
   varietyName: string;
@@ -49,6 +52,8 @@ export interface VarietyFormState {
 
 export default function VarietyManagement() {
   const [searchTerm, setSearchTerm] = useState<string>("");
+  const debouncedSearchTerm = useDebounce(searchTerm, 500);
+
   const [selectedVariety, setSelectedVariety] =
     useState<VarietyResponse | null>(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState<boolean>(false);
@@ -57,11 +62,13 @@ export default function VarietyManagement() {
   const [editingVariety, setEditingVariety] = useState<VarietyResponse | null>(
     null,
   );
-  const [debounceSearchTerm, setDebounceSearchTerm] = useState<string>("");
 
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
   const [varietyToDelete, setVarietyToDelete] =
     useState<VarietyResponse | null>(null);
+
+  const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
+  const [originCountryInput, setOriginCountryInput] = useState<string>("");
 
   const [searchParams, setSearchParams] = useState<VarietySearchParams>({
     pageIndex: 1,
@@ -71,19 +78,12 @@ export default function VarietyManagement() {
   });
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebounceSearchTerm(searchTerm);
-    }, 500);
-    return () => clearTimeout(timer);
-  }, [searchTerm]);
-
-  useEffect(() => {
     setSearchParams((prev) => ({
       ...prev,
-      search: debounceSearchTerm,
+      search: debouncedSearchTerm,
       pageIndex: 1,
     }));
-  }, [debounceSearchTerm]);
+  }, [debouncedSearchTerm]);
 
   const {
     data: varietiesData,
@@ -104,6 +104,28 @@ export default function VarietyManagement() {
     characteristic: "",
     originCountry: "",
   });
+
+  const handleApplyFilters = () => {
+    setSearchParams((prev) => ({
+      ...prev,
+      originCountry: originCountryInput || undefined,
+      pageIndex: 1,
+    }));
+    setIsFilterModalOpen(false);
+  };
+
+  const handleResetFilters = () => {
+    setOriginCountryInput("");
+
+    setSearchParams((prev) => ({
+      ...prev,
+      originCountry: undefined,
+      pageIndex: 1,
+    }));
+    setIsFilterModalOpen(false);
+  };
+
+  const isFilterActive = !!searchParams.originCountry;
 
   const handleSetCurrentPage = (page: number) => {
     setSearchParams((prev) => ({ ...prev, pageIndex: page }));
@@ -229,14 +251,28 @@ export default function VarietyManagement() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="relative mb-6">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Tìm kiếm theo tên giống cá..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="border-2 border-gray-400 pl-10"
-            />
+          <div className="flex space-x-4 mb-4">
+            <div className="relative flex-grow">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Tìm kiếm theo tên giống cá..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="border-2 border-gray-400 pl-10"
+              />
+            </div>
+
+            <Button
+              variant={isFilterActive ? "default" : "outline"}
+              onClick={() => {
+                setOriginCountryInput(searchParams.originCountry || "");
+                setIsFilterModalOpen(true);
+              }}
+              className={isFilterActive ? "bg-indigo-600 hover:bg-indigo-700" : "border-gray-400"}
+            >
+              <Filter className="h-4 w-4 mr-2" />
+              Bộ lọc {isFilterActive && <span className="ml-1 px-2 py-0.5 bg-white/30 text-white rounded-full text-xs">ON</span>}
+            </Button>
           </div>
 
           {isLoading ? (
@@ -269,10 +305,7 @@ export default function VarietyManagement() {
                     varieties.map((variety, index) => (
                       <TableRow key={variety.id}>
                         <TableCell className="font-medium">
-                          {index +
-                            1 +
-                            (searchParams.pageIndex - 1) *
-                              searchParams.pageSize}
+                          {index + 1 + (searchParams.pageIndex - 1) * searchParams.pageSize}
                         </TableCell>
                         <TableCell>{variety.varietyName}</TableCell>
                         <TableCell>{variety.originCountry}</TableCell>
@@ -335,6 +368,44 @@ export default function VarietyManagement() {
           )}
         </CardContent>
       </Card>
+
+      <Dialog
+        open={isFilterModalOpen}
+        onOpenChange={setIsFilterModalOpen}
+      >
+        <DialogContent className="max-w-xl">
+          <DialogHeader>
+            <DialogTitle>Bộ lọc Giống Cá</DialogTitle>
+            <DialogDescription>
+              Lọc danh sách giống cá theo tiêu chí.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="originCountry">Quốc gia Xuất xứ</Label>
+                <Input
+                  id="originCountry"
+                  placeholder="Nhập tên quốc gia..."
+                  value={originCountryInput}
+                  onChange={(e) => setOriginCountryInput(e.target.value)}
+                />
+              </div>
+            </div>
+          </div>
+          <DialogFooter className="mt-4 flex justify-between sm:justify-between">
+            <Button
+              variant="outline"
+              onClick={handleResetFilters}
+            >
+              Đặt lại
+            </Button>
+            <Button onClick={handleApplyFilters}>
+              Áp dụng bộ lọc
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <AddVarietyModal
         isOpen={isAddModalOpen}

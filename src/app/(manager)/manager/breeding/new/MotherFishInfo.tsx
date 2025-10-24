@@ -36,7 +36,7 @@ export default function MotherFishInfo({ selectedFish }: MotherFishInfoProps) {
   const healthAgeData = [
     {
       label: "Sức khỏe tổng quát",
-      value: getHealthStatusLabel(selectedFish.healthStatus),
+      value: getHealthStatusLabel(selectedFish.healthStatus).label,
     },
     {
       label: "Độ tuổi",
@@ -83,7 +83,7 @@ export default function MotherFishInfo({ selectedFish }: MotherFishInfoProps) {
               <SelectItem value={selectedFish.id.toString()}>
                 {selectedFish.variety.varietyName} RFID: {selectedFish.rfid} -{" "}
                 {getAge(selectedFish.birthDate)} tuổi - Sức khỏe:{" "}
-                {getHealthStatusLabel(selectedFish.healthStatus)}
+                {getHealthStatusLabel(selectedFish.healthStatus).label}
               </SelectItem>
             </SelectContent>
           </Select>

@@ -26,8 +26,8 @@ import Image from "next/image";
 import { Gender, KoiFishResponse } from "@/lib/api/services/fetchKoiFish";
 import { useGetKoiFishes } from "@/hooks/useKoiFish";
 import toast from "react-hot-toast";
-import { DATE_FORMATS, formatDate } from "@/lib/utils/dates";
 import getFishSizeLabel from "@/lib/utils/enum";
+import getAge from "@/lib/utils/dates/age";
 
 interface FishSelectionProps {
   onSelection: (
@@ -48,7 +48,6 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
   const [breedingPurpose, setBreedingPurpose] = useState("");
   const [additionalRequirements, setAdditionalRequirements] = useState("");
 
-  // Pagination
   const [pageIndexMale, setPageIndexMale] = useState(1);
   const [pageIndexFemale, setPageIndexFemale] = useState(1);
   const pageSize = 6;
@@ -232,7 +231,7 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
                       <div className="flex items-center gap-2">
                         <Calendar className="h-4 w-4 text-green-500" />
                         <span className="text-gray-700">
-                          {formatDate(fish.birthDate, DATE_FORMATS.MEDIUM_DATE)}
+                          {getAge(fish.birthDate)} tuổi
                         </span>
                       </div>
                     </div>
@@ -272,7 +271,7 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
                 <span>{getFishSizeLabel(selected.size)}</span>
                 <span>•</span>
                 <span>
-                  {formatDate(selected.birthDate, DATE_FORMATS.MEDIUM_DATE)}
+                  {getAge(selected.birthDate)} tuổi
                 </span>
               </div>
             </>
