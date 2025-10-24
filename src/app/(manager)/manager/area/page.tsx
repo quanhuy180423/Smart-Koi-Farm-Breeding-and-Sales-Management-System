@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Plus, Search, Edit, Trash2, Eye, Loader2 } from "lucide-react";
+import { Plus, Search, Edit, Trash2, Eye, Loader2, Filter } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -29,6 +29,7 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -40,10 +41,16 @@ import {
   PAGE_SIZE_OPTIONS_DEFAULT,
   PaginationSection,
 } from "@/components/common/PaginationSection";
+import { useDebounce } from "@/hooks/useDebounce";
 
 export default function AreaManagement() {
   const [searchTerm, setSearchTerm] = useState<string>("");
-  const [debounceSearchTerm, setDebounceSearchTerm] = useState<string>("");
+  const debouncedSearchTerm = useDebounce(searchTerm, 500);
+
+  const [minAreaInput, setMinAreaInput] = useState<string>("");
+  const [maxAreaInput, setMaxAreaInput] = useState<string>("");
+
+  const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
 
   const [selectedArea, setSelectedArea] = useState<AreaResponse | null>(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState<boolean>(false);
@@ -55,6 +62,8 @@ export default function AreaManagement() {
     pageIndex: 1,
     pageSize: PAGE_SIZE_OPTIONS_DEFAULT[0],
     search: "",
+    minTotalAreaSQM: undefined,
+    maxTotalAreaSQM: undefined,
   });
 
   const [newArea, setNewArea] = useState({
@@ -67,19 +76,40 @@ export default function AreaManagement() {
   const [areaToDelete, setAreaToDelete] = useState<AreaResponse | null>(null);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebounceSearchTerm(searchTerm);
-    }, 500);
-    return () => clearTimeout(timer);
-  }, [searchTerm]);
-
-  useEffect(() => {
     setSearchParams((prev) => ({
       ...prev,
-      search: debounceSearchTerm,
+      search: debouncedSearchTerm,
       pageIndex: 1,
     }));
-  }, [debounceSearchTerm]);
+  }, [debouncedSearchTerm]);
+
+  const handleApplyFilters = () => {
+    const min = minAreaInput ? Number(minAreaInput) : undefined;
+    const max = maxAreaInput ? Number(maxAreaInput) : undefined;
+
+    setSearchParams((prev) => ({
+      ...prev,
+      minTotalAreaSQM: min,
+      maxTotalAreaSQM: max,
+      pageIndex: 1,
+    }));
+
+    setIsFilterModalOpen(false);
+  };
+
+  const handleResetFilters = () => {
+    setMinAreaInput("");
+    setMaxAreaInput("");
+
+    setSearchParams((prev) => ({
+      ...prev,
+      minTotalAreaSQM: undefined,
+      maxTotalAreaSQM: undefined,
+      pageIndex: 1,
+    }));
+
+    setIsFilterModalOpen(false);
+  };
 
   const { data: areasData, isLoading } = useGetAreas(searchParams);
 
@@ -165,6 +195,10 @@ export default function AreaManagement() {
     } catch {}
   };
 
+  const isAreaFilterActive =
+    searchParams.minTotalAreaSQM !== undefined ||
+    searchParams.maxTotalAreaSQM !== undefined;
+
   return (
     <div className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
       <div className="flex items-center justify-between">
@@ -186,14 +220,34 @@ export default function AreaManagement() {
           <CardDescription>Thông tin chi tiết của từng khu vực</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="relative mb-4">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Tìm kiếm theo tên khu..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="border-2 border-gray-400 pl-10"
-            />
+          <div className="flex space-x-4 mb-4">
+            <div className="relative flex-grow">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Tìm kiếm theo tên khu..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="border-2 border-gray-400 pl-10"
+              />
+            </div>
+
+            <Button
+              variant={isAreaFilterActive ? "default" : "outline"}
+              onClick={() => setIsFilterModalOpen(true)}
+              className={
+                isAreaFilterActive
+                  ? "bg-indigo-600 hover:bg-indigo-700"
+                  : "border-gray-400"
+              }
+            >
+              <Filter className="h-4 w-4 mr-2" />
+              Bộ lọc{" "}
+              {isAreaFilterActive && (
+                <span className="ml-1 px-2 py-0.5 bg-white/30 text-white rounded-full text-xs">
+                  ON
+                </span>
+              )}
+            </Button>
           </div>
 
           {isLoading ? (
@@ -206,11 +260,11 @@ export default function AreaManagement() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>STT</TableHead>
-                    <TableHead>Tên khu vực</TableHead>
-                    <TableHead>Diện tích (m²)</TableHead>
-                    <TableHead>Mô tả</TableHead>
-                    <TableHead>Thao tác</TableHead>
+                    <TableHead className="w-[15%]">STT</TableHead>
+                    <TableHead className="w-[20%]">Tên khu vực</TableHead>
+                    <TableHead className="w-[15%]">Diện tích (m²)</TableHead>
+                    <TableHead className="w-[30%]">Mô tả</TableHead>
+                    <TableHead className="w-[20%]">Thao tác</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -284,6 +338,64 @@ export default function AreaManagement() {
           )}
         </CardContent>
       </Card>
+
+      <Dialog
+        open={isFilterModalOpen}
+        onOpenChange={(open) => {
+          setIsFilterModalOpen(open);
+          if (!open) {
+            setMinAreaInput(
+              searchParams.minTotalAreaSQM !== undefined
+                ? String(searchParams.minTotalAreaSQM)
+                : "",
+            );
+            setMaxAreaInput(
+              searchParams.maxTotalAreaSQM !== undefined
+                ? String(searchParams.maxTotalAreaSQM)
+                : "",
+            );
+          }
+        }}
+      >
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Bộ lọc Khu vực</DialogTitle>
+            <DialogDescription>
+              Lọc danh sách khu vực theo phạm vi diện tích
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="minArea">Diện tích tối thiểu (m²)</Label>
+              <Input
+                id="minArea"
+                type="number"
+                placeholder="Ví dụ: 50"
+                value={minAreaInput}
+                onChange={(e) => setMinAreaInput(e.target.value)}
+                className="border-2 border-gray-300"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="maxArea">Diện tích tối đa (m²)</Label>
+              <Input
+                id="maxArea"
+                type="number"
+                placeholder="Ví dụ: 200"
+                value={maxAreaInput}
+                onChange={(e) => setMaxAreaInput(e.target.value)}
+                className="border-2 border-gray-300"
+              />
+            </div>
+          </div>
+          <DialogFooter className="mt-4 flex justify-between sm:justify-between">
+            <Button variant="outline" onClick={handleResetFilters}>
+              Đặt lại
+            </Button>
+            <Button onClick={handleApplyFilters}>Áp dụng bộ lọc</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
         <DialogContent className="max-w-2xl">
@@ -423,7 +535,7 @@ export default function AreaManagement() {
                 <strong>Tên khu vực:</strong> {selectedArea.areaName}
               </p>
               <p>
-                <strong>Diện tích:</strong> {selectedArea.totalAreaSQM} m²
+                <strong>Diện tích:</strong> {selectedArea.totalAreaSQM || 0} m²
               </p>
               <p>
                 <strong>Mô tả:</strong> {selectedArea.description}

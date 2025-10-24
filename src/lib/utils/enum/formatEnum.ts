@@ -10,11 +10,23 @@ interface Label {
   colorClass: string;
 }
 
-const healthStatusLabels: Record<HealthStatus, string> = {
-  [HealthStatus.HEALTHY]: "Khỏe mạnh",
-  [HealthStatus.SICK]: "Bị bệnh",
-  [HealthStatus.Warning]: "Cảnh báo",
-  [HealthStatus.DEAD]: "Đã chết",
+const healthStatusMeta: Record<HealthStatus, Label> = {
+  [HealthStatus.HEALTHY]: {
+    label: "Khỏe mạnh",
+    colorClass: "bg-green-100 text-green-800 hover:bg-green-100",
+  },
+  [HealthStatus.SICK]: {
+    label: "Bị bệnh",
+    colorClass: "bg-red-100 text-red-800 hover:bg-red-100",
+  },
+  [HealthStatus.WARNING]: {
+    label: "Cảnh báo",
+    colorClass: "bg-yellow-100 text-yellow-800 hover:bg-yellow-100",
+  },
+  [HealthStatus.DEAD]: {
+    label: "Đã chết",
+    colorClass: "bg-gray-100 text-gray-800 hover:bg-gray-100",
+  },
 };
 
 const breedingResultMeta: Record<BreedingResult, Label> = {
@@ -95,9 +107,14 @@ export default function getFishSizeLabel(size: FishSize | undefined): string {
   );
 }
 
-export function getHealthStatusLabel(status: HealthStatus | undefined): string {
-  if (!status) return "Không xác định";
-  return (status && healthStatusLabels[status]) || "Không xác định";
+export function getHealthStatusLabel(status: HealthStatus | undefined): Label {
+  const defaultLabel: Label = {
+    label: "Không xác định",
+    colorClass: "bg-gray-100 text-gray-700",
+  };
+
+  if (!status) return defaultLabel;
+  return healthStatusMeta[status] || defaultLabel;
 }
 
 export function getBreedingResultLabel(

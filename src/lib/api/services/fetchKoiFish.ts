@@ -17,7 +17,7 @@ export enum Gender {
 export enum HealthStatus {
   HEALTHY = "Healthy",
   SICK = "Sick",
-  Warning = "Warning",
+  WARNING = "Warning",
   DEAD = "Dead",
 }
 
@@ -58,12 +58,14 @@ export interface KoiFishResponse {
   breedingProcess: BreedingProcessBasicResponse;
 }
 
-export interface KoiFishGetRequest extends PagingRequest {
-  gender?: Gender;
+export interface KoiFishSearchParams extends PagingRequest {
   search?: string;
+  gender?: Gender;
   health?: HealthStatus;
   varietyId?: number;
+  fishSize?: FishSize;
   pondId?: number;
+  origin?: string;
   minPrice?: number;
   maxPrice?: number;
 }
@@ -72,7 +74,7 @@ const baseUrl = "/api/KoiFish";
 
 export const koiFishService = {
   getKoiFishes: async (
-    request: KoiFishGetRequest,
+    request: KoiFishSearchParams,
   ): Promise<BaseResponse<PagedResponse<KoiFishResponse>>> => {
     const filter = toRequestParams(request);
     const response = await apiService.get<

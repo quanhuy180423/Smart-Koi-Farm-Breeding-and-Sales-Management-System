@@ -1,12 +1,12 @@
 import { BaseResponse, PagedResponse } from "@/lib/api/apiClient";
 import koiFishService, {
-  KoiFishGetRequest,
   KoiFishResponse,
+  KoiFishSearchParams,
 } from "@/lib/api/services/fetchKoiFish";
 import { useAuthStore } from "@/store/auth-store";
 import { useQuery } from "@tanstack/react-query";
 
-export function useGetKoiFishes(request: KoiFishGetRequest) {
+export function useGetKoiFishes(request: KoiFishSearchParams) {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
   return useQuery({
