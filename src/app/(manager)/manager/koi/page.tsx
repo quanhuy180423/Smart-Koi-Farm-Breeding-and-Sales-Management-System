@@ -73,32 +73,72 @@ export interface Pedigree {
 }
 
 const MOCK_PEDIGREE_DATA: Pedigree = {
-  id: 'k1', rfid: 'RFID-101 (Con)', varietyName: 'Kohaku', gender: Gender.MALE,
+  id: "k1",
+  rfid: "RFID-101 (Con)",
+  varietyName: "Kohaku",
+  gender: Gender.MALE,
   father: {
-    id: 'f1', rfid: 'F-001 (Bố)', varietyName: 'Kohaku', gender: Gender.MALE,
-    father: { id: 'gf1', rfid: 'GF-001 (Ông)', varietyName: 'Kohaku', gender: Gender.MALE, },
-    mother: { id: 'gm1', rfid: 'GM-001 (Bà)', varietyName: 'Sanke', gender: Gender.FEMALE, }
+    id: "f1",
+    rfid: "F-001 (Bố)",
+    varietyName: "Kohaku",
+    gender: Gender.MALE,
+    father: {
+      id: "gf1",
+      rfid: "GF-001 (Ông)",
+      varietyName: "Kohaku",
+      gender: Gender.MALE,
+    },
+    mother: {
+      id: "gm1",
+      rfid: "GM-001 (Bà)",
+      varietyName: "Sanke",
+      gender: Gender.FEMALE,
+    },
   },
   mother: {
-    id: 'm1', rfid: 'M-001 (Mẹ)', varietyName: 'Kohaku', gender: Gender.FEMALE,
-    father: { id: 'gf2', rfid: 'GF-002 (Ông)', varietyName: 'Showa', gender: Gender.MALE, },
-    mother: { id: 'gm2', rfid: 'GM-002 (Bà)', varietyName: 'Kohaku', gender: Gender.FEMALE, }
+    id: "m1",
+    rfid: "M-001 (Mẹ)",
+    varietyName: "Kohaku",
+    gender: Gender.FEMALE,
+    father: {
+      id: "gf2",
+      rfid: "GF-002 (Ông)",
+      varietyName: "Showa",
+      gender: Gender.MALE,
+    },
+    mother: {
+      id: "gm2",
+      rfid: "GM-002 (Bà)",
+      varietyName: "Kohaku",
+      gender: Gender.FEMALE,
+    },
   },
 };
 
 // --- COMPONENT HIỂN THỊ GIA PHẢ (CẬP NHẬT GIAO DIỆN) ---
-const PedigreeNode: React.FC<{ koi: Pedigree, role: string }> = ({ koi, role }) => (
+const PedigreeNode: React.FC<{ koi: Pedigree; role: string }> = ({
+  koi,
+  role,
+}) => (
   <div className="border border-indigo-300 rounded-lg p-2 text-center shadow-lg bg-white min-w-[150px] transform transition-all hover:scale-[1.02] hover:shadow-xl relative z-10">
     <p className="text-[10px] font-medium text-indigo-500">{role}</p>
-    <p className="font-bold text-sm truncate text-indigo-800">{koi.rfid.split(' ')[0]}</p>
+    <p className="font-bold text-sm truncate text-indigo-800">
+      {koi.rfid.split(" ")[0]}
+    </p>
     <p className="text-xs text-gray-600">{koi.varietyName}</p>
-    <p className={`text-xs mt-1 font-bold ${koi.gender === Gender.MALE ? 'text-blue-600' : 'text-pink-600'}`}>
-      {koi.gender === Gender.MALE ? 'Đực' : 'Cái'}
+    <p
+      className={`text-xs mt-1 font-bold ${koi.gender === Gender.MALE ? "text-blue-600" : "text-pink-600"}`}
+    >
+      {koi.gender === Gender.MALE ? "Đực" : "Cái"}
     </p>
   </div>
 );
 
-const PedigreeModal: React.FC<{ isOpen: boolean, onOpenChange: (open: boolean) => void, koi: KoiFishResponse | null }> = ({ isOpen, onOpenChange, koi }) => {
+const PedigreeModal: React.FC<{
+  isOpen: boolean;
+  onOpenChange: (open: boolean) => void;
+  koi: KoiFishResponse | null;
+}> = ({ isOpen, onOpenChange, koi }) => {
   if (!koi) return null;
   const pedigreeData = MOCK_PEDIGREE_DATA;
 
@@ -106,7 +146,9 @@ const PedigreeModal: React.FC<{ isOpen: boolean, onOpenChange: (open: boolean) =
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="!max-w-5xl w-[95%] max-h-[95vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-bold text-indigo-700">Gia phả của Cá {koi.rfid}</DialogTitle>
+          <DialogTitle className="text-2xl font-bold text-indigo-700">
+            Gia phả của Cá {koi.rfid}
+          </DialogTitle>
           <DialogDescription>
             Cây gia phả (3 đời) giúp theo dõi nguồn gốc di truyền.
           </DialogDescription>
@@ -114,7 +156,10 @@ const PedigreeModal: React.FC<{ isOpen: boolean, onOpenChange: (open: boolean) =
 
         <div className="flex flex-col items-center py-8 relative space-y-12">
           <div className="relative">
-            <PedigreeNode koi={{ ...pedigreeData, rfid: koi.rfid }} role="Cá Hiện tại" />
+            <PedigreeNode
+              koi={{ ...pedigreeData, rfid: koi.rfid }}
+              role="Cá Hiện tại"
+            />
 
             <div className="absolute bottom-[-1.5rem] left-1/2 transform -translate-x-1/2 w-0.5 h-6 bg-indigo-500 z-0"></div>
           </div>
@@ -126,18 +171,22 @@ const PedigreeModal: React.FC<{ isOpen: boolean, onOpenChange: (open: boolean) =
               <div className="flex justify-around w-full max-w-lg relative z-10">
                 {pedigreeData.father && (
                   <div className="flex flex-col items-center relative w-1/2 pt-8">
-                    <div className="w-0.5 h-8 bg-indigo-500 absolute top-0"></div> {/* Vertical line from horizontal connector */}
+                    <div className="w-0.5 h-8 bg-indigo-500 absolute top-0"></div>{" "}
+                    {/* Vertical line from horizontal connector */}
                     <PedigreeNode koi={pedigreeData.father} role="Bố (P1)" />
-                    {(pedigreeData.father.father || pedigreeData.father.mother) && (
+                    {(pedigreeData.father.father ||
+                      pedigreeData.father.mother) && (
                       <div className="absolute bottom-[-1.5rem] left-1/2 transform -translate-x-1/2 w-0.5 h-6 bg-indigo-500 z-0"></div>
                     )}
                   </div>
                 )}
                 {pedigreeData.mother && (
                   <div className="flex flex-col items-center relative w-1/2 pt-8">
-                    <div className="w-0.5 h-8 bg-indigo-500 absolute top-0"></div> {/* Vertical line from horizontal connector */}
+                    <div className="w-0.5 h-8 bg-indigo-500 absolute top-0"></div>{" "}
+                    {/* Vertical line from horizontal connector */}
                     <PedigreeNode koi={pedigreeData.mother} role="Mẹ (P1)" />
-                    {(pedigreeData.mother.father || pedigreeData.mother.mother) && (
+                    {(pedigreeData.mother.father ||
+                      pedigreeData.mother.mother) && (
                       <div className="absolute bottom-[-1.5rem] left-1/2 transform -translate-x-1/2 w-0.5 h-6 bg-indigo-500 z-0"></div>
                     )}
                   </div>
@@ -150,28 +199,49 @@ const PedigreeModal: React.FC<{ isOpen: boolean, onOpenChange: (open: boolean) =
             <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-[90%] h-0.5 bg-indigo-500"></div>
 
             <div className="flex justify-around w-full max-w-6xl">
-              {pedigreeData.father && (pedigreeData.father.father || pedigreeData.father.mother) && (
-                <div className="flex justify-around w-1/2 relative pt-6">
-                  <div className="absolute top-0 left-1/4 transform -translate-x-1/2 w-0.5 h-6 bg-indigo-500"></div>
-                  <div className="absolute top-0 right-1/4 transform translate-x-1/2 w-0.5 h-6 bg-indigo-500"></div>
+              {pedigreeData.father &&
+                (pedigreeData.father.father || pedigreeData.father.mother) && (
+                  <div className="flex justify-around w-1/2 relative pt-6">
+                    <div className="absolute top-0 left-1/4 transform -translate-x-1/2 w-0.5 h-6 bg-indigo-500"></div>
+                    <div className="absolute top-0 right-1/4 transform translate-x-1/2 w-0.5 h-6 bg-indigo-500"></div>
 
-                  {pedigreeData.father.father && <PedigreeNode koi={pedigreeData.father.father} role="Ông (G1)" />}
-                  {pedigreeData.father.mother && <PedigreeNode koi={pedigreeData.father.mother} role="Bà (G1)" />}
-                </div>
-              )}
+                    {pedigreeData.father.father && (
+                      <PedigreeNode
+                        koi={pedigreeData.father.father}
+                        role="Ông (G1)"
+                      />
+                    )}
+                    {pedigreeData.father.mother && (
+                      <PedigreeNode
+                        koi={pedigreeData.father.mother}
+                        role="Bà (G1)"
+                      />
+                    )}
+                  </div>
+                )}
 
-              {pedigreeData.mother && (pedigreeData.mother.father || pedigreeData.mother.mother) && (
-                <div className="flex justify-around w-1/2 relative pt-6">
-                  <div className="absolute top-0 left-1/4 transform -translate-x-1/2 w-0.5 h-6 bg-indigo-500"></div>
-                  <div className="absolute top-0 right-1/4 transform translate-x-1/2 w-0.5 h-6 bg-indigo-500"></div>
+              {pedigreeData.mother &&
+                (pedigreeData.mother.father || pedigreeData.mother.mother) && (
+                  <div className="flex justify-around w-1/2 relative pt-6">
+                    <div className="absolute top-0 left-1/4 transform -translate-x-1/2 w-0.5 h-6 bg-indigo-500"></div>
+                    <div className="absolute top-0 right-1/4 transform translate-x-1/2 w-0.5 h-6 bg-indigo-500"></div>
 
-                  {pedigreeData.mother.father && <PedigreeNode koi={pedigreeData.mother.father} role="Ông (G2)" />}
-                  {pedigreeData.mother.mother && <PedigreeNode koi={pedigreeData.mother.mother} role="Bà (G2)" />}
-                </div>
-              )}
+                    {pedigreeData.mother.father && (
+                      <PedigreeNode
+                        koi={pedigreeData.mother.father}
+                        role="Ông (G2)"
+                      />
+                    )}
+                    {pedigreeData.mother.mother && (
+                      <PedigreeNode
+                        koi={pedigreeData.mother.mother}
+                        role="Bà (G2)"
+                      />
+                    )}
+                  </div>
+                )}
             </div>
           </div>
-
         </div>
 
         <DialogFooter>
@@ -411,7 +481,7 @@ export default function KoiManagement() {
                           {index +
                             1 +
                             (searchParams.pageIndex - 1) *
-                            searchParams.pageSize}
+                              searchParams.pageSize}
                         </TableCell>
                         <TableCell className="font-medium">
                           {koi.rfid}

@@ -324,7 +324,7 @@ export default function VarietyManagement() {
                           {index +
                             1 +
                             (searchParams.pageIndex - 1) *
-                            searchParams.pageSize}
+                              searchParams.pageSize}
                         </TableCell>
                         <TableCell>{variety.varietyName}</TableCell>
                         <TableCell>{variety.originCountry}</TableCell>
