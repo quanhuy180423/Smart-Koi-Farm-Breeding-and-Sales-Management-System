@@ -270,9 +270,7 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
               <div className="flex items-center justify-center gap-2 mt-1 text-xs text-muted-foreground">
                 <span>{getFishSizeLabel(selected.size)}</span>
                 <span>•</span>
-                <span>
-                  {getAge(selected.birthDate)} tuổi
-                </span>
+                <span>{getAge(selected.birthDate)} tuổi</span>
               </div>
             </>
           ) : (

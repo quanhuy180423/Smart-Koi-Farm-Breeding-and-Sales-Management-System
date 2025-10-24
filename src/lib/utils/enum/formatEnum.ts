@@ -118,14 +118,14 @@ export function getHealthStatusLabel(status: HealthStatus | undefined): Label {
 }
 
 export function getBreedingResultLabel(
-  result: BreedingResult | undefined
+  result: BreedingResult | undefined,
 ): Label {
   if (!result) return breedingResultMeta[BreedingResult.UNKNOWN];
   return result && breedingResultMeta[result];
 }
 
 export function getBreedingStatusLabel(
-  status: BreedingStatus | undefined
+  status: BreedingStatus | undefined,
 ): Label {
   if (!status) {
     return { label: "Không xác định", colorClass: "bg-gray-100 text-gray-700" };

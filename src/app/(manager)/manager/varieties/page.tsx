@@ -41,7 +41,14 @@ import EditVarietyModal from "./EditVarietyModal";
 import VarietyDetailModal from "./VarietyDetailModal";
 import DeleteVarietyConfirmDialog from "./DeleteVarietyConfirmDialogProps";
 import { useDebounce } from "@/hooks/useDebounce";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 
 export interface VarietyFormState {
@@ -268,10 +275,19 @@ export default function VarietyManagement() {
                 setOriginCountryInput(searchParams.originCountry || "");
                 setIsFilterModalOpen(true);
               }}
-              className={isFilterActive ? "bg-indigo-600 hover:bg-indigo-700" : "border-gray-400"}
+              className={
+                isFilterActive
+                  ? "bg-indigo-600 hover:bg-indigo-700"
+                  : "border-gray-400"
+              }
             >
               <Filter className="h-4 w-4 mr-2" />
-              Bộ lọc {isFilterActive && <span className="ml-1 px-2 py-0.5 bg-white/30 text-white rounded-full text-xs">ON</span>}
+              Bộ lọc{" "}
+              {isFilterActive && (
+                <span className="ml-1 px-2 py-0.5 bg-white/30 text-white rounded-full text-xs">
+                  ON
+                </span>
+              )}
             </Button>
           </div>
 
@@ -305,7 +321,10 @@ export default function VarietyManagement() {
                     varieties.map((variety, index) => (
                       <TableRow key={variety.id}>
                         <TableCell className="font-medium">
-                          {index + 1 + (searchParams.pageIndex - 1) * searchParams.pageSize}
+                          {index +
+                            1 +
+                            (searchParams.pageIndex - 1) *
+                              searchParams.pageSize}
                         </TableCell>
                         <TableCell>{variety.varietyName}</TableCell>
                         <TableCell>{variety.originCountry}</TableCell>
@@ -369,10 +388,7 @@ export default function VarietyManagement() {
         </CardContent>
       </Card>
 
-      <Dialog
-        open={isFilterModalOpen}
-        onOpenChange={setIsFilterModalOpen}
-      >
+      <Dialog open={isFilterModalOpen} onOpenChange={setIsFilterModalOpen}>
         <DialogContent className="max-w-xl">
           <DialogHeader>
             <DialogTitle>Bộ lọc Giống Cá</DialogTitle>
@@ -394,15 +410,10 @@ export default function VarietyManagement() {
             </div>
           </div>
           <DialogFooter className="mt-4 flex justify-between sm:justify-between">
-            <Button
-              variant="outline"
-              onClick={handleResetFilters}
-            >
+            <Button variant="outline" onClick={handleResetFilters}>
               Đặt lại
             </Button>
-            <Button onClick={handleApplyFilters}>
-              Áp dụng bộ lọc
-            </Button>
+            <Button onClick={handleApplyFilters}>Áp dụng bộ lọc</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

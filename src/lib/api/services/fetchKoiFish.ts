@@ -74,7 +74,7 @@ const baseUrl = "/api/KoiFish";
 
 export const koiFishService = {
   getKoiFishes: async (
-    request: KoiFishSearchParams
+    request: KoiFishSearchParams,
   ): Promise<BaseResponse<PagedResponse<KoiFishResponse>>> => {
     const filter = toRequestParams(request);
     const response = await apiService.get<

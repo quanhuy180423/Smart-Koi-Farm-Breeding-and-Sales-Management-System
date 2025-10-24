@@ -162,7 +162,7 @@ export default function AreaManagement() {
       });
       setIsAddModalOpen(false);
       setNewArea({ areaName: "", totalAreaSQM: "", description: "" });
-    } catch { }
+    } catch {}
   };
 
   const handleUpdateArea = async () => {
@@ -183,7 +183,7 @@ export default function AreaManagement() {
       });
       setIsEditModalOpen(false);
       setEditingArea(null);
-    } catch { }
+    } catch {}
   };
 
   const handleDeleteArea = async () => {
@@ -192,10 +192,12 @@ export default function AreaManagement() {
       await deleteAreaAsync(areaToDelete.id);
       setIsDeleteModalOpen(false);
       setAreaToDelete(null);
-    } catch { }
+    } catch {}
   };
 
-  const isAreaFilterActive = searchParams.minTotalAreaSQM !== undefined || searchParams.maxTotalAreaSQM !== undefined;
+  const isAreaFilterActive =
+    searchParams.minTotalAreaSQM !== undefined ||
+    searchParams.maxTotalAreaSQM !== undefined;
 
   return (
     <div className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
@@ -232,10 +234,19 @@ export default function AreaManagement() {
             <Button
               variant={isAreaFilterActive ? "default" : "outline"}
               onClick={() => setIsFilterModalOpen(true)}
-              className={isAreaFilterActive ? "bg-indigo-600 hover:bg-indigo-700" : "border-gray-400"}
+              className={
+                isAreaFilterActive
+                  ? "bg-indigo-600 hover:bg-indigo-700"
+                  : "border-gray-400"
+              }
             >
               <Filter className="h-4 w-4 mr-2" />
-              Bộ lọc {isAreaFilterActive && <span className="ml-1 px-2 py-0.5 bg-white/30 text-white rounded-full text-xs">ON</span>}
+              Bộ lọc{" "}
+              {isAreaFilterActive && (
+                <span className="ml-1 px-2 py-0.5 bg-white/30 text-white rounded-full text-xs">
+                  ON
+                </span>
+              )}
             </Button>
           </div>
 
@@ -270,7 +281,10 @@ export default function AreaManagement() {
                     areas.map((area, index) => (
                       <TableRow key={area.id}>
                         <TableCell className="font-medium">
-                          {index + 1 + (searchParams.pageIndex - 1) * searchParams.pageSize}
+                          {index +
+                            1 +
+                            (searchParams.pageIndex - 1) *
+                              searchParams.pageSize}
                         </TableCell>
                         <TableCell>{area.areaName}</TableCell>
                         <TableCell>{area.totalAreaSQM}</TableCell>
@@ -330,8 +344,16 @@ export default function AreaManagement() {
         onOpenChange={(open) => {
           setIsFilterModalOpen(open);
           if (!open) {
-            setMinAreaInput(searchParams.minTotalAreaSQM !== undefined ? String(searchParams.minTotalAreaSQM) : "");
-            setMaxAreaInput(searchParams.maxTotalAreaSQM !== undefined ? String(searchParams.maxTotalAreaSQM) : "");
+            setMinAreaInput(
+              searchParams.minTotalAreaSQM !== undefined
+                ? String(searchParams.minTotalAreaSQM)
+                : "",
+            );
+            setMaxAreaInput(
+              searchParams.maxTotalAreaSQM !== undefined
+                ? String(searchParams.maxTotalAreaSQM)
+                : "",
+            );
           }
         }}
       >
@@ -367,15 +389,10 @@ export default function AreaManagement() {
             </div>
           </div>
           <DialogFooter className="mt-4 flex justify-between sm:justify-between">
-            <Button
-              variant="outline"
-              onClick={handleResetFilters}
-            >
+            <Button variant="outline" onClick={handleResetFilters}>
               Đặt lại
             </Button>
-            <Button onClick={handleApplyFilters}>
-              Áp dụng bộ lọc
-            </Button>
+            <Button onClick={handleApplyFilters}>Áp dụng bộ lọc</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -562,4 +579,3 @@ export default function AreaManagement() {
     </div>
   );
 }
-

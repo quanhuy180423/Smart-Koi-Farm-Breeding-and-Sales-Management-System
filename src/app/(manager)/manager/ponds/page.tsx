@@ -57,7 +57,14 @@ import { PondTypeResponse } from "@/lib/api/services/fetchPondType";
 import PondTypeSelectionDialog from "./PondTypeSelectionDialog";
 import DeletePondConfirmDialog from "./DeletePondConfirmDialog";
 import { useDebounce } from "@/hooks/useDebounce";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 
 export interface PondFormState {
@@ -179,7 +186,8 @@ export default function PondManagement() {
     lengthMeters: "",
     widthMeters: "",
     areaId: availableAreas.length > 0 ? String(availableAreas[0].id) : "",
-    pondTypeId: availablePondTypes.length > 0 ? String(availablePondTypes[0].id) : "",
+    pondTypeId:
+      availablePondTypes.length > 0 ? String(availablePondTypes[0].id) : "",
     pondStatus: PondStatus.EMPTY,
   });
   const [editPondForm, setEditPondForm] = useState<PondFormState>({
@@ -353,11 +361,16 @@ export default function PondManagement() {
   const handleApplyFilters = () => {
     const areaId = areaIdInput ? Number(areaIdInput) : undefined;
     const pondTypeId = pondTypeIdInput ? Number(pondTypeIdInput) : undefined;
-    const minCapacityLiters = minCapacityInput ? Number(minCapacityInput) : undefined;
-    const maxCapacityLiters = maxCapacityInput ? Number(maxCapacityInput) : undefined;
+    const minCapacityLiters = minCapacityInput
+      ? Number(minCapacityInput)
+      : undefined;
+    const maxCapacityLiters = maxCapacityInput
+      ? Number(maxCapacityInput)
+      : undefined;
     const minDepthMeters = minDepthInput ? Number(minDepthInput) : undefined;
     const maxDepthMeters = maxDepthInput ? Number(maxDepthInput) : undefined;
-    const status = statusFilter === "all" ? undefined : (statusFilter as PondStatus);
+    const status =
+      statusFilter === "all" ? undefined : (statusFilter as PondStatus);
 
     setSearchParams((prev) => ({
       ...prev,
@@ -401,10 +414,17 @@ export default function PondManagement() {
     setIsFilterModalOpen(false);
   };
 
-  const isFilterActive = Object.keys(searchParams).some(key => {
+  const isFilterActive = Object.keys(searchParams).some((key) => {
     const value = searchParams[key as keyof PondSearchParams];
-    return key !== 'search' && key !== 'pageIndex' && key !== 'pageSize' &&
-      (value !== undefined && value !== null && value !== "" && String(value) !== "0");
+    return (
+      key !== "search" &&
+      key !== "pageIndex" &&
+      key !== "pageSize" &&
+      value !== undefined &&
+      value !== null &&
+      value !== "" &&
+      String(value) !== "0"
+    );
   });
 
   const totalFish = 1200;
@@ -465,21 +485,58 @@ export default function PondManagement() {
             <Button
               variant={isFilterActive ? "default" : "outline"}
               onClick={() => {
-                setStatusFilter(searchParams.status ? searchParams.status.toLowerCase() : "all");
-                setAreaIdInput(searchParams.areaId !== undefined ? String(searchParams.areaId) : "");
-                setPondTypeIdInput(searchParams.pondTypeId !== undefined ? String(searchParams.pondTypeId) : "");
-                setMinCapacityInput(searchParams.minCapacityLiters !== undefined ? String(searchParams.minCapacityLiters) : "");
-                setMaxCapacityInput(searchParams.maxCapacityLiters !== undefined ? String(searchParams.maxCapacityLiters) : "");
-                setMinDepthInput(searchParams.minDepthMeters !== undefined ? String(searchParams.minDepthMeters) : "");
-                setMaxDepthInput(searchParams.maxDepthMeters !== undefined ? String(searchParams.maxDepthMeters) : "");
+                setStatusFilter(
+                  searchParams.status
+                    ? searchParams.status.toLowerCase()
+                    : "all",
+                );
+                setAreaIdInput(
+                  searchParams.areaId !== undefined
+                    ? String(searchParams.areaId)
+                    : "",
+                );
+                setPondTypeIdInput(
+                  searchParams.pondTypeId !== undefined
+                    ? String(searchParams.pondTypeId)
+                    : "",
+                );
+                setMinCapacityInput(
+                  searchParams.minCapacityLiters !== undefined
+                    ? String(searchParams.minCapacityLiters)
+                    : "",
+                );
+                setMaxCapacityInput(
+                  searchParams.maxCapacityLiters !== undefined
+                    ? String(searchParams.maxCapacityLiters)
+                    : "",
+                );
+                setMinDepthInput(
+                  searchParams.minDepthMeters !== undefined
+                    ? String(searchParams.minDepthMeters)
+                    : "",
+                );
+                setMaxDepthInput(
+                  searchParams.maxDepthMeters !== undefined
+                    ? String(searchParams.maxDepthMeters)
+                    : "",
+                );
                 setCreatedFromInput(searchParams.createdFrom || "");
                 setCreatedToInput(searchParams.createdTo || "");
                 setIsFilterModalOpen(true);
               }}
-              className={isFilterActive ? "bg-indigo-600 hover:bg-indigo-700" : "border-gray-400"}
+              className={
+                isFilterActive
+                  ? "bg-indigo-600 hover:bg-indigo-700"
+                  : "border-gray-400"
+              }
             >
               <Filter className="h-4 w-4 mr-2" />
-              Bộ lọc {isFilterActive && <span className="ml-1 px-2 py-0.5 bg-white/30 text-white rounded-full text-xs">ON</span>}
+              Bộ lọc{" "}
+              {isFilterActive && (
+                <span className="ml-1 px-2 py-0.5 bg-white/30 text-white rounded-full text-xs">
+                  ON
+                </span>
+              )}
             </Button>
           </div>
 
@@ -514,10 +571,15 @@ export default function PondManagement() {
                     ponds.map((pond, index) => (
                       <TableRow key={pond.id}>
                         <TableCell className="font-medium">
-                          {index + 1 + (searchParams.pageIndex - 1) * searchParams.pageSize}
+                          {index +
+                            1 +
+                            (searchParams.pageIndex - 1) *
+                              searchParams.pageSize}
                         </TableCell>
                         <TableCell>{pond.pondName}</TableCell>
-                        <TableCell>{getAreaNameById(pond.areaId) || "N/A"}</TableCell>
+                        <TableCell>
+                          {getAreaNameById(pond.areaId) || "N/A"}
+                        </TableCell>
                         <TableCell>
                           {pond.lengthMeters}m × {pond.widthMeters}m (
                           {pond.depthMeters}m sâu)
@@ -594,10 +656,7 @@ export default function PondManagement() {
         </CardContent>
       </Card>
 
-      <Dialog
-        open={isFilterModalOpen}
-        onOpenChange={setIsFilterModalOpen}
-      >
+      <Dialog open={isFilterModalOpen} onOpenChange={setIsFilterModalOpen}>
         <DialogContent className="max-w-3xl">
           <DialogHeader>
             <DialogTitle>Bộ lọc Hồ Cá Nâng cao</DialogTitle>
@@ -615,8 +674,10 @@ export default function PondManagement() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">Tất cả trạng thái</SelectItem>
-                    {Object.values(PondStatus).map(s => (
-                      <SelectItem key={s} value={s.toLowerCase()}>{getPondStatusLabel(s).label}</SelectItem>
+                    {Object.values(PondStatus).map((s) => (
+                      <SelectItem key={s} value={s.toLowerCase()}>
+                        {getPondStatusLabel(s).label}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -624,59 +685,108 @@ export default function PondManagement() {
 
               <div className="space-y-2 col-span-2 md:col-span-1">
                 <Label htmlFor="areaId">ID Khu vực</Label>
-                <Input id="areaId" type="number" placeholder="ID Khu vực" value={areaIdInput} onChange={(e) => setAreaIdInput(e.target.value)} />
+                <Input
+                  id="areaId"
+                  type="number"
+                  placeholder="ID Khu vực"
+                  value={areaIdInput}
+                  onChange={(e) => setAreaIdInput(e.target.value)}
+                />
               </div>
 
               <div className="space-y-2 col-span-2 md:col-span-1">
                 <Label htmlFor="pondTypeId">ID Loại Hồ</Label>
-                <Input id="pondTypeId" type="number" placeholder="ID Loại Hồ" value={pondTypeIdInput} onChange={(e) => setPondTypeIdInput(e.target.value)} />
+                <Input
+                  id="pondTypeId"
+                  type="number"
+                  placeholder="ID Loại Hồ"
+                  value={pondTypeIdInput}
+                  onChange={(e) => setPondTypeIdInput(e.target.value)}
+                />
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4 border-t pt-4">
-              <p className="text-sm font-semibold col-span-full mb-[-8px] text-muted-foreground">Lọc theo Sức chứa (Lít)</p>
+              <p className="text-sm font-semibold col-span-full mb-[-8px] text-muted-foreground">
+                Lọc theo Sức chứa (Lít)
+              </p>
               <div className="space-y-2 col-span-2 md:col-span-1">
                 <Label htmlFor="minCapacity">Tối thiểu</Label>
-                <Input id="minCapacity" type="number" placeholder="Sức chứa min" value={minCapacityInput} onChange={(e) => setMinCapacityInput(e.target.value)} />
+                <Input
+                  id="minCapacity"
+                  type="number"
+                  placeholder="Sức chứa min"
+                  value={minCapacityInput}
+                  onChange={(e) => setMinCapacityInput(e.target.value)}
+                />
               </div>
               <div className="space-y-2 col-span-2 md:col-span-1">
                 <Label htmlFor="maxCapacity">Tối đa</Label>
-                <Input id="maxCapacity" type="number" placeholder="Sức chứa max" value={maxCapacityInput} onChange={(e) => setMaxCapacityInput(e.target.value)} />
+                <Input
+                  id="maxCapacity"
+                  type="number"
+                  placeholder="Sức chứa max"
+                  value={maxCapacityInput}
+                  onChange={(e) => setMaxCapacityInput(e.target.value)}
+                />
               </div>
 
-              <p className="text-sm font-semibold col-span-full md:col-span-2 mb-[-8px] text-muted-foreground">Lọc theo Độ sâu (Mét)</p>
+              <p className="text-sm font-semibold col-span-full md:col-span-2 mb-[-8px] text-muted-foreground">
+                Lọc theo Độ sâu (Mét)
+              </p>
               <div className="space-y-2 col-span-2 md:col-span-1">
                 <Label htmlFor="minDepth">Tối thiểu</Label>
-                <Input id="minDepth" type="number" step="0.1" placeholder="Độ sâu min" value={minDepthInput} onChange={(e) => setMinDepthInput(e.target.value)} />
+                <Input
+                  id="minDepth"
+                  type="number"
+                  step="0.1"
+                  placeholder="Độ sâu min"
+                  value={minDepthInput}
+                  onChange={(e) => setMinDepthInput(e.target.value)}
+                />
               </div>
               <div className="space-y-2 col-span-2 md:col-span-1">
                 <Label htmlFor="maxDepth">Tối đa</Label>
-                <Input id="maxDepth" type="number" step="0.1" placeholder="Độ sâu max" value={maxDepthInput} onChange={(e) => setMaxDepthInput(e.target.value)} />
+                <Input
+                  id="maxDepth"
+                  type="number"
+                  step="0.1"
+                  placeholder="Độ sâu max"
+                  value={maxDepthInput}
+                  onChange={(e) => setMaxDepthInput(e.target.value)}
+                />
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4 border-t pt-4">
-              <p className="text-sm font-semibold col-span-full mb-[-8px] text-muted-foreground">Lọc theo Ngày tạo</p>
+              <p className="text-sm font-semibold col-span-full mb-[-8px] text-muted-foreground">
+                Lọc theo Ngày tạo
+              </p>
               <div className="space-y-2 col-span-2 md:col-span-1">
                 <Label htmlFor="createdFrom">Từ ngày</Label>
-                <Input id="createdFrom" type="date" value={createdFromInput} onChange={(e) => setCreatedFromInput(e.target.value)} />
+                <Input
+                  id="createdFrom"
+                  type="date"
+                  value={createdFromInput}
+                  onChange={(e) => setCreatedFromInput(e.target.value)}
+                />
               </div>
               <div className="space-y-2 col-span-2 md:col-span-1">
                 <Label htmlFor="createdTo">Đến ngày</Label>
-                <Input id="createdTo" type="date" value={createdToInput} onChange={(e) => setCreatedToInput(e.target.value)} />
+                <Input
+                  id="createdTo"
+                  type="date"
+                  value={createdToInput}
+                  onChange={(e) => setCreatedToInput(e.target.value)}
+                />
               </div>
             </div>
           </div>
           <DialogFooter className="mt-4 flex justify-between sm:justify-between">
-            <Button
-              variant="outline"
-              onClick={handleResetFilters}
-            >
+            <Button variant="outline" onClick={handleResetFilters}>
               Đặt lại
             </Button>
-            <Button onClick={handleApplyFilters}>
-              Áp dụng bộ lọc
-            </Button>
+            <Button onClick={handleApplyFilters}>Áp dụng bộ lọc</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

@@ -49,7 +49,13 @@ import { BreedingDetailDialog } from "./BreedingDetailDialog";
 import { Input } from "@/components/ui/input";
 import { useDebounce } from "@/hooks/useDebounce";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export default function BreedingManagement() {
   const router = useRouter();
@@ -70,16 +76,22 @@ export default function BreedingManagement() {
 
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
 
-  const [minFishQualifiedInput, setMinFishQualifiedInput] = useState<string>("");
-  const [maxFishQualifiedInput, setMaxFishQualifiedInput] = useState<string>("");
+  const [minFishQualifiedInput, setMinFishQualifiedInput] =
+    useState<string>("");
+  const [maxFishQualifiedInput, setMaxFishQualifiedInput] =
+    useState<string>("");
   const [minTotalPackageInput, setMinTotalPackageInput] = useState<string>("");
   const [maxTotalPackageInput, setMaxTotalPackageInput] = useState<string>("");
   const [startDateFromInput, setStartDateFromInput] = useState<string>("");
   const [startDateToInput, setStartDateToInput] = useState<string>("");
   const [endDateFromInput, setEndDateFromInput] = useState<string>("");
   const [endDateToInput, setEndDateToInput] = useState<string>("");
-  const [statusFilter, setStatusFilter] = useState<BreedingStatus | string>("all");
-  const [resultFilter, setResultFilter] = useState<BreedingResult | string>("all");
+  const [statusFilter, setStatusFilter] = useState<BreedingStatus | string>(
+    "all",
+  );
+  const [resultFilter, setResultFilter] = useState<BreedingResult | string>(
+    "all",
+  );
   const [maleKoiIdInput, setMaleKoiIdInput] = useState<string>("");
   const [femaleKoiIdInput, setFemaleKoiIdInput] = useState<string>("");
   const [pondIdInput, setPondIdInput] = useState<string>("");
@@ -118,19 +130,28 @@ export default function BreedingManagement() {
     }));
   }, [debouncedSearchTerm]);
 
-
   const handleApplyFilters = () => {
-    const minFishQualified = minFishQualifiedInput ? Number(minFishQualifiedInput) : undefined;
-    const maxFishQualified = maxFishQualifiedInput ? Number(maxFishQualifiedInput) : undefined;
-    const minPackage = minTotalPackageInput ? Number(minTotalPackageInput) : undefined;
-    const maxPackage = maxTotalPackageInput ? Number(maxTotalPackageInput) : undefined;
+    const minFishQualified = minFishQualifiedInput
+      ? Number(minFishQualifiedInput)
+      : undefined;
+    const maxFishQualified = maxFishQualifiedInput
+      ? Number(maxFishQualifiedInput)
+      : undefined;
+    const minPackage = minTotalPackageInput
+      ? Number(minTotalPackageInput)
+      : undefined;
+    const maxPackage = maxTotalPackageInput
+      ? Number(maxTotalPackageInput)
+      : undefined;
 
     const maleKoiId = maleKoiIdInput ? Number(maleKoiIdInput) : undefined;
     const femaleKoiId = femaleKoiIdInput ? Number(femaleKoiIdInput) : undefined;
     const pondId = pondIdInput ? Number(pondIdInput) : undefined;
 
-    const status = statusFilter !== "all" ? statusFilter as BreedingStatus : undefined;
-    const result = resultFilter !== "all" ? resultFilter as BreedingResult : undefined;
+    const status =
+      statusFilter !== "all" ? (statusFilter as BreedingStatus) : undefined;
+    const result =
+      resultFilter !== "all" ? (resultFilter as BreedingResult) : undefined;
 
     setSearchParams((prev) => ({
       ...prev,
@@ -218,10 +239,15 @@ export default function BreedingManagement() {
     router.push("/manager/breeding/new");
   };
 
-  const isFilterActive = Object.values(searchParams).some(value =>
-    value !== undefined && value !== null && value !== "" && value !== searchParams.pageSize && value !== searchParams.pageIndex && value !== searchParams.search
+  const isFilterActive = Object.values(searchParams).some(
+    (value) =>
+      value !== undefined &&
+      value !== null &&
+      value !== "" &&
+      value !== searchParams.pageSize &&
+      value !== searchParams.pageIndex &&
+      value !== searchParams.search,
   );
-
 
   return (
     <div className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
@@ -262,10 +288,19 @@ export default function BreedingManagement() {
             <Button
               variant={isFilterActive ? "default" : "outline"}
               onClick={() => setIsFilterModalOpen(true)}
-              className={isFilterActive ? "bg-indigo-600 hover:bg-indigo-700" : "border-gray-400"}
+              className={
+                isFilterActive
+                  ? "bg-indigo-600 hover:bg-indigo-700"
+                  : "border-gray-400"
+              }
             >
               <Filter className="h-4 w-4 mr-2" />
-              Bộ lọc {isFilterActive && <span className="ml-1 px-2 py-0.5 bg-white/30 text-white rounded-full text-xs">ON</span>}
+              Bộ lọc{" "}
+              {isFilterActive && (
+                <span className="ml-1 px-2 py-0.5 bg-white/30 text-white rounded-full text-xs">
+                  ON
+                </span>
+              )}
             </Button>
           </div>
 
@@ -285,7 +320,9 @@ export default function BreedingManagement() {
                     <TableHead className="w-[20%]">Thời gian diễn ra</TableHead>
                     <TableHead className="w-[15%]">Giai đoạn</TableHead>
                     <TableHead className="w-[15%]">Kết quả</TableHead>
-                    <TableHead className="w-[20%] text-center">Thao tác</TableHead>
+                    <TableHead className="w-[20%] text-center">
+                      Thao tác
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
 
@@ -303,7 +340,10 @@ export default function BreedingManagement() {
                     breedingProcesses.map((process, index) => (
                       <TableRow key={process.id}>
                         <TableCell className="font-medium">
-                          {index + 1 + (searchParams.pageIndex - 1) * searchParams.pageSize}
+                          {index +
+                            1 +
+                            (searchParams.pageIndex - 1) *
+                              searchParams.pageSize}
                         </TableCell>
                         <TableCell className="truncate">
                           {process.maleKoiRFID}
@@ -405,19 +445,47 @@ export default function BreedingManagement() {
         onOpenChange={(open) => {
           setIsFilterModalOpen(open);
           if (!open) {
-            setMinFishQualifiedInput(searchParams.minTotalFishQualified !== undefined ? String(searchParams.minTotalFishQualified) : "");
-            setMaxFishQualifiedInput(searchParams.maxTotalFishQualified !== undefined ? String(searchParams.maxTotalFishQualified) : "");
-            setMinTotalPackageInput(searchParams.minTotalPackage !== undefined ? String(searchParams.minTotalPackage) : "");
-            setMaxTotalPackageInput(searchParams.maxTotalPackage !== undefined ? String(searchParams.maxTotalPackage) : "");
+            setMinFishQualifiedInput(
+              searchParams.minTotalFishQualified !== undefined
+                ? String(searchParams.minTotalFishQualified)
+                : "",
+            );
+            setMaxFishQualifiedInput(
+              searchParams.maxTotalFishQualified !== undefined
+                ? String(searchParams.maxTotalFishQualified)
+                : "",
+            );
+            setMinTotalPackageInput(
+              searchParams.minTotalPackage !== undefined
+                ? String(searchParams.minTotalPackage)
+                : "",
+            );
+            setMaxTotalPackageInput(
+              searchParams.maxTotalPackage !== undefined
+                ? String(searchParams.maxTotalPackage)
+                : "",
+            );
             setStartDateFromInput(searchParams.startDateFrom || "");
             setStartDateToInput(searchParams.startDateTo || "");
             setEndDateFromInput(searchParams.endDateFrom || "");
             setEndDateToInput(searchParams.endDateTo || "");
             setStatusFilter(searchParams.status || "all");
             setResultFilter(searchParams.result || "all");
-            setMaleKoiIdInput(searchParams.maleKoiId !== undefined ? String(searchParams.maleKoiId) : "");
-            setFemaleKoiIdInput(searchParams.femaleKoiId !== undefined ? String(searchParams.femaleKoiId) : "");
-            setPondIdInput(searchParams.pondId !== undefined ? String(searchParams.pondId) : "");
+            setMaleKoiIdInput(
+              searchParams.maleKoiId !== undefined
+                ? String(searchParams.maleKoiId)
+                : "",
+            );
+            setFemaleKoiIdInput(
+              searchParams.femaleKoiId !== undefined
+                ? String(searchParams.femaleKoiId)
+                : "",
+            );
+            setPondIdInput(
+              searchParams.pondId !== undefined
+                ? String(searchParams.pondId)
+                : "",
+            );
           }
         }}
       >
@@ -432,25 +500,47 @@ export default function BreedingManagement() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="maleId">ID Cá Đực</Label>
-                <Input id="maleId" type="number" placeholder="ID cá đực..." value={maleKoiIdInput} onChange={(e) => setMaleKoiIdInput(e.target.value)} />
+                <Input
+                  id="maleId"
+                  type="number"
+                  placeholder="ID cá đực..."
+                  value={maleKoiIdInput}
+                  onChange={(e) => setMaleKoiIdInput(e.target.value)}
+                />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="femaleId">ID Cá Cái</Label>
-                <Input id="femaleId" type="number" placeholder="ID cá cái..." value={femaleKoiIdInput} onChange={(e) => setFemaleKoiIdInput(e.target.value)} />
+                <Input
+                  id="femaleId"
+                  type="number"
+                  placeholder="ID cá cái..."
+                  value={femaleKoiIdInput}
+                  onChange={(e) => setFemaleKoiIdInput(e.target.value)}
+                />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="pondId">ID Hồ</Label>
-                <Input id="pondId" type="number" placeholder="ID hồ..." value={pondIdInput} onChange={(e) => setPondIdInput(e.target.value)} />
+                <Input
+                  id="pondId"
+                  type="number"
+                  placeholder="ID hồ..."
+                  value={pondIdInput}
+                  onChange={(e) => setPondIdInput(e.target.value)}
+                />
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="status">Giai đoạn</Label>
                 <Select value={statusFilter} onValueChange={setStatusFilter}>
-                  <SelectTrigger><SelectValue placeholder="Chọn giai đoạn" /></SelectTrigger>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Chọn giai đoạn" />
+                  </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">Tất cả</SelectItem>
-                    {Object.values(BreedingStatus).map(s => (
-                      <SelectItem key={s} value={s}>{getBreedingStatusLabel(s as BreedingStatus).label}</SelectItem>
+                    {Object.values(BreedingStatus).map((s) => (
+                      <SelectItem key={s} value={s}>
+                        {getBreedingStatusLabel(s as BreedingStatus).label}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -459,11 +549,15 @@ export default function BreedingManagement() {
               <div className="space-y-2">
                 <Label htmlFor="result">Kết quả</Label>
                 <Select value={resultFilter} onValueChange={setResultFilter}>
-                  <SelectTrigger><SelectValue placeholder="Chọn kết quả" /></SelectTrigger>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Chọn kết quả" />
+                  </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">Tất cả</SelectItem>
-                    {Object.values(BreedingResult).map(r => (
-                      <SelectItem key={r} value={r}>{getBreedingResultLabel(r as BreedingResult).label}</SelectItem>
+                    {Object.values(BreedingResult).map((r) => (
+                      <SelectItem key={r} value={r}>
+                        {getBreedingResultLabel(r as BreedingResult).label}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -471,59 +565,106 @@ export default function BreedingManagement() {
             </div>
 
             <div className="grid grid-cols-2 gap-4 border-t pt-4">
-              <p className="text-sm font-semibold col-span-full mb-[-8px] text-muted-foreground">Lọc theo Số lượng cá Đạt chuẩn</p>
+              <p className="text-sm font-semibold col-span-full mb-[-8px] text-muted-foreground">
+                Lọc theo Số lượng cá Đạt chuẩn
+              </p>
               <div className="space-y-2 col-span-2 md:col-span-1">
                 <Label htmlFor="minFish">Tối thiểu</Label>
-                <Input id="minFish" type="number" placeholder="Cá đạt chuẩn min" value={minFishQualifiedInput} onChange={(e) => setMinFishQualifiedInput(e.target.value)} />
+                <Input
+                  id="minFish"
+                  type="number"
+                  placeholder="Cá đạt chuẩn min"
+                  value={minFishQualifiedInput}
+                  onChange={(e) => setMinFishQualifiedInput(e.target.value)}
+                />
               </div>
               <div className="space-y-2 col-span-2 md:col-span-1">
                 <Label htmlFor="maxFish">Tối đa</Label>
-                <Input id="maxFish" type="number" placeholder="Cá đạt chuẩn max" value={maxFishQualifiedInput} onChange={(e) => setMaxFishQualifiedInput(e.target.value)} />
+                <Input
+                  id="maxFish"
+                  type="number"
+                  placeholder="Cá đạt chuẩn max"
+                  value={maxFishQualifiedInput}
+                  onChange={(e) => setMaxFishQualifiedInput(e.target.value)}
+                />
               </div>
 
-              <p className="text-sm font-semibold col-span-full md:col-span-2 mb-[-8px] text-muted-foreground">Lọc theo Số gói (Package)</p>
+              <p className="text-sm font-semibold col-span-full md:col-span-2 mb-[-8px] text-muted-foreground">
+                Lọc theo Số gói (Package)
+              </p>
               <div className="space-y-2 col-span-2 md:col-span-1">
                 <Label htmlFor="minPackage">Tối thiểu</Label>
-                <Input id="minPackage" type="number" placeholder="Gói min" value={minTotalPackageInput} onChange={(e) => setMinTotalPackageInput(e.target.value)} />
+                <Input
+                  id="minPackage"
+                  type="number"
+                  placeholder="Gói min"
+                  value={minTotalPackageInput}
+                  onChange={(e) => setMinTotalPackageInput(e.target.value)}
+                />
               </div>
               <div className="space-y-2 col-span-2 md:col-span-1">
                 <Label htmlFor="maxPackage">Tối đa</Label>
-                <Input id="maxPackage" type="number" placeholder="Gói max" value={maxTotalPackageInput} onChange={(e) => setMaxTotalPackageInput(e.target.value)} />
+                <Input
+                  id="maxPackage"
+                  type="number"
+                  placeholder="Gói max"
+                  value={maxTotalPackageInput}
+                  onChange={(e) => setMaxTotalPackageInput(e.target.value)}
+                />
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4 border-t pt-4">
-              <p className="text-sm font-semibold col-span-full mb-[-8px] text-muted-foreground">Lọc theo Thời gian BẮT ĐẦU</p>
+              <p className="text-sm font-semibold col-span-full mb-[-8px] text-muted-foreground">
+                Lọc theo Thời gian BẮT ĐẦU
+              </p>
               <div className="space-y-2 col-span-2 md:col-span-1">
                 <Label htmlFor="startDateFrom">Từ ngày</Label>
-                <Input id="startDateFrom" type="date" value={startDateFromInput} onChange={(e) => setStartDateFromInput(e.target.value)} />
+                <Input
+                  id="startDateFrom"
+                  type="date"
+                  value={startDateFromInput}
+                  onChange={(e) => setStartDateFromInput(e.target.value)}
+                />
               </div>
               <div className="space-y-2 col-span-2 md:col-span-1">
                 <Label htmlFor="startDateTo">Đến ngày</Label>
-                <Input id="startDateTo" type="date" value={startDateToInput} onChange={(e) => setStartDateToInput(e.target.value)} />
+                <Input
+                  id="startDateTo"
+                  type="date"
+                  value={startDateToInput}
+                  onChange={(e) => setStartDateToInput(e.target.value)}
+                />
               </div>
 
-              <p className="text-sm font-semibold col-span-full md:col-span-2 mb-[-8px] text-muted-foreground">Lọc theo Thời gian KẾT THÚC</p>
+              <p className="text-sm font-semibold col-span-full md:col-span-2 mb-[-8px] text-muted-foreground">
+                Lọc theo Thời gian KẾT THÚC
+              </p>
               <div className="space-y-2 col-span-2 md:col-span-1">
                 <Label htmlFor="endDateFrom">Từ ngày</Label>
-                <Input id="endDateFrom" type="date" value={endDateFromInput} onChange={(e) => setEndDateFromInput(e.target.value)} />
+                <Input
+                  id="endDateFrom"
+                  type="date"
+                  value={endDateFromInput}
+                  onChange={(e) => setEndDateFromInput(e.target.value)}
+                />
               </div>
               <div className="space-y-2 col-span-2 md:col-span-1">
                 <Label htmlFor="endDateTo">Đến ngày</Label>
-                <Input id="endDateTo" type="date" value={endDateToInput} onChange={(e) => setEndDateToInput(e.target.value)} />
+                <Input
+                  id="endDateTo"
+                  type="date"
+                  value={endDateToInput}
+                  onChange={(e) => setEndDateToInput(e.target.value)}
+                />
               </div>
             </div>
           </div>
           <DialogFooter className="mt-4 flex justify-between sm:justify-between">
-            <Button
-              variant="outline"
-              onClick={handleResetFilters}
-            >
+            <Button variant="outline" onClick={handleResetFilters}>
               Đặt lại
             </Button>
-            <Button onClick={handleApplyFilters}>
-              Áp dụng bộ lọc
-            </Button>
+            <Button onClick={handleApplyFilters}>Áp dụng bộ lọc</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

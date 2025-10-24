@@ -35,11 +35,20 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { FishSize, Gender, HealthStatus, KoiFishResponse, KoiFishSearchParams } from "@/lib/api/services/fetchKoiFish";
+import {
+  FishSize,
+  Gender,
+  HealthStatus,
+  KoiFishResponse,
+  KoiFishSearchParams,
+} from "@/lib/api/services/fetchKoiFish";
 import { useGetKoiFishes } from "@/hooks/useKoiFish";
 import { DATE_FORMATS, formatDate } from "@/lib/utils/dates";
 import formatCurrency from "@/lib/utils/numbers";
-import { PAGE_SIZE_OPTIONS_DEFAULT, PaginationSection } from "@/components/common/PaginationSection";
+import {
+  PAGE_SIZE_OPTIONS_DEFAULT,
+  PaginationSection,
+} from "@/components/common/PaginationSection";
 import getAge from "@/lib/utils/dates/age";
 import getFishSizeLabel, { getHealthStatusLabel } from "@/lib/utils/enum";
 import { useDebounce } from "@/hooks/useDebounce";
@@ -62,7 +71,6 @@ export default function KoiManagement() {
   const [fishSizeInput, setFishSizeInput] = useState<string>("all");
   const [originInput, setOriginInput] = useState<string>("");
 
-
   const [searchParams, setSearchParams] = useState<KoiFishSearchParams>({
     pageIndex: 1,
     pageSize: PAGE_SIZE_OPTIONS_DEFAULT[0],
@@ -76,7 +84,6 @@ export default function KoiManagement() {
     minPrice: undefined,
     maxPrice: undefined,
   });
-
 
   useEffect(() => {
     setSearchParams((prev) => ({
@@ -97,9 +104,14 @@ export default function KoiManagement() {
   };
 
   const handleApplyFilters = () => {
-    const health = healthFilterInput !== "all" ? healthFilterInput as HealthStatus : undefined;
-    const gender = genderFilterInput !== "all" ? genderFilterInput as Gender : undefined;
-    const fishSize = fishSizeInput !== "all" ? fishSizeInput as FishSize : undefined;
+    const health =
+      healthFilterInput !== "all"
+        ? (healthFilterInput as HealthStatus)
+        : undefined;
+    const gender =
+      genderFilterInput !== "all" ? (genderFilterInput as Gender) : undefined;
+    const fishSize =
+      fishSizeInput !== "all" ? (fishSizeInput as FishSize) : undefined;
     const minPrice = minPriceInput ? Number(minPriceInput) : undefined;
     const maxPrice = maxPriceInput ? Number(maxPriceInput) : undefined;
 
@@ -163,12 +175,18 @@ export default function KoiManagement() {
     }));
   };
 
-  const isFilterActive = Object.keys(searchParams).some(key => {
+  const isFilterActive = Object.keys(searchParams).some((key) => {
     const value = searchParams[key as keyof KoiFishSearchParams];
-    return key !== 'search' && key !== 'pageIndex' && key !== 'pageSize' &&
-      (value !== undefined && value !== null && value !== "" && String(value) !== "0");
+    return (
+      key !== "search" &&
+      key !== "pageIndex" &&
+      key !== "pageSize" &&
+      value !== undefined &&
+      value !== null &&
+      value !== "" &&
+      String(value) !== "0"
+    );
   });
-
 
   return (
     <div className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
@@ -203,10 +221,19 @@ export default function KoiManagement() {
             <Button
               variant={isFilterActive ? "default" : "outline"}
               onClick={() => setIsFilterModalOpen(true)}
-              className={isFilterActive ? "bg-indigo-600 hover:bg-indigo-700" : "border-gray-400"}
+              className={
+                isFilterActive
+                  ? "bg-indigo-600 hover:bg-indigo-700"
+                  : "border-gray-400"
+              }
             >
               <Filter className="h-4 w-4 mr-2" />
-              Bộ lọc {isFilterActive && <span className="ml-1 px-2 py-0.5 bg-white/30 text-white rounded-full text-xs">ON</span>}
+              Bộ lọc{" "}
+              {isFilterActive && (
+                <span className="ml-1 px-2 py-0.5 bg-white/30 text-white rounded-full text-xs">
+                  ON
+                </span>
+              )}
             </Button>
           </div>
 
@@ -235,7 +262,10 @@ export default function KoiManagement() {
                 <TableBody>
                   {dataToDisplay.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={10} className="text-center text-muted-foreground">
+                      <TableCell
+                        colSpan={10}
+                        className="text-center text-muted-foreground"
+                      >
                         Không tìm thấy dữ liệu cá Koi nào.
                       </TableCell>
                     </TableRow>
@@ -243,24 +273,35 @@ export default function KoiManagement() {
                     dataToDisplay.map((koi, index) => (
                       <TableRow key={koi.id}>
                         <TableCell className="font-medium">
-                          {index + 1 + (searchParams.pageIndex - 1) * searchParams.pageSize}
+                          {index +
+                            1 +
+                            (searchParams.pageIndex - 1) *
+                              searchParams.pageSize}
                         </TableCell>
-                        <TableCell className="font-medium">{koi.rfid}</TableCell>
+                        <TableCell className="font-medium">
+                          {koi.rfid}
+                        </TableCell>
                         <TableCell>{koi.variety.varietyName}</TableCell>
                         <TableCell>{getAge(koi.birthDate)}</TableCell>
                         <TableCell>{getFishSizeLabel(koi.size)}</TableCell>
                         <TableCell>{koi.pond.pondName}</TableCell>
-                        <TableCell>{(() => {
-                          const label = getHealthStatusLabel(koi.healthStatus);
-                          return (
-                            <Badge
-                              className={`font-semibold ${label.colorClass}`}
-                            >
-                              {label.label}
-                            </Badge>
-                          );
-                        })()}</TableCell>
-                        <TableCell>{formatCurrency(koi.sellingPrice || 0)}</TableCell>
+                        <TableCell>
+                          {(() => {
+                            const label = getHealthStatusLabel(
+                              koi.healthStatus,
+                            );
+                            return (
+                              <Badge
+                                className={`font-semibold ${label.colorClass}`}
+                              >
+                                {label.label}
+                              </Badge>
+                            );
+                          })()}
+                        </TableCell>
+                        <TableCell>
+                          {formatCurrency(koi.sellingPrice || 0)}
+                        </TableCell>
                         <TableCell>
                           <div className="flex items-center gap-2">
                             <Button
@@ -312,7 +353,8 @@ export default function KoiManagement() {
                   {selectedKoi.variety.varietyName}
                 </DialogTitle>
                 <DialogDescription className="text-sm text-muted-foreground">
-                  RFID: {selectedKoi.rfid} • Giống: {selectedKoi.variety.varietyName}
+                  RFID: {selectedKoi.rfid} • Giống:{" "}
+                  {selectedKoi.variety.varietyName}
                 </DialogDescription>
               </div>
             </DialogHeader>
@@ -326,20 +368,30 @@ export default function KoiManagement() {
                   <div className="mt-2 space-y-2">
                     <div className="flex justify-between">
                       <span>Tuổi (Năm sinh):</span>
-                      <span className="font-medium">{formatDate(selectedKoi.birthDate || "", "yyyy")}</span>
+                      <span className="font-medium">
+                        {formatDate(selectedKoi.birthDate || "", "yyyy")}
+                      </span>
                     </div>
                     <div className="flex justify-between">
                       <span>Kích thước:</span>
-                      <span className="font-medium">{getFishSizeLabel(selectedKoi.size)}</span>
+                      <span className="font-medium">
+                        {getFishSizeLabel(selectedKoi.size)}
+                      </span>
                     </div>
                     <div className="flex justify-between">
                       <span>Giá trị mô tả cơ thể:</span>
-                      <span className="font-medium">{selectedKoi.bodyShape}</span>
+                      <span className="font-medium">
+                        {selectedKoi.bodyShape}
+                      </span>
                     </div>
                     <div className="flex justify-between">
                       <span>Giới tính:</span>
                       <span className="font-medium">
-                        {selectedKoi.gender === Gender.MALE ? "Đực" : (selectedKoi.gender === Gender.FEMALE ? "Cái" : "Không rõ")}
+                        {selectedKoi.gender === Gender.MALE
+                          ? "Đực"
+                          : selectedKoi.gender === Gender.FEMALE
+                            ? "Cái"
+                            : "Không rõ"}
                       </span>
                     </div>
                   </div>
@@ -352,16 +404,22 @@ export default function KoiManagement() {
                   <div className="mt-2 space-y-2">
                     <div className="flex justify-between">
                       <span>Hồ:</span>
-                      <span className="font-medium">{selectedKoi.pond.pondName}</span>
+                      <span className="font-medium">
+                        {selectedKoi.pond.pondName}
+                      </span>
                     </div>
                     <div className="flex justify-between">
                       <span>Xuất xứ:</span>
-                      <span className="font-medium">{selectedKoi.variety.originCountry}</span>
+                      <span className="font-medium">
+                        {selectedKoi.variety.originCountry}
+                      </span>
                     </div>
                     <div className="flex justify-between">
                       <span>Tình trạng sức khỏe:</span>
                       {(() => {
-                        const label = getHealthStatusLabel(selectedKoi.healthStatus);
+                        const label = getHealthStatusLabel(
+                          selectedKoi.healthStatus,
+                        );
                         return (
                           <Badge
                             className={`font-semibold ${label.colorClass}`}
@@ -382,8 +440,12 @@ export default function KoiManagement() {
               </div>
 
               <div className="border-t pt-4">
-                <h4 className="font-medium text-muted-foreground mb-2">Mô tả</h4>
-                <p className="text-sm text-gray-700 italic">{selectedKoi.description}</p>
+                <h4 className="font-medium text-muted-foreground mb-2">
+                  Mô tả
+                </h4>
+                <p className="text-sm text-gray-700 italic">
+                  {selectedKoi.description}
+                </p>
                 <div className="mt-4 flex justify-between items-center">
                   <div>
                     <h4 className="font-medium">Giá bán</h4>
@@ -396,7 +458,10 @@ export default function KoiManagement() {
                       Ngày cập nhật cuối
                     </p>
                     <p className="font-medium">
-                      {formatDate(selectedKoi.updatedAt || selectedKoi.createdAt, DATE_FORMATS.MEDIUM_DATE)}
+                      {formatDate(
+                        selectedKoi.updatedAt || selectedKoi.createdAt,
+                        DATE_FORMATS.MEDIUM_DATE,
+                      )}
                     </p>
                   </div>
                 </div>
@@ -414,10 +479,26 @@ export default function KoiManagement() {
             setHealthFilterInput(searchParams.health || "all");
             setGenderFilterInput(searchParams.gender || "all");
             setFishSizeInput(searchParams.fishSize || "all");
-            setMinPriceInput(searchParams.minPrice !== undefined ? String(searchParams.minPrice) : "");
-            setMaxPriceInput(searchParams.maxPrice !== undefined ? String(searchParams.maxPrice) : "");
-            setVarietyIdInput(searchParams.varietyId !== undefined ? String(searchParams.varietyId) : "");
-            setPondIdInput(searchParams.pondId !== undefined ? String(searchParams.pondId) : "");
+            setMinPriceInput(
+              searchParams.minPrice !== undefined
+                ? String(searchParams.minPrice)
+                : "",
+            );
+            setMaxPriceInput(
+              searchParams.maxPrice !== undefined
+                ? String(searchParams.maxPrice)
+                : "",
+            );
+            setVarietyIdInput(
+              searchParams.varietyId !== undefined
+                ? String(searchParams.varietyId)
+                : "",
+            );
+            setPondIdInput(
+              searchParams.pondId !== undefined
+                ? String(searchParams.pondId)
+                : "",
+            );
             setOriginInput(searchParams.origin || "");
           }
         }}
@@ -433,12 +514,19 @@ export default function KoiManagement() {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="healthStatus">Sức khỏe</Label>
-                <Select value={healthFilterInput} onValueChange={setHealthFilterInput}>
-                  <SelectTrigger><SelectValue placeholder="Chọn trạng thái" /></SelectTrigger>
+                <Select
+                  value={healthFilterInput}
+                  onValueChange={setHealthFilterInput}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Chọn trạng thái" />
+                  </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">Tất cả</SelectItem>
-                    {Object.values(HealthStatus).map(s => (
-                      <SelectItem key={s} value={s}>{getHealthStatusLabel(s).label}</SelectItem>
+                    {Object.values(HealthStatus).map((s) => (
+                      <SelectItem key={s} value={s}>
+                        {getHealthStatusLabel(s).label}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -446,8 +534,13 @@ export default function KoiManagement() {
 
               <div className="space-y-2">
                 <Label htmlFor="gender">Giới tính</Label>
-                <Select value={genderFilterInput} onValueChange={setGenderFilterInput}>
-                  <SelectTrigger><SelectValue placeholder="Chọn giới tính" /></SelectTrigger>
+                <Select
+                  value={genderFilterInput}
+                  onValueChange={setGenderFilterInput}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Chọn giới tính" />
+                  </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">Tất cả</SelectItem>
                     <SelectItem value={Gender.MALE}>Đực</SelectItem>
@@ -460,11 +553,15 @@ export default function KoiManagement() {
               <div className="space-y-2">
                 <Label htmlFor="fishSize">Kích thước</Label>
                 <Select value={fishSizeInput} onValueChange={setFishSizeInput}>
-                  <SelectTrigger><SelectValue placeholder="Chọn kích thước" /></SelectTrigger>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Chọn kích thước" />
+                  </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">Tất cả</SelectItem>
-                    {Object.values(FishSize).map(s => (
-                      <SelectItem key={s} value={s}>{getFishSizeLabel(s)}</SelectItem>
+                    {Object.values(FishSize).map((s) => (
+                      <SelectItem key={s} value={s}>
+                        {getFishSizeLabel(s)}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -472,46 +569,72 @@ export default function KoiManagement() {
 
               <div className="space-y-2">
                 <Label htmlFor="origin">Xuất xứ</Label>
-                <Input id="origin" placeholder="Nhập xuất xứ..." value={originInput} onChange={(e) => setOriginInput(e.target.value)} />
+                <Input
+                  id="origin"
+                  placeholder="Nhập xuất xứ..."
+                  value={originInput}
+                  onChange={(e) => setOriginInput(e.target.value)}
+                />
               </div>
             </div>
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 border-t pt-4">
               <div className="space-y-2">
                 <Label htmlFor="varietyId">ID Giống</Label>
-                <Input id="varietyId" type="number" placeholder="ID Giống..." value={varietyIdInput} onChange={(e) => setVarietyIdInput(e.target.value)} />
+                <Input
+                  id="varietyId"
+                  type="number"
+                  placeholder="ID Giống..."
+                  value={varietyIdInput}
+                  onChange={(e) => setVarietyIdInput(e.target.value)}
+                />
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="pondId">ID Hồ</Label>
-                <Input id="pondId" type="number" placeholder="ID Hồ..." value={pondIdInput} onChange={(e) => setPondIdInput(e.target.value)} />
+                <Input
+                  id="pondId"
+                  type="number"
+                  placeholder="ID Hồ..."
+                  value={pondIdInput}
+                  onChange={(e) => setPondIdInput(e.target.value)}
+                />
               </div>
 
               <p className="text-sm font-semibold col-span-full mb-[-8px] text-muted-foreground md:col-span-2"></p>
             </div>
 
             <div className="grid grid-cols-2 gap-4 border-t pt-4">
-              <p className="text-sm font-semibold col-span-full mb-[-8px] text-muted-foreground">Lọc theo Giá bán (VNĐ)</p>
+              <p className="text-sm font-semibold col-span-full mb-[-8px] text-muted-foreground">
+                Lọc theo Giá bán (VNĐ)
+              </p>
               <div className="space-y-2 col-span-1">
                 <Label htmlFor="minPrice">Giá tối thiểu</Label>
-                <Input id="minPrice" type="number" placeholder="Giá thấp nhất" value={minPriceInput} onChange={(e) => setMinPriceInput(e.target.value)} />
+                <Input
+                  id="minPrice"
+                  type="number"
+                  placeholder="Giá thấp nhất"
+                  value={minPriceInput}
+                  onChange={(e) => setMinPriceInput(e.target.value)}
+                />
               </div>
               <div className="space-y-2 col-span-1">
                 <Label htmlFor="maxPrice">Giá tối đa</Label>
-                <Input id="maxPrice" type="number" placeholder="Giá cao nhất" value={maxPriceInput} onChange={(e) => setMaxPriceInput(e.target.value)} />
+                <Input
+                  id="maxPrice"
+                  type="number"
+                  placeholder="Giá cao nhất"
+                  value={maxPriceInput}
+                  onChange={(e) => setMaxPriceInput(e.target.value)}
+                />
               </div>
             </div>
           </div>
           <DialogFooter className="mt-4 flex justify-between sm:justify-between">
-            <Button
-              variant="outline"
-              onClick={handleResetFilters}
-            >
+            <Button variant="outline" onClick={handleResetFilters}>
               Đặt lại
             </Button>
-            <Button onClick={handleApplyFilters}>
-              Áp dụng bộ lọc
-            </Button>
+            <Button onClick={handleApplyFilters}>Áp dụng bộ lọc</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

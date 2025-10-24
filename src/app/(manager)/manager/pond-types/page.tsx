@@ -40,7 +40,14 @@ import EditPondTypeModal from "./EditPondTypeModal";
 import PondTypeDetailModal from "./PondTypeDetailModal";
 import DeletePondTypeConfirmDialog from "./DeletePondTypeConfirmDialog";
 import { useDebounce } from "@/hooks/useDebounce";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 
 export interface PondTypeFormState {
@@ -187,8 +194,12 @@ export default function PondTypeManagement() {
   };
 
   const handleApplyFilters = () => {
-    const minCapacityLiters = minCapacityInput ? Number(minCapacityInput) : undefined;
-    const maxCapacityLiters = maxCapacityInput ? Number(maxCapacityInput) : undefined;
+    const minCapacityLiters = minCapacityInput
+      ? Number(minCapacityInput)
+      : undefined;
+    const maxCapacityLiters = maxCapacityInput
+      ? Number(maxCapacityInput)
+      : undefined;
 
     setSearchParams((prev) => ({
       ...prev,
@@ -212,10 +223,17 @@ export default function PondTypeManagement() {
     setIsFilterModalOpen(false);
   };
 
-  const isFilterActive = Object.keys(searchParams).some(key => {
+  const isFilterActive = Object.keys(searchParams).some((key) => {
     const value = searchParams[key as keyof PondTypeSearchParams];
-    return key !== 'search' && key !== 'pageIndex' && key !== 'pageSize' &&
-      (value !== undefined && value !== null && value !== "" && String(value) !== "0");
+    return (
+      key !== "search" &&
+      key !== "pageIndex" &&
+      key !== "pageSize" &&
+      value !== undefined &&
+      value !== null &&
+      value !== "" &&
+      String(value) !== "0"
+    );
   });
 
   return (
@@ -257,10 +275,19 @@ export default function PondTypeManagement() {
             <Button
               variant={isFilterActive ? "default" : "outline"}
               onClick={() => setIsFilterModalOpen(true)}
-              className={isFilterActive ? "bg-indigo-600 hover:bg-indigo-700" : "border-gray-400"}
+              className={
+                isFilterActive
+                  ? "bg-indigo-600 hover:bg-indigo-700"
+                  : "border-gray-400"
+              }
             >
               <Filter className="h-4 w-4 mr-2" />
-              Bộ lọc {isFilterActive && <span className="ml-1 px-2 py-0.5 bg-white/30 text-white rounded-full text-xs">ON</span>}
+              Bộ lọc{" "}
+              {isFilterActive && (
+                <span className="ml-1 px-2 py-0.5 bg-white/30 text-white rounded-full text-xs">
+                  ON
+                </span>
+              )}
             </Button>
           </div>
 
@@ -294,7 +321,10 @@ export default function PondTypeManagement() {
                     pondTypes.map((type, index) => (
                       <TableRow key={type.id}>
                         <TableCell className="font-medium">
-                          {index + 1 + (searchParams.pageIndex - 1) * searchParams.pageSize}
+                          {index +
+                            1 +
+                            (searchParams.pageIndex - 1) *
+                              searchParams.pageSize}
                         </TableCell>
                         <TableCell>{type.typeName}</TableCell>
                         <TableCell>
@@ -365,8 +395,16 @@ export default function PondTypeManagement() {
         onOpenChange={(open) => {
           setIsFilterModalOpen(open);
           if (!open) {
-            setMinCapacityInput(searchParams.minRecommendedCapacity !== undefined ? String(searchParams.minRecommendedCapacity) : "");
-            setMaxCapacityInput(searchParams.maxRecommendedCapacity !== undefined ? String(searchParams.maxRecommendedCapacity) : "");
+            setMinCapacityInput(
+              searchParams.minRecommendedCapacity !== undefined
+                ? String(searchParams.minRecommendedCapacity)
+                : "",
+            );
+            setMaxCapacityInput(
+              searchParams.maxRecommendedCapacity !== undefined
+                ? String(searchParams.maxRecommendedCapacity)
+                : "",
+            );
           }
         }}
       >
@@ -379,27 +417,36 @@ export default function PondTypeManagement() {
           </DialogHeader>
           <div className="space-y-6">
             <div className="grid grid-cols-2 gap-4">
-              <p className="text-sm font-semibold col-span-full mb-[-8px] text-muted-foreground">Lọc theo Sức chứa đề xuất (Lít)</p>
+              <p className="text-sm font-semibold col-span-full mb-[-8px] text-muted-foreground">
+                Lọc theo Sức chứa đề xuất (Lít)
+              </p>
               <div className="space-y-2 col-span-1">
                 <Label htmlFor="minCapacity">Tối thiểu</Label>
-                <Input id="minCapacity" type="number" placeholder="Sức chứa min" value={minCapacityInput} onChange={(e) => setMinCapacityInput(e.target.value)} />
+                <Input
+                  id="minCapacity"
+                  type="number"
+                  placeholder="Sức chứa min"
+                  value={minCapacityInput}
+                  onChange={(e) => setMinCapacityInput(e.target.value)}
+                />
               </div>
               <div className="space-y-2 col-span-1">
                 <Label htmlFor="maxCapacity">Tối đa</Label>
-                <Input id="maxCapacity" type="number" placeholder="Sức chứa max" value={maxCapacityInput} onChange={(e) => setMaxCapacityInput(e.target.value)} />
+                <Input
+                  id="maxCapacity"
+                  type="number"
+                  placeholder="Sức chứa max"
+                  value={maxCapacityInput}
+                  onChange={(e) => setMaxCapacityInput(e.target.value)}
+                />
               </div>
             </div>
           </div>
           <DialogFooter className="mt-4 flex justify-between sm:justify-between">
-            <Button
-              variant="outline"
-              onClick={handleResetFilters}
-            >
+            <Button variant="outline" onClick={handleResetFilters}>
               Đặt lại
             </Button>
-            <Button onClick={handleApplyFilters}>
-              Áp dụng bộ lọc
-            </Button>
+            <Button onClick={handleApplyFilters}>Áp dụng bộ lọc</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
