@@ -605,7 +605,7 @@ export default function PondManagement() {
                               variant="ghost"
                               size="icon"
                               onClick={() => handleViewDetails(pond)}
-                              title="Xem chi tiết"
+                              title="Chi tiết"
                             >
                               <Eye className="h-4 w-4" />
                             </Button>
@@ -622,7 +622,7 @@ export default function PondManagement() {
                               size="icon"
                               className="text-red-600 hover:text-red-800"
                               onClick={() => handleDeletePond(pond)}
-                              title="Xóa hồ"
+                              title="Xóa"
                               disabled={deletePondMutation.isPending}
                             >
                               {deletePondMutation.isPending ? (

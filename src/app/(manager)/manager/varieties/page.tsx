@@ -337,7 +337,7 @@ export default function VarietyManagement() {
                               variant="ghost"
                               size="icon"
                               onClick={() => handleViewDetails(variety)}
-                              title="Xem chi tiết"
+                              title="Chi tiết"
                             >
                               <Eye className="h-4 w-4" />
                             </Button>
@@ -354,7 +354,7 @@ export default function VarietyManagement() {
                               size="icon"
                               className="text-red-600 hover:text-red-800"
                               onClick={() => handleDeleteVariety(variety)}
-                              title="Xóa giống cá"
+                              title="Xóa"
                               disabled={deleteVarietyMutation.isPending}
                             >
                               {deleteVarietyMutation.isPending ? (

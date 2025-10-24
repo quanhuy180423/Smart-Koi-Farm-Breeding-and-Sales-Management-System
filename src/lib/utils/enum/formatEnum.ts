@@ -2,7 +2,11 @@ import {
   BreedingResult,
   BreedingStatus,
 } from "@/lib/api/services/fetchBreedingProcess";
-import { FishSize, HealthStatus } from "@/lib/api/services/fetchKoiFish";
+import {
+  FishSize,
+  Gender,
+  HealthStatus,
+} from "@/lib/api/services/fetchKoiFish";
 import { PondStatus } from "@/lib/api/services/fetchPond";
 
 interface Label {
@@ -27,6 +31,12 @@ const healthStatusMeta: Record<HealthStatus, Label> = {
     label: "Đã chết",
     colorClass: "bg-gray-100 text-gray-800 hover:bg-gray-100",
   },
+};
+
+const genderConvert = {
+  [Gender.MALE]: "Đực",
+  [Gender.FEMALE]: "Cái",
+  [Gender.UNKNOWN]: "Không rõ",
 };
 
 const breedingResultMeta: Record<BreedingResult, Label> = {
@@ -140,4 +150,8 @@ export function getPondStatusLabel(status: PondStatus | undefined): Label {
   }
 
   return pondStatusMeta[status];
+}
+
+export function getGenderString(gender: Gender): string {
+  return genderConvert[gender];
 }
