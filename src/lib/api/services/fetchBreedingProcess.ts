@@ -74,6 +74,16 @@ export interface BreedingProcessSearchParams extends PagingRequest {
   endDateTo?: string;
 }
 
+export interface BreedingParentHistoryResponse {
+  koiFishId: number;
+  participationCount: number;
+  failCount: number;
+  fertilizationRate: number;
+  hatchRate: number;
+  survivalRate: number;
+  highQualifiedRate: number;
+}
+
 export const breedingProcessService = {
   getBreedingProcesses: async (
     request: BreedingProcessSearchParams,
@@ -91,6 +101,14 @@ export const breedingProcessService = {
       BaseResponse<BreedingProcessResponse>,
       Partial<BreedingProcessCreateRequest>
     >(`${baseUrl}`, request);
+    return response.data;
+  },
+  getBreedingParentHistory: async (
+    id: number,
+  ): Promise<BaseResponse<BreedingParentHistoryResponse>> => {
+    const response = await apiService.get<
+      BaseResponse<BreedingParentHistoryResponse>
+    >(`${baseUrl}/${id}/breeding-parent-history`);
     return response.data;
   },
 };
