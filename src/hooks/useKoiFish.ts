@@ -15,7 +15,7 @@ export function useGetKoiFishes(request: KoiFishSearchParams) {
     queryFn: () => koiFishService.getKoiFishes(request),
     enabled: isAuthenticated,
     select: (
-      data: BaseResponse<PagedResponse<KoiFishResponse>>
+      data: BaseResponse<PagedResponse<KoiFishResponse>>,
     ): PagedResponse<KoiFishResponse> => data.result,
     retry: (failureCount, error: unknown) => {
       if (
@@ -39,7 +39,7 @@ export function useGetKoiFishFamily(id: number | undefined) {
     queryFn: () => koiFishService.getKoiFishFamily(id),
     enabled: isAuthenticated && id !== undefined && id !== 0,
     select: (
-      data: BaseResponse<KoiFishFamilyResponse>
+      data: BaseResponse<KoiFishFamilyResponse>,
     ): KoiFishFamilyResponse => data.result,
     retry: (failureCount, error: unknown) => {
       if (
