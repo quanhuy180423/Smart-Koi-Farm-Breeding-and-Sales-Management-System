@@ -1,5 +1,6 @@
 import { ApiError, BaseResponse, PagedResponse } from "@/lib/api/apiClient";
 import breedingProcessService, {
+  BreedingParentHistoryResponse,
   BreedingProcessCreateRequest,
   BreedingProcessResponse,
   BreedingProcessSearchParams,
@@ -17,7 +18,7 @@ export function useGetBreedingProcesses(request: BreedingProcessSearchParams) {
     queryFn: () => breedingProcessService.getBreedingProcesses(request),
     enabled: isAuthenticated,
     select: (
-      data: BaseResponse<PagedResponse<BreedingProcessResponse>>,
+      data: BaseResponse<PagedResponse<BreedingProcessResponse>>
     ): PagedResponse<BreedingProcessResponse> => data.result,
     retry: (failureCount, error: unknown) => {
       if (
@@ -49,8 +50,32 @@ export function useAddBreedingProcess() {
     },
     onError: (error: ApiError) => {
       toast.error(
-        error.error?.result || "Có lỗi xảy ra khi cập nhật thông tin",
+        error.error?.result || "Có lỗi xảy ra khi cập nhật thông tin"
       );
+    },
+  });
+}
+
+export function useGetBreedingParentHistory(id: number) {
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+
+  return useQuery({
+    queryKey: ["breeding-processes", "breeding-parent-history", id],
+    queryFn: () => breedingProcessService.getBreedingParentHistory(id),
+    enabled: isAuthenticated,
+    select: (
+      data: BaseResponse<BreedingParentHistoryResponse>
+    ): BreedingParentHistoryResponse => data.result,
+    retry: (failureCount, error: unknown) => {
+      if (
+        error &&
+        typeof error === "object" &&
+        "status" in error &&
+        error.status === 401
+      ) {
+        return false;
+      }
+      return failureCount < 2;
     },
   });
 }

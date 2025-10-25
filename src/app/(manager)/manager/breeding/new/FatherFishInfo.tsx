@@ -6,6 +6,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useGetBreedingParentHistory } from "@/hooks/useBreedingProcess";
 import { KoiFishResponse } from "@/lib/api/services/fetchKoiFish";
 import getAge from "@/lib/utils/dates/age";
 import getFishSizeLabel, { getHealthStatusLabel } from "@/lib/utils/enum";
@@ -18,6 +19,8 @@ interface FatherFishInfoProps {
 }
 
 export default function FatherFishInfo({ selectedFish }: FatherFishInfoProps) {
+  const { data: breedingParentHistory } = useGetBreedingParentHistory(selectedFish.id);
+
   const basicQualityData = [
     {
       label: "Nguồn gốc (Origin)",
@@ -62,16 +65,24 @@ export default function FatherFishInfo({ selectedFish }: FatherFishInfoProps) {
     },
   ];
 
-  // const breedingHistoryData = [
-  //   {
-  //     label: "Thành tích sinh sản",
-  //     value: "3 lần sinh sản thành công, cá con đạt chất lượng cao",
-  //   },
-  //   {
-  //     label: "Tỷ lệ cá con khỏe mạnh",
-  //     value: "92%",
-  //   },
-  // ];
+  const breedingHistoryData = [
+    {
+      label: "Số lần sinh sản thất bại",
+      value: breedingParentHistory?.failCount,
+    },
+    {
+      label: "Tỷ lệ nở trung bình",
+      value: `${breedingParentHistory?.hatchRate.toFixed(2)}%`,
+    },
+    {
+      label: "Tỷ lệ cá con sống sót trung bình",
+      value: `${breedingParentHistory?.survivalRate.toFixed(2)}%`,
+    },
+    {
+      label: "Tỷ lệ cá con chất lượng tốt trung bình",
+      value: `${breedingParentHistory?.highQualifiedRate.toFixed(2)}%`,
+    },
+  ];
 
   return (
     <div className="w-full bg-white border border-gray-100 shadow-sm rounded-xl p-8">
@@ -130,7 +141,7 @@ export default function FatherFishInfo({ selectedFish }: FatherFishInfoProps) {
             Phẩm Chất Cơ Bản của Cá Thể
           </h3>
           <div
-            className={`grid grid-cols-1 md:grid-cols-${basicQualityData.length} gap-4`}
+            className={`grid grid-cols-${basicQualityData.length} gap-4`}
           >
             {basicQualityData.map((item, index) => (
               <Card
@@ -158,7 +169,7 @@ export default function FatherFishInfo({ selectedFish }: FatherFishInfoProps) {
             Dữ liệu Di truyền & Phả hệ
           </h3>
           <div
-            className={`grid grid-cols-1 md:grid-cols-${geneticData.length} gap-4`}
+            className={`grid grid-cols-${geneticData.length} gap-4`}
           >
             {geneticData.map((item, index) => (
               <Card
@@ -184,7 +195,7 @@ export default function FatherFishInfo({ selectedFish }: FatherFishInfoProps) {
             Sức Khỏe & Độ Tuổi
           </h3>
           <div
-            className={`grid grid-cols-1 md:grid-cols-${healthAgeData.length} gap-4`}
+            className={`grid grid-cols-${healthAgeData.length} gap-4`}
           >
             {healthAgeData.map((item, index) => (
               <Card
@@ -212,7 +223,7 @@ export default function FatherFishInfo({ selectedFish }: FatherFishInfoProps) {
             Đặc Tính Riêng Biệt Theo Giống
           </h3>
           <div
-            className={`grid grid-cols-1 md:grid-cols-${breedData.length} gap-4`}
+            className={`grid grid-cols-${breedData.length} gap-4`}
           >
             {breedData.map((item, index) => (
               <Card
@@ -230,14 +241,14 @@ export default function FatherFishInfo({ selectedFish }: FatherFishInfoProps) {
           </div>
         </div>
 
-        {/* <div>
+        <div>
           <h3 className="text-lg font-bold text-gray-800 mb-5 flex items-center gap-2">
             <span className="bg-blue-100 text-blue-800 rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold">
               5
             </span>
             Dữ Liệu Lịch Sử Sinh Sản
           </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className={`grid grid-cols-${breedingHistoryData.length} gap-4`}>
             {breedingHistoryData.map((item, index) => (
               <Card
                 key={index}
@@ -252,7 +263,7 @@ export default function FatherFishInfo({ selectedFish }: FatherFishInfoProps) {
               </Card>
             ))}
           </div>
-        </div> */}
+        </div>
       </div>
     </div>
   );

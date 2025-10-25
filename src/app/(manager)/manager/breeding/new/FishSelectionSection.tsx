@@ -88,7 +88,7 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
     (f) => f.id === selectedMotherId,
   );
 
-  const compatibilityScore = 100;
+  // const compatibilityScore = 100;
   const handleContinue = () => {
     if (selectedFather && selectedMother)
       onSelection(selectedFather, selectedMother);
@@ -324,7 +324,8 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
               </div>
               {selectedFather && selectedMother && (
                 <div className="mt-2 text-center text-xs text-gray-700">
-                  Tương hợp: <strong>{compatibilityScore}%</strong>
+                  {/* Comment lại khi nào có api thì dùng */}
+                  {/* Tương hợp: <strong>{compatibilityScore}%</strong> */}
                 </div>
               )}
             </div>
