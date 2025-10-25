@@ -70,6 +70,15 @@ export interface KoiFishSearchParams extends PagingRequest {
   maxPrice?: number;
 }
 
+export interface KoiFishFamilyResponse {
+  id: number;
+  rfid: string;
+  varietyName: string;
+  gender: Gender;
+  father?: KoiFishFamilyResponse;
+  mother?: KoiFishFamilyResponse;
+}
+
 const baseUrl = "/api/KoiFish";
 
 export const koiFishService = {
@@ -80,6 +89,14 @@ export const koiFishService = {
     const response = await apiService.get<
       BaseResponse<PagedResponse<KoiFishResponse>>
     >(`${baseUrl}`, { ...filter });
+    return response.data;
+  },
+  getKoiFishFamily: async (
+    id?: number,
+  ): Promise<BaseResponse<KoiFishFamilyResponse>> => {
+    const response = await apiService.get<BaseResponse<KoiFishFamilyResponse>>(
+      `${baseUrl}/family/${id}`,
+    );
     return response.data;
   },
 };
