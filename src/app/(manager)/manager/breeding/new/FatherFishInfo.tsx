@@ -19,7 +19,9 @@ interface FatherFishInfoProps {
 }
 
 export default function FatherFishInfo({ selectedFish }: FatherFishInfoProps) {
-  const { data: breedingParentHistory } = useGetBreedingParentHistory(selectedFish.id);
+  const { data: breedingParentHistory } = useGetBreedingParentHistory(
+    selectedFish.id,
+  );
 
   const basicQualityData = [
     {
@@ -140,9 +142,7 @@ export default function FatherFishInfo({ selectedFish }: FatherFishInfoProps) {
             </span>
             Phẩm Chất Cơ Bản của Cá Thể
           </h3>
-          <div
-            className={`grid grid-cols-${basicQualityData.length} gap-4`}
-          >
+          <div className={`grid grid-cols-${basicQualityData.length} gap-4`}>
             {basicQualityData.map((item, index) => (
               <Card
                 key={index}
@@ -168,9 +168,7 @@ export default function FatherFishInfo({ selectedFish }: FatherFishInfoProps) {
             </span>
             Dữ liệu Di truyền & Phả hệ
           </h3>
-          <div
-            className={`grid grid-cols-${geneticData.length} gap-4`}
-          >
+          <div className={`grid grid-cols-${geneticData.length} gap-4`}>
             {geneticData.map((item, index) => (
               <Card
                 key={index}
@@ -194,9 +192,7 @@ export default function FatherFishInfo({ selectedFish }: FatherFishInfoProps) {
             </span>
             Sức Khỏe & Độ Tuổi
           </h3>
-          <div
-            className={`grid grid-cols-${healthAgeData.length} gap-4`}
-          >
+          <div className={`grid grid-cols-${healthAgeData.length} gap-4`}>
             {healthAgeData.map((item, index) => (
               <Card
                 key={index}
@@ -222,9 +218,7 @@ export default function FatherFishInfo({ selectedFish }: FatherFishInfoProps) {
             </span>
             Đặc Tính Riêng Biệt Theo Giống
           </h3>
-          <div
-            className={`grid grid-cols-${breedData.length} gap-4`}
-          >
+          <div className={`grid grid-cols-${breedData.length} gap-4`}>
             {breedData.map((item, index) => (
               <Card
                 key={index}

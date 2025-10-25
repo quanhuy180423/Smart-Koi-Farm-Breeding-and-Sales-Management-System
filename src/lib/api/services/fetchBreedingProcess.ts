@@ -86,7 +86,7 @@ export interface BreedingParentHistoryResponse {
 
 export const breedingProcessService = {
   getBreedingProcesses: async (
-    request: BreedingProcessSearchParams
+    request: BreedingProcessSearchParams,
   ): Promise<BaseResponse<PagedResponse<BreedingProcessResponse>>> => {
     const filter = toRequestParams(request);
     const response = await apiService.get<
@@ -95,7 +95,7 @@ export const breedingProcessService = {
     return response.data;
   },
   addBreedingProcess: async (
-    request: Partial<BreedingProcessCreateRequest>
+    request: Partial<BreedingProcessCreateRequest>,
   ): Promise<BaseResponse<BreedingProcessResponse>> => {
     const response = await apiService.post<
       BaseResponse<BreedingProcessResponse>,
@@ -104,7 +104,7 @@ export const breedingProcessService = {
     return response.data;
   },
   getBreedingParentHistory: async (
-    id: number
+    id: number,
   ): Promise<BaseResponse<BreedingParentHistoryResponse>> => {
     const response = await apiService.get<
       BaseResponse<BreedingParentHistoryResponse>
