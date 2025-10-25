@@ -36,7 +36,7 @@ const healthStatusMeta: Record<HealthStatus, Label> = {
 const genderConvert = {
   [Gender.MALE]: "Đực",
   [Gender.FEMALE]: "Cái",
-  [Gender.UNKNOWN]: "Không rõ",
+  [Gender.UNKNOWN]: "Không xác định",
 };
 
 const breedingResultMeta: Record<BreedingResult, Label> = {
@@ -152,6 +152,7 @@ export function getPondStatusLabel(status: PondStatus | undefined): Label {
   return pondStatusMeta[status];
 }
 
-export function getGenderString(gender: Gender): string {
+export function getGenderString(gender: Gender | undefined): string {
+  if (gender === undefined) return "Không xác định";
   return genderConvert[gender];
 }
