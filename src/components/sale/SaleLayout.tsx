@@ -2,7 +2,6 @@
 
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,17 +10,28 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Bell, User, LogOut, Settings, CircleUserRound } from "lucide-react";
+import { User, LogOut, Settings, CircleUserRound } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import logo from "@/assets/images/Logo_ZenKoi.png";
 import SaleSidebar from "./SaleSidebar";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useAuthStore, UserRole } from "@/store/auth-store";
+import { NotificationDropdown } from "./NotificationDropdown";
 
 interface SaleLayoutProps {
   children: React.ReactNode;
 }
 
 export function SaleLayout({ children }: SaleLayoutProps) {
+  const router = useRouter();
+  useEffect(() => {
+    const role = useAuthStore.getState().getUserRole();
+    if (role !== UserRole.SALE_STAFF) {
+      router.push("/login");
+    }
+  }, [router]);
   return (
     <div className="min-h-screen bg-background">
       {/* Sale Header */}
@@ -53,19 +63,7 @@ export function SaleLayout({ children }: SaleLayoutProps) {
 
           <div className="flex items-center gap-4">
             {/* Notifications */}
-            <Button
-              asChild
-              variant="ghost"
-              size="icon"
-              className="relative rounded-full"
-            >
-              <Link href={"/sale/notifications" as const}>
-                <Bell className="h-5 w-5" />
-                <Badge className="absolute -top-2 -right-2 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs bg-red-500 text-white border-0">
-                  3
-                </Badge>
-              </Link>
-            </Button>
+            <NotificationDropdown />
 
             {/* User Dropdown */}
             <DropdownMenu>

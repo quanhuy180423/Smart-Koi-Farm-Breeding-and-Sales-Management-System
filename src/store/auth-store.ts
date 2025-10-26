@@ -1,11 +1,13 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import apiService from "@/lib/api/apiClient";
+import fetchAuth, { SignOutRequest } from "@/lib/api/services/fetchAuth";
 
-// Define user roles (same as middleware)
 export enum UserRole {
-  ADMIN = "admin",
-  CUSTOMER = "customer",
+  MANAGER = "manager",
+  FARM_STAFF = "farm-staff",
   SALE_STAFF = "sale-staff",
+  CUSTOMER = "customer",
   GUEST = "guest",
 }
 
@@ -22,14 +24,11 @@ interface AuthState {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-
-  // Actions
   login: (user: User) => void;
-  logout: () => void;
   setLoading: (loading: boolean) => void;
   updateUser: (user: Partial<User>) => void;
-
-  // Computed values
+  setToken: (token: string | null) => void;
+  logout: (refreshToken?: string) => Promise<boolean>;
   getUserRole: () => UserRole;
   hasRole: (role: UserRole) => boolean;
   canAccessRoute: (route: string) => boolean;
@@ -43,23 +42,10 @@ export const useAuthStore = create<AuthState>()(
       isLoading: false,
 
       login: (user: User) => {
-        // Set user in store
         set({ user, isAuthenticated: true, isLoading: false });
 
-        // Set cookie for middleware (client-side)
         if (typeof window !== "undefined") {
-          document.cookie = `user-role=${user.role}; path=/; max-age=86400`; // 24 hours
-        }
-      },
-
-      logout: () => {
-        // Clear user from store
-        set({ user: null, isAuthenticated: false, isLoading: false });
-
-        // Clear cookie
-        if (typeof window !== "undefined") {
-          document.cookie =
-            "user-role=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+          document.cookie = `user-role=${user.role}; path=/; max-age=86400`;
         }
       },
 
@@ -73,13 +59,147 @@ export const useAuthStore = create<AuthState>()(
           const updatedUser = { ...currentUser, ...userData };
           set({ user: updatedUser });
 
-          // Update cookie if role changed
           if (userData.role && userData.role !== currentUser.role) {
             if (typeof window !== "undefined") {
               document.cookie = `user-role=${userData.role}; path=/; max-age=86400`;
             }
           }
         }
+      },
+
+      setToken: (token: string | null) => {
+        if (!token) {
+          set({ user: null, isAuthenticated: false, isLoading: false });
+          if (typeof window !== "undefined") {
+            document.cookie =
+              "user-role=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+          }
+          try {
+            apiService.setAuthToken("");
+          } catch {}
+          return;
+        }
+
+        try {
+          const base64UrlToJson = (b64Url: string) => {
+            let s = b64Url.replace(/-/g, "+").replace(/_/g, "/");
+            while (s.length % 4) s += "=";
+            if (
+              typeof window !== "undefined" &&
+              typeof window.atob === "function"
+            ) {
+              const decoded = window.atob(s);
+              const pct = Array.prototype.map
+                .call(decoded, (c: string) => {
+                  return "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2);
+                })
+                .join("");
+              return decodeURIComponent(pct);
+            }
+            const buff = Buffer.from(s, "base64");
+            return buff.toString("utf-8");
+          };
+
+          const parts = token.split(".");
+          if (parts.length < 2) throw new Error("invalid token");
+          const payloadJson = base64UrlToJson(parts[1]);
+          const payload = JSON.parse(payloadJson) as Record<string, unknown>;
+
+          const rawRoleValue =
+            (payload["Role"] as unknown) ||
+            (payload[
+              "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
+            ] as unknown) ||
+            (payload["role"] as unknown) ||
+            "Guest";
+
+          const rawRole = String(rawRoleValue ?? "Guest");
+
+          const mapRole = (r: string): UserRole => {
+            const rr = (r || "").toLowerCase();
+            if (rr.includes("manager")) return UserRole.MANAGER;
+            if (rr.includes("farm")) return UserRole.FARM_STAFF;
+            if (rr.includes("sale")) return UserRole.SALE_STAFF;
+            if (rr.includes("customer") || rr.includes("cust"))
+              return UserRole.CUSTOMER;
+            return UserRole.GUEST;
+          };
+
+          const role = mapRole(rawRole);
+
+          const idVal = payload["Id"] ?? payload["id"] ?? "";
+          const emailVal = payload["Email"] ?? payload["email"] ?? "";
+          const nameVal = payload["Name"] ?? payload["name"] ?? undefined;
+
+          const user: User = {
+            id: String(idVal || ""),
+            email: String(emailVal || ""),
+            username: nameVal
+              ? String(nameVal)
+              : String(emailVal || "").split("@")[0] || "",
+            role,
+            name: nameVal ? String(nameVal) : undefined,
+          };
+
+          try {
+            apiService.setAuthToken(token);
+          } catch {}
+
+          set({ user, isAuthenticated: true, isLoading: false });
+          if (typeof window !== "undefined") {
+            document.cookie = `user-role=${role}; path=/; max-age=86400`;
+          }
+        } catch {
+          set({ user: null, isAuthenticated: false, isLoading: false });
+        }
+      },
+
+      logout: async (refreshToken?: string) => {
+        const readCookie = (name: string) => {
+          if (typeof window === "undefined") return null;
+          const match = document.cookie
+            .split(";")
+            .map((c) => c.trim())
+            .find((c) => c.startsWith(name + "="));
+          if (!match) return null;
+          return decodeURIComponent(match.split("=")[1] || "");
+        };
+
+        let success = false;
+        try {
+          const tokenToSend = refreshToken ?? readCookie("refresh-token");
+          if (tokenToSend) {
+            const req: SignOutRequest = { refreshToken: tokenToSend };
+            try {
+              const resp = await fetchAuth.signOut(req);
+              success = !!(resp && resp.isSuccess);
+            } catch {
+              success = false;
+            }
+          } else {
+            success = true;
+          }
+
+          if (success) {
+            set({ user: null, isAuthenticated: false, isLoading: false });
+            if (typeof window !== "undefined") {
+              document.cookie =
+                "user-role=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+              document.cookie =
+                "auth-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+              document.cookie =
+                "refresh-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+            }
+
+            try {
+              apiService.setAuthToken("");
+            } catch {}
+          }
+        } catch {
+          success = false;
+        }
+
+        return success;
       },
 
       getUserRole: () => {
@@ -93,14 +213,12 @@ export const useAuthStore = create<AuthState>()(
       canAccessRoute: (route: string) => {
         const userRole = get().getUserRole();
 
-        // Define route permissions (same as middleware)
         const routePermissions: Record<string, UserRole[]> = {
-          "/admin": [UserRole.ADMIN],
-          "/customer": [UserRole.CUSTOMER],
-          "/sale-staff": [UserRole.SALE_STAFF],
+          "/manager": [UserRole.MANAGER],
+          "/sale": [UserRole.SALE_STAFF],
+          "/": [UserRole.CUSTOMER, UserRole.GUEST],
         };
 
-        // Check if route requires specific role
         for (const [protectedRoute, allowedRoles] of Object.entries(
           routePermissions,
         )) {
@@ -109,7 +227,6 @@ export const useAuthStore = create<AuthState>()(
           }
         }
 
-        // Public routes or routes not in protection list
         return true;
       },
     }),
@@ -118,7 +235,6 @@ export const useAuthStore = create<AuthState>()(
       partialize: (state) => ({
         user: state.user,
         isAuthenticated: state.isAuthenticated,
-        // Don't persist isLoading
       }),
     },
   ),
@@ -183,17 +299,25 @@ export const authHelpers = {
 
       // Mock login response based on email
       let user: User;
-      if (email.includes("admin")) {
+      if (email.includes("manager") || email.includes("admin")) {
         user = {
           id: "1",
           email,
-          username: "admin",
-          role: UserRole.ADMIN,
-          name: "Admin User",
+          username: "manager",
+          role: UserRole.MANAGER,
+          name: "Manager User",
+        };
+      } else if (email.includes("farm")) {
+        user = {
+          id: "2",
+          email,
+          username: "farm-staff",
+          role: UserRole.FARM_STAFF,
+          name: "Farm Staff",
         };
       } else if (email.includes("sale")) {
         user = {
-          id: "2",
+          id: "3",
           email,
           username: "sale-staff",
           role: UserRole.SALE_STAFF,
@@ -201,7 +325,7 @@ export const authHelpers = {
         };
       } else {
         user = {
-          id: "3",
+          id: "4",
           email,
           username: "customer",
           role: UserRole.CUSTOMER,
@@ -209,6 +333,8 @@ export const authHelpers = {
         };
       }
 
+      // use _password to avoid unused param lint (placeholder until real API)
+      void _password;
       useAuthStore.getState().login(user);
       return { success: true, user };
     } catch (error) {
@@ -237,6 +363,8 @@ export const authHelpers = {
         name: username,
       };
 
+      // use _password to avoid unused param lint (placeholder until real API)
+      void _password;
       useAuthStore.getState().login(user);
       return { success: true, user };
     } catch (error) {
@@ -247,3 +375,28 @@ export const authHelpers = {
     }
   },
 };
+
+// Listen to global logout events dispatched by the API client (e.g. on 401).
+// This lets the auth store control cookie clearing and backend sign-out in one place.
+if (typeof window !== "undefined") {
+  const handleGlobalLogout = async () => {
+    try {
+      // Try a graceful sign out which will call backend if refresh-token exists
+      const ok = await useAuthStore.getState().logout();
+      if (!ok) {
+        // If signOut returned false, fallback to local logout to ensure UI clears
+        useAuthStore.getState().logout();
+      }
+    } catch {
+      // Always fallback to clearing local state
+      useAuthStore.getState().logout();
+    }
+  };
+
+  window.addEventListener("logout", handleGlobalLogout);
+
+  // Optionally remove listener when the page unloads
+  window.addEventListener("beforeunload", () => {
+    window.removeEventListener("logout", handleGlobalLogout);
+  });
+}

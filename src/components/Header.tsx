@@ -5,14 +5,21 @@ import { Button } from "@/components/ui/button";
 import { CartSheet } from "@/components/cart-sheet";
 import { Menu, X, User } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 import Image from "next/image";
 import logo from "@/assets/images/Logo_ZenKoi.png";
 import { Separator } from "./ui/separator";
+import { useAuthStore } from "@/store/auth-store";
+// router not needed here; using window.location for navigation to avoid typing issues
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
+
+  const { isAuthenticated, user } = useAuthStore();
+  const router = useRouter();
 
   // Close menu when clicking outside
   useEffect(() => {
@@ -104,17 +111,49 @@ export function Header() {
               <CartSheet />
             </div>
 
-            {/* Login Button - Desktop only */}
+            {/* Auth actions - Desktop only */}
             <div className="hidden sm:block">
-              <Link href="/login">
-                <Button className="bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-primary-foreground font-medium px-6 py-2.5 h-auto transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-primary/25 relative overflow-hidden group rounded-xl cursor-pointer">
-                  <span className="relative z-10 flex items-center gap-2">
-                    <User className="w-4 h-4" />
-                    Đăng nhập
-                  </span>
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
-                </Button>
-              </Link>
+              {isAuthenticated ? (
+                <div className="flex items-center gap-3">
+                  <Button
+                    onClick={() => {
+                      router.push("/profile");
+                    }}
+                    className="bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-primary-foreground font-medium px-4 py-2.5 h-auto transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-primary/25 relative overflow-hidden group rounded-xl cursor-pointer"
+                  >
+                    <span className="relative z-10 flex items-center gap-2">
+                      <User className="w-4 h-4" />
+                      <span className="hover:underline cursor-pointer">
+                        {user?.name || "Tài khoản"}
+                      </span>
+                    </span>
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={async () => {
+                      const ok = await useAuthStore.getState().logout();
+                      if (ok) {
+                        toast.success("Đăng xuất thành công");
+                        router.push("/login");
+                      } else {
+                        toast.error("Đăng xuất thất bại");
+                      }
+                    }}
+                  >
+                    Đăng xuất
+                  </Button>
+                </div>
+              ) : (
+                <Link href="/login">
+                  <Button className="bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-primary-foreground font-medium px-6 py-2.5 h-auto transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-primary/25 relative overflow-hidden group rounded-xl cursor-pointer">
+                    <span className="relative z-10 flex items-center gap-2">
+                      <User className="w-4 h-4" />
+                      Đăng nhập
+                    </span>
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
+                  </Button>
+                </Link>
+              )}
             </div>
 
             {/* Mobile Cart (visible on small screens) */}
@@ -182,25 +221,63 @@ export function Header() {
 
               {/* Mobile action buttons */}
               <div className="px-4 flex flex-row gap-3">
-                <Link
-                  href="/login"
-                  onClick={() => setIsMenuOpen(false)}
-                  className="flex-1"
-                >
-                  <Button className="w-full justify-center bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-primary-foreground font-medium">
-                    <User className="w-4 h-4 mr-2" />
-                    Đăng nhập
-                  </Button>
-                </Link>
-                <Link
-                  href="/register"
-                  onClick={() => setIsMenuOpen(false)}
-                  className="flex-1"
-                >
-                  <Button variant="outline" className="w-full justify-center">
-                    Đăng ký
-                  </Button>
-                </Link>
+                {isAuthenticated ? (
+                  <>
+                    <Button
+                      onClick={() => {
+                        setIsMenuOpen(false);
+                        router.push("/profile");
+                      }}
+                      className="w-full justify-center bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-primary-foreground font-medium"
+                    >
+                      <User className="w-4 h-4 mr-2" />
+                      <span className="hover:underline cursor-pointer">
+                        {user?.name || user?.username || "Tài khoản"}
+                      </span>
+                    </Button>
+                    <Button
+                      variant="outline"
+                      className="w-full justify-center"
+                      onClick={async () => {
+                        const ok = await useAuthStore.getState().logout();
+                        setIsMenuOpen(false);
+                        if (ok) {
+                          toast.success("Đăng xuất thành công");
+                          router.push("/login");
+                        } else {
+                          toast.error("Đăng xuất thất bại");
+                        }
+                      }}
+                    >
+                      Đăng xuất
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <Link
+                      href="/login"
+                      onClick={() => setIsMenuOpen(false)}
+                      className="flex-1"
+                    >
+                      <Button className="w-full justify-center bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-primary-foreground font-medium">
+                        <User className="w-4 h-4 mr-2" />
+                        Đăng nhập
+                      </Button>
+                    </Link>
+                    <Link
+                      href="/register"
+                      onClick={() => setIsMenuOpen(false)}
+                      className="flex-1"
+                    >
+                      <Button
+                        variant="outline"
+                        className="w-full justify-center"
+                      >
+                        Đăng ký
+                      </Button>
+                    </Link>
+                  </>
+                )}
               </div>
             </div>
           </div>

@@ -6,102 +6,86 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useGetBreedingParentHistory } from "@/hooks/useBreedingProcess";
+import { KoiFishResponse } from "@/lib/api/services/fetchKoiFish";
+import getAge from "@/lib/utils/dates/age";
+import getFishSizeLabel, { getHealthStatusLabel } from "@/lib/utils/enum";
 import { Mars } from "lucide-react";
 import Image from "next/image";
 import React from "react";
 
-interface Fish {
-  id: number;
-  name: string;
-  variety: string;
-  size: string;
-  age: string;
-  price: number;
-  origin: string;
-  breeder: string;
-  image: string;
-  gender: string;
-  bloodline: string;
-  certificates: string[];
-  compatibility: string[];
-}
-
 interface FatherFishInfoProps {
-  selectedFish: Fish;
+  selectedFish: KoiFishResponse;
 }
-
-const basicQualityData = [
-  {
-    label: "Chất lượng da (Shiroji)",
-    value: "Excellent - Da trắng sáng hoàn hảo",
-  },
-  {
-    label: "Màu sắc (Hi/Sumi)",
-    value: "Excellent - Hi đỏ đậm, đều màu",
-  },
-  {
-    label: "Dáng vẻ (Body Shape)",
-    value: "Excellent - Thân hình cân đối hoàn hảo",
-  },
-];
-
-const geneticData = [
-  {
-    label: "Phả hệ (Bloodline)",
-    value: "Dainichi Bloodline, Generation 3, Premium Gin Rin traits",
-  },
-  {
-    label: "Thông số di truyền",
-    value: (
-      <div className="flex flex-col gap-1">
-        <div className="text-xs">
-          <span className="font-medium text-black">Cận huyết:</span>
-          <span className="text-red-600"> 2.5%</span>
-        </div>
-        <div className="text-xs">
-          <span className="font-medium text-black">Đột biến:</span>
-          <span className="text-blue-600"> 0.8%</span>
-        </div>
-      </div>
-    ),
-  },
-];
-
-const healthAgeData = [
-  {
-    label: "Sức khỏe tổng quát",
-    value: "Excellent - Hoàn toàn khỏe mạnh",
-  },
-  {
-    label: "Độ tuổi",
-    value: "4 tuổi (tối ưu cho sinh sản)",
-  },
-];
-
-const breedData = [
-  {
-    label: "Giống cá",
-    value: "Kohaku",
-  },
-  {
-    label: "Đặc tính giống",
-    value:
-      "Hi đỏ phân bố đẹp, không lấn xuống đầu. Shiroji trắng sáng không tì vết.",
-  },
-];
-
-const breedingHistoryData = [
-  {
-    label: "Thành tích sinh sản",
-    value: "3 lần sinh sản thành công, cá con đạt chất lượng cao",
-  },
-  {
-    label: "Tỷ lệ cá con khỏe mạnh",
-    value: "92%",
-  },
-];
 
 export default function FatherFishInfo({ selectedFish }: FatherFishInfoProps) {
+  const { data: breedingParentHistory } = useGetBreedingParentHistory(
+    selectedFish.id,
+  );
+
+  const basicQualityData = [
+    {
+      label: "Nguồn gốc (Origin)",
+      value: selectedFish.origin ?? "Không rõ",
+    },
+    {
+      label: "Dáng vẻ (Body Shape)",
+      value: selectedFish.bodyShape,
+    },
+    {
+      label: "Kích thước (Size)",
+      value: getFishSizeLabel(selectedFish.size),
+    },
+  ];
+
+  const healthAgeData = [
+    {
+      label: "Sức khỏe tổng quát",
+      value: getHealthStatusLabel(selectedFish.healthStatus).label,
+    },
+    {
+      label: "Độ tuổi",
+      value: `${getAge(selectedFish.birthDate)} tuổi`,
+    },
+  ];
+
+  const breedData = [
+    {
+      label: "Giống cá",
+      value: selectedFish.variety.varietyName,
+    },
+    {
+      label: "Đặc tính giống",
+      value: selectedFish.variety.characteristic,
+    },
+  ];
+
+  const geneticData = [
+    {
+      label: "Phả hệ (Bloodline)",
+      value: "Dainichi Bloodline, Generation 3, Premium Gin Rin traits",
+    },
+  ];
+
+  const breedingHistoryData = [
+    {
+      label: "Số lần sinh sản thất bại",
+      value: breedingParentHistory?.failCount,
+    },
+    {
+      label: "Tỷ lệ nở trung bình",
+      value: `${breedingParentHistory?.hatchRate.toFixed(2)}%`,
+    },
+    {
+      label: "Tỷ lệ cá con sống sót trung bình",
+      value: `${breedingParentHistory?.survivalRate.toFixed(2)}%`,
+    },
+    {
+      label: "Tỷ lệ cá con chất lượng tốt trung bình",
+      value: `${breedingParentHistory?.highQualifiedRate.toFixed(2)}%`,
+    },
+  ];
+
   return (
     <div className="w-full bg-white border border-gray-100 shadow-sm rounded-xl p-8">
       <div className="mb-8">
@@ -120,8 +104,9 @@ export default function FatherFishInfo({ selectedFish }: FatherFishInfoProps) {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value={selectedFish.id.toString()}>
-                {selectedFish.variety} ID: {selectedFish.name} -{" "}
-                {selectedFish.age} - Excellent Quality
+                {selectedFish.variety.varietyName} RFID: {selectedFish.rfid} -{" "}
+                {getAge(selectedFish.birthDate)} tuổi - Sức khỏe:{" "}
+                {getHealthStatusLabel(selectedFish.healthStatus).label}
               </SelectItem>
             </SelectContent>
           </Select>
@@ -131,8 +116,8 @@ export default function FatherFishInfo({ selectedFish }: FatherFishInfoProps) {
           <div className="relative mb-4">
             <div className="w-36 h-36 rounded-2xl border-4 border-blue-100 overflow-hidden shadow-lg bg-gradient-to-br from-blue-50 to-white">
               <Image
-                src={selectedFish.image || "/placeholder.svg"}
-                alt={selectedFish.name}
+                src={selectedFish.images[0]}
+                alt={selectedFish.rfid}
                 width={144}
                 height={144}
                 className="w-full h-full object-cover"
@@ -143,7 +128,7 @@ export default function FatherFishInfo({ selectedFish }: FatherFishInfoProps) {
             </div>
           </div>
           <h3 className="text-lg font-bold text-gray-900 text-center">
-            {selectedFish.name}
+            {selectedFish.rfid}
           </h3>
           <p className="text-sm text-blue-600 font-medium mt-1">Cá Bố</p>
         </div>
@@ -157,7 +142,7 @@ export default function FatherFishInfo({ selectedFish }: FatherFishInfoProps) {
             </span>
             Phẩm Chất Cơ Bản của Cá Thể
           </h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className={`grid grid-cols-${basicQualityData.length} gap-4`}>
             {basicQualityData.map((item, index) => (
               <Card
                 key={index}
@@ -183,7 +168,7 @@ export default function FatherFishInfo({ selectedFish }: FatherFishInfoProps) {
             </span>
             Dữ liệu Di truyền & Phả hệ
           </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className={`grid grid-cols-${geneticData.length} gap-4`}>
             {geneticData.map((item, index) => (
               <Card
                 key={index}
@@ -207,7 +192,7 @@ export default function FatherFishInfo({ selectedFish }: FatherFishInfoProps) {
             </span>
             Sức Khỏe & Độ Tuổi
           </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className={`grid grid-cols-${healthAgeData.length} gap-4`}>
             {healthAgeData.map((item, index) => (
               <Card
                 key={index}
@@ -233,7 +218,7 @@ export default function FatherFishInfo({ selectedFish }: FatherFishInfoProps) {
             </span>
             Đặc Tính Riêng Biệt Theo Giống
           </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className={`grid grid-cols-${breedData.length} gap-4`}>
             {breedData.map((item, index) => (
               <Card
                 key={index}
@@ -257,7 +242,7 @@ export default function FatherFishInfo({ selectedFish }: FatherFishInfoProps) {
             </span>
             Dữ Liệu Lịch Sử Sinh Sản
           </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className={`grid grid-cols-${breedingHistoryData.length} gap-4`}>
             {breedingHistoryData.map((item, index) => (
               <Card
                 key={index}
