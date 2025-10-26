@@ -44,11 +44,6 @@ export interface SignOutRequest {
   refreshToken: string;
 }
 
-export interface Response {
-  isSuccess: boolean;
-  message?: string;
-}
-
 export interface ResetPasswordRequest {
   email: string;
   newPassword: string;
@@ -92,10 +87,10 @@ export const fetchAuth = {
       throw error;
     }
   },
-  signOut: async (data: SignOutRequest): Promise<BaseResponse<Response>> => {
+  signOut: async (data: SignOutRequest): Promise<BaseResponse<string>> => {
     try {
       const response = await apiService.post<
-        BaseResponse<Response>,
+        BaseResponse<string>,
         SignOutRequest
       >(`${baseUrl}/sign-out`, data);
       return response.data;
@@ -119,9 +114,9 @@ export const fetchAuth = {
   forgotPassword: async (data: ForgotPasswordRequest) => {
     try {
       const response = await apiService.post<
-        BaseResponse<Response>,
+        BaseResponse<string>,
         ForgotPasswordRequest
-      >(`"${baseUrl}/forgot-password`, data);
+      >(`${baseUrl}/forgot-password`, data);
       return response.data;
     } catch (error) {
       throw error;
@@ -130,9 +125,22 @@ export const fetchAuth = {
   resetPassword: async (data: ResetPasswordRequest) => {
     try {
       const response = await apiService.post<
-        BaseResponse<Response>,
+        BaseResponse<string>,
         ResetPasswordRequest
-      >(`"${baseUrl}/reset-password`, data);
+      >(`${baseUrl}/reset-password`, data);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+  renewToken: async (
+    data: RenewTokenRequest,
+  ): Promise<BaseResponse<LoginResponse>> => {
+    try {
+      const response = await apiService.post<
+        BaseResponse<LoginResponse>,
+        RenewTokenRequest
+      >(`${baseUrl}/renew-token`, data);
       return response.data;
     } catch (error) {
       throw error;

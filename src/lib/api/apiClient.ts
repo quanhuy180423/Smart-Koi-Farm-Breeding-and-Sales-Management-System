@@ -7,8 +7,6 @@ import axios, {
 import { getCookie, setCookie } from "cookies-next";
 import { LoginResponse, RenewTokenRequest } from "./services/fetchAuth";
 import { useAuthStore } from "@/store/auth-store";
-// cookie helpers intentionally not imported here; auth store manages cookie lifecycle
-// import { useAuthStore } from "@/lib/store/authStore";
 
 // API error response data structure
 export interface ApiErrorData {
@@ -83,6 +81,14 @@ export class ApiService {
       timeout,
     });
 
+    // Khởi tạo token từ cookie khi tạo instance
+    if (typeof window !== "undefined") {
+      const token = getCookie("auth-token")?.toString();
+      if (token) {
+        this.authToken = token;
+      }
+    }
+
     this.onAuthError = onAuthError;
     this.setupInterceptors();
   }
@@ -92,7 +98,12 @@ export class ApiService {
     this.authToken = token;
   }
 
-  // Phương thức xử lý hàng đợi các request thất bại
+  // Get current auth token
+  getAuthToken(): string | null {
+    return this.authToken;
+  }
+
+  // Process failed request queue
   private processQueue(error: ApiError | null): void {
     this.failedQueue.forEach((prom) => {
       if (error) {
@@ -121,26 +132,23 @@ export class ApiService {
     this.failedQueue = [];
   }
 
+  // Refresh access token using refresh token
   private async refreshAccessToken(): Promise<string | null> {
-    // **Ghi chú:** Cần lấy refreshToken từ cookie/storage tại đây
     const refreshToken = getCookie("refresh-token")?.toString() || "";
     const accessToken = getCookie("auth-token")?.toString() || "";
-    if (!refreshToken) return null;
 
-    const request: RenewTokenRequest = {
-      accessToken: accessToken,
-      refreshToken: refreshToken,
-    };
+    if (!refreshToken) {
+      console.warn("⚠️ No refresh token available");
+      return null;
+    }
+
+    const request: RenewTokenRequest = { accessToken, refreshToken };
 
     try {
       const refreshResponse = await axios.post<BaseResponse<LoginResponse>>(
-        `${this.client.defaults.baseURL}/api/Accounts/renew-token`,
+        `${this.client.defaults.baseURL}api/Accounts/renew-token`,
         request,
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        },
+        { headers: { "Content-Type": "application/json" } },
       );
 
       if (
@@ -150,77 +158,45 @@ export class ApiService {
         const newAccessToken = refreshResponse.data.result.accessToken;
         const newRefreshToken = refreshResponse.data.result.refreshToken;
 
-        this.setAuthToken(newAccessToken);
-
-        this.client.defaults.headers.common.Authorization = `Bearer ${newAccessToken}`;
-
+        // Update token in multiple places
         setCookie("auth-token", newAccessToken);
-        if (newRefreshToken) setCookie("refresh-token", newRefreshToken);
+        this.authToken = newAccessToken;
+
+        if (newRefreshToken) {
+          setCookie("refresh-token", newRefreshToken);
+        }
+
         useAuthStore.getState().setToken(newAccessToken);
 
+        console.log("✅ Token refreshed successfully");
         return newAccessToken;
       }
     } catch (error) {
-      console.error("Token refresh failed", error);
+      console.error("❌ Token refresh failed:", error);
     }
+
     return null;
   }
 
   // Setup request/response interceptors
-  // private setupInterceptors(): void {
-  //   // Request interceptor
-  //   this.client.interceptors.request.use(
-  //     (config) => {
-  //       // Add auth header if token exists
-  //       if (this.authToken) {
-  //         config.headers.Authorization = `Bearer ${this.authToken}`;
-  //       }
-
-  //       // Handle FormData automatically
-  //       if (config.data instanceof FormData) {
-  //         delete config.headers["Content-Type"];
-  //       }
-
-  //       return config;
-  //     },
-  //     (error) => Promise.reject(error)
-  //   );
-
-  //   // Response interceptor
-  //   this.client.interceptors.response.use(
-  //     (response) => response,
-  //     (error: AxiosError<ApiErrorData>) => {
-  //       // Handle authentication errors
-  //       if (error.response?.status === 401 && this.onAuthError) {
-  //         this.onAuthError();
-  //       }
-
-  //       // Standardize error format
-  //       const apiError: ApiError = {
-  //         status: error.response?.status,
-  //         message:
-  //           error.response?.data?.message ||
-  //           error.message ||
-  //           "Unknown error occurred",
-  //         error: {
-  //           statusCode: error.response?.data.statusCode || 500,
-  //           isSuccess: error.response?.data?.isSuccess || false,
-  //           message: error.response?.data?.message || "",
-  //           result: error.response?.data?.result || "",
-  //         },
-  //       };
-
-  //       return Promise.reject(apiError);
-  //     }
-  //   );
-  // }
   private setupInterceptors(): void {
+    // Request interceptor
     this.client.interceptors.request.use(
       (config) => {
+        // Auto-sync token from cookie if not set
+        if (!this.authToken && typeof window !== "undefined") {
+          const cookieToken = getCookie("auth-token")?.toString();
+          if (cookieToken) {
+            this.authToken = cookieToken;
+          }
+        }
+
+        // Add auth header if token exists
         if (this.authToken) {
           config.headers.Authorization = `Bearer ${this.authToken}`;
         }
 
+        // Handle FormData automatically
         if (config.data instanceof FormData) {
           delete config.headers["Content-Type"];
         }
@@ -230,6 +206,7 @@ export class ApiService {
       (error) => Promise.reject(error),
     );
 
+    // Response interceptor with token refresh logic
     this.client.interceptors.response.use(
       (response) => response,
       async (error: AxiosError<ApiErrorData>) => {
@@ -239,9 +216,11 @@ export class ApiService {
 
         const isAuthError = error.response?.status === 401;
 
+        // Handle 401 errors with token refresh
         if (isAuthError && !originalRequest._retry) {
           originalRequest._retry = true;
 
+          // Queue requests if already refreshing
           if (this.isRefreshing) {
             return new Promise((resolve, reject) => {
               this.failedQueue.push({
@@ -254,39 +233,39 @@ export class ApiService {
 
           this.isRefreshing = true;
 
-          const newPromise = new Promise((resolve, reject) => {
-            this.failedQueue.push({
-              config: originalRequest,
-              resolve,
-              reject: (reason) => reject(reason),
-            });
-          });
-
+          // Attempt to refresh token
           const newAccessToken = await this.refreshAccessToken();
 
           if (newAccessToken) {
+            // Token refresh successful
             this.processQueue(null);
+            this.isRefreshing = false;
+
+            // Retry original request with new token
+            return this.client(originalRequest);
           } else {
+            // Token refresh failed
             const apiError: ApiError = {
               status: 401,
               message: "Authentication failed. Please log in again.",
             };
             this.processQueue(apiError);
+            this.isRefreshing = false;
+
             if (this.onAuthError) {
               this.onAuthError();
             }
-          }
 
-          this.isRefreshing = false;
-          return newPromise;
-        }
-
-        if (isAuthError && this.onAuthError) {
-          if (originalRequest._retry) {
-            this.onAuthError();
+            return Promise.reject(apiError);
           }
         }
 
+        // Handle auth error after retry
+        if (isAuthError && originalRequest._retry && this.onAuthError) {
+          this.onAuthError();
+        }
+
+        // Standardize error format
         const apiError: ApiError = {
           status: error.response?.status,
           message:
@@ -294,7 +273,7 @@ export class ApiService {
             error.message ||
             "Unknown error occurred",
           error: {
-            statusCode: error.response?.data.statusCode || 500,
+            statusCode: error.response?.data?.statusCode || 500,
             isSuccess: error.response?.data?.isSuccess || false,
             message: error.response?.data?.message || "",
             result: error.response?.data?.result || "",
@@ -312,6 +291,7 @@ export class ApiService {
 
     const urlParams = new URLSearchParams();
 
+    // Sort parameters with priority: ward > city > others
     const orderedKeys = Object.keys(params).sort((a, b) => {
       if (a === "ward" && b !== "ward") return -1;
       if (b === "ward" && a !== "ward") return 1;
@@ -338,12 +318,6 @@ export class ApiService {
   private async request<T>(
     config: AxiosRequestConfig,
   ): Promise<ApiResponse<T>> {
-    // Handle FormData in config.data
-    if (config.data instanceof FormData) {
-      // FormData will be handled by the interceptor which removes Content-Type
-      // to let the browser set the correct boundary
-    }
-
     const response: AxiosResponse<T> = await this.client(config);
 
     return {
@@ -362,6 +336,7 @@ export class ApiService {
     });
   }
 
+  // GET blob (for file downloads)
   async getBlob(url: string, params?: RequestParams): Promise<Blob> {
     const response = await this.client.get(url, {
       params: this.createParams(params),
@@ -418,7 +393,7 @@ export class ApiService {
     });
   }
 
-  // Upload file(s)
+  // Upload file(s) with progress tracking
   async upload<T>(
     url: string,
     files: File | File[],
@@ -465,11 +440,9 @@ const apiService = new ApiService(
   process.env.NEXT_PUBLIC_API_URL_BACKEND || "",
   600000,
   () => {
-    // Handle 401 errors by clearing auth state
+    // Handle 401 errors by dispatching logout event
     if (typeof window !== "undefined") {
-      // Dispatch logout event for other components to handle.
-      // Do NOT delete auth cookies here — leave cookie removal to the auth store's signOut/logout
-      // so the app can call backend sign-out and perform cleanup in a single place.
+      console.warn("🚪 Auth error - dispatching logout event");
       window.dispatchEvent(new Event("logout"));
     }
   },

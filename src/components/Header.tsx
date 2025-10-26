@@ -131,7 +131,7 @@ export function Header() {
                   <Button
                     variant="outline"
                     onClick={async () => {
-                      const ok = await useAuthStore.getState().signOut();
+                      const ok = await useAuthStore.getState().logout();
                       if (ok) {
                         toast.success("Đăng xuất thành công");
                         router.push("/login");
@@ -239,7 +239,7 @@ export function Header() {
                       variant="outline"
                       className="w-full justify-center"
                       onClick={async () => {
-                        const ok = await useAuthStore.getState().signOut();
+                        const ok = await useAuthStore.getState().logout();
                         setIsMenuOpen(false);
                         if (ok) {
                           toast.success("Đăng xuất thành công");

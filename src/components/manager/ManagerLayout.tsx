@@ -118,7 +118,7 @@ export function ManagerLayout({ children }: ManagerLayoutProps) {
                 <DropdownMenuItem
                   className="flex items-center text-red-600 cursor-pointer hover:bg-red-600 hover:text-white focus:bg-red-600 focus:text-white transition-colors group"
                   onClick={async () => {
-                    const ok = await useAuthStore.getState().signOut();
+                    const ok = await useAuthStore.getState().logout();
                     if (ok) {
                       toast.success("Đăng xuất thành công");
                       router.push("/login");

@@ -1,6 +1,8 @@
 import {
+  ForgotPasswordRequest,
   RegisterRequest,
   RegisterResponse,
+  ResetPasswordRequest,
 } from "@/lib/api/services/fetchAuth";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
@@ -337,20 +339,12 @@ export async function loginWithGoogle(idToken: string, rememberMe?: boolean) {
 export function useForgotPassword() {
   const [error, setError] = useState<string | null>(null);
   const { mutate, isPending: isLoading } = useMutation({
-    mutationFn: async (data: { email: string }) => {
+    mutationFn: async (data: ForgotPasswordRequest) => {
       return await fetchAuth.forgotPassword(data);
     },
-    onSuccess: (response: {
-      statusCode: string;
-      isSuccess: boolean;
-      message: string;
-      result?: { isSuccess?: boolean; message?: string };
-    }) => {
+    onSuccess: (response: BaseResponse<string>) => {
       if (response?.isSuccess) {
-        const message =
-          response?.result?.message ||
-          response?.message ||
-          "Yêu cầu khôi phục đã được gửi.";
+        const message = response?.message || "Yêu cầu khôi phục đã được gửi.";
         toast.success(message);
       } else {
         setError(response?.message || "Gửi email thất bại");
@@ -382,25 +376,12 @@ export function useResetPassword() {
     mutateAsync,
     isPending: isLoading,
   } = useMutation({
-    mutationFn: async (data: {
-      email: string;
-      newPassword: string;
-      confirmedNewPassword: string;
-      token: string;
-    }) => {
+    mutationFn: async (data: ResetPasswordRequest) => {
       return await fetchAuth.resetPassword(data);
     },
-    onSuccess: (response: {
-      statusCode: string;
-      isSuccess: boolean;
-      message: string;
-      result?: { isSuccess?: boolean; message?: string };
-    }) => {
+    onSuccess: (response: BaseResponse<string>) => {
       if (response?.isSuccess) {
-        const message =
-          response?.result?.message ||
-          response?.message ||
-          "Mật khẩu đã được thay đổi.";
+        const message = response?.message || "Mật khẩu đã được thay đổi.";
         toast.success(message);
         router.push("/login");
       } else {

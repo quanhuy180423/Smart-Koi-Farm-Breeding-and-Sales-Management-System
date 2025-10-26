@@ -1,3 +1,7 @@
+import {
+  redirectMultipleRestrictedRoles,
+  RoleRedirectRule,
+} from "@/lib/utils/authUtil";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -5,11 +9,18 @@ export const metadata: Metadata = {
   description: "Đăng nhập vào hệ thống quản lý trang trại cá Koi",
 };
 
-export default function AuthLayout({
+export default async function AuthLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const redirectRules: RoleRedirectRule[] = [
+    { role: "Manager", redirectPath: "/manager" },
+    { role: "SaleStaff", redirectPath: "/sale" },
+    { role: "Customer", redirectPath: "/" },
+  ];
+
+  await redirectMultipleRestrictedRoles(redirectRules);
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-card to-background relative overflow-hidden">
       <div className="absolute inset-0 overflow-hidden pointer-events-none">

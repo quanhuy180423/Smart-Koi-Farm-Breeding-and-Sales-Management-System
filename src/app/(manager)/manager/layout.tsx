@@ -10,12 +10,11 @@ export default async function Layout({
   children: React.ReactNode;
 }) {
   const redirectRules: RoleRedirectRule[] = [
-    { role: "sale-staff", redirectPath: "/sale" },
-    { role: "customer", redirectPath: "/" },
-    { role: "guest", redirectPath: "/" },
+    { role: "SaleStaff", redirectPath: "/sale" },
+    { role: "Customer", redirectPath: "/" },
+    { role: "Guest", redirectPath: "/" },
   ];
 
   await redirectMultipleRestrictedRoles(redirectRules);
-
   return <ManagerLayout>{children}</ManagerLayout>;
 }

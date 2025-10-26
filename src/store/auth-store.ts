@@ -3,7 +3,6 @@ import { persist } from "zustand/middleware";
 import apiService from "@/lib/api/apiClient";
 import fetchAuth, { SignOutRequest } from "@/lib/api/services/fetchAuth";
 
-// Define user roles (same as middleware)
 export enum UserRole {
   MANAGER = "manager",
   FARM_STAFF = "farm-staff",
@@ -25,19 +24,11 @@ interface AuthState {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-
-  // Actions
   login: (user: User) => void;
-  logout: () => void;
   setLoading: (loading: boolean) => void;
   updateUser: (user: Partial<User>) => void;
-  // Token setter: decode JWT, set user and auth state
   setToken: (token: string | null) => void;
-  // Sign out (call backend to invalidate refresh token then clear state)
-  // Returns true if backend sign-out succeeded or no refresh token was present
-  signOut: (refreshToken?: string) => Promise<boolean>;
-
-  // Computed values
+  logout: (refreshToken?: string) => Promise<boolean>;
   getUserRole: () => UserRole;
   hasRole: (role: UserRole) => boolean;
   canAccessRoute: (route: string) => boolean;
@@ -51,23 +42,10 @@ export const useAuthStore = create<AuthState>()(
       isLoading: false,
 
       login: (user: User) => {
-        // Set user in store
         set({ user, isAuthenticated: true, isLoading: false });
 
-        // Set cookie for middleware (client-side)
         if (typeof window !== "undefined") {
-          document.cookie = `user-role=${user.role}; path=/; max-age=86400`; // 24 hours
-        }
-      },
-
-      logout: () => {
-        // Clear user from store
-        set({ user: null, isAuthenticated: false, isLoading: false });
-
-        // Clear cookie
-        if (typeof window !== "undefined") {
-          document.cookie =
-            "user-role=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+          document.cookie = `user-role=${user.role}; path=/; max-age=86400`;
         }
       },
 
@@ -81,7 +59,6 @@ export const useAuthStore = create<AuthState>()(
           const updatedUser = { ...currentUser, ...userData };
           set({ user: updatedUser });
 
-          // Update cookie if role changed
           if (userData.role && userData.role !== currentUser.role) {
             if (typeof window !== "undefined") {
               document.cookie = `user-role=${userData.role}; path=/; max-age=86400`;
@@ -91,7 +68,6 @@ export const useAuthStore = create<AuthState>()(
       },
 
       setToken: (token: string | null) => {
-        // Clear state if no token
         if (!token) {
           set({ user: null, isAuthenticated: false, isLoading: false });
           if (typeof window !== "undefined") {
@@ -100,14 +76,11 @@ export const useAuthStore = create<AuthState>()(
           }
           try {
             apiService.setAuthToken("");
-          } catch {
-            // ignore
-          }
+          } catch {}
           return;
         }
 
         try {
-          // Helper to base64url-decode the payload
           const base64UrlToJson = (b64Url: string) => {
             let s = b64Url.replace(/-/g, "+").replace(/_/g, "/");
             while (s.length % 4) s += "=";
@@ -116,7 +89,6 @@ export const useAuthStore = create<AuthState>()(
               typeof window.atob === "function"
             ) {
               const decoded = window.atob(s);
-              // Percent-encode to properly decode utf-8 characters
               const pct = Array.prototype.map
                 .call(decoded, (c: string) => {
                   return "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2);
@@ -124,7 +96,6 @@ export const useAuthStore = create<AuthState>()(
                 .join("");
               return decodeURIComponent(pct);
             }
-            // Node environment
             const buff = Buffer.from(s, "base64");
             return buff.toString("utf-8");
           };
@@ -170,26 +141,20 @@ export const useAuthStore = create<AuthState>()(
             name: nameVal ? String(nameVal) : undefined,
           };
 
-          // Persist token in API client
           try {
             apiService.setAuthToken(token);
-          } catch {
-            // ignore
-          }
+          } catch {}
 
-          // Set store and cookie
           set({ user, isAuthenticated: true, isLoading: false });
           if (typeof window !== "undefined") {
             document.cookie = `user-role=${role}; path=/; max-age=86400`;
           }
         } catch {
-          // On error, ensure we clear any auth state
           set({ user: null, isAuthenticated: false, isLoading: false });
         }
       },
 
-      signOut: async (refreshToken?: string) => {
-        // Helper to read cookie by name
+      logout: async (refreshToken?: string) => {
         const readCookie = (name: string) => {
           if (typeof window === "undefined") return null;
           const match = document.cookie
@@ -202,24 +167,19 @@ export const useAuthStore = create<AuthState>()(
 
         let success = false;
         try {
-          // If not provided, try to read refresh token from cookie
           const tokenToSend = refreshToken ?? readCookie("refresh-token");
           if (tokenToSend) {
             const req: SignOutRequest = { refreshToken: tokenToSend };
             try {
               const resp = await fetchAuth.signOut(req);
-              success = !!(resp && resp.isSuccess && resp.result?.isSuccess);
-            } catch (e) {
-              // API failed — mark as failure, but do not throw
-              console.warn("signOut API failed", e);
+              success = !!(resp && resp.isSuccess);
+            } catch {
               success = false;
             }
           } else {
-            // No refresh token to revoke — consider this a success for local logout
             success = true;
           }
 
-          // If backend sign-out succeeded, clear client state
           if (success) {
             set({ user: null, isAuthenticated: false, isLoading: false });
             if (typeof window !== "undefined") {
@@ -233,12 +193,9 @@ export const useAuthStore = create<AuthState>()(
 
             try {
               apiService.setAuthToken("");
-            } catch {
-              // ignore
-            }
+            } catch {}
           }
         } catch {
-          // unexpected error, treat as failure
           success = false;
         }
 
@@ -256,14 +213,12 @@ export const useAuthStore = create<AuthState>()(
       canAccessRoute: (route: string) => {
         const userRole = get().getUserRole();
 
-        // Define route permissions (same as middleware)
         const routePermissions: Record<string, UserRole[]> = {
-          "/manager": [UserRole.MANAGER, UserRole.FARM_STAFF],
-          "/customer": [UserRole.CUSTOMER],
+          "/manager": [UserRole.MANAGER],
           "/sale": [UserRole.SALE_STAFF],
+          "/": [UserRole.CUSTOMER, UserRole.GUEST],
         };
 
-        // Check if route requires specific role
         for (const [protectedRoute, allowedRoles] of Object.entries(
           routePermissions,
         )) {
@@ -272,7 +227,6 @@ export const useAuthStore = create<AuthState>()(
           }
         }
 
-        // Public routes or routes not in protection list
         return true;
       },
     }),
@@ -281,7 +235,6 @@ export const useAuthStore = create<AuthState>()(
       partialize: (state) => ({
         user: state.user,
         isAuthenticated: state.isAuthenticated,
-        // Don't persist isLoading
       }),
     },
   ),
@@ -429,7 +382,7 @@ if (typeof window !== "undefined") {
   const handleGlobalLogout = async () => {
     try {
       // Try a graceful sign out which will call backend if refresh-token exists
-      const ok = await useAuthStore.getState().signOut();
+      const ok = await useAuthStore.getState().logout();
       if (!ok) {
         // If signOut returned false, fallback to local logout to ensure UI clears
         useAuthStore.getState().logout();
