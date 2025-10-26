@@ -133,7 +133,9 @@ export const fetchAuth = {
       throw error;
     }
   },
-  renewToken: async (data: RenewTokenRequest): Promise<BaseResponse<LoginResponse>> => {
+  renewToken: async (
+    data: RenewTokenRequest,
+  ): Promise<BaseResponse<LoginResponse>> => {
     try {
       const response = await apiService.post<
         BaseResponse<LoginResponse>,

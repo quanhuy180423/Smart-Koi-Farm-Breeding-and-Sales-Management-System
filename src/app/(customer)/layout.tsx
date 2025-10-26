@@ -1,6 +1,9 @@
 import type React from "react";
 import type { Metadata } from "next";
-import { redirectMultipleRestrictedRoles, RoleRedirectRule } from "@/lib/utils/authUtil";
+import {
+  redirectMultipleRestrictedRoles,
+  RoleRedirectRule,
+} from "@/lib/utils/authUtil";
 
 export const metadata: Metadata = {
   title: "Tài khoản - ZenKoi Farm",

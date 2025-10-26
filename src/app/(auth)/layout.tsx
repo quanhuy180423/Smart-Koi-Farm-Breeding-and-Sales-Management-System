@@ -1,4 +1,7 @@
-import { redirectMultipleRestrictedRoles, RoleRedirectRule } from "@/lib/utils/authUtil";
+import {
+  redirectMultipleRestrictedRoles,
+  RoleRedirectRule,
+} from "@/lib/utils/authUtil";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {

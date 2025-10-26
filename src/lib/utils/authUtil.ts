@@ -27,11 +27,10 @@ async function getCurrentRole(): Promise<string> {
  * * @param rules Mảng các đối tượng RoleRedirectRule xác định vai trò nào sẽ chuyển hướng đến đường dẫn nào.
  */
 export async function redirectMultipleRestrictedRoles(
-  rules: RoleRedirectRule[]
+  rules: RoleRedirectRule[],
 ): Promise<void> {
   const currentRole = await getCurrentRole();
   console.log(currentRole);
-  
 
   // Tìm quy tắc chuyển hướng phù hợp với vai trò hiện tại
   const matchingRule = rules.find((rule) => rule.role === currentRole);
@@ -49,7 +48,7 @@ export async function redirectMultipleRestrictedRoles(
  */
 export async function checkAuthAndRedirect(
   requiredRoles: string[],
-  redirectPath: string = "/login"
+  redirectPath: string = "/login",
 ): Promise<void> {
   const currentRole = await getCurrentRole();
 
@@ -67,7 +66,7 @@ export async function checkAuthAndRedirect(
  */
 export async function redirectHighPrivilegeUser(
   restrictedRoles: string[],
-  redirectPath: string
+  redirectPath: string,
 ): Promise<void> {
   const currentRole = await getCurrentRole();
 
