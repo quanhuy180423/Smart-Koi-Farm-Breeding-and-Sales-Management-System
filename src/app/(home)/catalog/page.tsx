@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { useSearchParams } from 'next/navigation'; // <<--- BƯỚC 1
+import { useSearchParams } from "next/navigation"; // <<--- BƯỚC 1
 import { useDebounce } from "@/hooks/useDebounce";
 import {
   Card,
@@ -111,13 +111,20 @@ const FilterPanel = ({
         </h3>
         <div className="space-y-4 pt-2">
           <div className="flex justify-between items-center text-sm font-medium">
-            <span className="px-3 py-1 bg-primary/10 text-primary rounded-md">{formatCurrency(filters.priceRange[0])}</span>
-            <span className="px-3 py-1 bg-primary/10 text-primary rounded-md">{formatCurrency(filters.priceRange[1])}</span>
+            <span className="px-3 py-1 bg-primary/10 text-primary rounded-md">
+              {formatCurrency(filters.priceRange[0])}
+            </span>
+            <span className="px-3 py-1 bg-primary/10 text-primary rounded-md">
+              {formatCurrency(filters.priceRange[1])}
+            </span>
           </div>
           <Slider
             value={filters.priceRange}
             onValueChange={(value) =>
-              setFilters((prev) => ({ ...prev, priceRange: value as [number, number] }))
+              setFilters((prev) => ({
+                ...prev,
+                priceRange: value as [number, number],
+              }))
             }
             max={10000000}
             step={100000}
@@ -154,17 +161,21 @@ const FilterPanel = ({
 
       {/* Cụm nút hành động */}
       <div className="flex flex-col gap-3 pt-2">
-        <Button onClick={handleApplyFilters} className="w-full h-11 bg-primary hover:bg-primary/90 text-base font-semibold">
+        <Button
+          onClick={handleApplyFilters}
+          className="w-full h-11 bg-primary hover:bg-primary/90 text-base font-semibold"
+        >
           Áp dụng bộ lọc
         </Button>
         <Button
           onClick={resetFilters}
           variant="outline"
           disabled={!hasAnythingToReset()}
-          className={`w-full h-11 border-2 font-medium transition-all duration-200 rounded-xl ${hasAnythingToReset()
-            ? "border-[#0A3D62] bg-[#0A3D62]/10 text-[#0A3D62] hover:bg-[#0A3D62]/20 hover:border-[#0A3D62]"
-            : "border-[#0A3D62]/20 text-[#0A3D62]/50 cursor-not-allowed"
-            }`}
+          className={`w-full h-11 border-2 font-medium transition-all duration-200 rounded-xl ${
+            hasAnythingToReset()
+              ? "border-[#0A3D62] bg-[#0A3D62]/10 text-[#0A3D62] hover:bg-[#0A3D62]/20 hover:border-[#0A3D62]"
+              : "border-[#0A3D62]/20 text-[#0A3D62]/50 cursor-not-allowed"
+          }`}
         >
           <RotateCcw
             className={`h-4 w-4 mr-2 ${hasAnythingToReset() ? "" : "opacity-50"}`}
@@ -189,7 +200,7 @@ export default function CatalogPage() {
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
 
   const filterParams = useMemo((): KoiFishSearchParams => {
-    const varietyIdFromUrl = searchParams.get('variety');
+    const varietyIdFromUrl = searchParams.get("variety");
 
     const params: KoiFishSearchParams = {
       pageIndex: currentPage,
@@ -210,7 +221,10 @@ export default function CatalogPage() {
     if (appliedFilters.selectedSize !== "Tất cả") {
       params.fishSize = appliedFilters.selectedSize as FishSize;
     }
-    if (appliedFilters.priceRange[0] > 0 || appliedFilters.priceRange[1] < 10000000) {
+    if (
+      appliedFilters.priceRange[0] > 0 ||
+      appliedFilters.priceRange[1] < 10000000
+    ) {
       params.minPrice = appliedFilters.priceRange[0];
       params.maxPrice = appliedFilters.priceRange[1];
     }
@@ -219,7 +233,13 @@ export default function CatalogPage() {
     }
 
     return params;
-  }, [appliedFilters, debouncedSearchTerm, currentPage, pageSize, searchParams]);
+  }, [
+    appliedFilters,
+    debouncedSearchTerm,
+    currentPage,
+    pageSize,
+    searchParams,
+  ]);
 
   const { data: koiData, isLoading } = useGetKoiFishes(filterParams);
 
@@ -330,7 +350,9 @@ export default function CatalogPage() {
             </div>
           ) : (
             <div className="flex-1">
-              {(debouncedSearchTerm || JSON.stringify(appliedFilters) !== JSON.stringify(initialFilterState)) && (
+              {(debouncedSearchTerm ||
+                JSON.stringify(appliedFilters) !==
+                  JSON.stringify(initialFilterState)) && (
                 <div className="flex items-center justify-between mb-6">
                   <p className="text-muted-foreground">
                     Tìm thấy {koiData?.totalItems ?? 0} kết quả.
@@ -396,7 +418,9 @@ export default function CatalogPage() {
                           </span>
                         </div>
                         <div>
-                          <span className="text-muted-foreground">Xuất xứ:</span>
+                          <span className="text-muted-foreground">
+                            Xuất xứ:
+                          </span>
                           <span className="ml-1 font-medium">{koi.origin}</span>
                         </div>
                       </div>
@@ -469,7 +493,8 @@ export default function CatalogPage() {
                   />
                 </div>
               )}
-            </div>)}
+            </div>
+          )}
         </div>
       </div>
     </div>

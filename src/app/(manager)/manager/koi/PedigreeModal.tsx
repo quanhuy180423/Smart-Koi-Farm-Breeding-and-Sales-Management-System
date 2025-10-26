@@ -32,8 +32,9 @@ const PedigreeNode = ({ koi, role }: PedigreeNodeProps) => {
       </p>
       <p className="text-xs text-gray-600">{koi?.varietyName ?? "—"}</p>
       <p
-        className={`text-xs mt-1 font-bold ${koi?.gender === Gender.MALE ? "text-blue-600" : "text-pink-600"
-          }`}
+        className={`text-xs mt-1 font-bold ${
+          koi?.gender === Gender.MALE ? "text-blue-600" : "text-pink-600"
+        }`}
       >
         {getGenderString(koi?.gender)}
       </p>
@@ -141,62 +142,62 @@ const PedigreeModal = ({ isOpen, onOpenChange, koi }: PedigreeModalProps) => {
               fish?.father?.mother ||
               fish?.mother?.father ||
               fish?.mother?.mother) && (
-                <div className="relative flex justify-center w-full max-w-6xl">
-                  {/* Ông bà bên cha */}
-                  {(fish.father?.father || fish.father?.mother) && (
-                    <div className="relative flex justify-around w-1/2 px-4">
-                      {fish.father?.father && (
-                        <PedigreeNode koi={fish.father.father} role="Ông (G1)" />
-                      )}
-                      {fish.father?.mother && (
-                        <PedigreeNode koi={fish.father.mother} role="Bà (G1)" />
-                      )}
+              <div className="relative flex justify-center w-full max-w-6xl">
+                {/* Ông bà bên cha */}
+                {(fish.father?.father || fish.father?.mother) && (
+                  <div className="relative flex justify-around w-1/2 px-4">
+                    {fish.father?.father && (
+                      <PedigreeNode koi={fish.father.father} role="Ông (G1)" />
+                    )}
+                    {fish.father?.mother && (
+                      <PedigreeNode koi={fish.father.mother} role="Bà (G1)" />
+                    )}
 
-                      {/* Đường ngang nối 2 ông bà bên cha */}
-                      {fish.father?.father && fish.father?.mother && (
-                        <div className="absolute top-[-1.5rem] left-1/4 right-1/4 h-0.5 bg-indigo-500"></div>
-                      )}
+                    {/* Đường ngang nối 2 ông bà bên cha */}
+                    {fish.father?.father && fish.father?.mother && (
+                      <div className="absolute top-[-1.5rem] left-1/4 right-1/4 h-0.5 bg-indigo-500"></div>
+                    )}
 
-                      {/* Đường dọc xuống ông */}
-                      {fish.father?.father && (
-                        <div className="absolute top-[-1.5rem] left-1/4 w-0.5 h-6 bg-indigo-500"></div>
-                      )}
+                    {/* Đường dọc xuống ông */}
+                    {fish.father?.father && (
+                      <div className="absolute top-[-1.5rem] left-1/4 w-0.5 h-6 bg-indigo-500"></div>
+                    )}
 
-                      {/* Đường dọc xuống bà */}
-                      {fish.father?.mother && (
-                        <div className="absolute top-[-1.5rem] right-1/4 w-0.5 h-6 bg-indigo-500"></div>
-                      )}
-                    </div>
-                  )}
+                    {/* Đường dọc xuống bà */}
+                    {fish.father?.mother && (
+                      <div className="absolute top-[-1.5rem] right-1/4 w-0.5 h-6 bg-indigo-500"></div>
+                    )}
+                  </div>
+                )}
 
-                  {/* Ông bà bên mẹ */}
-                  {(fish.mother?.father || fish.mother?.mother) && (
-                    <div className="relative flex justify-around w-1/2 px-4">
-                      {fish.mother?.father && (
-                        <PedigreeNode koi={fish.mother.father} role="Ông (G2)" />
-                      )}
-                      {fish.mother?.mother && (
-                        <PedigreeNode koi={fish.mother.mother} role="Bà (G2)" />
-                      )}
+                {/* Ông bà bên mẹ */}
+                {(fish.mother?.father || fish.mother?.mother) && (
+                  <div className="relative flex justify-around w-1/2 px-4">
+                    {fish.mother?.father && (
+                      <PedigreeNode koi={fish.mother.father} role="Ông (G2)" />
+                    )}
+                    {fish.mother?.mother && (
+                      <PedigreeNode koi={fish.mother.mother} role="Bà (G2)" />
+                    )}
 
-                      {/* Đường ngang nối 2 ông bà bên mẹ */}
-                      {fish.mother?.father && fish.mother?.mother && (
-                        <div className="absolute top-[-1.5rem] left-1/4 right-1/4 h-0.5 bg-indigo-500"></div>
-                      )}
+                    {/* Đường ngang nối 2 ông bà bên mẹ */}
+                    {fish.mother?.father && fish.mother?.mother && (
+                      <div className="absolute top-[-1.5rem] left-1/4 right-1/4 h-0.5 bg-indigo-500"></div>
+                    )}
 
-                      {/* Đường dọc xuống ông */}
-                      {fish.mother?.father && (
-                        <div className="absolute top-[-1.5rem] left-1/4 w-0.5 h-6 bg-indigo-500"></div>
-                      )}
+                    {/* Đường dọc xuống ông */}
+                    {fish.mother?.father && (
+                      <div className="absolute top-[-1.5rem] left-1/4 w-0.5 h-6 bg-indigo-500"></div>
+                    )}
 
-                      {/* Đường dọc xuống bà */}
-                      {fish.mother?.mother && (
-                        <div className="absolute top-[-1.5rem] right-1/4 w-0.5 h-6 bg-indigo-500"></div>
-                      )}
-                    </div>
-                  )}
-                </div>
-              )}
+                    {/* Đường dọc xuống bà */}
+                    {fish.mother?.mother && (
+                      <div className="absolute top-[-1.5rem] right-1/4 w-0.5 h-6 bg-indigo-500"></div>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         )}
         <DialogFooter>

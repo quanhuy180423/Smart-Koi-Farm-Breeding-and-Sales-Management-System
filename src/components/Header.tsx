@@ -10,7 +10,12 @@ import Image from "next/image";
 import logo from "@/assets/images/Logo_ZenKoi.png";
 import { Separator } from "./ui/separator";
 import { useAuthStore } from "@/store/auth-store";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "./ui/dropdown-menu";
 import { useGetVarieties } from "@/hooks/useVariety";
 
 export function Header() {
@@ -46,7 +51,10 @@ export function Header() {
     };
   }, [isMenuOpen]);
 
-  const { data: koiVarieties } = useGetVarieties({ pageIndex: 1, pageSize: 50 })
+  const { data: koiVarieties } = useGetVarieties({
+    pageIndex: 1,
+    pageSize: 50,
+  });
 
   const handleSelectVariety = (value: number | null) => {
     setIsMenuOpen(false);
