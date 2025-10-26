@@ -30,8 +30,6 @@ export async function redirectMultipleRestrictedRoles(
   rules: RoleRedirectRule[],
 ): Promise<void> {
   const currentRole = await getCurrentRole();
-  console.log(currentRole);
-
   // Tìm quy tắc chuyển hướng phù hợp với vai trò hiện tại
   const matchingRule = rules.find((rule) => rule.role === currentRole);
 

@@ -28,7 +28,7 @@ interface AuthState {
   setLoading: (loading: boolean) => void;
   updateUser: (user: Partial<User>) => void;
   setToken: (token: string | null) => void;
-  logout: (refreshToken?: string) => Promise<boolean>;
+  logout: (refreshToken?: string) => Promise<void>;
   getUserRole: () => UserRole;
   hasRole: (role: UserRole) => boolean;
   canAccessRoute: (route: string) => boolean;
@@ -165,41 +165,30 @@ export const useAuthStore = create<AuthState>()(
           return decodeURIComponent(match.split("=")[1] || "");
         };
 
-        let success = false;
         try {
           const tokenToSend = refreshToken ?? readCookie("refresh-token");
           if (tokenToSend) {
             const req: SignOutRequest = { refreshToken: tokenToSend };
             try {
-              const resp = await fetchAuth.signOut(req);
-              success = !!(resp && resp.isSuccess);
-            } catch {
-              success = false;
-            }
-          } else {
-            success = true;
-          }
-
-          if (success) {
-            set({ user: null, isAuthenticated: false, isLoading: false });
-            if (typeof window !== "undefined") {
-              document.cookie =
-                "user-role=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
-              document.cookie =
-                "auth-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
-              document.cookie =
-                "refresh-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
-            }
-
-            try {
-              apiService.setAuthToken("");
+              await fetchAuth.signOut(req);
             } catch {}
+          } else {
           }
-        } catch {
-          success = false;
-        }
 
-        return success;
+          set({ user: null, isAuthenticated: false, isLoading: false });
+          if (typeof window !== "undefined") {
+            document.cookie =
+              "user-role=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+            document.cookie =
+              "auth-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+            document.cookie =
+              "refresh-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+          }
+
+          try {
+            apiService.setAuthToken("");
+          } catch {}
+        } catch {}
       },
 
       getUserRole: () => {
@@ -382,11 +371,9 @@ if (typeof window !== "undefined") {
   const handleGlobalLogout = async () => {
     try {
       // Try a graceful sign out which will call backend if refresh-token exists
-      const ok = await useAuthStore.getState().logout();
-      if (!ok) {
-        // If signOut returned false, fallback to local logout to ensure UI clears
-        useAuthStore.getState().logout();
-      }
+      await useAuthStore.getState().logout();
+      // If signOut returned false, fallback to local logout to ensure UI clears
+      useAuthStore.getState().logout();
     } catch {
       // Always fallback to clearing local state
       useAuthStore.getState().logout();
