@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { CartSheet } from "@/components/cart-sheet";
-import { Menu, X, User } from "lucide-react";
+import { Menu, X, User, LogOut } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
@@ -130,17 +130,13 @@ export function Header() {
                   </Button>
                   <Button
                     variant="outline"
+                    className="text-red-500 hover:bg-red-500 hover:text-white"
                     onClick={async () => {
-                      const ok = await useAuthStore.getState().logout();
-                      if (ok) {
-                        toast.success("Đăng xuất thành công");
-                        router.push("/login");
-                      } else {
-                        toast.error("Đăng xuất thất bại");
-                      }
+                      await useAuthStore.getState().logout();
+                      router.push("/login");
                     }}
                   >
-                    Đăng xuất
+                    <LogOut />
                   </Button>
                 </div>
               ) : (
@@ -239,17 +235,12 @@ export function Header() {
                       variant="outline"
                       className="w-full justify-center"
                       onClick={async () => {
-                        const ok = await useAuthStore.getState().logout();
+                        await useAuthStore.getState().logout();
                         setIsMenuOpen(false);
-                        if (ok) {
-                          toast.success("Đăng xuất thành công");
-                          router.push("/login");
-                        } else {
-                          toast.error("Đăng xuất thất bại");
-                        }
+                        router.push("/login");
                       }}
                     >
-                      Đăng xuất
+                      <LogOut />
                     </Button>
                   </>
                 ) : (
