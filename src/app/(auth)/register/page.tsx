@@ -72,7 +72,6 @@ export default function SignUpPage() {
   });
 
   const onSubmit = async (data: RegisterForm) => {
-    // build payload matching RegisterRequest
     const payload: RegisterRequest = {
       email: data.email,
       userName: data.userName,
@@ -83,7 +82,6 @@ export default function SignUpPage() {
       role: Roles.Customer,
     };
 
-    // call mutation from hook
     try {
       registerUserMutation(payload);
     } catch (err) {

@@ -1,6 +1,8 @@
 import {
+  ForgotPasswordRequest,
   RegisterRequest,
   RegisterResponse,
+  ResetPasswordRequest,
 } from "@/lib/api/services/fetchAuth";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
@@ -31,7 +33,7 @@ export function useRegister() {
     },
     onSuccess: (
       response: BaseResponse<RegisterResponse>,
-      variables: RegisterRequest,
+      variables: RegisterRequest
     ) => {
       if (response.isSuccess) {
         setSuccess(true);
@@ -90,7 +92,7 @@ export function useLogin() {
     },
     onSuccess: (
       response: BaseResponse<LoginResponse>,
-      variables?: LoginRequest,
+      variables?: LoginRequest
     ) => {
       if (response?.isSuccess) {
         const token = response.result?.accessToken;
@@ -102,7 +104,7 @@ export function useLogin() {
             setCookie(
               "auth-token",
               token,
-              getAuthCookieConfig(variables?.rememberMe),
+              getAuthCookieConfig(variables?.rememberMe)
             );
           } catch (e) {
             console.warn("Failed to persist auth token via store", e);
@@ -113,7 +115,7 @@ export function useLogin() {
               setCookie(
                 "refresh-token",
                 refreshToken,
-                getAuthCookieConfig(variables?.rememberMe),
+                getAuthCookieConfig(variables?.rememberMe)
               );
             } catch (e) {
               console.warn("Failed to persist refresh token", e);
@@ -130,7 +132,7 @@ export function useLogin() {
           const redirectTo = searchParams?.get("redirect");
           if (redirectTo) {
             (router as unknown as { push: (to: string) => void }).push(
-              redirectTo,
+              redirectTo
             );
             return;
           } else {
@@ -150,7 +152,7 @@ export function useLogin() {
                 destination = "/";
             }
             (router as unknown as { push: (to: string) => void }).push(
-              destination,
+              destination
             );
           }
           return;
@@ -220,7 +222,7 @@ export function useGoogleLogin() {
       },
       onSuccess: (
         response: BaseResponse<LoginResponse>,
-        variables?: { idToken: string; rememberMe?: boolean },
+        variables?: { idToken: string; rememberMe?: boolean }
       ) => {
         if (response?.isSuccess) {
           const token = response.result?.accessToken;
@@ -232,7 +234,7 @@ export function useGoogleLogin() {
               setCookie(
                 "auth-token",
                 token,
-                getAuthCookieConfig(variables?.rememberMe),
+                getAuthCookieConfig(variables?.rememberMe)
               );
             } catch (e) {
               console.warn("Failed to persist auth token via store", e);
@@ -243,7 +245,7 @@ export function useGoogleLogin() {
                 setCookie(
                   "refresh-token",
                   refreshToken,
-                  getAuthCookieConfig(variables?.rememberMe),
+                  getAuthCookieConfig(variables?.rememberMe)
                 );
               } catch (e) {
                 console.warn("Failed to persist refresh token", e);
@@ -257,7 +259,7 @@ export function useGoogleLogin() {
             const redirectTo = searchParams?.get("redirect");
             if (redirectTo) {
               (router as unknown as { push: (to: string) => void }).push(
-                redirectTo,
+                redirectTo
               );
               return;
             }
@@ -278,7 +280,7 @@ export function useGoogleLogin() {
                 destination = "/";
             }
             (router as unknown as { push: (to: string) => void }).push(
-              destination,
+              destination
             );
           }
         } else {
@@ -292,7 +294,7 @@ export function useGoogleLogin() {
           toast.error(error?.error?.message || "Đăng nhập thất bại");
         }
       },
-    },
+    }
   );
 
   return {
@@ -337,20 +339,12 @@ export async function loginWithGoogle(idToken: string, rememberMe?: boolean) {
 export function useForgotPassword() {
   const [error, setError] = useState<string | null>(null);
   const { mutate, isPending: isLoading } = useMutation({
-    mutationFn: async (data: { email: string }) => {
+    mutationFn: async (data: ForgotPasswordRequest) => {
       return await fetchAuth.forgotPassword(data);
     },
-    onSuccess: (response: {
-      statusCode: string;
-      isSuccess: boolean;
-      message: string;
-      result?: { isSuccess?: boolean; message?: string };
-    }) => {
+    onSuccess: (response: BaseResponse<string>) => {
       if (response?.isSuccess) {
-        const message =
-          response?.result?.message ||
-          response?.message ||
-          "Yêu cầu khôi phục đã được gửi.";
+        const message = response?.message || "Yêu cầu khôi phục đã được gửi.";
         toast.success(message);
       } else {
         setError(response?.message || "Gửi email thất bại");
@@ -382,25 +376,12 @@ export function useResetPassword() {
     mutateAsync,
     isPending: isLoading,
   } = useMutation({
-    mutationFn: async (data: {
-      email: string;
-      newPassword: string;
-      confirmedNewPassword: string;
-      token: string;
-    }) => {
+    mutationFn: async (data: ResetPasswordRequest) => {
       return await fetchAuth.resetPassword(data);
     },
-    onSuccess: (response: {
-      statusCode: string;
-      isSuccess: boolean;
-      message: string;
-      result?: { isSuccess?: boolean; message?: string };
-    }) => {
+    onSuccess: (response: BaseResponse<string>) => {
       if (response?.isSuccess) {
-        const message =
-          response?.result?.message ||
-          response?.message ||
-          "Mật khẩu đã được thay đổi.";
+        const message = response?.message || "Mật khẩu đã được thay đổi.";
         toast.success(message);
         router.push("/login");
       } else {

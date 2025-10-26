@@ -1,16 +1,9 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-
-export type UserRole =
-  | "guest"
-  | "manager"
-  | "farm-staff"
-  | "sale-staff"
-  | "customer"
-  | "";
+import jwt from "jsonwebtoken";
 
 export interface RoleRedirectRule {
-  role: UserRole;
+  role: string;
   redirectPath: string;
 }
 
@@ -18,16 +11,15 @@ export interface RoleRedirectRule {
  * Lấy vai trò hiện tại của người dùng từ cookie và chuẩn hóa.
  * Vai trò mặc định là "guest". Vai trò rỗng ("") cũng được coi là "guest".
  */
-async function getCurrentRole(): Promise<UserRole> {
+async function getCurrentRole(): Promise<string> {
   // Sửa lỗi TS2339: Await để đảm bảo cookieStore được resolve thành ReadonlyRequestCookies
   const cookieStore = await cookies();
 
-  // Lấy giá trị cookie, nếu không có thì mặc định là "guest"
-  const currentRole =
-    (cookieStore.get("user-role")?.value?.toLowerCase() as UserRole) ?? "guest";
-
-  // Chuẩn hóa role rỗng thành "guest"
-  return currentRole === "" ? "guest" : currentRole;
+  // Lấy giá trị cookie, nếu không có thì mặc định là "Guest"
+  const currentToken = cookieStore.get("auth-token")?.value ?? "Guest";
+  const decode = jwt.decode(currentToken) as { Role?: string } | null;
+  // Chuẩn hóa role rỗng thành "Guest"
+  return decode?.Role ?? "Guest";
 }
 
 /**
@@ -35,9 +27,11 @@ async function getCurrentRole(): Promise<UserRole> {
  * * @param rules Mảng các đối tượng RoleRedirectRule xác định vai trò nào sẽ chuyển hướng đến đường dẫn nào.
  */
 export async function redirectMultipleRestrictedRoles(
-  rules: RoleRedirectRule[],
+  rules: RoleRedirectRule[]
 ): Promise<void> {
   const currentRole = await getCurrentRole();
+  console.log(currentRole);
+  
 
   // Tìm quy tắc chuyển hướng phù hợp với vai trò hiện tại
   const matchingRule = rules.find((rule) => rule.role === currentRole);
@@ -54,8 +48,8 @@ export async function redirectMultipleRestrictedRoles(
  * @param redirectPath Đường dẫn chuyển hướng nếu người dùng không có quyền (mặc định là "/login").
  */
 export async function checkAuthAndRedirect(
-  requiredRoles: UserRole[],
-  redirectPath: string = "/login",
+  requiredRoles: string[],
+  redirectPath: string = "/login"
 ): Promise<void> {
   const currentRole = await getCurrentRole();
 
@@ -72,8 +66,8 @@ export async function checkAuthAndRedirect(
  * @param redirectPath Đường dẫn chuyển hướng cho các vai trò bị hạn chế.
  */
 export async function redirectHighPrivilegeUser(
-  restrictedRoles: UserRole[],
-  redirectPath: string,
+  restrictedRoles: string[],
+  redirectPath: string
 ): Promise<void> {
   const currentRole = await getCurrentRole();
 
