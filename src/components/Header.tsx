@@ -3,30 +3,35 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { CartSheet } from "@/components/cart-sheet";
-import { Menu, X, User, LogOut } from "lucide-react";
+import { Menu, X, User, LogOut, ChevronDown, Check } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
-import { useRouter } from "next/navigation";
-import toast from "react-hot-toast";
+import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import logo from "@/assets/images/Logo_ZenKoi.png";
 import { Separator } from "./ui/separator";
 import { useAuthStore } from "@/store/auth-store";
-// router not needed here; using window.location for navigation to avoid typing issues
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "./ui/dropdown-menu";
+import { useGetVarieties } from "@/hooks/useVariety";
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
+  const searchParams = useSearchParams();
 
   const { isAuthenticated, user } = useAuthStore();
   const router = useRouter();
+  const currentVariety = searchParams.get("variety") || "";
 
-  // Close menu when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as Node;
 
-      // Don't close if clicking on the menu button or menu content
       if (
         (mobileMenuRef.current && mobileMenuRef.current.contains(target)) ||
         (menuButtonRef.current && menuButtonRef.current.contains(target))
@@ -45,6 +50,20 @@ export function Header() {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [isMenuOpen]);
+
+  const { data: koiVarieties } = useGetVarieties({
+    pageIndex: 1,
+    pageSize: 50,
+  });
+
+  const handleSelectVariety = (value: number | null) => {
+    setIsMenuOpen(false);
+    if (value) {
+      router.push(`/catalog?variety=${value}`);
+    } else {
+      router.push(`/catalog`);
+    }
+  };
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur-md supports-[backdrop-filter]:bg-background/80 shadow-sm">
@@ -81,13 +100,41 @@ export function Header() {
               <span className="relative z-10">Trang chủ</span>
               <div className="absolute inset-0 bg-primary/10 rounded-lg opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 transition-all duration-200"></div>
             </Link>
-            <Link
-              href="/catalog"
-              className="px-4 py-2 text-md font-medium text-foreground/80 hover:text-primary hover:bg-primary/5 rounded-lg transition-all duration-200 relative group"
-            >
-              <span className="relative z-10">Danh mục</span>
-              <div className="absolute inset-0 bg-primary/10 rounded-lg opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 transition-all duration-200"></div>
-            </Link>
+
+            <div className="px-4">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-between text-sm font-medium text-foreground hover:text-primary hover:bg-primary/5 rounded-lg"
+                  >
+                    Danh mục <ChevronDown className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-44">
+                  <DropdownMenuItem
+                    key={0}
+                    onClick={() => handleSelectVariety(null)}
+                  >
+                    Tất cả
+                    {!currentVariety && (
+                      <Check className="h-4 w-4 text-primary" />
+                    )}
+                  </DropdownMenuItem>
+                  {koiVarieties?.data.map((koi) => (
+                    <DropdownMenuItem
+                      key={koi.id}
+                      onClick={() => handleSelectVariety(koi.id)}
+                    >
+                      {koi.varietyName}
+                      {currentVariety === koi.id.toString() && (
+                        <Check className="h-4 w-4 text-primary" />
+                      )}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
             <Link
               href="/about"
               className="px-4 py-2 text-md font-medium text-foreground/80 hover:text-primary hover:bg-primary/5 rounded-lg transition-all duration-200 relative group"
@@ -135,6 +182,7 @@ export function Header() {
                       await useAuthStore.getState().logout();
                       router.push("/login");
                     }}
+                    title="Đăng xuất"
                   >
                     <LogOut />
                   </Button>
