@@ -19,7 +19,6 @@ import logo from "@/assets/images/Logo_ZenKoi.png";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/auth-store";
-import toast from "react-hot-toast";
 
 interface ManagerLayoutProps {
   children: React.ReactNode;

@@ -166,16 +166,8 @@ export const useAuthStore = create<AuthState>()(
         };
 
         try {
-          const tokenToSend = refreshToken ?? readCookie("refresh-token");
-          if (tokenToSend) {
-            const req: SignOutRequest = { refreshToken: tokenToSend };
-            try {
-              await fetchAuth.signOut(req);
-            } catch {}
-          } else {
-          }
-
           set({ user: null, isAuthenticated: false, isLoading: false });
+
           if (typeof window !== "undefined") {
             document.cookie =
               "user-role=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
@@ -183,6 +175,14 @@ export const useAuthStore = create<AuthState>()(
               "auth-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
             document.cookie =
               "refresh-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+          }
+
+          const tokenToSend = refreshToken ?? readCookie("refresh-token");
+          if (tokenToSend) {
+            const req: SignOutRequest = { refreshToken: tokenToSend };
+            try {
+              await fetchAuth.signOut(req);
+            } catch {}
           }
 
           try {
@@ -209,7 +209,7 @@ export const useAuthStore = create<AuthState>()(
         };
 
         for (const [protectedRoute, allowedRoles] of Object.entries(
-          routePermissions,
+          routePermissions
         )) {
           if (route.startsWith(protectedRoute)) {
             return allowedRoles.includes(userRole);
@@ -225,8 +225,8 @@ export const useAuthStore = create<AuthState>()(
         user: state.user,
         isAuthenticated: state.isAuthenticated,
       }),
-    },
-  ),
+    }
+  )
 );
 
 // Helper functions for authentication
@@ -236,7 +236,7 @@ export const authHelpers = {
     if (typeof window !== "undefined") {
       const cookies = document.cookie.split(";");
       const roleCookie = cookies.find((cookie) =>
-        cookie.trim().startsWith("user-role="),
+        cookie.trim().startsWith("user-role=")
       );
 
       if (roleCookie) {
