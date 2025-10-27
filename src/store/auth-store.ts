@@ -166,16 +166,8 @@ export const useAuthStore = create<AuthState>()(
         };
 
         try {
-          const tokenToSend = refreshToken ?? readCookie("refresh-token");
-          if (tokenToSend) {
-            const req: SignOutRequest = { refreshToken: tokenToSend };
-            try {
-              await fetchAuth.signOut(req);
-            } catch {}
-          } else {
-          }
-
           set({ user: null, isAuthenticated: false, isLoading: false });
+
           if (typeof window !== "undefined") {
             document.cookie =
               "user-role=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
@@ -183,6 +175,14 @@ export const useAuthStore = create<AuthState>()(
               "auth-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
             document.cookie =
               "refresh-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+          }
+
+          const tokenToSend = refreshToken ?? readCookie("refresh-token");
+          if (tokenToSend) {
+            const req: SignOutRequest = { refreshToken: tokenToSend };
+            try {
+              await fetchAuth.signOut(req);
+            } catch {}
           }
 
           try {
