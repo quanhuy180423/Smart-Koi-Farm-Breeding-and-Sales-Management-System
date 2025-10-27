@@ -74,15 +74,24 @@ export default function FatherFishInfo({ selectedFish }: FatherFishInfoProps) {
     },
     {
       label: "Tỷ lệ nở trung bình",
-      value: breedingParentHistory?.hatchRate !== null ? `${breedingParentHistory?.hatchRate.toFixed(2)}%` : "Chưa có",
+      value:
+        breedingParentHistory?.hatchRate !== null
+          ? `${breedingParentHistory?.hatchRate.toFixed(2)}%`
+          : "Chưa có",
     },
     {
       label: "Tỷ lệ cá con sống sót trung bình",
-      value: breedingParentHistory?.survivalRate !== null ? `${breedingParentHistory?.survivalRate.toFixed(2)}%` : "Chưa có",
+      value:
+        breedingParentHistory?.survivalRate !== null
+          ? `${breedingParentHistory?.survivalRate.toFixed(2)}%`
+          : "Chưa có",
     },
     {
       label: "Tỷ lệ cá con chất lượng tốt trung bình",
-      value: breedingParentHistory?.highQualifiedRate !== null ? `${breedingParentHistory?.highQualifiedRate.toFixed(2)}%` : "Chưa có",
+      value:
+        breedingParentHistory?.highQualifiedRate !== null
+          ? `${breedingParentHistory?.highQualifiedRate.toFixed(2)}%`
+          : "Chưa có",
     },
   ];
 
@@ -152,9 +161,7 @@ export default function FatherFishInfo({ selectedFish }: FatherFishInfoProps) {
                   <div className="text-sm font-semibold text-gray-700 mb-2">
                     {item.label}
                   </div>
-                  <div className="text-sm text-gray-900">
-                    {item.value}
-                  </div>
+                  <div className="text-sm text-gray-900">{item.value}</div>
                 </CardContent>
               </Card>
             ))}
@@ -202,9 +209,7 @@ export default function FatherFishInfo({ selectedFish }: FatherFishInfoProps) {
                   <div className="text-sm font-semibold text-gray-700 mb-2">
                     {item.label}
                   </div>
-                  <div className="text-sm text-gray-900">
-                    {item.value}
-                  </div>
+                  <div className="text-sm text-gray-900">{item.value}</div>
                 </CardContent>
               </Card>
             ))}
