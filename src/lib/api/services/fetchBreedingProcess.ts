@@ -84,9 +84,38 @@ export interface BreedingParentHistoryResponse {
   highQualifiedRate: number;
 }
 
+export interface BreeedingRecommendRequest {
+  targetVariety: string;
+  priority: string;
+  desiredPattern: string;
+  desiredBodyShape: string;
+  minHatchRate: number;
+  minSurvivalRate: number;
+  minHighQualifiedRate: number;
+}
+
+export interface RecommendedPair {
+  maleId: number;
+  femaleId: number;
+  reason: string;
+  predictedFertilizationRate: number;
+  predictedHatchRate: number;
+  predictedSurvivalRate: number;
+  predictedHighQualifiedRate: number;
+  patternMatchScore: number;
+  bodyShapeCompatibility: number;
+  percentInbreeding: string;
+  rank: number;
+  percentInbreedingValue?: number;
+}
+
+export interface BreeedingRecommendResponse {
+  recommendedPairs: RecommendedPair[];
+}
+
 export const breedingProcessService = {
   getBreedingProcesses: async (
-    request: BreedingProcessSearchParams,
+    request: BreedingProcessSearchParams
   ): Promise<BaseResponse<PagedResponse<BreedingProcessResponse>>> => {
     const filter = toRequestParams(request);
     const response = await apiService.get<
@@ -95,7 +124,7 @@ export const breedingProcessService = {
     return response.data;
   },
   addBreedingProcess: async (
-    request: Partial<BreedingProcessCreateRequest>,
+    request: Partial<BreedingProcessCreateRequest>
   ): Promise<BaseResponse<BreedingProcessResponse>> => {
     const response = await apiService.post<
       BaseResponse<BreedingProcessResponse>,
@@ -104,11 +133,20 @@ export const breedingProcessService = {
     return response.data;
   },
   getBreedingParentHistory: async (
-    id: number,
+    id: number
   ): Promise<BaseResponse<BreedingParentHistoryResponse>> => {
     const response = await apiService.get<
       BaseResponse<BreedingParentHistoryResponse>
     >(`${baseUrl}/${id}/breeding-parent-history`);
+    return response.data;
+  },
+  getRecommends: async (
+    request: Partial<BreeedingRecommendRequest>
+  ): Promise<BaseResponse<BreeedingRecommendResponse>> => {
+    const response = await apiService.post<
+      BaseResponse<BreeedingRecommendResponse>,
+      Partial<BreeedingRecommendRequest>
+    >(`${baseUrl}/recommend`, request);
     return response.data;
   },
 };

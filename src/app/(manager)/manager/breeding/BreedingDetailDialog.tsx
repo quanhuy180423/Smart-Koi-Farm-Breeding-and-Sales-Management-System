@@ -249,19 +249,48 @@ export const BreedingDetailDialog = ({
                     BreedingStatus.SPAWNED,
                   )}
                 >
-                  <p className="text-muted-foreground">
-                    Số lượng trứng:{" "}
-                    <span className="font-semibold">
-                      {eggBatch?.quantity || 0}
-                    </span>{" "}
-                    trứng
-                  </p>
-                  <p className="text-muted-foreground">
-                    Tỷ lệ thụ tinh:{" "}
-                    <span className="font-semibold">
-                      {(eggBatch?.fertilizationRate || 0) * 100}%
-                    </span>
-                  </p>
+                  {getProcessStatus(
+                    currentBreedingStatus,
+                    BreedingStatus.SPAWNED,
+                  ) !== "Sắp tới" &&
+                    getProcessStatus(
+                      currentBreedingStatus,
+                      BreedingStatus.SPAWNED,
+                    ) !== "Thất bại" ? (
+                    <>
+                      <p className="text-muted-foreground">
+                        Số lượng trứng:{" "}
+                        <span className="font-semibold">
+                          {eggBatch?.quantity || 0}
+                        </span>{" "}
+                        trứng
+                      </p>
+                      <p className="text-muted-foreground">
+                        Tỷ lệ thụ tinh:{" "}
+                        <span className="font-semibold">
+                          {(eggBatch?.fertilizationRate || 0) * 100}%
+                        </span>
+                      </p>
+                    </>) : (
+                    <p
+                      className={cn(
+                        "font-medium",
+                        getProcessStatus(
+                          currentBreedingStatus,
+                          BreedingStatus.SPAWNED,
+                        ) === "Thất bại"
+                          ? "text-red-600"
+                          : "text-muted-foreground",
+                      )}
+                    >
+                      {getProcessStatus(
+                        currentBreedingStatus,
+                        BreedingStatus.SPAWNED,
+                      ) === "Thất bại"
+                        ? "Giai đoạn đã đẻ đã thất bại."
+                        : "Giai đoạn đã đẻ chưa bắt đầu."}
+                    </p>
+                  )}
                 </BreedingStageCard>
 
                 {/* 3. Ấp trứng */}
@@ -270,9 +299,9 @@ export const BreedingDetailDialog = ({
                   date={
                     eggBatch?.hatchingTime
                       ? formatDate(
-                          eggBatch.hatchingTime,
-                          DATE_FORMATS.MEDIUM_DATE,
-                        )
+                        eggBatch.hatchingTime,
+                        DATE_FORMATS.MEDIUM_DATE,
+                      )
                       : "Chưa có"
                   }
                   status={getProcessStatus(
@@ -284,10 +313,10 @@ export const BreedingDetailDialog = ({
                     currentBreedingStatus,
                     BreedingStatus.EGG_BATCH,
                   ) !== "Sắp tới" &&
-                  getProcessStatus(
-                    currentBreedingStatus,
-                    BreedingStatus.EGG_BATCH,
-                  ) !== "Thất bại" ? (
+                    getProcessStatus(
+                      currentBreedingStatus,
+                      BreedingStatus.EGG_BATCH,
+                    ) !== "Thất bại" ? (
                     <div className="space-y-3">
                       {/* Thống kê nhanh */}
                       <p className="text-muted-foreground">
@@ -346,7 +375,7 @@ export const BreedingDetailDialog = ({
                                   className="h-12 text-center text-gray-500"
                                 >
                                   {isLoadingDailyRecords ||
-                                  isFetchingDailyRecords ? (
+                                    isFetchingDailyRecords ? (
                                     <div className="flex items-center justify-center py-10 text-gray-500">
                                       <Loader2 className="w-5 h-5 mr-2 animate-spin" />
                                       Đang tải dữ liệu...
@@ -361,7 +390,6 @@ export const BreedingDetailDialog = ({
                         </Table>
                       </div>
 
-                      {/* Incubation Pagination - ĐÃ SỬA LỖI ẨN KHI KHÔNG CÓ DATA */}
                       {incubationDailyRecords &&
                         incubationDailyRecords.totalItems > 0 && (
                           <div className="flex items-center justify-between py-2 px-1">
@@ -391,7 +419,7 @@ export const BreedingDetailDialog = ({
                                 onClick={handleIncubationNextPage}
                                 disabled={
                                   incubationDailyRecords.pageIndex ===
-                                    incubationDailyRecords.totalPages ||
+                                  incubationDailyRecords.totalPages ||
                                   isFetchingDailyRecords
                                 }
                               >
@@ -423,7 +451,6 @@ export const BreedingDetailDialog = ({
                   )}
                 </BreedingStageCard>
 
-                {/* 4. Nuôi Cá Bột (FRY_FISH) */}
                 <BreedingStageCard
                   title="Nuôi Cá Bột"
                   // date={fryFish?.createdAt ? formatDate(fryFish.createdAt, DATE_FORMATS.MEDIUM_DATE) : "Chưa có"}
@@ -443,10 +470,10 @@ export const BreedingDetailDialog = ({
                     currentBreedingStatus,
                     BreedingStatus.FRY_FISH,
                   ) !== "Sắp tới" &&
-                  getProcessStatus(
-                    currentBreedingStatus,
-                    BreedingStatus.FRY_FISH,
-                  ) !== "Thất bại" ? (
+                    getProcessStatus(
+                      currentBreedingStatus,
+                      BreedingStatus.FRY_FISH,
+                    ) !== "Thất bại" ? (
                     <div className="space-y-3">
                       <p className="text-muted-foreground">
                         Cá bột được chuyển từ hồ:{" "}
@@ -510,7 +537,7 @@ export const BreedingDetailDialog = ({
                                   className="h-12 text-center text-gray-500"
                                 >
                                   {isLoadingFryRecords ||
-                                  isFetchingFryRecords ? (
+                                    isFetchingFryRecords ? (
                                     <div className="flex items-center justify-center py-10 text-gray-500">
                                       <Loader2 className="w-5 h-5 mr-2 animate-spin" />
                                       Đang tải dữ liệu...
@@ -525,7 +552,6 @@ export const BreedingDetailDialog = ({
                         </Table>
                       </div>
 
-                      {/* Fry Survival Pagination - ĐÃ SỬA LỖI ẨN KHI KHÔNG CÓ DATA */}
                       {frySurvivalRecords &&
                         frySurvivalRecords.totalItems > 0 && (
                           <div className="flex items-center justify-between py-2 px-1">
@@ -555,7 +581,7 @@ export const BreedingDetailDialog = ({
                                 onClick={handleFrySurvivalNextPage}
                                 disabled={
                                   frySurvivalPagingRequest.pageIndex >=
-                                    frySurvivalRecords.totalPages ||
+                                  frySurvivalRecords.totalPages ||
                                   isFetchingFryRecords
                                 }
                               >
@@ -587,7 +613,6 @@ export const BreedingDetailDialog = ({
                   )}
                 </BreedingStageCard>
 
-                {/* 5. Tuyển chọn (CLASSIFICATION) */}
                 <BreedingStageCard
                   title="Tuyển chọn"
                   // date={classificationDisplayDate}
@@ -609,9 +634,9 @@ export const BreedingDetailDialog = ({
                       dữ liệu tuyển chọn...
                     </div>
                   ) : getProcessStatus(
-                      currentBreedingStatus,
-                      BreedingStatus.CLASSIFICATION,
-                    ) !== "Sắp tới" &&
+                    currentBreedingStatus,
+                    BreedingStatus.CLASSIFICATION,
+                  ) !== "Sắp tới" &&
                     getProcessStatus(
                       currentBreedingStatus,
                       BreedingStatus.CLASSIFICATION,
