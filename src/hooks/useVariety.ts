@@ -14,12 +14,9 @@ interface VarietyUpdatePayload {
 }
 
 export function useGetVarieties(request: VarietySearchParams) {
-  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
-
   return useQuery({
     queryKey: ["variety", request],
     queryFn: () => varietyService.getVarieties(request),
-    enabled: isAuthenticated,
     select: (
       data: BaseResponse<PagedResponse<VarietyResponse>>,
     ): PagedResponse<VarietyResponse> => data?.result,

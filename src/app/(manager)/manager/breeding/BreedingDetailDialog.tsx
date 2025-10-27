@@ -249,19 +249,49 @@ export const BreedingDetailDialog = ({
                     BreedingStatus.SPAWNED,
                   )}
                 >
-                  <p className="text-muted-foreground">
-                    Số lượng trứng:{" "}
-                    <span className="font-semibold">
-                      {eggBatch?.quantity || 0}
-                    </span>{" "}
-                    trứng
-                  </p>
-                  <p className="text-muted-foreground">
-                    Tỷ lệ thụ tinh:{" "}
-                    <span className="font-semibold">
-                      {(eggBatch?.fertilizationRate || 0) * 100}%
-                    </span>
-                  </p>
+                  {getProcessStatus(
+                    currentBreedingStatus,
+                    BreedingStatus.SPAWNED,
+                  ) !== "Sắp tới" &&
+                  getProcessStatus(
+                    currentBreedingStatus,
+                    BreedingStatus.SPAWNED,
+                  ) !== "Thất bại" ? (
+                    <>
+                      <p className="text-muted-foreground">
+                        Số lượng trứng:{" "}
+                        <span className="font-semibold">
+                          {eggBatch?.quantity || 0}
+                        </span>{" "}
+                        trứng
+                      </p>
+                      <p className="text-muted-foreground">
+                        Tỷ lệ thụ tinh:{" "}
+                        <span className="font-semibold">
+                          {(eggBatch?.fertilizationRate || 0) * 100}%
+                        </span>
+                      </p>
+                    </>
+                  ) : (
+                    <p
+                      className={cn(
+                        "font-medium",
+                        getProcessStatus(
+                          currentBreedingStatus,
+                          BreedingStatus.SPAWNED,
+                        ) === "Thất bại"
+                          ? "text-red-600"
+                          : "text-muted-foreground",
+                      )}
+                    >
+                      {getProcessStatus(
+                        currentBreedingStatus,
+                        BreedingStatus.SPAWNED,
+                      ) === "Thất bại"
+                        ? "Giai đoạn đã đẻ đã thất bại."
+                        : "Giai đoạn đã đẻ chưa bắt đầu."}
+                    </p>
+                  )}
                 </BreedingStageCard>
 
                 {/* 3. Ấp trứng */}
@@ -361,7 +391,6 @@ export const BreedingDetailDialog = ({
                         </Table>
                       </div>
 
-                      {/* Incubation Pagination - ĐÃ SỬA LỖI ẨN KHI KHÔNG CÓ DATA */}
                       {incubationDailyRecords &&
                         incubationDailyRecords.totalItems > 0 && (
                           <div className="flex items-center justify-between py-2 px-1">
@@ -423,7 +452,6 @@ export const BreedingDetailDialog = ({
                   )}
                 </BreedingStageCard>
 
-                {/* 4. Nuôi Cá Bột (FRY_FISH) */}
                 <BreedingStageCard
                   title="Nuôi Cá Bột"
                   // date={fryFish?.createdAt ? formatDate(fryFish.createdAt, DATE_FORMATS.MEDIUM_DATE) : "Chưa có"}
@@ -525,7 +553,6 @@ export const BreedingDetailDialog = ({
                         </Table>
                       </div>
 
-                      {/* Fry Survival Pagination - ĐÃ SỬA LỖI ẨN KHI KHÔNG CÓ DATA */}
                       {frySurvivalRecords &&
                         frySurvivalRecords.totalItems > 0 && (
                           <div className="flex items-center justify-between py-2 px-1">
@@ -587,7 +614,6 @@ export const BreedingDetailDialog = ({
                   )}
                 </BreedingStageCard>
 
-                {/* 5. Tuyển chọn (CLASSIFICATION) */}
                 <BreedingStageCard
                   title="Tuyển chọn"
                   // date={classificationDisplayDate}
