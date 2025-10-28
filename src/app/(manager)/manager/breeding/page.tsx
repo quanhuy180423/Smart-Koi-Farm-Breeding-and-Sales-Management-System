@@ -28,8 +28,10 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import toast from "react-hot-toast";
-import { useGetBreedingProcesses } from "@/hooks/useBreedingProcess";
+import {
+  useCancelBreeding,
+  useGetBreedingProcesses,
+} from "@/hooks/useBreedingProcess";
 import {
   PAGE_SIZE_OPTIONS_DEFAULT,
   PaginationSection,
@@ -118,6 +120,7 @@ export default function BreedingManagement() {
   );
 
   const { data, isLoading } = useGetBreedingProcesses(searchParams);
+  const { mutateAsync: cancelBreedingAsync } = useCancelBreeding();
   const breedingProcesses = data?.data || [];
   const totalItems = data?.totalItems || 0;
   const totalPages = data?.totalPages || 0;
@@ -226,13 +229,13 @@ export default function BreedingManagement() {
   };
 
   const handleDelete = async () => {
+    if (!breedingToDelete?.id) return;
+
     try {
-      toast.success("Đã hủy đợt lai thành công");
+      await cancelBreedingAsync(breedingToDelete?.id);
       setIsDeleteModalOpen(false);
       setBreedingToDelete(undefined);
-    } catch {
-      toast.error("Hủy thất bại");
-    }
+    } catch {}
   };
 
   const handleCreateBreeding = () => {
@@ -315,12 +318,12 @@ export default function BreedingManagement() {
                 <TableHeader>
                   <TableRow>
                     <TableHead className="w-[10%]">STT</TableHead>
-                    <TableHead className="w-[10%]">Cá đực (RFID)</TableHead>
-                    <TableHead className="w-[10%]">Cá cái (RFID)</TableHead>
+                    <TableHead className="w-[15%]">Cá đực (RFID)</TableHead>
+                    <TableHead className="w-[15%]">Cá cái (RFID)</TableHead>
                     <TableHead className="w-[20%]">Thời gian diễn ra</TableHead>
                     <TableHead className="w-[15%]">Giai đoạn</TableHead>
                     <TableHead className="w-[15%]">Kết quả</TableHead>
-                    <TableHead className="w-[20%] text-center">
+                    <TableHead className="w-[10%] text-center">
                       Thao tác
                     </TableHead>
                   </TableRow>
@@ -391,7 +394,7 @@ export default function BreedingManagement() {
                             );
                           })()}
                         </TableCell>
-                        <TableCell className="text-center space-x-2">
+                        <TableCell className="text-center grid grid-cols-2">
                           <Button
                             size="sm"
                             variant="ghost"
@@ -404,18 +407,23 @@ export default function BreedingManagement() {
                             <Eye className="h-4 w-4" />
                           </Button>
 
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            className="text-red-600"
-                            title="Hủy"
-                            onClick={() => {
-                              setBreedingToDelete(process);
-                              setIsDeleteModalOpen(true);
-                            }}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
+                          {process.status !== BreedingStatus.COMPLETE &&
+                          process.status !== BreedingStatus.FAILED ? (
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="text-red-600"
+                              title="Hủy"
+                              onClick={() => {
+                                setBreedingToDelete(process);
+                                setIsDeleteModalOpen(true);
+                              }}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          ) : (
+                            <></>
+                          )}
                         </TableCell>
                       </TableRow>
                     ))

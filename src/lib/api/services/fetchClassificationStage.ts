@@ -6,10 +6,14 @@ const baseUrl = "/api/ClassificationStage";
 export interface ClassificationStageResponse {
   id: number;
   breedingProcessId: number;
-  pondId: number;
   totalCount: number;
   status: string;
   notes: string;
+  highQualifiedCount: number;
+  qualifiedCount: number;
+  unqualifiedCount: number;
+  startDate: string;
+  endDate: string;
   classificationRecords: ClassificationRecordResponse[];
 }
 

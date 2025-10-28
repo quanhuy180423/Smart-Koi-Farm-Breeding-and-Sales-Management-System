@@ -15,7 +15,6 @@ export interface IncubationDailyRecordResponse {
   rottenEggs: number;
   hatchedEggs: number;
   success: boolean;
-  eggBatch: EggBatchResponse;
 }
 
 export const incubationDailyRecordService = {

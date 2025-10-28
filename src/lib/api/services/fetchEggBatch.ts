@@ -1,4 +1,5 @@
 import apiService, { BaseResponse } from "../apiClient";
+import { IncubationDailyRecordResponse } from "./fetchIncubationDailyRecord";
 
 const baseUrl = "/api/EggBatch";
 
@@ -19,6 +20,7 @@ export interface EggBatchResponse {
   status: EggBatchStatus;
   hatchingTime: string;
   spawnDate: string;
+  incubationDailyRecords: IncubationDailyRecordResponse[];
 }
 
 export const eggBatchService = {

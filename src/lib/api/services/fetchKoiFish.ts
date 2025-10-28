@@ -99,6 +99,14 @@ export const koiFishService = {
     );
     return response.data;
   },
+  getKoiFishById: async (
+    id?: number,
+  ): Promise<BaseResponse<KoiFishResponse>> => {
+    const response = await apiService.get<BaseResponse<KoiFishResponse>>(
+      `${baseUrl}/${id}`,
+    );
+    return response.data;
+  },
 };
 
 export default koiFishService;

@@ -6,7 +6,7 @@ import { useAuthStore } from "@/store/auth-store";
 import { useQuery } from "@tanstack/react-query";
 
 export function useGetClassificationStageByBreedingProcessId(
-  breedingId: number | undefined,
+  breedingId?: number,
 ) {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
