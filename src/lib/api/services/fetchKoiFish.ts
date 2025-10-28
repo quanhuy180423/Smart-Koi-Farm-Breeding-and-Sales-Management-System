@@ -83,7 +83,7 @@ const baseUrl = "/api/KoiFish";
 
 export const koiFishService = {
   getKoiFishes: async (
-    request: KoiFishSearchParams
+    request: KoiFishSearchParams,
   ): Promise<BaseResponse<PagedResponse<KoiFishResponse>>> => {
     const filter = toRequestParams(request);
     const response = await apiService.get<
@@ -92,18 +92,18 @@ export const koiFishService = {
     return response.data;
   },
   getKoiFishFamily: async (
-    id?: number
+    id?: number,
   ): Promise<BaseResponse<KoiFishFamilyResponse>> => {
     const response = await apiService.get<BaseResponse<KoiFishFamilyResponse>>(
-      `${baseUrl}/family/${id}`
+      `${baseUrl}/family/${id}`,
     );
     return response.data;
   },
   getKoiFishById: async (
-    id?: number
+    id?: number,
   ): Promise<BaseResponse<KoiFishResponse>> => {
     const response = await apiService.get<BaseResponse<KoiFishResponse>>(
-      `${baseUrl}/${id}`
+      `${baseUrl}/${id}`,
     );
     return response.data;
   },

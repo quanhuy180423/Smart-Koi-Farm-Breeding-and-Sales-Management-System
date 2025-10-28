@@ -4,7 +4,15 @@ import { useEffect, useState } from "react";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Heart, Plus, X, Ruler, Calendar, Loader2, CheckCircle } from "lucide-react";
+import {
+  Heart,
+  Plus,
+  X,
+  Ruler,
+  Calendar,
+  Loader2,
+  CheckCircle,
+} from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -35,25 +43,45 @@ import * as z from "zod";
 const recommendSchema = z.object({
   targetVariety: z.string().min(1, { message: "Giống mong muốn là bắt buộc." }),
   priority: z.string().min(1, { message: "Mục tiêu ưu tiên là bắt buộc." }),
-  desiredPattern: z.string().min(1, { message: "Yêu cầu hoa văn là bắt buộc." }),
-  minHatchRate: z.string()
+  desiredPattern: z
+    .string()
+    .min(1, { message: "Yêu cầu hoa văn là bắt buộc." }),
+  minHatchRate: z
+    .string()
     .min(1, { message: "Tỷ lệ nở là bắt buộc." })
     .transform(Number)
-    .pipe(z.number().min(0, "Tỷ lệ phải lớn hơn 0").max(100, "Tỷ lệ không được quá 100")),
-  minSurvivalRate: z.string()
+    .pipe(
+      z
+        .number()
+        .min(0, "Tỷ lệ phải lớn hơn 0")
+        .max(100, "Tỷ lệ không được quá 100"),
+    ),
+  minSurvivalRate: z
+    .string()
     .min(1, { message: "Tỷ lệ sống là bắt buộc." })
     .transform(Number)
-    .pipe(z.number().min(0, "Tỷ lệ phải lớn hơn 0").max(100, "Tỷ lệ không được quá 100")),
-  minHighQualifiedRate: z.string()
+    .pipe(
+      z
+        .number()
+        .min(0, "Tỷ lệ phải lớn hơn 0")
+        .max(100, "Tỷ lệ không được quá 100"),
+    ),
+  minHighQualifiedRate: z
+    .string()
     .min(1, { message: "Tỷ lệ chất lượng cao là bắt buộc." })
     .transform(Number)
-    .pipe(z.number().min(0, "Tỷ lệ phải lớn hơn 0").max(100, "Tỷ lệ không được quá 100")),
+    .pipe(
+      z
+        .number()
+        .min(0, "Tỷ lệ phải lớn hơn 0")
+        .max(100, "Tỷ lệ không được quá 100"),
+    ),
 });
 
 interface FishSelectionProps {
   onSelection: (
     fatherFish: KoiFishResponse,
-    motherFish: KoiFishResponse
+    motherFish: KoiFishResponse,
   ) => void;
 }
 
@@ -69,22 +97,21 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
   const [minSurvivalRate, setMinSurvivalRate] = useState("");
   const [minHighQualifiedRate, setMinHighQualifiedRate] = useState("");
   const [recommendedPairs, setRecommendedPairs] = useState<RecommendedPair[]>(
-    []
+    [],
   );
-  const [selectedPairToFetch, setSelectedPairToFetch] = useState<{ fatherId?: number; motherId?: number } | null>(null);
+  const [selectedPairToFetch, setSelectedPairToFetch] = useState<{
+    fatherId?: number;
+    motherId?: number;
+  } | null>(null);
 
   const [pageIndexMale, setPageIndexMale] = useState(1);
   const [pageIndexFemale, setPageIndexFemale] = useState(1);
   const pageSize = 6;
 
-  const {
-    data: fatherRecommend,
-    isFetching: isFatherFetching,
-  } = useGetKoiFishById(selectedPairToFetch?.fatherId);
-  const {
-    data: motherRecommend,
-    isFetching: isMotherFetching,
-  } = useGetKoiFishById(selectedPairToFetch?.motherId);
+  const { data: fatherRecommend, isFetching: isFatherFetching } =
+    useGetKoiFishById(selectedPairToFetch?.fatherId);
+  const { data: motherRecommend, isFetching: isMotherFetching } =
+    useGetKoiFishById(selectedPairToFetch?.motherId);
 
   const {
     mutate: getRecommends,
@@ -133,10 +160,10 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
   if (isGetFemaleKoisErr) toast.error("Lỗi tải danh sách cá mẹ");
 
   const selectedFather = fatherKoiResponse?.data.find(
-    (f) => f.id === selectedFatherId
+    (f) => f.id === selectedFatherId,
   );
   const selectedMother = motherKoiResponse?.data.find(
-    (f) => f.id === selectedMotherId
+    (f) => f.id === selectedMotherId,
   );
 
   const handleContinue = () => {
@@ -157,7 +184,9 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
     const validationResult = recommendSchema.safeParse(formData);
 
     if (!validationResult.success) {
-      const firstError = Object.values(validationResult.error.flatten().fieldErrors)[0]?.[0];
+      const firstError = Object.values(
+        validationResult.error.flatten().fieldErrors,
+      )[0]?.[0];
       toast.error(firstError || "Dữ liệu không hợp lệ. Vui lòng kiểm tra lại.");
       return;
     }
@@ -181,7 +210,7 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
 
   const handleUnchooseFish = (
     e: React.MouseEvent<HTMLButtonElement>,
-    type: "father" | "mother"
+    type: "father" | "mother",
   ) => {
     e.preventDefault();
     if (type === "father") setSelectedFatherId(null);
@@ -251,10 +280,11 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
                 </div>
               ) : (
                 <div
-                  className={`w-32 h-32 rounded-full border-4 border-dashed flex items-center justify-center group-hover:scale-105 transition-all duration-300 ${type === "father"
-                    ? "border-blue-300 bg-blue-50 hover:bg-blue-100"
-                    : "border-pink-300 bg-pink-50 hover:bg-pink-100"
-                    }`}
+                  className={`w-32 h-32 rounded-full border-4 border-dashed flex items-center justify-center group-hover:scale-105 transition-all duration-300 ${
+                    type === "father"
+                      ? "border-blue-300 bg-blue-50 hover:bg-blue-100"
+                      : "border-pink-300 bg-pink-50 hover:bg-pink-100"
+                  }`}
                 >
                   <Plus
                     className={`h-12 w-12 ${type === "father" ? "text-blue-400" : "text-pink-400"}`}
@@ -270,11 +300,12 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
                 Chọn Cá {type === "father" ? "Bố" : "Mẹ"}
               </DialogTitle>
             </DialogHeader>
-            {isLoading ?
+            {isLoading ? (
               <div className="flex items-center justify-center py-10 text-gray-500">
                 <Loader2 className="w-5 h-5 mr-2 animate-spin" />
                 Đang tải dữ liệu...
-              </div> :
+              </div>
+            ) : (
               <>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
                   {availableKoi.map((fish) => (
@@ -296,7 +327,9 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
                         />
                         <div className="absolute top-2 right-2">
                           <Badge
-                            variant={type === "father" ? "default" : "secondary"}
+                            variant={
+                              type === "father" ? "default" : "secondary"
+                            }
                             className={
                               type === "father" ? "bg-blue-500" : "bg-pink-500"
                             }
@@ -349,7 +382,8 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
                     {">"}
                   </Button>
                 </div>
-              </>}
+              </>
+            )}
           </DialogContent>
         </Dialog>
 
@@ -410,10 +444,11 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
             />
             <div className="flex flex-col items-center">
               <div
-                className={`w-16 h-16 rounded-full flex items-center justify-center transition-all duration-500 ${selectedFather && selectedMother
-                  ? "bg-gradient-to-r from-pink-500 to-red-500 animate-pulse shadow-lg"
-                  : "bg-pink-500"
-                  }`}
+                className={`w-16 h-16 rounded-full flex items-center justify-center transition-all duration-500 ${
+                  selectedFather && selectedMother
+                    ? "bg-gradient-to-r from-pink-500 to-red-500 animate-pulse shadow-lg"
+                    : "bg-pink-500"
+                }`}
               >
                 <Heart className="h-8 w-8 text-white fill-white" />
               </div>
@@ -505,7 +540,8 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
                   htmlFor="min-survival-rate"
                   className="text-sm font-medium text-gray-700"
                 >
-                  Tỷ lệ sống mong muốn (%) <span className="text-red-500">*</span>
+                  Tỷ lệ sống mong muốn (%){" "}
+                  <span className="text-red-500">*</span>
                 </Label>
                 <Input
                   id="min-survival-rate"
@@ -524,7 +560,8 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
                   htmlFor="min-high-qualified-rate"
                   className="text-sm font-medium text-gray-700"
                 >
-                  Tỷ lệ cá chất lượng cao (%) <span className="text-red-500">*</span>
+                  Tỷ lệ cá chất lượng cao (%){" "}
+                  <span className="text-red-500">*</span>
                 </Label>
                 <Input
                   id="min-high-qualified-rate"
@@ -578,7 +615,9 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
               </h3>
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {recommendedPairs.map((pair, index) => {
-                  const isCurrentPairFetching = selectedPairToFetch?.fatherId === pair.maleId && selectedPairToFetch?.motherId === pair.femaleId;
+                  const isCurrentPairFetching =
+                    selectedPairToFetch?.fatherId === pair.maleId &&
+                    selectedPairToFetch?.motherId === pair.femaleId;
 
                   return (
                     <Card key={index} className="overflow-hidden flex flex-col">
@@ -616,10 +655,30 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
                             {pair.reason}
                           </p>
                           <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
-                            <span>Tỷ lệ thụ tinh: <strong>{pair.predictedFertilizationRate.toFixed(2)}%</strong></span>
-                            <span>Tỷ lệ nở: <strong>{pair.predictedHatchRate.toFixed(2)}%</strong></span>
-                            <span>Tỷ lệ sống: <strong>{pair.predictedSurvivalRate.toFixed(2)}%</strong></span>
-                            <span>Tỷ lệ chất lượng cao: <strong>{pair.predictedHighQualifiedRate.toFixed(2)}%</strong></span>
+                            <span>
+                              Tỷ lệ thụ tinh:{" "}
+                              <strong>
+                                {pair.predictedFertilizationRate.toFixed(2)}%
+                              </strong>
+                            </span>
+                            <span>
+                              Tỷ lệ nở:{" "}
+                              <strong>
+                                {pair.predictedHatchRate.toFixed(2)}%
+                              </strong>
+                            </span>
+                            <span>
+                              Tỷ lệ sống:{" "}
+                              <strong>
+                                {pair.predictedSurvivalRate.toFixed(2)}%
+                              </strong>
+                            </span>
+                            <span>
+                              Tỷ lệ chất lượng cao:{" "}
+                              <strong>
+                                {pair.predictedHighQualifiedRate.toFixed(2)}%
+                              </strong>
+                            </span>
                           </div>
                         </div>
                       </CardContent>
@@ -636,9 +695,7 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
                               Đang tải...
                             </>
                           ) : (
-                            <>
-                              Chọn cặp này
-                            </>
+                            <>Chọn cặp này</>
                           )}
                         </Button>
                       </CardFooter>

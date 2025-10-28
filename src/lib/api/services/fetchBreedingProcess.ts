@@ -149,7 +149,7 @@ export interface BreeedingRecommendResponse {
 
 export const breedingProcessService = {
   getBreedingProcesses: async (
-    request: BreedingProcessSearchParams
+    request: BreedingProcessSearchParams,
   ): Promise<BaseResponse<PagedResponse<BreedingProcessResponse>>> => {
     const filter = toRequestParams(request);
     const response = await apiService.get<
@@ -158,7 +158,7 @@ export const breedingProcessService = {
     return response.data;
   },
   addBreedingProcess: async (
-    request: Partial<BreedingProcessCreateRequest>
+    request: Partial<BreedingProcessCreateRequest>,
   ): Promise<BaseResponse<BreedingProcessResponse>> => {
     const response = await apiService.post<
       BaseResponse<BreedingProcessResponse>,
@@ -167,7 +167,7 @@ export const breedingProcessService = {
     return response.data;
   },
   getBreedingParentHistory: async (
-    id: number
+    id: number,
   ): Promise<BaseResponse<BreedingParentHistoryResponse>> => {
     const response = await apiService.get<
       BaseResponse<BreedingParentHistoryResponse>
@@ -175,7 +175,7 @@ export const breedingProcessService = {
     return response.data;
   },
   getRecommends: async (
-    request: Partial<BreeedingRecommendRequest>
+    request: Partial<BreeedingRecommendRequest>,
   ): Promise<BaseResponse<BreeedingRecommendResponse>> => {
     const response = await apiService.post<
       BaseResponse<BreeedingRecommendResponse>,
@@ -185,15 +185,15 @@ export const breedingProcessService = {
   },
   cancelBreeding: async (id: number) => {
     const response = await apiService.put<BaseResponse<boolean>>(
-      `${baseUrl}/cancel/${id}`
+      `${baseUrl}/cancel/${id}`,
     );
     return response.data;
   },
   getBreedingDetail: async (
-    id?: number
+    id?: number,
   ): Promise<BaseResponse<BreedingDetailResponse>> => {
     const response = await apiService.get<BaseResponse<BreedingDetailResponse>>(
-      `${baseUrl}/detail/${id}`
+      `${baseUrl}/detail/${id}`,
     );
     return response.data;
   },

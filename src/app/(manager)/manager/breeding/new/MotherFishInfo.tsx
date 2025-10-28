@@ -114,8 +114,9 @@ export default function MotherFishInfo({ selectedFish }: MotherFishInfoProps) {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value={selectedFish.id.toString()}>
-                {selectedFish?.variety?.varietyName || ""} RFID: {selectedFish.rfid} -{" "}
-                {getAge(selectedFish.birthDate)} tuổi - Sức khỏe:{" "}
+                {selectedFish?.variety?.varietyName || ""} RFID:{" "}
+                {selectedFish.rfid} - {getAge(selectedFish.birthDate)} tuổi -
+                Sức khỏe:{" "}
                 {getHealthStatusLabel(selectedFish.healthStatus).label}
               </SelectItem>
             </SelectContent>

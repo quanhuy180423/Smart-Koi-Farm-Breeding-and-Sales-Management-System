@@ -22,7 +22,7 @@ export function useGetBreedingProcesses(request: BreedingProcessSearchParams) {
     queryFn: () => breedingProcessService.getBreedingProcesses(request),
     enabled: isAuthenticated,
     select: (
-      data: BaseResponse<PagedResponse<BreedingProcessResponse>>
+      data: BaseResponse<PagedResponse<BreedingProcessResponse>>,
     ): PagedResponse<BreedingProcessResponse> => data.result,
     retry: (failureCount, error: unknown) => {
       if (
@@ -54,7 +54,7 @@ export function useAddBreedingProcess() {
     },
     onError: (error: ApiError) => {
       toast.error(
-        error.error?.result || "Có lỗi xảy ra khi cập nhật thông tin"
+        error.error?.result || "Có lỗi xảy ra khi cập nhật thông tin",
       );
     },
   });
@@ -68,7 +68,7 @@ export function useGetBreedingParentHistory(id: number) {
     queryFn: () => breedingProcessService.getBreedingParentHistory(id),
     enabled: isAuthenticated,
     select: (
-      data: BaseResponse<BreedingParentHistoryResponse>
+      data: BaseResponse<BreedingParentHistoryResponse>,
     ): BreedingParentHistoryResponse => data.result,
     retry: (failureCount, error: unknown) => {
       if (
@@ -92,7 +92,7 @@ export function useGetBreedingDetail(id?: number) {
     queryFn: () => breedingProcessService.getBreedingDetail(id),
     enabled: isAuthenticated && id !== undefined,
     select: (
-      data: BaseResponse<BreedingDetailResponse>
+      data: BaseResponse<BreedingDetailResponse>,
     ): BreedingDetailResponse => data.result,
     retry: (failureCount, error: unknown) => {
       if (
@@ -121,7 +121,7 @@ export function useCancelBreeding() {
     },
     onError: (error: ApiError) => {
       toast.error(
-        error.error?.result || "Có lỗi xảy ra khi cập nhật thông tin"
+        error.error?.result || "Có lỗi xảy ra khi cập nhật thông tin",
       );
     },
   });
