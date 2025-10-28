@@ -10,11 +10,12 @@ const baseUrl = "/api/FrySurvivalRecord";
 export interface FrySurvivalRecordResponse {
   id: number;
   fryFishId: number;
-  dayNumber: number;
+  dayNumber: string;
   survivalRate: number;
   countAlive: number;
   note: string;
   createdAt: string;
+  initialCount?: number;
 }
 
 export interface FrySurvivalRecordSearchParams extends PagingRequest {
@@ -33,7 +34,7 @@ export interface FrySurvivalRecordSearchParams extends PagingRequest {
 
 export const frySurvivalRecordService = {
   getFrySurvivalRecords: async (
-    request: FrySurvivalRecordSearchParams,
+    request: FrySurvivalRecordSearchParams
   ): Promise<BaseResponse<PagedResponse<FrySurvivalRecordResponse>>> => {
     const filter = toRequestParams(request);
     const response = await apiService.get<

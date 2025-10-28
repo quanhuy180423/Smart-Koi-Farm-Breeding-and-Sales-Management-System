@@ -1,4 +1,5 @@
 import apiService, { BaseResponse } from "../apiClient";
+import { IncubationDailyRecordResponse } from "./fetchIncubationDailyRecord";
 
 const baseUrl = "/api/EggBatch";
 
@@ -19,14 +20,15 @@ export interface EggBatchResponse {
   status: EggBatchStatus;
   hatchingTime: string;
   spawnDate: string;
+  incubationDailyRecords: IncubationDailyRecordResponse[];
 }
 
 export const eggBatchService = {
   getEggBatchByBreedingId: async (
-    breedId: number | undefined,
+    breedId: number | undefined
   ): Promise<BaseResponse<EggBatchResponse>> => {
     const response = await apiService.get<BaseResponse<EggBatchResponse>>(
-      `${baseUrl}/by-breeding/${breedId}`,
+      `${baseUrl}/by-breeding/${breedId}`
     );
     return response.data;
   },

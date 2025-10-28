@@ -5,6 +5,9 @@ import apiService, {
   PagingRequest,
 } from "../apiClient";
 import { KoiFishResponse } from "./fetchKoiFish";
+import { EggBatchResponse } from "./fetchEggBatch";
+import { FryFishResponse } from "./fetchFryFish";
+import { ClassificationStageResponse } from "./fetchClassificationStage";
 
 const baseUrl = "/api/BreedingProcess";
 
@@ -109,13 +112,40 @@ export interface RecommendedPair {
   percentInbreedingValue?: number;
 }
 
+export interface BreedingDetailResponse {
+  id: number;
+  code: string;
+  maleKoiId: number;
+  maleKoiRFID: string;
+  maleKoiVariety: string;
+  femaleKoiId: number;
+  femaleKoiRFID: string;
+  femaleKoiVariety: string;
+  pondId: number;
+  pondName: string;
+  startDate: string;
+  endDate: null;
+  status: BreedingStatus;
+  result: BreedingResult;
+  note: string;
+  totalEggs: number;
+  fertilizationRate: number;
+  currentSurvivalRate: null;
+  totalFishQualified: number;
+  totalPackage: number;
+  koiFishes: KoiFishResponse[];
+  batch: EggBatchResponse;
+  fryFish: FryFishResponse;
+  classificationStage: ClassificationStageResponse;
+}
+
 export interface BreeedingRecommendResponse {
   recommendedPairs: RecommendedPair[];
 }
 
 export const breedingProcessService = {
   getBreedingProcesses: async (
-    request: BreedingProcessSearchParams,
+    request: BreedingProcessSearchParams
   ): Promise<BaseResponse<PagedResponse<BreedingProcessResponse>>> => {
     const filter = toRequestParams(request);
     const response = await apiService.get<
@@ -124,7 +154,7 @@ export const breedingProcessService = {
     return response.data;
   },
   addBreedingProcess: async (
-    request: Partial<BreedingProcessCreateRequest>,
+    request: Partial<BreedingProcessCreateRequest>
   ): Promise<BaseResponse<BreedingProcessResponse>> => {
     const response = await apiService.post<
       BaseResponse<BreedingProcessResponse>,
@@ -133,7 +163,7 @@ export const breedingProcessService = {
     return response.data;
   },
   getBreedingParentHistory: async (
-    id: number,
+    id: number
   ): Promise<BaseResponse<BreedingParentHistoryResponse>> => {
     const response = await apiService.get<
       BaseResponse<BreedingParentHistoryResponse>
@@ -141,12 +171,26 @@ export const breedingProcessService = {
     return response.data;
   },
   getRecommends: async (
-    request: Partial<BreeedingRecommendRequest>,
+    request: Partial<BreeedingRecommendRequest>
   ): Promise<BaseResponse<BreeedingRecommendResponse>> => {
     const response = await apiService.post<
       BaseResponse<BreeedingRecommendResponse>,
       Partial<BreeedingRecommendRequest>
     >(`${baseUrl}/recommend`, request);
+    return response.data;
+  },
+  cancelBreeding: async (id: number) => {
+    const response = await apiService.put<BaseResponse<boolean>>(
+      `${baseUrl}/cancel/${id}`
+    );
+    return response.data;
+  },
+  getBreedingDetail: async (
+    id?: number
+  ): Promise<BaseResponse<BreedingDetailResponse>> => {
+    const response = await apiService.get<BaseResponse<BreedingDetailResponse>>(
+      `${baseUrl}/detail/${id}`
+    );
     return response.data;
   },
 };

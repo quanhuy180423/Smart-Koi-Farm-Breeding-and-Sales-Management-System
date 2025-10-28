@@ -1,5 +1,6 @@
 import { ApiError, BaseResponse, PagedResponse } from "@/lib/api/apiClient";
 import breedingProcessService, {
+  BreedingDetailResponse,
   BreedingParentHistoryResponse,
   BreedingProcessCreateRequest,
   BreedingProcessResponse,
@@ -18,7 +19,7 @@ export function useGetBreedingProcesses(request: BreedingProcessSearchParams) {
     queryFn: () => breedingProcessService.getBreedingProcesses(request),
     enabled: isAuthenticated,
     select: (
-      data: BaseResponse<PagedResponse<BreedingProcessResponse>>,
+      data: BaseResponse<PagedResponse<BreedingProcessResponse>>
     ): PagedResponse<BreedingProcessResponse> => data.result,
     retry: (failureCount, error: unknown) => {
       if (
@@ -50,7 +51,7 @@ export function useAddBreedingProcess() {
     },
     onError: (error: ApiError) => {
       toast.error(
-        error.error?.result || "Có lỗi xảy ra khi cập nhật thông tin",
+        error.error?.result || "Có lỗi xảy ra khi cập nhật thông tin"
       );
     },
   });
@@ -64,7 +65,7 @@ export function useGetBreedingParentHistory(id: number) {
     queryFn: () => breedingProcessService.getBreedingParentHistory(id),
     enabled: isAuthenticated,
     select: (
-      data: BaseResponse<BreedingParentHistoryResponse>,
+      data: BaseResponse<BreedingParentHistoryResponse>
     ): BreedingParentHistoryResponse => data.result,
     retry: (failureCount, error: unknown) => {
       if (
@@ -76,6 +77,49 @@ export function useGetBreedingParentHistory(id: number) {
         return false;
       }
       return failureCount < 2;
+    },
+  });
+}
+
+export function useGetBreedingDetail(id?: number) {
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+
+  return useQuery({
+    queryKey: ["breeding-processes", "detail", id],
+    queryFn: () => breedingProcessService.getBreedingDetail(id),
+    enabled: isAuthenticated && id !== undefined,
+    select: (
+      data: BaseResponse<BreedingDetailResponse>
+    ): BreedingDetailResponse => data.result,
+    retry: (failureCount, error: unknown) => {
+      if (
+        error &&
+        typeof error === "object" &&
+        "status" in error &&
+        error.status === 401
+      ) {
+        return false;
+      }
+      return failureCount < 2;
+    },
+  });
+}
+
+export function useCancelBreeding() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: number) => breedingProcessService.cancelBreeding(id),
+    onSuccess: (data: BaseResponse<boolean>) => {
+      if (data.isSuccess) {
+        queryClient.invalidateQueries({ queryKey: ["breeding-processes"] });
+      }
+      toast.success(data.message || "Hủy quy trình thành công");
+    },
+    onError: (error: ApiError) => {
+      toast.error(
+        error.error?.result || "Có lỗi xảy ra khi cập nhật thông tin"
+      );
     },
   });
 }
