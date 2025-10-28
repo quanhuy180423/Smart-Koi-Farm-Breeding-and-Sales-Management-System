@@ -99,7 +99,11 @@ export interface BreeedingRecommendRequest {
 
 export interface RecommendedPair {
   maleId: number;
+  maleRFID: string;
+  maleImage: string;
   femaleId: number;
+  femaleRFID: string;
+  femaleImage: string;
   reason: string;
   predictedFertilizationRate: number;
   predictedHatchRate: number;
@@ -107,9 +111,9 @@ export interface RecommendedPair {
   predictedHighQualifiedRate: number;
   patternMatchScore: number;
   bodyShapeCompatibility: number;
-  percentInbreeding: string;
   rank: number;
-  percentInbreedingValue?: number;
+  // percentInbreeding: string;
+  // percentInbreedingValue?: number;
 }
 
 export interface BreedingDetailResponse {

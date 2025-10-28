@@ -20,7 +20,7 @@ export interface IncubationDailyRecordResponse {
 export const incubationDailyRecordService = {
   getIncubationDailyRecordByEggBatchId: async (
     eggBatchId: number | undefined,
-    request: PagingRequest
+    request: PagingRequest,
   ): Promise<BaseResponse<PagedResponse<IncubationDailyRecordResponse>>> => {
     const response = await apiService.get<
       BaseResponse<PagedResponse<IncubationDailyRecordResponse>>

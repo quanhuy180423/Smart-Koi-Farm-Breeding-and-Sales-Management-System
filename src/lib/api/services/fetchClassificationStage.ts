@@ -19,7 +19,7 @@ export interface ClassificationStageResponse {
 
 export const classificationStageService = {
   getClassificationStageByBreedingId: async (
-    breedId: number | undefined
+    breedId: number | undefined,
   ): Promise<BaseResponse<ClassificationStageResponse>> => {
     const response = await apiService.get<
       BaseResponse<ClassificationStageResponse>

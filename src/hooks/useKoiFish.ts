@@ -12,7 +12,7 @@ export function useGetKoiFishes(request: KoiFishSearchParams) {
     queryKey: ["koi-fishes", request],
     queryFn: () => koiFishService.getKoiFishes(request),
     select: (
-      data: BaseResponse<PagedResponse<KoiFishResponse>>,
+      data: BaseResponse<PagedResponse<KoiFishResponse>>
     ): PagedResponse<KoiFishResponse> => data.result,
     retry: (failureCount, error: unknown) => {
       if (
@@ -36,8 +36,30 @@ export function useGetKoiFishFamily(id: number | undefined) {
     queryFn: () => koiFishService.getKoiFishFamily(id),
     enabled: isAuthenticated && id !== undefined && id !== 0,
     select: (
-      data: BaseResponse<KoiFishFamilyResponse>,
+      data: BaseResponse<KoiFishFamilyResponse>
     ): KoiFishFamilyResponse => data.result,
+    retry: (failureCount, error: unknown) => {
+      if (
+        error &&
+        typeof error === "object" &&
+        "status" in error &&
+        error.status === 401
+      ) {
+        return false;
+      }
+      return failureCount < 2;
+    },
+  });
+}
+
+export function useGetKoiFishById(id?: number) {
+  return useQuery({
+    queryKey: ["koi-fishes", id],
+    queryFn: () => koiFishService.getKoiFishById(id),
+    enabled: id !== undefined && id !== 0,
+    select: (
+      data: BaseResponse<KoiFishResponse>
+    ): KoiFishResponse => data.result,
     retry: (failureCount, error: unknown) => {
       if (
         error &&

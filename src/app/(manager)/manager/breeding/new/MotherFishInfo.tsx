@@ -52,11 +52,11 @@ export default function MotherFishInfo({ selectedFish }: MotherFishInfoProps) {
   const breedData = [
     {
       label: "Giống cá",
-      value: selectedFish.variety.varietyName,
+      value: selectedFish?.variety?.varietyName || "",
     },
     {
       label: "Đặc tính giống",
-      value: selectedFish.variety.characteristic,
+      value: selectedFish?.variety?.characteristic || "",
     },
   ];
 
@@ -114,7 +114,7 @@ export default function MotherFishInfo({ selectedFish }: MotherFishInfoProps) {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value={selectedFish.id.toString()}>
-                {selectedFish.variety.varietyName} RFID: {selectedFish.rfid} -{" "}
+                {selectedFish?.variety?.varietyName || ""} RFID: {selectedFish.rfid} -{" "}
                 {getAge(selectedFish.birthDate)} tuổi - Sức khỏe:{" "}
                 {getHealthStatusLabel(selectedFish.healthStatus).label}
               </SelectItem>

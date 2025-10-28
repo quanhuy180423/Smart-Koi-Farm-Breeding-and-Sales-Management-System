@@ -34,7 +34,7 @@ export interface FrySurvivalRecordSearchParams extends PagingRequest {
 
 export const frySurvivalRecordService = {
   getFrySurvivalRecords: async (
-    request: FrySurvivalRecordSearchParams
+    request: FrySurvivalRecordSearchParams,
   ): Promise<BaseResponse<PagedResponse<FrySurvivalRecordResponse>>> => {
     const filter = toRequestParams(request);
     const response = await apiService.get<

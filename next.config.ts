@@ -32,6 +32,20 @@ const nextConfig: NextConfig = {
         port: "",
         pathname: "/**",
       },
+      // Làm tạm cho một số data ở db còn dùng
+      {
+        protocol: "https",
+        hostname: "cacanhthaihoa.com",
+        port: "",
+        pathname: "/**",
+      },
+      // Làm tạm cho một số data ở db còn dùng
+      {
+        protocol: "https",
+        hostname: "thanhnien.mediacdn.vn",
+        port: "",
+        pathname: "/**",
+      },
     ],
   },
 };

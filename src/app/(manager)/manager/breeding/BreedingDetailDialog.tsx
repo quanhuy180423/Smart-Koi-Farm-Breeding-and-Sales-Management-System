@@ -49,7 +49,8 @@ export const BreedingDetailDialog = ({
 
   const incubationDailyRecords = batch?.incubationDailyRecords || [];
   const frySurvivalRecords = fryFish?.frySurvivalRecords || [];
-  const classificationRecords = classificationStage?.classificationRecords || [];
+  const classificationRecords =
+    classificationStage?.classificationRecords || [];
 
   const getProcessStatus = (
     currentStatus: BreedingStatus,
@@ -142,11 +143,12 @@ export const BreedingDetailDialog = ({
             </Card>
 
             {/* --- Tiến trình sinh sản (Timeline) --- */}
-            {isLoading ?
+            {isLoading ? (
               <div className="flex items-center justify-center py-10 text-gray-500">
                 <Loader2 className="w-5 h-5 mr-2 animate-spin" />
                 Đang tải dữ liệu...
-              </div> :
+              </div>
+            ) : (
               <Card>
                 <CardHeader>
                   <CardTitle>Tiến trình sinh sản</CardTitle>
@@ -189,10 +191,10 @@ export const BreedingDetailDialog = ({
                       currentBreedingStatus,
                       BreedingStatus.SPAWNED,
                     ) !== "Sắp tới" &&
-                      getProcessStatus(
-                        currentBreedingStatus,
-                        BreedingStatus.SPAWNED,
-                      ) !== "Thất bại" ? (
+                    getProcessStatus(
+                      currentBreedingStatus,
+                      BreedingStatus.SPAWNED,
+                    ) !== "Thất bại" ? (
                       <>
                         <p className="text-muted-foreground">
                           Số lượng trứng:{" "}
@@ -236,9 +238,9 @@ export const BreedingDetailDialog = ({
                     date={
                       batch?.hatchingTime
                         ? formatDate(
-                          batch.hatchingTime,
-                          DATE_FORMATS.MEDIUM_DATE,
-                        )
+                            batch.hatchingTime,
+                            DATE_FORMATS.MEDIUM_DATE,
+                          )
                         : "Chưa có"
                     }
                     status={getProcessStatus(
@@ -250,10 +252,10 @@ export const BreedingDetailDialog = ({
                       currentBreedingStatus,
                       BreedingStatus.EGG_BATCH,
                     ) !== "Sắp tới" &&
-                      getProcessStatus(
-                        currentBreedingStatus,
-                        BreedingStatus.EGG_BATCH,
-                      ) !== "Thất bại" ? (
+                    getProcessStatus(
+                      currentBreedingStatus,
+                      BreedingStatus.EGG_BATCH,
+                    ) !== "Thất bại" ? (
                       <div className="space-y-3">
                         {/* Thống kê nhanh */}
                         <p className="text-muted-foreground">
@@ -292,7 +294,9 @@ export const BreedingDetailDialog = ({
                                       <TableCell className="font-medium">
                                         {record.dayNumber}
                                       </TableCell>
-                                      <TableCell>{record.healthyEggs}</TableCell>
+                                      <TableCell>
+                                        {record.healthyEggs}
+                                      </TableCell>
                                       <TableCell className="text-red-500">
                                         {record.rottenEggs}
                                       </TableCell>
@@ -340,7 +344,11 @@ export const BreedingDetailDialog = ({
 
                   <BreedingStageCard
                     title="Nuôi Cá Bột"
-                    date={fryFish?.endDate ? formatDate(fryFish.endDate, DATE_FORMATS.MEDIUM_DATE) : "Chưa có"}
+                    date={
+                      fryFish?.endDate
+                        ? formatDate(fryFish.endDate, DATE_FORMATS.MEDIUM_DATE)
+                        : "Chưa có"
+                    }
                     status={getProcessStatus(
                       currentBreedingStatus,
                       BreedingStatus.FRY_FISH,
@@ -356,10 +364,10 @@ export const BreedingDetailDialog = ({
                       currentBreedingStatus,
                       BreedingStatus.FRY_FISH,
                     ) !== "Sắp tới" &&
-                      getProcessStatus(
-                        currentBreedingStatus,
-                        BreedingStatus.FRY_FISH,
-                      ) !== "Thất bại" ? (
+                    getProcessStatus(
+                      currentBreedingStatus,
+                      BreedingStatus.FRY_FISH,
+                    ) !== "Thất bại" ? (
                       <div className="space-y-3">
                         <p className="text-muted-foreground">
                           Tổng số cá bột ban đầu:{" "}
@@ -379,7 +387,9 @@ export const BreedingDetailDialog = ({
                                 <TableHead>Ngày ghi nhận</TableHead>
                                 <TableHead>Tỷ lệ Sống sót</TableHead>
                                 <TableHead>Số lượng sống</TableHead>
-                                <TableHead className="w-[30%]">Ghi chú</TableHead>
+                                <TableHead className="w-[30%]">
+                                  Ghi chú
+                                </TableHead>
                               </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -394,7 +404,8 @@ export const BreedingDetailDialog = ({
                                         )}
                                       </TableCell>
                                       <TableCell className="font-semibold text-green-600">
-                                        {(record.survivalRate * 100).toFixed(1)}%
+                                        {(record.survivalRate * 100).toFixed(1)}
+                                        %
                                       </TableCell>
                                       <TableCell>{record.countAlive}</TableCell>
                                       <TableCell className="truncate max-w-xs">
@@ -441,7 +452,14 @@ export const BreedingDetailDialog = ({
 
                   <BreedingStageCard
                     title="Tuyển chọn"
-                    date={classificationStage?.endDate ? formatDate(classificationStage.endDate, DATE_FORMATS.MEDIUM_DATE) : "Chưa có"}
+                    date={
+                      classificationStage?.endDate
+                        ? formatDate(
+                            classificationStage.endDate,
+                            DATE_FORMATS.MEDIUM_DATE,
+                          )
+                        : "Chưa có"
+                    }
                     status={getProcessStatus(
                       currentBreedingStatus,
                       BreedingStatus.CLASSIFICATION,
@@ -457,10 +475,10 @@ export const BreedingDetailDialog = ({
                       currentBreedingStatus,
                       BreedingStatus.CLASSIFICATION,
                     ) !== "Sắp tới" &&
-                      getProcessStatus(
-                        currentBreedingStatus,
-                        BreedingStatus.CLASSIFICATION,
-                      ) !== "Thất bại" ? (
+                    getProcessStatus(
+                      currentBreedingStatus,
+                      BreedingStatus.CLASSIFICATION,
+                    ) !== "Thất bại" ? (
                       <div className="space-y-3">
                         <p className="text-muted-foreground">
                           Tổng số cá được phân loại:{" "}
@@ -496,7 +514,9 @@ export const BreedingDetailDialog = ({
                                 <TableHead>High</TableHead>
                                 <TableHead>Pond</TableHead>
                                 <TableHead>Culled</TableHead>
-                                <TableHead className="w-[30%]">Ghi chú</TableHead>
+                                <TableHead className="w-[30%]">
+                                  Ghi chú
+                                </TableHead>
                               </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -564,8 +584,8 @@ export const BreedingDetailDialog = ({
                     )}
                   </BreedingStageCard>
                 </CardContent>
-              </Card>}
-
+              </Card>
+            )}
           </div>
         )}
       </DialogContent>

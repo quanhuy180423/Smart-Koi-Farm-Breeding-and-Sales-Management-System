@@ -28,7 +28,10 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { useCancelBreeding, useGetBreedingProcesses } from "@/hooks/useBreedingProcess";
+import {
+  useCancelBreeding,
+  useGetBreedingProcesses,
+} from "@/hooks/useBreedingProcess";
 import {
   PAGE_SIZE_OPTIONS_DEFAULT,
   PaginationSection,
@@ -229,10 +232,10 @@ export default function BreedingManagement() {
     if (!breedingToDelete?.id) return;
 
     try {
-      await cancelBreedingAsync(breedingToDelete?.id)
+      await cancelBreedingAsync(breedingToDelete?.id);
       setIsDeleteModalOpen(false);
       setBreedingToDelete(undefined);
-    } catch { }
+    } catch {}
   };
 
   const handleCreateBreeding = () => {
@@ -343,7 +346,7 @@ export default function BreedingManagement() {
                           {index +
                             1 +
                             (searchParams.pageIndex - 1) *
-                            searchParams.pageSize}
+                              searchParams.pageSize}
                         </TableCell>
                         <TableCell className="truncate">
                           {process.maleKoiRFID}
@@ -404,7 +407,8 @@ export default function BreedingManagement() {
                             <Eye className="h-4 w-4" />
                           </Button>
 
-                          {process.status !== BreedingStatus.COMPLETE && process.status !== BreedingStatus.FAILED ?
+                          {process.status !== BreedingStatus.COMPLETE &&
+                          process.status !== BreedingStatus.FAILED ? (
                             <Button
                               size="sm"
                               variant="ghost"
@@ -416,9 +420,10 @@ export default function BreedingManagement() {
                               }}
                             >
                               <Trash2 className="h-4 w-4" />
-                            </Button> :
+                            </Button>
+                          ) : (
                             <></>
-                          }
+                          )}
                         </TableCell>
                       </TableRow>
                     ))
