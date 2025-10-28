@@ -16,12 +16,16 @@ import Image from "next/image";
 import logo from "@/assets/images/Logo_ZenKoi.png";
 import SaleSidebar from "./SaleSidebar";
 import { NotificationDropdown } from "./NotificationDropdown";
+import { useAuthStore } from "@/store/auth-store";
+import { useRouter } from "next/navigation";
 
 interface SaleLayoutProps {
   children: React.ReactNode;
 }
 
 export function SaleLayout({ children }: SaleLayoutProps) {
+  const router = useRouter();
+
   return (
     <div className="min-h-screen bg-background">
       {/* Sale Header */}
@@ -100,14 +104,15 @@ export function SaleLayout({ children }: SaleLayoutProps) {
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem asChild>
-                  <Link
-                    href="/login"
-                    className="flex items-center text-red-600 cursor-pointer hover:bg-red-600 hover:text-white focus:bg-red-600 focus:text-white transition-colors group"
-                  >
-                    <LogOut className="mr-2 h-4 w-4 group-hover:text-white" />
-                    Đăng xuất
-                  </Link>
+                <DropdownMenuItem
+                  className="flex items-center text-red-600 cursor-pointer hover:bg-red-600 hover:text-white focus:bg-red-600 focus:text-white transition-colors group"
+                  onClick={async () => {
+                    await useAuthStore.getState().logout();
+                    router.push("/login");
+                  }}
+                >
+                  <LogOut className="mr-2 h-4 w-4 group-hover:text-white" />
+                  Đăng xuất
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
