@@ -6,15 +6,17 @@ import { Badge } from "@/components/ui/badge";
 import { Bell, User, LogOut } from "lucide-react";
 import Link from "next/link";
 import CustomerSidebar from "@/components/customer/CustomerSidebar";
-import { CartSheet } from "@/components/cart-sheet";
+import { CartSheet } from "@/components/cart/cart-sheet";
 import Image from "next/image";
 import logo from "@/assets/images/Logo_ZenKoi.png";
+import { useState } from "react";
 
 interface CustomerLayoutProps {
   children: React.ReactNode;
 }
 
 export function CustomerLayout({ children }: CustomerLayoutProps) {
+  const [cartOpen, setcartOpen] = useState(false);
   return (
     <div className="min-h-screen bg-background">
       {/* Customer Header */}
@@ -56,7 +58,7 @@ export function CustomerLayout({ children }: CustomerLayoutProps) {
               </Link>
             </Button>
 
-            <CartSheet />
+            <CartSheet isOpen={cartOpen} onOpenChange={setcartOpen} />
 
             <div className="flex items-center gap-2">
               <Avatar className="h-6 w-6">

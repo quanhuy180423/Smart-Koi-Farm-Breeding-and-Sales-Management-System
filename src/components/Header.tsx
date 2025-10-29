@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { CartSheet } from "@/components/cart-sheet";
+import { CartSheet } from "@/components/cart/cart-sheet";
 import { Menu, X, User, LogOut, ChevronDown, Check } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -20,6 +20,7 @@ import { useGetVarieties } from "@/hooks/useVariety";
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isCartOpen, setIsCartOpen] = useState(false)
   const mobileMenuRef = useRef<HTMLDivElement>(null);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
   const searchParams = useSearchParams();
@@ -155,7 +156,7 @@ export function Header() {
           <div className="flex items-center space-x-3">
             {/* Cart */}
             <div className="hidden sm:block">
-              <CartSheet />
+              <CartSheet isOpen={isCartOpen} onOpenChange={setIsCartOpen} />
             </div>
 
             {/* Auth actions - Desktop only */}
@@ -202,7 +203,7 @@ export function Header() {
 
             {/* Mobile Cart (visible on small screens) */}
             <div className="sm:hidden">
-              <CartSheet />
+              <CartSheet isOpen={isCartOpen} onOpenChange={setIsCartOpen} />
             </div>
 
             {/* Mobile Menu Button */}

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { useSearchParams } from "next/navigation"; // <<--- BƯỚC 1
+import { useSearchParams } from "next/navigation";
 import { useDebounce } from "@/hooks/useDebounce";
 import {
   Card,
@@ -37,9 +37,8 @@ import {
   Loader2,
 } from "lucide-react";
 import Link from "next/link";
-import { useCartStore } from "@/store/cart-store";
 import Image from "next/image";
-import formatCurrency from "@/lib/utils/numbers";
+import { formatCurrency } from "@/lib/utils/numbers/formatCurrency"; // Đảm bảo bạn đã có hàm này
 import { useGetKoiFishes } from "@/hooks/useKoiFish";
 import {
   FishSize,
@@ -50,6 +49,7 @@ import getAge from "@/lib/utils/dates/age";
 import getFishSizeLabel, { getGenderString } from "@/lib/utils/enum";
 import { PaginationSection } from "@/components/common/PaginationSection";
 import { Slider } from "@/components/ui/slider";
+import { useAddItemToCart } from "@/hooks/useCart"; // 👈 1. Import hook thêm vào giỏ hàng
 
 const PAGE_SIZE_OPTIONS = [9, 12, 24];
 
@@ -171,11 +171,10 @@ const FilterPanel = ({
           onClick={resetFilters}
           variant="outline"
           disabled={!hasAnythingToReset()}
-          className={`w-full h-11 border-2 font-medium transition-all duration-200 rounded-xl ${
-            hasAnythingToReset()
-              ? "border-[#0A3D62] bg-[#0A3D62]/10 text-[#0A3D62] hover:bg-[#0A3D62]/20 hover:border-[#0A3D62]"
-              : "border-[#0A3D62]/20 text-[#0A3D62]/50 cursor-not-allowed"
-          }`}
+          className={`w-full h-11 border-2 font-medium transition-all duration-200 rounded-xl ${hasAnythingToReset()
+            ? "border-[#0A3D62] bg-[#0A3D62]/10 text-[#0A3D62] hover:bg-[#0A3D62]/20 hover:border-[#0A3D62]"
+            : "border-[#0A3D62]/20 text-[#0A3D62]/50 cursor-not-allowed"
+            }`}
         >
           <RotateCcw
             className={`h-4 w-4 mr-2 ${hasAnythingToReset() ? "" : "opacity-50"}`}
@@ -195,7 +194,8 @@ export default function CatalogPage() {
   const [appliedFilters, setAppliedFilters] = useState(initialFilterState);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(PAGE_SIZE_OPTIONS[0]);
-  const { addItem } = useCartStore();
+
+  const { mutate: addToCard, isPending: isAddPending } = useAddItemToCart();
 
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
 
@@ -242,6 +242,12 @@ export default function CatalogPage() {
   ]);
 
   const { data: koiData, isLoading } = useGetKoiFishes(filterParams);
+
+  const handleAddToCart = (koiFishId: number) => {
+    addToCard(
+      { koiFishId, quantity: 1 }
+    );
+  };
 
   const handleApplyFilters = () => {
     setCurrentPage(1);
@@ -352,116 +358,113 @@ export default function CatalogPage() {
             <div className="flex-1">
               {(debouncedSearchTerm ||
                 JSON.stringify(appliedFilters) !==
-                  JSON.stringify(initialFilterState)) && (
-                <div className="flex items-center justify-between mb-6">
-                  <p className="text-muted-foreground">
-                    Tìm thấy {koiData?.totalItems ?? 0} kết quả.
-                  </p>
-                </div>
-              )}
+                JSON.stringify(initialFilterState)) && (
+                  <div className="flex items-center justify-between mb-6">
+                    <p className="text-muted-foreground">
+                      Tìm thấy {koiData?.totalItems ?? 0} kết quả.
+                    </p>
+                  </div>
+                )}
 
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                {koiData?.data.map((koi) => (
-                  <Card
-                    key={koi.id}
-                    className="overflow-hidden hover:shadow-lg transition-shadow pt-0 flex flex-col"
-                  >
-                    <div className="relative">
-                      <Image
-                        src={koi.images[0] || "/placeholder.svg"}
-                        alt={koi.rfid}
-                        className="w-full h-48 object-cover"
-                        width={400}
-                        height={300}
-                        unoptimized
-                      />
-                    </div>
+                {koiData?.data.map((koi) => {
+                  return (
+                    <Card
+                      key={koi.id}
+                      className="overflow-hidden hover:shadow-lg transition-shadow pt-0 flex flex-col"
+                    >
+                      <div className="relative">
+                        <Image
+                          src={koi.images[0] || "/placeholder.svg"}
+                          alt={koi.rfid}
+                          className="w-full h-48 object-cover"
+                          width={400}
+                          height={300}
+                          unoptimized
+                        />
+                      </div>
 
-                    <CardHeader>
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <CardTitle className="text-lg">
-                            RFID: {koi.rfid}
-                          </CardTitle>
-                          <p className="text-sm text-muted-foreground">
-                            {koi.variety.varietyName}
+                      <CardHeader>
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <CardTitle className="text-lg">
+                              RFID: {koi.rfid}
+                            </CardTitle>
+                            <p className="text-sm text-muted-foreground">
+                              {koi.variety.varietyName}
+                            </p>
+                          </div>
+                          <Button variant="outline" size="sm">
+                            <Heart className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </CardHeader>
+
+                      <CardContent className="flex flex-col flex-1 space-y-3">
+                        <div className="grid grid-cols-2 gap-2 text-sm">
+                          <div>
+                            <span className="text-muted-foreground">
+                              Kích thước:
+                            </span>
+                            <span className="ml-1 font-medium">
+                              {getFishSizeLabel(koi.size)}
+                            </span>
+                          </div>
+                          <div>
+                            <span className="text-muted-foreground">Tuổi:</span>
+                            <span className="ml-1 font-medium">
+                              {getAge(koi.birthDate)}
+                            </span>
+                          </div>
+                          <div>
+                            <span className="text-muted-foreground">
+                              Giới tính:
+                            </span>
+                            <span className="ml-1 font-medium">
+                              {getGenderString(koi.gender)}
+                            </span>
+                          </div>
+                          <div>
+                            <span className="text-muted-foreground">
+                              Xuất xứ:
+                            </span>
+                            <span className="ml-1 font-medium">{koi.origin}</span>
+                          </div>
+                        </div>
+
+                        <div className="mt-auto">
+                          <p className="text-2xl font-bold text-primary">
+                            {formatCurrency(koi.sellingPrice || 0)}
                           </p>
                         </div>
-                        <Button variant="outline" size="sm">
-                          <Heart className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </CardHeader>
+                      </CardContent>
 
-                    <CardContent className="flex flex-col flex-1 space-y-3">
-                      <div className="grid grid-cols-2 gap-2 text-sm">
-                        <div>
-                          <span className="text-muted-foreground">
-                            Kích thước:
-                          </span>
-                          <span className="ml-1 font-medium">
-                            {getFishSizeLabel(koi.size)}
-                          </span>
-                        </div>
-                        <div>
-                          <span className="text-muted-foreground">Tuổi:</span>
-                          <span className="ml-1 font-medium">
-                            {getAge(koi.birthDate)}
-                          </span>
-                        </div>
-                        <div>
-                          <span className="text-muted-foreground">
-                            Giới tính:
-                          </span>
-                          <span className="ml-1 font-medium">
-                            {getGenderString(koi.gender)}
-                          </span>
-                        </div>
-                        <div>
-                          <span className="text-muted-foreground">
-                            Xuất xứ:
-                          </span>
-                          <span className="ml-1 font-medium">{koi.origin}</span>
-                        </div>
-                      </div>
-
-                      <div className="mt-auto">
-                        <p className="text-2xl font-bold text-primary">
-                          {formatCurrency(koi.sellingPrice || 0)}
-                        </p>
-                      </div>
-                    </CardContent>
-
-                    <CardFooter className="flex gap-2">
-                      <Button
-                        className="flex-1 bg-primary hover:bg-primary/90 text-white border-0"
-                        onClick={() =>
-                          addItem({
-                            id: koi.id.toString(),
-                            name: koi.rfid,
-                            variety: koi.variety.varietyName,
-                            price: koi.sellingPrice || 0,
-                            size: getFishSizeLabel(koi.size),
-                            age: getAge(koi.birthDate).toString(),
-                            image: koi.images[0],
-                          })
-                        }
-                      >
-                        <ShoppingCart className="h-4 w-4 mr-2" />
-                        Thêm vào giỏ
-                      </Button>
-                      <Link href={`/koi/${koi.id}`}>
+                      <CardFooter className="flex gap-2">
                         <Button
-                          variant="outline"
-                          size="icon"
-                          className="border-primary text-primary hover:bg-primary hover:border-primary"
+                          className="flex-1 bg-primary hover:bg-primary/90 text-white border-0"
+                          disabled={isAddPending}
+                          onClick={() => handleAddToCart(koi.id)}
                         >
-                          <Eye className="h-4 w-4" />
+                          {isAddPending ? (
+                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                          ) : (
+                            <ShoppingCart className="h-4 w-4 mr-2" />
+                          )}
+                          {isAddPending ? "Đang thêm..." : "Thêm vào giỏ"}
                         </Button>
-                      </Link>
-                    </CardFooter>
-                  </Card>
-                ))}
+                        <Link href={`/koi/${koi.id}`}>
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            className="border-primary text-primary hover:bg-primary hover:border-primary"
+                          >
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                        </Link>
+                      </CardFooter>
+                    </Card>
+                  );
+                })}
               </div>
 
               {koiData?.data.length === 0 && (

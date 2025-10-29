@@ -676,7 +676,6 @@ export default function BreedingManagement() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-      {/* KẾT THÚC DIALOG BỘ LỌC */}
 
       {/* Confirm Delete Dialog */}
       <Dialog open={isDeleteModalOpen} onOpenChange={setIsDeleteModalOpen}>
