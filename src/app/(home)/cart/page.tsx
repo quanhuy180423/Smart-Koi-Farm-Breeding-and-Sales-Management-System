@@ -54,7 +54,12 @@ export default function CartPage() {
               </Link>
             </Button>
             <div>
-              <Button asChild variant="outline" size="lg" className="w-full md:w-auto md:px-11">
+              <Button
+                asChild
+                variant="outline"
+                size="lg"
+                className="w-full md:w-auto md:px-11"
+              >
                 <Link href="/">
                   <ArrowLeft className="mr-2 h-4 w-4" />
                   Về trang chủ
@@ -101,7 +106,9 @@ export default function CartPage() {
               <CardContent className="space-y-4 md:space-y-5">
                 <div className="space-y-2 md:space-y-3">
                   <div className="flex justify-between text-sm md:text-base">
-                    <span>Tạm tính ({cart.cartItems.length || 0} sản phẩm)</span>
+                    <span>
+                      Tạm tính ({cart.cartItems.length || 0} sản phẩm)
+                    </span>
                     <span className="font-medium">
                       {formatCurrency(cart.totalPrice || 0)}
                     </span>
@@ -120,18 +127,37 @@ export default function CartPage() {
                 </div>
 
                 <div className="space-y-3">
-                  <Button asChild className="w-full" size="lg" disabled={cart.cartItems.length === 0}>
+                  <Button
+                    asChild
+                    className="w-full"
+                    size="lg"
+                    disabled={cart.cartItems.length === 0}
+                  >
                     <Link href="/checkout">Tiến hành thanh toán</Link>
                   </Button>
-                  <Button asChild variant="outline" className="w-full bg-transparent" size="lg">
+                  <Button
+                    asChild
+                    variant="outline"
+                    className="w-full bg-transparent"
+                    size="lg"
+                  >
                     <Link href="/catalog">Tiếp tục mua sắm</Link>
                   </Button>
                 </div>
 
                 <div className="text-xs md:text-sm text-muted-foreground space-y-2 pt-2 border-t">
-                  <div className="flex items-center gap-2"><Truck className="h-4 w-4 text-green-600 flex-shrink-0" /><span>Miễn phí vận chuyển toàn quốc</span></div>
-                  <div className="flex items-center gap-2"><Shield className="h-4 w-4 text-blue-600 flex-shrink-0" /><span>Bảo hành sức khỏe cá 30 ngày</span></div>
-                  <div className="flex items-center gap-2"><Clock className="h-4 w-4 text-purple-600 flex-shrink-0" /><span>Hỗ trợ kỹ thuật 24/7</span></div>
+                  <div className="flex items-center gap-2">
+                    <Truck className="h-4 w-4 text-green-600 flex-shrink-0" />
+                    <span>Miễn phí vận chuyển toàn quốc</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Shield className="h-4 w-4 text-blue-600 flex-shrink-0" />
+                    <span>Bảo hành sức khỏe cá 30 ngày</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Clock className="h-4 w-4 text-purple-600 flex-shrink-0" />
+                    <span>Hỗ trợ kỹ thuật 24/7</span>
+                  </div>
                 </div>
               </CardContent>
             </Card>

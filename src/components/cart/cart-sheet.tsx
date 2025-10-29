@@ -38,7 +38,9 @@ export function CartSheet({ isOpen, onOpenChange }: CartSheetProps) {
   const { mutate: updateItem, isPending: isUpdating } = useUpdateItem();
   const { mutate: deleteItem, isPending: isDeleting } = useDeleteItem();
 
-  const [itemToDelete, setItemToDelete] = useState<CartItemResponse | null>(null);
+  const [itemToDelete, setItemToDelete] = useState<CartItemResponse | null>(
+    null,
+  );
 
   const pathname = usePathname();
   const isProfilePage = pathname?.includes("/profile");
@@ -102,7 +104,9 @@ export function CartSheet({ isOpen, onOpenChange }: CartSheetProps) {
           ) : isError ? (
             <div className="flex-1 flex flex-col items-center justify-center text-center">
               <ShoppingCart className="h-12 w-12 text-muted-foreground mb-4" />
-              <p className="text-muted-foreground mb-4">Lỗi khi tải giỏ hàng. Vui lòng thử lại.</p>
+              <p className="text-muted-foreground mb-4">
+                Lỗi khi tải giỏ hàng. Vui lòng thử lại.
+              </p>
               <Button onClick={() => refetch()}>Tải lại</Button>
             </div>
           ) : items.length === 0 ? (
@@ -125,19 +129,29 @@ export function CartSheet({ isOpen, onOpenChange }: CartSheetProps) {
                     return (
                       <div
                         key={item.id}
-                        className={`flex gap-4 p-4 border rounded-lg transition-opacity ${isMutating ? 'opacity-50 pointer-events-none' : ''}`}
+                        className={`flex gap-4 p-4 border rounded-lg transition-opacity ${isMutating ? "opacity-50 pointer-events-none" : ""}`}
                       >
                         <div className="relative w-20 h-20 rounded-md overflow-hidden flex-shrink-0">
                           <Image
-                            src={item.koiFishImage || item.packetFishImage || "/placeholder.svg"}
-                            alt={item.koiFishName || item.packetFishName || "Sản phẩm"}
+                            src={
+                              item.koiFishImage ||
+                              item.packetFishImage ||
+                              "/placeholder.svg"
+                            }
+                            alt={
+                              item.koiFishName ||
+                              item.packetFishName ||
+                              "Sản phẩm"
+                            }
                             className="object-cover"
                             fill
                             sizes="80px"
                           />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <h4 className="font-medium truncate">{item.koiFishName || item.packetFishName}</h4>
+                          <h4 className="font-medium truncate">
+                            {item.koiFishName || item.packetFishName}
+                          </h4>
                           <p className="font-semibold text-primary mt-1">
                             {formatCurrency(item.itemTotalPrice || 0)}
                           </p>
@@ -160,11 +174,22 @@ export function CartSheet({ isOpen, onOpenChange }: CartSheetProps) {
                                 variant="outline"
                                 size="icon"
                                 className="h-7 w-7 bg-transparent disabled:opacity-50"
-                                onClick={() => handleUpdateQuantity(item.id, item.quantity - 1)}
-                                disabled={isUpdating || isDeleting || item.quantity <= 1}
+                                onClick={() =>
+                                  handleUpdateQuantity(
+                                    item.id,
+                                    item.quantity - 1,
+                                  )
+                                }
+                                disabled={
+                                  isUpdating || isDeleting || item.quantity <= 1
+                                }
                                 aria-label="Giảm số lượng"
                               >
-                                {isMutating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Minus className="h-4 w-4" />}
+                                {isMutating ? (
+                                  <Loader2 className="h-4 w-4 animate-spin" />
+                                ) : (
+                                  <Minus className="h-4 w-4" />
+                                )}
                               </Button>
                             )}
                             <span className="w-8 text-center text-sm font-medium">
@@ -175,11 +200,20 @@ export function CartSheet({ isOpen, onOpenChange }: CartSheetProps) {
                                 variant="outline"
                                 size="icon"
                                 className="h-7 w-7 bg-transparent disabled:opacity-50"
-                                onClick={() => handleUpdateQuantity(item.id, item.quantity + 1)}
+                                onClick={() =>
+                                  handleUpdateQuantity(
+                                    item.id,
+                                    item.quantity + 1,
+                                  )
+                                }
                                 disabled={isUpdating || isDeleting}
                                 aria-label="Tăng số lượng"
                               >
-                                {isMutating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
+                                {isMutating ? (
+                                  <Loader2 className="h-4 w-4 animate-spin" />
+                                ) : (
+                                  <Plus className="h-4 w-4" />
+                                )}
                               </Button>
                             )}
                           </div>
@@ -198,7 +232,12 @@ export function CartSheet({ isOpen, onOpenChange }: CartSheetProps) {
                 </div>
                 <Separator className="my-2" />
                 <div className="space-y-2">
-                  <Button asChild className="w-full" size="lg" disabled={items.length === 0}>
+                  <Button
+                    asChild
+                    className="w-full"
+                    size="lg"
+                    disabled={items.length === 0}
+                  >
                     <Link href="/checkout" onClick={() => onOpenChange(false)}>
                       Thanh toán
                     </Link>
@@ -217,7 +256,10 @@ export function CartSheet({ isOpen, onOpenChange }: CartSheetProps) {
         </SheetContent>
       </Sheet>
 
-      <Dialog open={!!itemToDelete} onOpenChange={(open) => !open && setItemToDelete(null)}>
+      <Dialog
+        open={!!itemToDelete}
+        onOpenChange={(open) => !open && setItemToDelete(null)}
+      >
         <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle>Xác nhận xóa sản phẩm</DialogTitle>
@@ -233,10 +275,7 @@ export function CartSheet({ isOpen, onOpenChange }: CartSheetProps) {
             khỏi giỏ hàng?
           </p>
           <DialogFooter className="mt-4">
-            <Button
-              variant="outline"
-              onClick={() => setItemToDelete(null)}
-            >
+            <Button variant="outline" onClick={() => setItemToDelete(null)}>
               Hủy
             </Button>
             <Button
@@ -244,7 +283,9 @@ export function CartSheet({ isOpen, onOpenChange }: CartSheetProps) {
               onClick={handleConfirmRemove}
               disabled={isDeleting}
             >
-              {isDeleting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+              {isDeleting ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : null}
               Xác nhận xóa
             </Button>
           </DialogFooter>

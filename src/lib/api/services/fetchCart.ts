@@ -48,12 +48,12 @@ export interface CartResponse {
 export const cartService = {
   getCart: async (): Promise<BaseResponse<CartResponse>> => {
     const response = await apiService.get<BaseResponse<CartResponse>>(
-      `${baseUrl}`
+      `${baseUrl}`,
     );
     return response.data;
   },
   addItemToCart: async (
-    request: Partial<CartItemRequest>
+    request: Partial<CartItemRequest>,
   ): Promise<BaseResponse<CartItemResponse>> => {
     const response = await apiService.post<
       BaseResponse<CartItemResponse>,
@@ -63,7 +63,7 @@ export const cartService = {
   },
   updateItem: async (
     id: number,
-    request: Partial<CartItemUpdateRequest>
+    request: Partial<CartItemUpdateRequest>,
   ): Promise<BaseResponse<CartItemResponse>> => {
     const response = await apiService.put<
       BaseResponse<CartItemResponse>,
@@ -73,12 +73,12 @@ export const cartService = {
   },
   deleteItem: async (id: number): Promise<BaseResponse<boolean>> => {
     const response = await apiService.delete<BaseResponse<boolean>>(
-      `${baseUrl}/items/${id}`
+      `${baseUrl}/items/${id}`,
     );
     return response.data;
   },
   converCartToOrder: async (
-    request: Partial<ConverCartToOrderRequest>
+    request: Partial<ConverCartToOrderRequest>,
   ): Promise<BaseResponse<OrderRespponse>> => {
     const response = await apiService.post<
       BaseResponse<OrderRespponse>,

@@ -172,10 +172,11 @@ const FilterPanel = ({
           onClick={resetFilters}
           variant="outline"
           disabled={!hasAnythingToReset()}
-          className={`w-full h-11 border-2 font-medium transition-all duration-200 rounded-xl ${hasAnythingToReset()
-            ? "border-[#0A3D62] bg-[#0A3D62]/10 text-[#0A3D62] hover:bg-[#0A3D62]/20 hover:border-[#0A3D62]"
-            : "border-[#0A3D62]/20 text-[#0A3D62]/50 cursor-not-allowed"
-            }`}
+          className={`w-full h-11 border-2 font-medium transition-all duration-200 rounded-xl ${
+            hasAnythingToReset()
+              ? "border-[#0A3D62] bg-[#0A3D62]/10 text-[#0A3D62] hover:bg-[#0A3D62]/20 hover:border-[#0A3D62]"
+              : "border-[#0A3D62]/20 text-[#0A3D62]/50 cursor-not-allowed"
+          }`}
         >
           <RotateCcw
             className={`h-4 w-4 mr-2 ${hasAnythingToReset() ? "" : "opacity-50"}`}
@@ -247,9 +248,7 @@ export default function CatalogPage() {
   const { data: koiData, isLoading } = useGetKoiFishes(filterParams);
 
   const handleAddToCart = (koiFishId: number) => {
-    addToCard(
-      { koiFishId, quantity: 1 }
-    );
+    addToCard({ koiFishId, quantity: 1 });
   };
 
   const handleApplyFilters = () => {
@@ -361,13 +360,13 @@ export default function CatalogPage() {
             <div className="flex-1">
               {(debouncedSearchTerm ||
                 JSON.stringify(appliedFilters) !==
-                JSON.stringify(initialFilterState)) && (
-                  <div className="flex items-center justify-between mb-6">
-                    <p className="text-muted-foreground">
-                      Tìm thấy {koiData?.totalItems ?? 0} kết quả.
-                    </p>
-                  </div>
-                )}
+                  JSON.stringify(initialFilterState)) && (
+                <div className="flex items-center justify-between mb-6">
+                  <p className="text-muted-foreground">
+                    Tìm thấy {koiData?.totalItems ?? 0} kết quả.
+                  </p>
+                </div>
+              )}
 
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                 {koiData?.data.map((koi) => {
@@ -403,37 +402,39 @@ export default function CatalogPage() {
                         </div>
                       </CardHeader>
 
-                    <CardContent className="flex flex-col flex-1 space-y-3">
-                      <div className="grid grid-cols-2 gap-2 text-sm">
-                        <div>
-                          <span className="text-muted-foreground">
-                            Kích thước:
-                          </span>
-                          <span className="ml-1 font-medium">
-                            {getFishSizeLabel(koi.size)}
-                          </span>
+                      <CardContent className="flex flex-col flex-1 space-y-3">
+                        <div className="grid grid-cols-2 gap-2 text-sm">
+                          <div>
+                            <span className="text-muted-foreground">
+                              Kích thước:
+                            </span>
+                            <span className="ml-1 font-medium">
+                              {getFishSizeLabel(koi.size)}
+                            </span>
+                          </div>
+                          <div>
+                            <span className="text-muted-foreground">Tuổi:</span>
+                            <span className="ml-1 font-medium">
+                              {getAge(koi.birthDate)}
+                            </span>
+                          </div>
+                          <div>
+                            <span className="text-muted-foreground">
+                              Giới tính:
+                            </span>
+                            <span className="ml-1 font-medium">
+                              {getGenderLabel(koi.gender).label}
+                            </span>
+                          </div>
+                          <div>
+                            <span className="text-muted-foreground">
+                              Xuất xứ:
+                            </span>
+                            <span className="ml-1 font-medium">
+                              {koi.origin}
+                            </span>
+                          </div>
                         </div>
-                        <div>
-                          <span className="text-muted-foreground">Tuổi:</span>
-                          <span className="ml-1 font-medium">
-                            {getAge(koi.birthDate)}
-                          </span>
-                        </div>
-                        <div>
-                          <span className="text-muted-foreground">
-                            Giới tính:
-                          </span>
-                          <span className="ml-1 font-medium">
-                            {getGenderLabel(koi.gender).label}
-                          </span>
-                        </div>
-                        <div>
-                          <span className="text-muted-foreground">
-                            Xuất xứ:
-                          </span>
-                          <span className="ml-1 font-medium">{koi.origin}</span>
-                        </div>
-                      </div>
 
                         <div className="mt-auto">
                           <p className="text-2xl font-bold text-primary">

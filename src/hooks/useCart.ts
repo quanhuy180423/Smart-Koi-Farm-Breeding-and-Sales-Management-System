@@ -48,7 +48,7 @@ export function useAddItemToCart() {
     },
     onError: (error: ApiError) => {
       toast.error(
-        error.error?.result || "Có lỗi xảy ra khi cập nhật thông tin"
+        error.error?.result || "Có lỗi xảy ra khi cập nhật thông tin",
       );
     },
   });
@@ -73,7 +73,7 @@ export function useUpdateItem() {
     },
     onError: (error: ApiError) => {
       toast.error(
-        error.error?.result || "Có lỗi xảy ra khi cập nhật thông tin"
+        error.error?.result || "Có lỗi xảy ra khi cập nhật thông tin",
       );
     },
   });
@@ -92,7 +92,7 @@ export function useDeleteItem() {
     },
     onError: (error: ApiError) => {
       toast.error(
-        error.error?.result || "Có lỗi xảy ra khi cập nhật thông tin"
+        error.error?.result || "Có lỗi xảy ra khi cập nhật thông tin",
       );
     },
   });
@@ -111,7 +111,7 @@ export function useConverCartToOrder() {
     },
     onError: (error: ApiError) => {
       toast.error(
-        error.error?.result || "Có lỗi xảy ra khi cập nhật thông tin"
+        error.error?.result || "Có lỗi xảy ra khi cập nhật thông tin",
       );
     },
   });
