@@ -4,14 +4,7 @@ import { useEffect, useState } from "react";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import {
-  Heart,
-  Plus,
-  X,
-  Ruler,
-  Calendar,
-  Loader2,
-} from "lucide-react";
+import { Heart, Plus, X, Ruler, Calendar, Loader2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,

@@ -46,25 +46,32 @@ import {
 } from "lucide-react";
 import { formatCurrency } from "@/lib/utils/numbers/formatCurrency";
 import { useGetKoiFishes } from "@/hooks/useKoiFish";
-import { KoiFishSearchParams, SaleStatus } from "@/lib/api/services/fetchKoiFish";
+import {
+  KoiFishSearchParams,
+  SaleStatus,
+} from "@/lib/api/services/fetchKoiFish";
 import { useDebounce } from "@/hooks/useDebounce";
 import getAge from "@/lib/utils/dates/age";
 import {
   getFishSizeLabel,
   getGenderLabel,
   getHealthStatusLabel,
-  getSaleStatusLabel
+  getSaleStatusLabel,
 } from "@/lib/utils/enum";
 import { PaginationSection } from "@/components/common/PaginationSection";
 import Image from "next/image";
 import { AddFishDialog } from "./AddFishDialog";
 
 const mockFishStats = {
-  totalFish: 234, availableFish: 198, soldFish: 36, lowStockFish: 12,
-  totalValue: 1245600000, avgPrice: 5320000,
+  totalFish: 234,
+  availableFish: 198,
+  soldFish: 36,
+  lowStockFish: 12,
+  totalValue: 1245600000,
+  avgPrice: 5320000,
 };
 
-const PAGE_SIZE_OPTIONS: number[] = [9, 12, 15, 18]
+const PAGE_SIZE_OPTIONS: number[] = [9, 12, 15, 18];
 
 export default function FishForSalePage() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -73,21 +80,25 @@ export default function FishForSalePage() {
   const [searchParams, setSearchParams] = useState<KoiFishSearchParams>({
     pageIndex: 1,
     pageSize: PAGE_SIZE_OPTIONS[0],
-    saleStatus: SaleStatus.AVAILABLE
+    saleStatus: SaleStatus.AVAILABLE,
   });
   const [isAddFishDialogOpen, setIsAddFishDialogOpen] = useState(false);
   const { data: koiData, isLoading } = useGetKoiFishes(searchParams);
 
   useEffect(() => {
-    setSearchParams((prev) => ({ ...prev, search: debouncedSearchTerm, pageIndex: 1 }));
+    setSearchParams((prev) => ({
+      ...prev,
+      search: debouncedSearchTerm,
+      pageIndex: 1,
+    }));
   }, [debouncedSearchTerm]);
 
   const handlePageChange = (page: number) => {
-    setSearchParams(prev => ({ ...prev, pageIndex: page }));
+    setSearchParams((prev) => ({ ...prev, pageIndex: page }));
   };
 
   const handlePageSizeChange = (size: number) => {
-    setSearchParams(prev => ({ ...prev, pageSize: size, pageIndex: 1 }));
+    setSearchParams((prev) => ({ ...prev, pageSize: size, pageIndex: 1 }));
   };
 
   const fishList = koiData?.data || [];
@@ -109,7 +120,10 @@ export default function FishForSalePage() {
             <span className="sm:hidden">Báo cáo</span>
             <span className="hidden sm:inline">Báo cáo kho</span>
           </Button>
-          <Dialog open={isAddFishDialogOpen} onOpenChange={setIsAddFishDialogOpen}>
+          <Dialog
+            open={isAddFishDialogOpen}
+            onOpenChange={setIsAddFishDialogOpen}
+          >
             <DialogTrigger asChild>
               <Button size="sm" className="w-full sm:w-auto">
                 <Plus className="h-4 w-4 mr-2" />
@@ -125,9 +139,10 @@ export default function FishForSalePage() {
       {/* Stats Cards */}
       <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-6">
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2"><CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">
-            Tổng số cá
-          </CardTitle>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">
+              Tổng số cá
+            </CardTitle>
             <Fish className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -246,7 +261,9 @@ export default function FishForSalePage() {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                 {fishList.map((koi) => {
                   const saleStatusInfo = getSaleStatusLabel(koi.saleStatus);
-                  const healthStatusInfo = getHealthStatusLabel(koi.healthStatus);
+                  const healthStatusInfo = getHealthStatusLabel(
+                    koi.healthStatus,
+                  );
                   const genderInfo = getGenderLabel(koi.gender);
 
                   return (
@@ -278,36 +295,76 @@ export default function FishForSalePage() {
                           </div>
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" className="h-8 w-8 p-0 flex-shrink-0">
+                              <Button
+                                variant="ghost"
+                                className="h-8 w-8 p-0 flex-shrink-0"
+                              >
                                 <MoreHorizontal className="h-4 w-4" />
                               </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
                               <DropdownMenuLabel>Hành động</DropdownMenuLabel>
-                              <DropdownMenuItem><Eye className="mr-2 h-4 w-4" /> Xem chi tiết</DropdownMenuItem>
-                              <DropdownMenuItem><Edit className="mr-2 h-4 w-4" /> Chỉnh sửa</DropdownMenuItem>
+                              <DropdownMenuItem>
+                                <Eye className="mr-2 h-4 w-4" /> Xem chi tiết
+                              </DropdownMenuItem>
+                              <DropdownMenuItem>
+                                <Edit className="mr-2 h-4 w-4" /> Chỉnh sửa
+                              </DropdownMenuItem>
                             </DropdownMenuContent>
                           </DropdownMenu>
                         </div>
 
                         <div className="grid grid-cols-2 gap-x-3 gap-y-2 text-sm mb-3">
-                          <div className="flex items-center gap-1.5"><Calendar className="h-3.5 w-3.5 text-muted-foreground" /><span className="font-medium">{getAge(koi.birthDate)}</span></div>
-                          <div className="flex items-center gap-1.5"><Ruler className="h-3.5 w-3.5 text-muted-foreground" /><span className="font-medium">{getFishSizeLabel(koi.size)}</span></div>
-                          <div className="flex items-center gap-1.5"><Package className="h-3.5 w-3.5 text-muted-foreground" /><span className={`font-medium ${genderInfo.colorClass}`}>{genderInfo.label}</span></div>
-                          <div className="flex items-center gap-1.5"><Tag className="h-3.5 w-3.5 text-muted-foreground" /><span className="font-medium">{koi.origin}</span></div>
+                          <div className="flex items-center gap-1.5">
+                            <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
+                            <span className="font-medium">
+                              {getAge(koi.birthDate)}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-1.5">
+                            <Ruler className="h-3.5 w-3.5 text-muted-foreground" />
+                            <span className="font-medium">
+                              {getFishSizeLabel(koi.size)}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-1.5">
+                            <Package className="h-3.5 w-3.5 text-muted-foreground" />
+                            <span
+                              className={`font-medium ${genderInfo.colorClass}`}
+                            >
+                              {genderInfo.label}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-1.5">
+                            <Tag className="h-3.5 w-3.5 text-muted-foreground" />
+                            <span className="font-medium">{koi.origin}</span>
+                          </div>
                         </div>
 
                         <div className="flex flex-col gap-2 mt-auto">
-                          <Badge variant="secondary" className={`text-xs justify-center ${saleStatusInfo.colorClass}`}>
+                          <Badge
+                            variant="secondary"
+                            className={`text-xs justify-center ${saleStatusInfo.colorClass}`}
+                          >
                             {saleStatusInfo.label}
                           </Badge>
-                          <Badge variant="secondary" className="text-xs justify-center bg-muted/50 text-muted-foreground">
-                            Sức khỏe: <span className={`font-semibold ml-1 ${healthStatusInfo.colorClass}`}>{healthStatusInfo.label}</span>
+                          <Badge
+                            variant="secondary"
+                            className="text-xs justify-center bg-muted/50 text-muted-foreground"
+                          >
+                            Sức khỏe:{" "}
+                            <span
+                              className={`font-semibold ml-1 ${healthStatusInfo.colorClass}`}
+                            >
+                              {healthStatusInfo.label}
+                            </span>
                           </Badge>
                         </div>
 
                         <div className="border-t pt-3 mt-3">
-                          <span className="text-sm text-muted-foreground">Giá bán</span>
+                          <span className="text-sm text-muted-foreground">
+                            Giá bán
+                          </span>
                           <p className="font-bold text-lg text-primary">
                             {formatCurrency(koi.sellingPrice || 0)}
                           </p>

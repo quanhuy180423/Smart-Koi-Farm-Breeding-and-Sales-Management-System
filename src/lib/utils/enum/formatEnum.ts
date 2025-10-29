@@ -140,7 +140,7 @@ const DEFAULT_LABEL: Label = {
 function getLabelForEnum<T extends string>(
   value: T | undefined,
   meta: Record<T, Label>,
-  defaultLabel: Label = DEFAULT_LABEL
+  defaultLabel: Label = DEFAULT_LABEL,
 ): Label {
   if (!value || !meta[value]) {
     return defaultLabel;
