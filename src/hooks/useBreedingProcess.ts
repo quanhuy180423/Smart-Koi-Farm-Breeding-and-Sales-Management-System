@@ -6,8 +6,6 @@ import breedingProcessService, {
   BreedingProcessResponse,
   BreedingProcessSearchParams,
   BreeedingRecommendRequest,
-  BreeedingRecommendResponse,
-  RecommendedPair,
 } from "@/lib/api/services/fetchBreedingProcess";
 import { useAuthStore } from "@/store/auth-store";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";

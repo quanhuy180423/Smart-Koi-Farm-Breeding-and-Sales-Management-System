@@ -4,15 +4,7 @@ import { useEffect, useState } from "react";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import {
-  Heart,
-  Plus,
-  X,
-  Ruler,
-  Calendar,
-  Loader2,
-  CheckCircle,
-} from "lucide-react";
+import { Heart, Plus, X, Ruler, Calendar, Loader2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -34,11 +26,11 @@ import Image from "next/image";
 import { Gender, KoiFishResponse } from "@/lib/api/services/fetchKoiFish";
 import { useGetKoiFishById, useGetKoiFishes } from "@/hooks/useKoiFish";
 import toast from "react-hot-toast";
-import getFishSizeLabel from "@/lib/utils/enum";
 import getAge from "@/lib/utils/dates/age";
 import { RecommendedPair } from "@/lib/api/services/fetchBreedingProcess";
 import { useGetBreedingRecommend } from "@/hooks/useBreedingProcess";
 import * as z from "zod";
+import { getFishSizeLabel } from "@/lib/utils/enum";
 
 const recommendSchema = z.object({
   targetVariety: z.string().min(1, { message: "Giống mong muốn là bắt buộc." }),

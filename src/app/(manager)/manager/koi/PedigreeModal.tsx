@@ -13,7 +13,7 @@ import {
   KoiFishFamilyResponse,
   KoiFishResponse,
 } from "@/lib/api/services/fetchKoiFish";
-import { getGenderString } from "@/lib/utils/enum";
+import { getGenderLabel } from "@/lib/utils/enum";
 import { Loader2 } from "lucide-react";
 
 interface PedigreeNodeProps {
@@ -36,7 +36,7 @@ const PedigreeNode = ({ koi, role }: PedigreeNodeProps) => {
           koi?.gender === Gender.MALE ? "text-blue-600" : "text-pink-600"
         }`}
       >
-        {getGenderString(koi?.gender)}
+        {getGenderLabel(koi?.gender).label}
       </p>
     </div>
   );

@@ -44,9 +44,10 @@ import {
   FishSize,
   Gender,
   KoiFishSearchParams,
+  SaleStatus,
 } from "@/lib/api/services/fetchKoiFish";
 import getAge from "@/lib/utils/dates/age";
-import getFishSizeLabel, { getGenderString } from "@/lib/utils/enum";
+import { getFishSizeLabel, getGenderLabel } from "@/lib/utils/enum";
 import { PaginationSection } from "@/components/common/PaginationSection";
 import { Slider } from "@/components/ui/slider";
 import { useAddItemToCart } from "@/hooks/useCart"; // 👈 1. Import hook thêm vào giỏ hàng
@@ -232,6 +233,8 @@ export default function CatalogPage() {
       params.origin = appliedFilters.selectedOrigin;
     }
 
+    params.saleStatus = SaleStatus.AVAILABLE;
+
     return params;
   }, [
     appliedFilters,
@@ -400,37 +403,37 @@ export default function CatalogPage() {
                         </div>
                       </CardHeader>
 
-                      <CardContent className="flex flex-col flex-1 space-y-3">
-                        <div className="grid grid-cols-2 gap-2 text-sm">
-                          <div>
-                            <span className="text-muted-foreground">
-                              Kích thước:
-                            </span>
-                            <span className="ml-1 font-medium">
-                              {getFishSizeLabel(koi.size)}
-                            </span>
-                          </div>
-                          <div>
-                            <span className="text-muted-foreground">Tuổi:</span>
-                            <span className="ml-1 font-medium">
-                              {getAge(koi.birthDate)}
-                            </span>
-                          </div>
-                          <div>
-                            <span className="text-muted-foreground">
-                              Giới tính:
-                            </span>
-                            <span className="ml-1 font-medium">
-                              {getGenderString(koi.gender)}
-                            </span>
-                          </div>
-                          <div>
-                            <span className="text-muted-foreground">
-                              Xuất xứ:
-                            </span>
-                            <span className="ml-1 font-medium">{koi.origin}</span>
-                          </div>
+                    <CardContent className="flex flex-col flex-1 space-y-3">
+                      <div className="grid grid-cols-2 gap-2 text-sm">
+                        <div>
+                          <span className="text-muted-foreground">
+                            Kích thước:
+                          </span>
+                          <span className="ml-1 font-medium">
+                            {getFishSizeLabel(koi.size)}
+                          </span>
                         </div>
+                        <div>
+                          <span className="text-muted-foreground">Tuổi:</span>
+                          <span className="ml-1 font-medium">
+                            {getAge(koi.birthDate)}
+                          </span>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">
+                            Giới tính:
+                          </span>
+                          <span className="ml-1 font-medium">
+                            {getGenderLabel(koi.gender).label}
+                          </span>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">
+                            Xuất xứ:
+                          </span>
+                          <span className="ml-1 font-medium">{koi.origin}</span>
+                        </div>
+                      </div>
 
                         <div className="mt-auto">
                           <p className="text-2xl font-bold text-primary">
