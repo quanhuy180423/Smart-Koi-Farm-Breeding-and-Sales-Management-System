@@ -50,7 +50,7 @@ import {
   PaginationSection,
 } from "@/components/common/PaginationSection";
 import getAge from "@/lib/utils/dates/age";
-import getFishSizeLabel, { getHealthStatusLabel } from "@/lib/utils/enum";
+import { getFishSizeLabel, getHealthStatusLabel } from "@/lib/utils/enum";
 import { useDebounce } from "@/hooks/useDebounce";
 import { Label } from "@/components/ui/label";
 import PedigreeModal from "./PedigreeModal";

@@ -9,7 +9,7 @@ import {
 import { useGetBreedingParentHistory } from "@/hooks/useBreedingProcess";
 import { KoiFishResponse } from "@/lib/api/services/fetchKoiFish";
 import getAge from "@/lib/utils/dates/age";
-import getFishSizeLabel, { getHealthStatusLabel } from "@/lib/utils/enum";
+import { getFishSizeLabel, getHealthStatusLabel } from "@/lib/utils/enum";
 import { Mars } from "lucide-react";
 import Image from "next/image";
 import React from "react";

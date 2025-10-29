@@ -25,6 +25,7 @@ interface SaleLayoutProps {
 
 export function SaleLayout({ children }: SaleLayoutProps) {
   const router = useRouter();
+  const { user } = useAuthStore();
 
   return (
     <div className="min-h-screen bg-background">
@@ -74,7 +75,7 @@ export function SaleLayout({ children }: SaleLayoutProps) {
                   </Avatar>
                   <div className="hidden sm:block text-left">
                     <p className="text-sm font-medium text-muted-foreground">
-                      Nguyễn Văn Bán hàng
+                      {user?.name}
                     </p>
                     <p className="text-xs text-muted-foreground">
                       Nhân viên bán hàng

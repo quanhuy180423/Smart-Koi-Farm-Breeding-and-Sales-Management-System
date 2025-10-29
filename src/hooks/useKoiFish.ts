@@ -3,16 +3,24 @@ import koiFishService, {
   KoiFishFamilyResponse,
   KoiFishResponse,
   KoiFishSearchParams,
+  KoiFishUpdateRequest,
 } from "@/lib/api/services/fetchKoiFish";
 import { useAuthStore } from "@/store/auth-store";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { ApiError } from "next/dist/server/api-utils";
+import toast from "react-hot-toast";
+
+export interface KoiFishUpdatePayloads {
+  request: Partial<KoiFishUpdateRequest>;
+  id: number;
+}
 
 export function useGetKoiFishes(request: KoiFishSearchParams) {
   return useQuery({
     queryKey: ["koi-fishes", request],
     queryFn: () => koiFishService.getKoiFishes(request),
     select: (
-      data: BaseResponse<PagedResponse<KoiFishResponse>>,
+      data: BaseResponse<PagedResponse<KoiFishResponse>>
     ): PagedResponse<KoiFishResponse> => data.result,
     retry: (failureCount, error: unknown) => {
       if (
@@ -36,7 +44,7 @@ export function useGetKoiFishFamily(id: number | undefined) {
     queryFn: () => koiFishService.getKoiFishFamily(id),
     enabled: isAuthenticated && id !== undefined && id !== 0,
     select: (
-      data: BaseResponse<KoiFishFamilyResponse>,
+      data: BaseResponse<KoiFishFamilyResponse>
     ): KoiFishFamilyResponse => data.result,
     retry: (failureCount, error: unknown) => {
       if (
@@ -69,6 +77,24 @@ export function useGetKoiFishById(id?: number) {
         return false;
       }
       return failureCount < 2;
+    },
+  });
+}
+
+export function useUpdateKoiFish() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (payload: KoiFishUpdatePayloads) =>
+      koiFishService.updateKoiFish(payload.id, payload.request),
+    onSuccess: (data: BaseResponse<string>) => {
+      if (data.isSuccess) {
+        queryClient.invalidateQueries({ queryKey: ["koi-fishes"] });
+      }
+      toast.success(data.message || "Chỉnh sửa cá Koi thành công");
+    },
+    onError: (error: ApiError) => {
+      toast.error(error.message || "Có lỗi xảy ra khi cập nhật thông tin");
     },
   });
 }

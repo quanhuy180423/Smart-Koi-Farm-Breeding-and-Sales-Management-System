@@ -3,7 +3,6 @@ import apiService, {
   PagedResponse,
   PagingRequest,
 } from "../apiClient";
-import { EggBatchResponse } from "./fetchEggBatch";
 
 const baseUrl = "/api/IncubationDailyRecord";
 

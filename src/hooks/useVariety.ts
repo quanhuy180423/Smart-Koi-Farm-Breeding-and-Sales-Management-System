@@ -4,7 +4,6 @@ import varietyService, {
   VarietyResponse,
   VarietySearchParams,
 } from "@/lib/api/services/fetchVariety";
-import { useAuthStore } from "@/store/auth-store";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 
