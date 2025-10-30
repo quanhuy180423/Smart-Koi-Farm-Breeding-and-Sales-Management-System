@@ -11,13 +11,12 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { ShoppingCart, Plus, Minus, Trash2, Loader2 } from "lucide-react";
-import Image from "next/image";
+import { ShoppingCart, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { formatCurrency } from "@/lib/utils/numbers/formatCurrency";
 import { usePathname } from "next/navigation";
-import { useGetCart, useUpdateItem, useDeleteItem } from "@/hooks/useCart";
-import { useState } from "react"; // 👈 1. Import useState
+import { useGetCart, useDeleteItem } from "@/hooks/useCart";
+import { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -27,6 +26,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { CartItemResponse } from "@/lib/api/services/fetchCart";
+import { CartItem } from "./CartItem";
 
 interface CartSheetProps {
   isOpen: boolean;
@@ -35,7 +35,6 @@ interface CartSheetProps {
 
 export function CartSheet({ isOpen, onOpenChange }: CartSheetProps) {
   const { data: cartData, isLoading, isError, refetch } = useGetCart();
-  const { mutate: updateItem, isPending: isUpdating } = useUpdateItem();
   const { mutate: deleteItem, isPending: isDeleting } = useDeleteItem();
 
   const [itemToDelete, setItemToDelete] = useState<CartItemResponse | null>(
@@ -48,10 +47,6 @@ export function CartSheet({ isOpen, onOpenChange }: CartSheetProps) {
   const items = cartData?.cartItems || [];
   const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
   const totalPrice = cartData?.totalPrice || 0;
-
-  const handleUpdateQuantity = (itemId: number, newQuantity: number) => {
-    updateItem({ id: itemId, item: { quantity: newQuantity } });
-  };
 
   const handleConfirmRemove = () => {
     if (itemToDelete) {
@@ -123,104 +118,9 @@ export function CartSheet({ isOpen, onOpenChange }: CartSheetProps) {
             <>
               <div className="flex-1 overflow-auto py-4 -mx-6 px-6">
                 <div className="space-y-4">
-                  {items.map((item) => {
-                    const isMutating = isUpdating || isDeleting;
-
-                    return (
-                      <div
-                        key={item.id}
-                        className={`flex gap-4 p-4 border rounded-lg transition-opacity ${isMutating ? "opacity-50 pointer-events-none" : ""}`}
-                      >
-                        <div className="relative w-20 h-20 rounded-md overflow-hidden flex-shrink-0">
-                          <Image
-                            src={
-                              item.koiFishImage ||
-                              item.packetFishImage ||
-                              "/placeholder.svg"
-                            }
-                            alt={
-                              item.koiFishName ||
-                              item.packetFishName ||
-                              "Sản phẩm"
-                            }
-                            className="object-cover"
-                            fill
-                            sizes="80px"
-                          />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <h4 className="font-medium truncate">
-                            {item.koiFishName || item.packetFishName}
-                          </h4>
-                          <p className="font-semibold text-primary mt-1">
-                            {formatCurrency(item.itemTotalPrice || 0)}
-                          </p>
-                        </div>
-                        <div className="flex flex-col items-end justify-between ml-2">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-7 w-7 text-red-500 hover:bg-red-100 disabled:opacity-50"
-                            onClick={() => setItemToDelete(item)}
-                            disabled={isUpdating || isDeleting}
-                            aria-label="Xóa sản phẩm"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-
-                          <div className="flex items-center gap-1 mt-auto">
-                            {item.packetFishId != null && (
-                              <Button
-                                variant="outline"
-                                size="icon"
-                                className="h-7 w-7 bg-transparent disabled:opacity-50"
-                                onClick={() =>
-                                  handleUpdateQuantity(
-                                    item.id,
-                                    item.quantity - 1,
-                                  )
-                                }
-                                disabled={
-                                  isUpdating || isDeleting || item.quantity <= 1
-                                }
-                                aria-label="Giảm số lượng"
-                              >
-                                {isMutating ? (
-                                  <Loader2 className="h-4 w-4 animate-spin" />
-                                ) : (
-                                  <Minus className="h-4 w-4" />
-                                )}
-                              </Button>
-                            )}
-                            <span className="w-8 text-center text-sm font-medium">
-                              {item.quantity}
-                            </span>
-                            {item.packetFishId != null && (
-                              <Button
-                                variant="outline"
-                                size="icon"
-                                className="h-7 w-7 bg-transparent disabled:opacity-50"
-                                onClick={() =>
-                                  handleUpdateQuantity(
-                                    item.id,
-                                    item.quantity + 1,
-                                  )
-                                }
-                                disabled={isUpdating || isDeleting}
-                                aria-label="Tăng số lượng"
-                              >
-                                {isMutating ? (
-                                  <Loader2 className="h-4 w-4 animate-spin" />
-                                ) : (
-                                  <Plus className="h-4 w-4" />
-                                )}
-                              </Button>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
+                  {items.map((item, idx) => (
+                    <CartItem key={idx} item={item} />
+                  ))}
                 </div>
               </div>
               <SheetFooter className="flex-col pt-4 border-t mt-auto">
@@ -270,7 +170,7 @@ export function CartSheet({ isOpen, onOpenChange }: CartSheetProps) {
           <p>
             Bạn có chắc chắn muốn xóa sản phẩm{" "}
             <span className="font-semibold text-destructive">
-              {itemToDelete?.koiFishName || itemToDelete?.packetFishName}
+              {itemToDelete?.koiFish?.rfid || itemToDelete?.packetFish?.name}
             </span>{" "}
             khỏi giỏ hàng?
           </p>

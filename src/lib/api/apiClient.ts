@@ -7,6 +7,7 @@ import axios, {
 import { getCookie, setCookie } from "cookies-next";
 import { LoginResponse, RenewTokenRequest } from "./services/fetchAuth";
 import { useAuthStore } from "@/store/auth-store";
+import { redirect } from "next/navigation";
 
 // API error response data structure
 export interface ApiErrorData {
@@ -168,11 +169,10 @@ export class ApiService {
 
         useAuthStore.getState().setToken(newAccessToken);
 
-        console.log("✅ Token refreshed successfully");
         return newAccessToken;
       }
-    } catch (error) {
-      console.error("❌ Token refresh failed:", error);
+    } catch {
+      redirect("/login");
     }
 
     return null;

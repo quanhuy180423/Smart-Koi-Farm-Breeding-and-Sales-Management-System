@@ -1,5 +1,7 @@
 import apiService, { BaseResponse } from "../apiClient";
+import { KoiFishResponse } from "./fetchKoiFish";
 import { OrderRespponse } from "./fetchOrder";
+import { PacketFishResponse } from "./fetchPacketFish";
 
 const baseUrl = "/api/Cart";
 
@@ -22,13 +24,9 @@ export interface CartItemResponse {
   id: number;
   cartId: number;
   koiFishId?: number;
-  koiFishName: string;
-  koiFishPrice?: number;
-  koiFishImage: string;
   packetFishId?: number;
-  packetFishName?: null;
-  packetFishPrice?: null;
-  packetFishImage?: null;
+  koiFish?: KoiFishResponse;
+  packetFish?: PacketFishResponse;
   quantity: number;
   itemTotalPrice: number;
   addedAt: string;

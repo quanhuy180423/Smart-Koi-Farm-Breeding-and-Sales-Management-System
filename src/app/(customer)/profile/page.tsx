@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,9 +23,19 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { User, MapPin, Calendar, Camera, Save, Edit, Plus } from "lucide-react";
+import {
+  User,
+  MapPin,
+  Calendar,
+  Camera,
+  Save,
+  Edit,
+  Plus,
+  Loader2,
+} from "lucide-react";
 import { formatCurrency } from "@/lib/utils/numbers/formatCurrency";
 import CustomerLayout from "@/components/customer/CustomerLayout";
+import { useChangePassword } from "@/hooks/useAuth";
 
 type Address = {
   id: number;
@@ -38,6 +48,23 @@ type Address = {
 
 export default function ProfilePage() {
   const [isEditing, setIsEditing] = useState(false);
+  const [passwordForm, setPasswordForm] = useState({
+    oldPassword: "",
+    newPassword: "",
+    confirmedNewPassword: "",
+  });
+
+  const handlePasswordFormReset = useCallback(() => {
+    setPasswordForm({
+      oldPassword: "",
+      newPassword: "",
+      confirmedNewPassword: "",
+    });
+  }, []);
+
+  const { mutate: changePassword, isPending: isChangingPassword } =
+    useChangePassword(handlePasswordFormReset);
+
   const [profileData, setProfileData] = useState({
     fullName: "Nguyễn Văn An",
     email: "nguyenvanan@email.com",
@@ -166,6 +193,32 @@ export default function ProfilePage() {
 
   const handleAddressFormChange = (field: string, value: string) => {
     setAddressForm((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handlePasswordChange = (field: string, value: string) => {
+    setPasswordForm((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleChangePassword = () => {
+    // Validate form
+    if (
+      !passwordForm.oldPassword ||
+      !passwordForm.newPassword ||
+      !passwordForm.confirmedNewPassword
+    ) {
+      return;
+    }
+
+    if (passwordForm.newPassword !== passwordForm.confirmedNewPassword) {
+      return;
+    }
+
+    // Call API - form sẽ được reset tự động khi success
+    changePassword({
+      oldPassword: passwordForm.oldPassword,
+      newPassword: passwordForm.newPassword,
+      confirmedNewPassword: passwordForm.confirmedNewPassword,
+    });
   };
 
   const customerStats = {
@@ -633,6 +686,11 @@ export default function ProfilePage() {
                       id="currentPassword"
                       type="password"
                       placeholder="Nhập mật khẩu hiện tại"
+                      value={passwordForm.oldPassword}
+                      onChange={(e) =>
+                        handlePasswordChange("oldPassword", e.target.value)
+                      }
+                      disabled={isChangingPassword}
                       className="border-2 border-border hover:border-primary/50 focus:border-primary transition-colors"
                     />
                   </div>
@@ -644,6 +702,11 @@ export default function ProfilePage() {
                       id="newPassword"
                       type="password"
                       placeholder="Nhập mật khẩu mới"
+                      value={passwordForm.newPassword}
+                      onChange={(e) =>
+                        handlePasswordChange("newPassword", e.target.value)
+                      }
+                      disabled={isChangingPassword}
                       className="border-2 border-border hover:border-primary/50 focus:border-primary transition-colors"
                     />
                   </div>
@@ -655,14 +718,49 @@ export default function ProfilePage() {
                       id="confirmPassword"
                       type="password"
                       placeholder="Xác nhận mật khẩu mới"
+                      value={passwordForm.confirmedNewPassword}
+                      onChange={(e) =>
+                        handlePasswordChange(
+                          "confirmedNewPassword",
+                          e.target.value,
+                        )
+                      }
+                      disabled={isChangingPassword}
                       className="border-2 border-border hover:border-primary/50 focus:border-primary transition-colors"
                     />
                   </div>
                 </div>
-                <Button>
-                  <Save className="mr-2 h-4 w-4" />
-                  Đổi mật khẩu
+                <Button
+                  onClick={handleChangePassword}
+                  disabled={
+                    isChangingPassword ||
+                    !passwordForm.oldPassword ||
+                    !passwordForm.newPassword ||
+                    !passwordForm.confirmedNewPassword ||
+                    passwordForm.newPassword !==
+                      passwordForm.confirmedNewPassword
+                  }
+                >
+                  {isChangingPassword ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Đang xử lý...
+                    </>
+                  ) : (
+                    <>
+                      <Save className="mr-2 h-4 w-4" />
+                      Đổi mật khẩu
+                    </>
+                  )}
                 </Button>
+                {passwordForm.newPassword &&
+                  passwordForm.confirmedNewPassword &&
+                  passwordForm.newPassword !==
+                    passwordForm.confirmedNewPassword && (
+                    <p className="text-sm text-red-500">
+                      Mật khẩu mới không khớp với xác nhận
+                    </p>
+                  )}
               </CardContent>
             </Card>
           </TabsContent>

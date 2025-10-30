@@ -6,7 +6,6 @@ import { Loader2, Minus, Plus, Trash2 } from "lucide-react";
 import Image from "next/image";
 import { formatCurrency } from "@/lib/utils/numbers/formatCurrency";
 import { CartItemResponse } from "@/lib/api/services/fetchCart";
-import { useDebounce } from "@/hooks/useDebounce";
 import {
   Dialog,
   DialogContent,
@@ -16,48 +15,51 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { useUpdateItem, useDeleteItem } from "@/hooks/useCart"; // 👈 Import hook trực tiếp
+import { useUpdateItem, useDeleteItem } from "@/hooks/useCart";
+import getAge from "@/lib/utils/dates/age";
+import { getFishSizeLabel } from "@/lib/utils/enum";
+import { useDebounce } from "@/hooks/useDebounce";
 
 interface CartItemProps {
   item: CartItemResponse;
 }
 
 export function CartItem({ item }: CartItemProps) {
-  const { mutate: updateItem, isPending: isUpdating } = useUpdateItem();
-  const { mutate: deleteItem, isPending: isDeleting } = useDeleteItem();
-
   const [localQuantity, setLocalQuantity] = useState(item.quantity);
-  const debouncedQuantity = useDebounce(localQuantity, 600);
+  const debouncedQuantity = useDebounce(localQuantity, 1000);
   const isInitialMount = useRef(true);
 
-  useEffect(() => {
-    setLocalQuantity(item.quantity);
-  }, [item.quantity]);
+  const handleUpdateErr = () => setLocalQuantity(item.quantity);
+
+  const { mutate: updateItem, isPending: isUpdating } =
+    useUpdateItem(handleUpdateErr);
+  const { mutate: deleteItem, isPending: isDeleting } = useDeleteItem();
 
   useEffect(() => {
     if (isInitialMount.current) {
       isInitialMount.current = false;
       return;
     }
-    if (debouncedQuantity !== item.quantity) {
-      if (debouncedQuantity <= 0) {
-        deleteItem(item.id);
-      } else {
-        updateItem({ id: item.id, item: { quantity: debouncedQuantity } });
-      }
+
+    if (debouncedQuantity <= 0) {
+      deleteItem(item.id);
+    } else {
+      updateItem({ id: item.id, item: { quantity: debouncedQuantity } });
     }
-  }, [debouncedQuantity, deleteItem, item, updateItem]);
+  }, [debouncedQuantity, deleteItem, item.id, updateItem]);
 
   const isMutating = isUpdating || isDeleting;
 
   return (
     <div
-      className={`flex gap-4 p-4 border rounded-lg transition-opacity ${isMutating ? "opacity-50 pointer-events-none" : ""}`}
+      className={`flex gap-4 p-4 border rounded-lg transition-opacity ${
+        isMutating ? "opacity-50 pointer-events-none" : ""
+      }`}
     >
       <div className="relative w-20 h-20 rounded-md overflow-hidden flex-shrink-0">
         <Image
-          src={item.koiFishImage || item.packetFishImage || ""}
-          alt={item.koiFishName || item.packetFishName || "Sản phẩm"}
+          src={item?.koiFish?.images[0] || item?.packetFish?.images[0] || ""}
+          alt={item?.koiFish?.rfid || item?.packetFish?.name || "Sản phẩm"}
           className="object-cover"
           fill
           sizes="80px"
@@ -65,10 +67,27 @@ export function CartItem({ item }: CartItemProps) {
       </div>
       <div className="flex-1 min-w-0">
         <h4 className="font-medium truncate">
-          {item.koiFishName || item.packetFishName}
+          {item?.koiFish?.rfid || item?.packetFish?.name}
         </h4>
-        <p className="font-semibold text-primary mt-1">
-          {formatCurrency(item.itemTotalPrice || 0)}
+        <p className="text-sm text-muted-foreground">
+          {item.koiFish?.variety?.varietyName ||
+            item.packetFish?.varietyPacketFishes
+              .map((variety) => variety?.varietyName)
+              .join(", ")}
+        </p>
+        {item.koiFish ? (
+          <p className="text-sm text-muted-foreground">
+            {getFishSizeLabel(item.koiFish?.size)} •{" "}
+            {getAge(item.koiFish?.birthDate)} tuổi
+          </p>
+        ) : (
+          <p className="text-sm text-muted-foreground">
+            {getFishSizeLabel(item.packetFish?.size)} •{" "}
+            {item.packetFish?.ageMonths} tuổi • {item?.packetFish?.quantity} con
+          </p>
+        )}
+        <p className="font-semibold text-primary">
+          {formatCurrency(item.itemTotalPrice)}
         </p>
       </div>
       <div className="flex flex-col items-end justify-between ml-2">
@@ -98,7 +117,7 @@ export function CartItem({ item }: CartItemProps) {
             <p>
               Bạn có chắc muốn xóa{" "}
               <span className="font-semibold text-destructive">
-                {item.koiFishName || item.packetFishName}
+                {item?.koiFish?.rfid || item?.packetFish?.name}
               </span>
               ?
             </p>
@@ -124,8 +143,8 @@ export function CartItem({ item }: CartItemProps) {
               variant="outline"
               size="icon"
               className="h-7 w-7 bg-transparent"
-              onClick={() => setLocalQuantity(Math.max(0, localQuantity - 1))}
-              disabled={isMutating}
+              onClick={() => setLocalQuantity((prev) => Math.max(0, prev - 1))}
+              disabled={isMutating || localQuantity <= 1}
             >
               <Minus className="h-4 w-4" />
             </Button>
@@ -140,7 +159,7 @@ export function CartItem({ item }: CartItemProps) {
               variant="outline"
               size="icon"
               className="h-7 w-7 bg-transparent"
-              onClick={() => setLocalQuantity(localQuantity + 1)}
+              onClick={() => setLocalQuantity((prev) => prev + 1)}
               disabled={isMutating}
             >
               <Plus className="h-4 w-4" />

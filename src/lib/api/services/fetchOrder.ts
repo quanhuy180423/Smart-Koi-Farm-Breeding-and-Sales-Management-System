@@ -30,7 +30,7 @@ export interface OrderRespponse {
   shippingFee: number;
   discountAmount: number;
   totalAmount: number;
-  promotionId?: number;
-  promotionName?: string;
+  promotionId: number;
+  promotionName: string;
   orderDetails: OrderDetailResponse[];
 }

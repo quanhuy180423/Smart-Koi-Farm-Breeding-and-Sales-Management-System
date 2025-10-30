@@ -1,5 +1,3 @@
-// src/components/cart/CartPageItem.tsx
-
 "use client";
 
 import { Button } from "@/components/ui/button";
@@ -18,22 +16,40 @@ import { CartItemResponse } from "@/lib/api/services/fetchCart";
 import { formatCurrency } from "@/lib/utils/numbers/formatCurrency";
 import { Loader2, Minus, Plus, Trash2 } from "lucide-react";
 import Image from "next/image";
+import { useState, useEffect, useRef } from "react";
+import { useDebounce } from "@/hooks/useDebounce";
 
 interface CartPageItemProps {
   item: CartItemResponse;
 }
 
 export function CartPageItem({ item }: CartPageItemProps) {
-  const { mutate: updateItem, isPending: isUpdating } = useUpdateItem();
-  const { mutate: deleteItem, isPending: isDeleting } = useDeleteItem();
+  const [localQuantity, setLocalQuantity] = useState(item.quantity);
+  const debouncedQuantity = useDebounce(localQuantity, 1000);
+  const isInitialMount = useRef(true);
 
-  const handleUpdateQuantity = (newQuantity: number) => {
-    updateItem({ id: item.id, item: { quantity: newQuantity } });
-  };
+  const handleUpdateErr = () => setLocalQuantity(item.quantity);
+
+  const { mutate: updateItem, isPending: isUpdating } =
+    useUpdateItem(handleUpdateErr);
+  const { mutate: deleteItem, isPending: isDeleting } = useDeleteItem();
 
   const handleConfirmRemove = () => {
     deleteItem(item.id);
   };
+
+  useEffect(() => {
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      return;
+    }
+
+    if (debouncedQuantity <= 0) {
+      deleteItem(item.id);
+    } else {
+      updateItem({ id: item.id, item: { quantity: debouncedQuantity } });
+    }
+  }, [debouncedQuantity, deleteItem, item.id, updateItem]);
 
   const isMutating = isUpdating || isDeleting;
 
@@ -46,9 +62,11 @@ export function CartPageItem({ item }: CartPageItemProps) {
           <div className="relative w-full h-48 sm:w-24 sm:h-24 md:w-40 md:h-40 rounded-lg overflow-hidden flex-shrink-0 border">
             <Image
               src={
-                item.koiFishImage || item.packetFishImage || "/placeholder.svg"
+                item?.koiFish?.images[0] ||
+                item?.packetFish?.images[0] ||
+                "/placeholder.svg"
               }
-              alt={item.koiFishName || item.packetFishName || ""}
+              alt={item?.koiFish?.rfid || item?.packetFish?.name || ""}
               className="object-cover"
               fill
               sizes="(max-width: 640px) 100vw, (max-width: 768px) 96px, 160px"
@@ -58,7 +76,7 @@ export function CartPageItem({ item }: CartPageItemProps) {
             <div className="flex justify-between items-start">
               <div className="flex-1 pr-2">
                 <h3 className="font-semibold text-lg sm:text-base md:text-lg line-clamp-2">
-                  {item.koiFishName || item.packetFishName || ""}
+                  {item?.koiFish?.rfid || item?.packetFish?.name || ""}
                 </h3>
               </div>
               <Dialog>
@@ -82,7 +100,7 @@ export function CartPageItem({ item }: CartPageItemProps) {
                   <p>
                     Bạn có chắc muốn xóa{" "}
                     <span className="font-semibold text-destructive">
-                      {item.koiFishName || item.packetFishName}
+                      {item?.koiFish?.rfid || item?.packetFish?.name}
                     </span>
                     ?
                   </p>
@@ -109,30 +127,28 @@ export function CartPageItem({ item }: CartPageItemProps) {
                     variant="outline"
                     size="icon"
                     className="h-8 w-8 bg-transparent"
-                    onClick={() => handleUpdateQuantity(item.quantity - 1)}
-                    disabled={isMutating || item.quantity <= 1}
+                    onClick={() =>
+                      setLocalQuantity((prev) => Math.max(0, prev - 1))
+                    }
+                    disabled={isMutating || localQuantity <= 1}
                   >
-                    {isUpdating ? (
-                      <Loader2 className="h-3 w-3 animate-spin" />
-                    ) : (
-                      <Minus className="h-3 w-3" />
-                    )}
+                    <Minus className="h-3 w-3" />
                   </Button>
                   <span className="w-12 text-center font-medium bg-muted px-2 py-1 rounded text-sm">
-                    {item.quantity}
+                    {isUpdating ? (
+                      <Loader2 className="h-3 w-3 mx-auto animate-spin" />
+                    ) : (
+                      localQuantity
+                    )}
                   </span>
                   <Button
                     variant="outline"
                     size="icon"
                     className="h-8 w-8 bg-transparent"
-                    onClick={() => handleUpdateQuantity(item.quantity + 1)}
+                    onClick={() => setLocalQuantity((prev) => prev + 1)}
                     disabled={isMutating}
                   >
-                    {isUpdating ? (
-                      <Loader2 className="h-3 w-3 animate-spin" />
-                    ) : (
-                      <Plus className="h-3 w-3" />
-                    )}
+                    <Plus className="h-3 w-3" />
                   </Button>
                 </div>
               ) : (

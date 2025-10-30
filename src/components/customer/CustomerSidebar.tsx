@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/sheet";
 import {
   User,
+  ShoppingCart,
   ShoppingBag,
   CreditCard,
   Menu,
@@ -37,6 +38,12 @@ const sidebarItems = [
     href: "/profile/orders" as const,
     icon: ShoppingBag,
     description: "Lịch sử mua hàng",
+  },
+  {
+    title: "Giỏ hàng",
+    href: "/profile/cart" as const,
+    icon: ShoppingCart,
+    description: "Xem giỏ hàng của bạn",
   },
   {
     title: "Giao dịch",

@@ -179,7 +179,7 @@ export default function CheckoutFailurePage() {
                 </Link>
               </Button>
               <Button asChild variant="outline" className="sm:w-48">
-                <Link href="/cart">
+                <Link href="/profile/cart">
                   <ShoppingCart className="mr-2 h-4 w-4" />
                   Quay lại giỏ hàng
                 </Link>

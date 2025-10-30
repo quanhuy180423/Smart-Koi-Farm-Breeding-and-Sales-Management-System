@@ -59,7 +59,7 @@ export interface UpdateItemPayload {
   item: Partial<CartItemUpdateRequest>;
 }
 
-export function useUpdateItem() {
+export function useUpdateItem(ononErrorCallback?: () => void) {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -75,6 +75,7 @@ export function useUpdateItem() {
       toast.error(
         error.error?.result || "Có lỗi xảy ra khi cập nhật thông tin",
       );
+      ononErrorCallback?.();
     },
   });
 }

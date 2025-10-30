@@ -13,12 +13,11 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { formatCurrency } from "@/lib/utils/numbers/formatCurrency";
-import { useRouter } from "next/navigation";
 import { useGetCart } from "@/hooks/useCart";
 import { CartPageItem } from "./CartPageItem";
+import CustomerLayout from "@/components/customer/CustomerLayout";
 
 export default function CartPage() {
-  const router = useRouter();
   const { data: cart, isLoading: isCartLoading } = useGetCart();
 
   // Loading state
@@ -74,13 +73,9 @@ export default function CartPage() {
 
   // Cart content
   return (
-    <div className="container mx-auto px-4 py-4 md:py-8">
+    <CustomerLayout>
       <div className="max-w-6xl mx-auto">
         <div className="flex items-center gap-3 md:gap-4 mb-6 md:mb-8">
-          <Button variant="ghost" size="sm" onClick={() => router.back()}>
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            <span className="hidden sm:inline">Quay lại</span>
-          </Button>
           <div>
             <h1 className="text-2xl md:text-3xl font-bold">Giỏ hàng</h1>
             <p className="text-sm md:text-base text-muted-foreground">
@@ -164,6 +159,6 @@ export default function CartPage() {
           </div>
         </div>
       </div>
-    </div>
+    </CustomerLayout>
   );
 }
