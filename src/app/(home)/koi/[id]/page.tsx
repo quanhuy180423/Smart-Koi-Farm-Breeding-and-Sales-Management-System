@@ -18,116 +18,56 @@ import {
   Heart,
   ShoppingCart,
   Share2,
-  Award,
   Shield,
   Fish,
   Calendar,
   Ruler,
   MapPin,
   User,
-  CheckCircle,
+  Loader2,
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
-import formatCurrency from "@/lib/utils/numbers";
-import { useCartStore } from "@/store/cart-store";
-
-// Mock data - in real app this would come from API
-const koiData = {
-  1: {
-    id: 1,
-    name: "Kohaku Premium",
-    variety: "Kohaku",
-    size: "35cm",
-    age: "2 năm",
-    price: 15000000,
-    origin: "Nhật Bản",
-    images: [
-      "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/attachments/gen-images/public/beautiful-japanese-koi-fish-swimming-in-clear-pond-1MrDrpINIJ33x6iP0z7Xz4hMlnVc50.jpg",
-      "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/attachments/gen-images/public/beautiful-red-and-white-kohaku-koi-fish-shXq5nIYD8xv7a5mdkJBQJJ0llXM2v.jpg",
-      "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/attachments/gen-images/public/beautiful-platinum-ogon-koi-fish-metallic-silver-bNZw5PNFEYXbZMPAY0Zxrvlscb335x.jpg",
-      "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/attachments/gen-images/public/beautiful-japanese-koi-fish-swimming-in-clear-pond-1MrDrpINIJ33x6iP0z7Xz4hMlnVc50.jpg",
-    ],
-    status: "Có sẵn",
-    description:
-      "Kohaku chất lượng cao với màu đỏ rực rỡ và trắng tinh khiết. Đây là một trong những con cá Koi đẹp nhất trong bộ sưu tập của chúng tôi, với pattern hoàn hảo và màu sắc sống động.",
-    gender: "Cái",
-    bloodline: "Sakai",
-    certificates: [
-      "Chứng nhận nguồn gốc",
-      "Kiểm tra sức khỏe",
-      "Chứng nhận chất lượng",
-    ],
-    rfidCode: "KOI-001-2024",
-    parentInfo: {
-      father: "Sakai Champion Male #45",
-      mother: "Premium Female Kohaku #23",
-    },
-    healthRecord: {
-      lastCheckup: "15/12/2024",
-      vaccinations: ["Vaccine A", "Vaccine B"],
-      healthStatus: "Tuyệt vời",
-    },
-    feedingGuide:
-      "Cho ăn 2-3 lần/ngày với thức ăn chất lượng cao. Tránh cho ăn quá nhiều trong thời tiết lạnh.",
-    careInstructions:
-      "Duy trì nhiệt độ nước 18-25°C, pH 7.0-8.0. Thay nước định kỳ 20-30% mỗi tuần.",
-    warranty: "Bảo hành 30 ngày đổi trả nếu có vấn đề về sức khỏe",
-  },
-  2: {
-    id: 2,
-    name: "Kohaku Premium",
-    variety: "Kohaku",
-    size: "35cm",
-    age: "2 năm",
-    price: 15000000,
-    origin: "Nhật Bản",
-    images: [
-      "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/attachments/gen-images/public/beautiful-japanese-koi-fish-swimming-in-clear-pond-1MrDrpINIJ33x6iP0z7Xz4hMlnVc50.jpg",
-      "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/attachments/gen-images/public/beautiful-red-and-white-kohaku-koi-fish-shXq5nIYD8xv7a5mdkJBQJJ0llXM2v.jpg",
-      "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/attachments/gen-images/public/beautiful-platinum-ogon-koi-fish-metallic-silver-bNZw5PNFEYXbZMPAY0Zxrvlscb335x.jpg",
-    ],
-    status: "Hết hàng",
-    description:
-      "Kohaku chất lượng cao với màu đỏ rực rỡ và trắng tinh khiết. Đây là một trong những con cá Koi đẹp nhất trong bộ sưu tập của chúng tôi, với pattern hoàn hảo và màu sắc sống động.",
-    gender: "Cái",
-    bloodline: "Sakai",
-    certificates: [
-      "Chứng nhận nguồn gốc",
-      "Kiểm tra sức khỏe",
-      "Chứng nhận chất lượng",
-    ],
-    rfidCode: "KOI-001-2024",
-    parentInfo: {
-      father: "Sakai Champion Male #45",
-      mother: "Premium Female Kohaku #23",
-    },
-    healthRecord: {
-      lastCheckup: "15/12/2024",
-      vaccinations: ["Vaccine A", "Vaccine B"],
-      healthStatus: "Tuyệt vời",
-    },
-    feedingGuide:
-      "Cho ăn 2-3 lần/ngày với thức ăn chất lượng cao. Tránh cho ăn quá nhiều trong thời tiết lạnh.",
-    careInstructions:
-      "Duy trì nhiệt độ nước 18-25°C, pH 7.0-8.0. Thay nước định kỳ 20-30% mỗi tuần.",
-    warranty: "Bảo hành 30 ngày đổi trả nếu có vấn đề về sức khỏe",
-  },
-};
+import { formatCurrency } from "@/lib/utils/numbers/formatCurrency";
+import { useGetKoiFishById } from "@/hooks/useKoiFish";
+import { useAddItemToCart } from "@/hooks/useCart";
+import getAge from "@/lib/utils/dates/age";
+import {
+  getSaleStatusLabel,
+  getGenderLabel,
+  getFishSizeLabel,
+  getHealthStatusLabel,
+} from "@/lib/utils/enum";
+import { DATE_FORMATS, formatDate } from "@/lib/utils/dates";
 
 export default function KoiDetailPage() {
   const params = useParams();
-  const koiId = params.id as string;
-  const koi = koiData[koiId as unknown as keyof typeof koiData];
+  const koiId = parseInt(params.id as string);
+
+  const { data: koi, isLoading, isError } = useGetKoiFishById(koiId);
+  const { mutate: addToCart, isPending: isAddPending } = useAddItemToCart();
   const [selectedImage, setSelectedImage] = useState(0);
   const [isFavorite, setIsFavorite] = useState(false);
-  const { addItem } = useCartStore();
 
-  if (!koi) {
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-primary" />
+          <p className="text-muted-foreground">Đang tải thông tin cá Koi...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (isError || !koi) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold mb-4">Không tìm thấy cá Koi</h1>
+          <p className="text-muted-foreground mb-6">
+            Cá Koi bạn tìm kiếm không tồn tại hoặc đã bị xóa.
+          </p>
           <Link href="/catalog">
             <Button>Quay lại danh mục</Button>
           </Link>
@@ -135,6 +75,8 @@ export default function KoiDetailPage() {
       </div>
     );
   }
+
+  const healthStatusLabel = getHealthStatusLabel(koi.healthStatus);
 
   return (
     <div className="min-h-screen bg-background">
@@ -145,7 +87,7 @@ export default function KoiDetailPage() {
             <div className="aspect-square rounded-lg overflow-hidden bg-muted">
               <Image
                 src={koi.images[selectedImage] || "/placeholder.svg"}
-                alt={koi.name}
+                alt={koi.rfid}
                 className="w-full h-full object-cover"
                 width={400}
                 height={400}
@@ -167,7 +109,7 @@ export default function KoiDetailPage() {
                   >
                     <Image
                       src={image || "/placeholder.svg"}
-                      alt={`${koi.name} ${index + 1}`}
+                      alt={`${koi.rfid} ${index + 1}`}
                       className="w-full h-full object-cover"
                       width={500}
                       height={500}
@@ -195,7 +137,7 @@ export default function KoiDetailPage() {
                       >
                         <Image
                           src={image || "/placeholder.svg"}
-                          alt={`${koi.name} ${index + 1}`}
+                          alt={`${koi.rfid} ${index + 1}`}
                           className="w-full h-full object-cover"
                           width={500}
                           height={500}
@@ -216,9 +158,11 @@ export default function KoiDetailPage() {
               <div className="flex items-start justify-between mb-4">
                 <div>
                   <h1 className="text-3xl font-bold text-balance">
-                    {koi.name}
+                    {koi.rfid}
                   </h1>
-                  <p className="text-lg text-muted-foreground">{koi.variety}</p>
+                  <p className="text-lg text-muted-foreground">
+                    {koi.variety?.varietyName}
+                  </p>
                 </div>
                 <div className="flex gap-2">
                   <Button
@@ -243,27 +187,24 @@ export default function KoiDetailPage() {
 
               <div className="flex items-center gap-2 mb-4">
                 <Badge
-                  variant={koi.status === "Có sẵn" ? "default" : "secondary"}
+                  variant={
+                    koi.saleStatus && koi.saleStatus !== "Sold"
+                      ? "default"
+                      : "secondary"
+                  }
                 >
-                  {koi.status}
+                  {getSaleStatusLabel(koi.saleStatus).label}
                 </Badge>
-                {koi.certificates.includes("Chứng nhận nguồn gốc") && (
-                  <Badge
-                    variant="outline"
-                    className="bg-green-50 text-green-700 border-green-200"
-                  >
-                    <CheckCircle className="h-3 w-3 mr-1" />
-                    Chứng nhận
-                  </Badge>
-                )}
               </div>
 
               <div className="text-3xl font-bold text-primary mb-6">
-                {formatCurrency(koi.price)}
+                {formatCurrency(koi.sellingPrice || 0)}
               </div>
 
               <p className="text-muted-foreground leading-relaxed mb-6">
-                {koi.description}
+                Đây là con cá Koi {koi.variety?.varietyName} chất lượng cao.
+                Thông tin chi tiết về sức khỏe, dòng máu và các chứng nhận xin
+                vui lòng xem các tab bên dưới.
               </p>
             </div>
 
@@ -279,19 +220,23 @@ export default function KoiDetailPage() {
                     <span className="text-sm text-muted-foreground">
                       Kích thước:
                     </span>
-                    <span className="font-medium">{koi.size}</span>
+                    <span className="font-medium">
+                      {getFishSizeLabel(koi.size)}
+                    </span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Calendar className="h-4 w-4 text-muted-foreground" />
                     <span className="text-sm text-muted-foreground">Tuổi:</span>
-                    <span className="font-medium">{koi.age}</span>
+                    <span className="font-medium">{getAge(koi.birthDate)}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <User className="h-4 w-4 text-muted-foreground" />
                     <span className="text-sm text-muted-foreground">
                       Giới tính:
                     </span>
-                    <span className="font-medium">{koi.gender}</span>
+                    <span className="font-medium">
+                      {getGenderLabel(koi.gender).label}
+                    </span>
                   </div>
                   <div className="flex items-center gap-2">
                     <MapPin className="h-4 w-4 text-muted-foreground" />
@@ -305,43 +250,34 @@ export default function KoiDetailPage() {
             </Card>
 
             {/* Action Buttons */}
-            <div className="flex gap-4">
-              <Button
-                size="lg"
-                className="flex-1 bg-gradient-to-r from-primary to-chart-3"
-                onClick={() =>
-                  addItem({
-                    id: koi.id.toString(),
-                    name: koi.name,
-                    variety: koi.variety,
-                    price: koi.price,
-                    size: koi.size,
-                    age: koi.age,
-                    image: koi.images[0],
-                  })
-                }
-                disabled={koi.status !== "Có sẵn"}
-              >
-                <ShoppingCart className="h-5 w-5 mr-2" />
-                {koi.status === "Có sẵn" ? "Thêm vào giỏ hàng" : "Hết hàng"}
-              </Button>
-              <Link href="/contact" className="flex-1">
-                <Button size="lg" variant="outline" className="w-full">
-                  Mua ngay
-                </Button>
-              </Link>
-            </div>
+            <Button
+              size="lg"
+              className="w-full bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-white"
+              disabled={isAddPending || koi.saleStatus === "Sold"}
+              onClick={() => addToCart({ koiFishId: koi.id, quantity: 1 })}
+            >
+              {isAddPending ? (
+                <>
+                  <Loader2 className="h-5 w-5 mr-2 animate-spin" />
+                  Đang thêm...
+                </>
+              ) : (
+                <>
+                  <ShoppingCart className="h-5 w-5 mr-2" />
+                  {koi.saleStatus === "Sold" ? "Hết hàng" : "Thêm vào giỏ hàng"}
+                </>
+              )}
+            </Button>
           </div>
         </div>
 
         {/* Detailed Information Tabs */}
         <div className="mt-12">
           <Tabs defaultValue="details" className="w-full">
-            <TabsList className="grid w-full grid-cols-4">
-              <TabsTrigger value="details">Chi tiết</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-3">
+              <TabsTrigger value="details">Thông tin chi tiết</TabsTrigger>
               <TabsTrigger value="health">Sức khỏe</TabsTrigger>
-              <TabsTrigger value="care">Chăm sóc</TabsTrigger>
-              <TabsTrigger value="certificates">Chứng nhận</TabsTrigger>
+              <TabsTrigger value="care">Hướng dẫn chăm sóc</TabsTrigger>
             </TabsList>
 
             <TabsContent value="details" className="mt-6">
@@ -350,7 +286,7 @@ export default function KoiDetailPage() {
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                       <Fish className="h-5 w-5" />
-                      Thông tin chi tiết
+                      Thông tin cá Koi
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
@@ -358,33 +294,68 @@ export default function KoiDetailPage() {
                       <span className="text-sm text-muted-foreground">
                         Mã RFID:
                       </span>
-                      <p className="font-mono font-medium">{koi.rfidCode}</p>
+                      <p className="font-mono font-medium">{koi.rfid}</p>
                     </div>
                     <div>
                       <span className="text-sm text-muted-foreground">
-                        Dòng máu:
+                        Giống loại:
                       </span>
-                      <p className="font-medium">{koi.bloodline}</p>
+                      <p className="font-medium">{koi.variety?.varietyName}</p>
+                    </div>
+                    <div>
+                      <span className="text-sm text-muted-foreground">
+                        Xuất xứ:
+                      </span>
+                      <p className="font-medium">{koi.origin}</p>
+                    </div>
+                    <div>
+                      <span className="text-sm text-muted-foreground">
+                        Trạng thái:
+                      </span>
+                      <Badge variant="outline" className="mt-1">
+                        {getSaleStatusLabel(koi.saleStatus).label}
+                      </Badge>
                     </div>
                   </CardContent>
                 </Card>
 
                 <Card>
                   <CardHeader>
-                    <CardTitle>Thông tin bố mẹ</CardTitle>
+                    <CardTitle className="flex items-center gap-2">
+                      <User className="h-5 w-5" />
+                      Thông tin cá nhân
+                    </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div>
                       <span className="text-sm text-muted-foreground">
-                        Cá bố:
+                        Giới tính:
                       </span>
-                      <p className="font-medium">{koi.parentInfo.father}</p>
+                      <p className="font-medium">
+                        {getGenderLabel(koi.gender).label}
+                      </p>
                     </div>
                     <div>
                       <span className="text-sm text-muted-foreground">
-                        Cá mẹ:
+                        Kích thước:
                       </span>
-                      <p className="font-medium">{koi.parentInfo.mother}</p>
+                      <p className="font-medium">
+                        {getFishSizeLabel(koi.size)}
+                      </p>
+                    </div>
+                    <div>
+                      <span className="text-sm text-muted-foreground">
+                        Tuổi:
+                      </span>
+                      <p className="font-medium">{getAge(koi.birthDate)}</p>
+                    </div>
+                    <div>
+                      <span className="text-sm text-muted-foreground">
+                        Ngày sinh:
+                      </span>
+                      <p className="font-medium">
+                        {formatDate(koi.birthDate, DATE_FORMATS.MEDIUM_DATE)}
+                      </p>
                     </div>
                   </CardContent>
                 </Card>
@@ -396,99 +367,56 @@ export default function KoiDetailPage() {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Shield className="h-5 w-5" />
-                    Hồ sơ sức khỏe
+                    Thông tin sức khỏe
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div>
-                    <span className="text-sm text-muted-foreground">
-                      Kiểm tra gần nhất:
-                    </span>
-                    <p className="font-medium">
-                      {koi.healthRecord.lastCheckup}
-                    </p>
-                  </div>
                   <div>
                     <span className="text-sm text-muted-foreground">
                       Tình trạng sức khỏe:
                     </span>
                     <Badge
                       variant="outline"
-                      className="ml-2 bg-green-50 text-green-700 border-green-200"
+                      className={`${healthStatusLabel.colorClass}`}
                     >
-                      {koi.healthRecord.healthStatus}
+                      {healthStatusLabel.label}
                     </Badge>
                   </div>
                   <div>
                     <span className="text-sm text-muted-foreground">
-                      Vaccine đã tiêm:
+                      Ghi chú:
                     </span>
-                    <div className="flex gap-2 mt-1">
-                      {koi.healthRecord.vaccinations.map((vaccine, index) => (
-                        <Badge key={index} variant="secondary">
-                          {vaccine}
-                        </Badge>
-                      ))}
-                    </div>
+                    <p className="font-medium mt-1">
+                      Thông tin sức khỏe chi tiết sẽ được cập nhật. Vui lòng
+                      liên hệ với chúng tôi để biết thêm thông tin.
+                    </p>
                   </div>
                 </CardContent>
               </Card>
             </TabsContent>
 
             <TabsContent value="care" className="mt-6">
-              <div className="space-y-6">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Hướng dẫn cho ăn</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="leading-relaxed">{koi.feedingGuide}</p>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Hướng dẫn chăm sóc</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="leading-relaxed">{koi.careInstructions}</p>
-                  </CardContent>
-                </Card>
-              </div>
-            </TabsContent>
-
-            <TabsContent value="certificates" className="mt-6">
               <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Award className="h-5 w-5" />
-                    Chứng nhận và bảo hành
-                  </CardTitle>
+                  <CardTitle>Hướng dẫn chăm sóc</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
+                <CardContent className="space-y-6">
                   <div>
-                    <span className="text-sm text-muted-foreground">
-                      Các chứng nhận:
-                    </span>
-                    <div className="flex flex-wrap gap-2 mt-2">
-                      {koi.certificates.map((cert, index) => (
-                        <Badge
-                          key={index}
-                          variant="outline"
-                          className="bg-blue-50 text-blue-700 border-blue-200"
-                        >
-                          <Award className="h-3 w-3 mr-1" />
-                          {cert}
-                        </Badge>
-                      ))}
-                    </div>
+                    <h4 className="font-semibold mb-2">Hướng dẫn cho ăn</h4>
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                      Cho ăn 2-3 lần/ngày với thức ăn chất lượng cao. Tránh cho
+                      ăn quá nhiều trong thời tiết lạnh. Lượng thức ăn nên bằng
+                      2-5% khối lượng cơ thể tùy theo mùa và nhiệt độ nước.
+                    </p>
                   </div>
                   <Separator />
                   <div>
-                    <span className="text-sm text-muted-foreground">
-                      Chính sách bảo hành:
-                    </span>
-                    <p className="mt-1 leading-relaxed">{koi.warranty}</p>
+                    <h4 className="font-semibold mb-2">Điều kiện nước</h4>
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                      Duy trì nhiệt độ nước 18-25°C, pH 7.0-8.0, độ cứng nước
+                      150-300 ppm. Thay nước định kỳ 20-30% mỗi tuần. Sử dụng bộ
+                      lọc chất lượng cao và cysclone để loại bỏ chất thải.
+                    </p>
                   </div>
                 </CardContent>
               </Card>

@@ -11,10 +11,8 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Dialog,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import { Dialog, DialogTrigger } from "@/components/ui/dialog";
+import { KoiFishResponse } from "@/lib/api/services/fetchKoiFish";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -33,12 +31,7 @@ import {
   Tag,
   Ruler,
   Calendar,
-  DollarSign,
-  TrendingUp,
-  Activity,
   Loader2,
-  CheckCircle,
-  AlertTriangle,
 } from "lucide-react";
 import { formatCurrency } from "@/lib/utils/numbers/formatCurrency";
 import { useGetKoiFishes } from "@/hooks/useKoiFish";
@@ -57,15 +50,7 @@ import {
 import { PaginationSection } from "@/components/common/PaginationSection";
 import Image from "next/image";
 import { AddFishDialog } from "./AddFishDialog";
-
-const mockFishStats = {
-  totalFish: 234,
-  availableFish: 198,
-  soldFish: 36,
-  lowStockFish: 12,
-  totalValue: 1245600000,
-  avgPrice: 5320000,
-};
+import { KoiFishDetailDialog } from "./KoiFishDetailDialog";
 
 const PAGE_SIZE_OPTIONS: number[] = [9, 12, 15, 18];
 
@@ -79,6 +64,7 @@ export default function FishForSalePage() {
     saleStatus: SaleStatus.AVAILABLE,
   });
   const [isAddFishDialogOpen, setIsAddFishDialogOpen] = useState(false);
+  const [selectedKoi, setSelectedKoi] = useState<KoiFishResponse | null>(null);
   const { data: koiData, isLoading } = useGetKoiFishes(searchParams);
 
   useEffect(() => {
@@ -130,88 +116,6 @@ export default function FishForSalePage() {
             <AddFishDialog onClose={() => setIsAddFishDialogOpen(false)} />
           </Dialog>
         </div>
-      </div>
-
-      {/* Stats Cards */}
-      <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-6">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">
-              Tổng số cá
-            </CardTitle>
-            <Fish className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-lg sm:text-2xl font-bold">
-              {mockFishStats.totalFish}
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">
-              Có sẵn
-            </CardTitle>
-            <CheckCircle className="h-4 w-4 text-green-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-lg sm:text-2xl font-bold text-green-600">
-              {mockFishStats.availableFish}
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">
-              Đã bán
-            </CardTitle>
-            <Activity className="h-4 w-4 text-blue-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-lg sm:text-2xl font-bold text-blue-600">
-              {mockFishStats.soldFish}
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">
-              Đã cọc
-            </CardTitle>
-            <AlertTriangle className="h-4 w-4 text-yellow-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-lg sm:text-2xl font-bold text-yellow-600">
-              {mockFishStats.lowStockFish}
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">
-              Giá trị kho
-            </CardTitle>
-            <DollarSign className="h-4 w-4 text-green-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-sm sm:text-lg font-bold text-green-600">
-              {formatCurrency(mockFishStats.totalValue)}
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">
-              Giá TB
-            </CardTitle>
-            <TrendingUp className="h-4 w-4 text-orange-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-sm sm:text-lg font-bold text-orange-600">
-              {formatCurrency(mockFishStats.avgPrice)}
-            </div>
-          </CardContent>
-        </Card>
       </div>
 
       {/* Search and List */}
@@ -300,7 +204,9 @@ export default function FishForSalePage() {
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
                               <DropdownMenuLabel>Hành động</DropdownMenuLabel>
-                              <DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={() => setSelectedKoi(koi)}
+                              >
                                 <Eye className="mr-2 h-4 w-4" /> Xem chi tiết
                               </DropdownMenuItem>
                               <DropdownMenuItem>
@@ -389,6 +295,19 @@ export default function FishForSalePage() {
           )}
         </CardContent>
       </Card>
+
+      {/* Detail Dialog */}
+      <Dialog
+        open={!!selectedKoi}
+        onOpenChange={(open) => !open && setSelectedKoi(null)}
+      >
+        {selectedKoi && (
+          <KoiFishDetailDialog
+            koi={selectedKoi}
+            onClose={() => setSelectedKoi(null)}
+          />
+        )}
+      </Dialog>
     </div>
   );
 }

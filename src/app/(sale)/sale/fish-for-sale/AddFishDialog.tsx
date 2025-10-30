@@ -6,6 +6,7 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
+  Dialog,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Loader2, Search } from "lucide-react";
@@ -21,6 +22,8 @@ import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
 import { PaginationSection } from "@/components/common/PaginationSection";
 import { getFishSizeLabel, getGenderLabel } from "@/lib/utils/enum";
+import { formatCurrency } from "@/lib/utils/numbers/formatCurrency";
+import { KoiFishDetailDialog } from "./KoiFishDetailDialog";
 
 const PAGE_SIZE_OPTIONS = [6, 12, 18];
 
@@ -42,6 +45,7 @@ export function AddFishDialog({ onClose }: AddFishDialogProps) {
   const { mutate: updateFish, isPending: isUpdating } = useUpdateKoiFish();
 
   const [updatingFishId, setUpdatingFishId] = useState<number | null>(null);
+  const [selectedKoi, setSelectedKoi] = useState<KoiFishResponse | null>(null);
 
   useEffect(() => {
     setSearchParams((prev) => ({
@@ -60,7 +64,6 @@ export function AddFishDialog({ onClose }: AddFishDialogProps) {
       rfid: koi.rfid,
       pondId: koi.pond.id,
       varietyId: koi.variety.id,
-      breedingProcessId: koi.breedingProcess?.id ?? 0, // Dùng ?? 0 nếu breedingProcess có thể null
       size: koi.size ?? "",
       type: koi.type,
       birthDate: koi.birthDate ?? "",
@@ -133,7 +136,7 @@ export function AddFishDialog({ onClose }: AddFishDialogProps) {
                 <Card
                   key={koi.id}
                   className="cursor-pointer hover:border-primary transition-colors relative"
-                  onClick={() => !isUpdating && handleSelectFish(koi)}
+                  onClick={() => setSelectedKoi(koi)}
                 >
                   {isThisFishUpdating && (
                     <div className="absolute inset-0 bg-white/70 flex items-center justify-center rounded-lg z-10">
@@ -157,6 +160,9 @@ export function AddFishDialog({ onClose }: AddFishDialogProps) {
                       <span>{getGenderLabel(koi.gender).label}</span>
                       <span>{getFishSizeLabel(koi.size)}</span>
                     </div>
+                    <p className="font-bold text-sm text-primary mt-2">
+                      {formatCurrency(koi.sellingPrice || 0)}
+                    </p>
                   </CardContent>
                 </Card>
               );
@@ -183,6 +189,25 @@ export function AddFishDialog({ onClose }: AddFishDialogProps) {
           />
         </div>
       )}
+
+      {/* Detail Dialog */}
+      <Dialog
+        open={!!selectedKoi}
+        onOpenChange={(open) => !open && setSelectedKoi(null)}
+      >
+        {selectedKoi && (
+          <KoiFishDetailDialog
+            koi={selectedKoi}
+            onClose={() => setSelectedKoi(null)}
+            onSelect={(koi) => {
+              setSelectedKoi(null);
+              setUpdatingFishId(koi.id);
+              handleSelectFish(koi);
+            }}
+            isSelectLoading={updatingFishId === selectedKoi.id && isUpdating}
+          />
+        )}
+      </Dialog>
     </DialogContent>
   );
 }

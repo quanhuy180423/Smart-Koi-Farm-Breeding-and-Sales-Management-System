@@ -91,7 +91,6 @@ export interface KoiFishFamilyResponse {
 export interface KoiFishUpdateRequest {
   pondId: number;
   varietyId: number;
-  breedingProcessId: number;
   rfid: string;
   size: string;
   type: string;

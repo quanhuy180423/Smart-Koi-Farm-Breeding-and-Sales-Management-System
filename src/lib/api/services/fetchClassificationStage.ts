@@ -26,6 +26,16 @@ export const classificationStageService = {
     >(`${baseUrl}/by-breeding/${breedId}`);
     return response.data;
   },
+
+  completeClassification: async (
+    breedingId: number,
+  ): Promise<BaseResponse<boolean>> => {
+    const response = await apiService.put<
+      BaseResponse<boolean>,
+      Record<string, never>
+    >(`${baseUrl}/complete/${breedingId}`, {});
+    return response.data;
+  },
 };
 
 export default classificationStageService;

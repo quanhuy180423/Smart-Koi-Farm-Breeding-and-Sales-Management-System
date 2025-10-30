@@ -1,33 +1,29 @@
-import { BaseResponse } from "@/lib/api/apiClient";
-import classificationStageService, {
-  ClassificationStageResponse,
-} from "@/lib/api/services/fetchClassificationStage";
-import { useAuthStore } from "@/store/auth-store";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import toast from "react-hot-toast";
+import { ApiError, BaseResponse } from "@/lib/api/apiClient";
+import { classificationStageService } from "@/lib/api/services/fetchClassificationStage";
 
-export function useGetClassificationStageByBreedingProcessId(
-  breedingId?: number,
-) {
-  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+export function useCompleteClassification() {
+  const queryClient = useQueryClient();
 
-  return useQuery({
-    queryKey: ["classification-stage", "breeding-process", breedingId],
-    queryFn: () =>
-      classificationStageService.getClassificationStageByBreedingId(breedingId),
-    enabled: isAuthenticated && breedingId !== undefined,
-    select: (
-      data: BaseResponse<ClassificationStageResponse>,
-    ): ClassificationStageResponse => data.result,
-    retry: (failureCount, error: unknown) => {
-      if (
-        error &&
-        typeof error === "object" &&
-        "status" in error &&
-        error.status === 401
-      ) {
-        return false;
+  return useMutation({
+    mutationFn: (breedingId: number) =>
+      classificationStageService.completeClassification(breedingId),
+    onSuccess: (data: BaseResponse<boolean>) => {
+      if (data.isSuccess) {
+        toast.success(data.message || "Hoàn thành phân loại thành công");
+        // Invalidate breeding processes query to refetch data
+        queryClient.invalidateQueries({ queryKey: ["breeding-processes"] });
+      } else {
+        toast.error(data.message || "Không thể hoàn thành phân loại");
       }
-      return failureCount < 2;
+    },
+    onError: (error: ApiError) => {
+      toast.error(
+        error.error?.result ||
+          error.message ||
+          "Có lỗi xảy ra khi hoàn thành phân loại",
+      );
     },
   });
 }
