@@ -460,18 +460,6 @@ export default function CheckoutPage() {
                           <span className="text-destructive">*</span>
                         </Label>
                       </div>
-                      <div className="flex items-center space-x-2">
-                        <Checkbox
-                          id="newsletter"
-                          checked={orderData.subscribeNewsletter}
-                          onCheckedChange={(checked) =>
-                            handleInputChange("subscribeNewsletter", checked)
-                          }
-                        />
-                        <Label htmlFor="newsletter" className="text-sm">
-                          Đăng ký nhận thông tin khuyến mãi
-                        </Label>
-                      </div>
                     </div>
 
                     <div className="flex justify-between items-center pt-6 border-t">

@@ -47,9 +47,12 @@ export function useAddItemToCart() {
       toast.success(data.message || "Thêm sản phẩm vào giỏ hàng thành công");
     },
     onError: (error: ApiError) => {
-      toast.error(
-        error.error?.result || "Có lỗi xảy ra khi cập nhật thông tin",
-      );
+      if (error.status === 401)
+        toast.error("Bạn cần đăng nhập để dùng tính năng này.");
+      else
+        toast.error(
+          error.error?.result || "Có lỗi xảy ra khi cập nhật thông tin",
+        );
     },
   });
 }

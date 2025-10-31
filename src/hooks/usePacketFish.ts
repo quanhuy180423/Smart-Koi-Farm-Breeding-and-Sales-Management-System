@@ -4,7 +4,6 @@ import packetFishService, {
   PacketFishSearchParams,
   CreatePacketFishRequest,
 } from "@/lib/api/services/fetchPacketFish";
-import { useAuthStore } from "@/store/auth-store";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ApiError } from "next/dist/server/api-utils";
 import toast from "react-hot-toast";
@@ -31,12 +30,10 @@ export function useGetPacketFishes(request: PacketFishSearchParams) {
 }
 
 export function useGetPacketFishById(id?: number) {
-  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
-
   return useQuery({
     queryKey: ["packet-fishes", id],
     queryFn: () => packetFishService.getPacketFishById(id),
-    enabled: isAuthenticated && id !== undefined && id !== 0,
+    enabled: id !== undefined && id !== 0,
     select: (data: BaseResponse<PacketFishResponse>): PacketFishResponse =>
       data.result,
     retry: (failureCount, error: unknown) => {

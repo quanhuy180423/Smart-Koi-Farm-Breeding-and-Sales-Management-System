@@ -252,7 +252,7 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
             <div className="relative cursor-pointer group">
               {selected ? (
                 <div className="relative">
-                  <div className="w-32 h-full rounded-full overflow-hidden border-4 border-white shadow-lg group-hover:scale-105 transition-transform duration-300">
+                  <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-white shadow-lg group-hover:scale-105 transition-transform duration-300">
                     <Image
                       src={selected.images[0]}
                       alt={selected.rfid}
