@@ -2,10 +2,10 @@
 
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { CartSheet } from "@/components/cart-sheet";
-import { Menu, X, User, LogOut, ChevronDown, Check } from "lucide-react";
+import { CartSheet } from "@/components/cart/cart-sheet";
+import { Menu, X, User, LogOut, ChevronDown } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 import logo from "@/assets/images/Logo_ZenKoi.png";
 import { Separator } from "./ui/separator";
@@ -20,13 +20,12 @@ import { useGetVarieties } from "@/hooks/useVariety";
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isCartOpen, setIsCartOpen] = useState(false);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
-  const searchParams = useSearchParams();
 
   const { isAuthenticated, user } = useAuthStore();
   const router = useRouter();
-  const currentVariety = searchParams.get("variety") || "";
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -117,9 +116,6 @@ export function Header() {
                     onClick={() => handleSelectVariety(null)}
                   >
                     Tất cả
-                    {!currentVariety && (
-                      <Check className="h-4 w-4 text-primary" />
-                    )}
                   </DropdownMenuItem>
                   {koiVarieties?.data.map((koi) => (
                     <DropdownMenuItem
@@ -127,14 +123,18 @@ export function Header() {
                       onClick={() => handleSelectVariety(koi.id)}
                     >
                       {koi.varietyName}
-                      {currentVariety === koi.id.toString() && (
-                        <Check className="h-4 w-4 text-primary" />
-                      )}
                     </DropdownMenuItem>
                   ))}
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
+            <Link
+              href="/packet-fish"
+              className="px-4 py-2 text-md font-medium text-foreground/80 hover:text-primary hover:bg-primary/5 rounded-lg transition-all duration-200 relative group"
+            >
+              <span className="relative z-10">Gói cá</span>
+              <div className="absolute inset-0 bg-primary/10 rounded-lg opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 transition-all duration-200"></div>
+            </Link>
             <Link
               href="/about"
               className="px-4 py-2 text-md font-medium text-foreground/80 hover:text-primary hover:bg-primary/5 rounded-lg transition-all duration-200 relative group"
@@ -155,7 +155,7 @@ export function Header() {
           <div className="flex items-center space-x-3">
             {/* Cart */}
             <div className="hidden sm:block">
-              <CartSheet />
+              <CartSheet isOpen={isCartOpen} onOpenChange={setIsCartOpen} />
             </div>
 
             {/* Auth actions - Desktop only */}
@@ -202,7 +202,7 @@ export function Header() {
 
             {/* Mobile Cart (visible on small screens) */}
             <div className="sm:hidden">
-              <CartSheet />
+              <CartSheet isOpen={isCartOpen} onOpenChange={setIsCartOpen} />
             </div>
 
             {/* Mobile Menu Button */}
@@ -243,6 +243,13 @@ export function Header() {
                   onClick={() => setIsMenuOpen(false)}
                 >
                   Danh mục
+                </Link>
+                <Link
+                  href="/packet-fish"
+                  className="px-4 py-3 text-sm font-medium text-foreground hover:text-primary hover:bg-primary/5 rounded-lg transition-all duration-200 flex items-center gap-3"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Gói cá
                 </Link>
                 <Link
                   href="/about"

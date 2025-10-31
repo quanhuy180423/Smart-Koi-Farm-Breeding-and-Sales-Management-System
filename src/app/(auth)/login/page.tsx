@@ -35,7 +35,7 @@ export default function SignInPage() {
   const [showPassword, setShowPassword] = useState(false);
   const { login, isLoading } = useLogin();
 
-  const { loginWithGoogle: googleLogin } = useGoogleLogin();
+  const { mutate: googleLogin } = useGoogleLogin();
 
   const {
     register,

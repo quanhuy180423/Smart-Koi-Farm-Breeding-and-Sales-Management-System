@@ -32,6 +32,7 @@ import {
   useCancelBreeding,
   useGetBreedingProcesses,
 } from "@/hooks/useBreedingProcess";
+import { useCompleteClassification } from "@/hooks/useClassificationStage";
 import {
   PAGE_SIZE_OPTIONS_DEFAULT,
   PaginationSection,
@@ -66,6 +67,11 @@ export default function BreedingManagement() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [breedingToDelete, setBreedingToDelete] =
     useState<BreedingProcessResponse>();
+
+  // Complete Classification
+  const [isCompleteModalOpen, setIsCompleteModalOpen] = useState(false);
+  const [breedingToComplete, setBreedingToComplete] =
+    useState<BreedingProcessResponse | null>(null);
 
   // Detail
   const [isDetailOpen, setIsDetailOpen] = useState(false);
@@ -121,6 +127,8 @@ export default function BreedingManagement() {
 
   const { data, isLoading } = useGetBreedingProcesses(searchParams);
   const { mutateAsync: cancelBreedingAsync } = useCancelBreeding();
+  const { mutate: completeClassification, isPending: isCompleting } =
+    useCompleteClassification();
   const breedingProcesses = data?.data || [];
   const totalItems = data?.totalItems || 0;
   const totalPages = data?.totalPages || 0;
@@ -236,6 +244,17 @@ export default function BreedingManagement() {
       setIsDeleteModalOpen(false);
       setBreedingToDelete(undefined);
     } catch {}
+  };
+
+  const handleCompleteClassification = () => {
+    if (!breedingToComplete?.id) return;
+
+    completeClassification(breedingToComplete.id, {
+      onSuccess: () => {
+        setIsCompleteModalOpen(false);
+        setBreedingToComplete(null);
+      },
+    });
   };
 
   const handleCreateBreeding = () => {
@@ -394,7 +413,7 @@ export default function BreedingManagement() {
                             );
                           })()}
                         </TableCell>
-                        <TableCell className="text-center grid grid-cols-2">
+                        <TableCell className="text-center grid grid-cols-3 gap-1">
                           <Button
                             size="sm"
                             variant="ghost"
@@ -407,23 +426,36 @@ export default function BreedingManagement() {
                             <Eye className="h-4 w-4" />
                           </Button>
 
-                          {process.status !== BreedingStatus.COMPLETE &&
-                          process.status !== BreedingStatus.FAILED ? (
+                          {process.status === BreedingStatus.CLASSIFICATION && (
                             <Button
                               size="sm"
                               variant="ghost"
-                              className="text-red-600"
-                              title="Hủy"
+                              className="text-green-600"
+                              title="Hoàn thành"
                               onClick={() => {
-                                setBreedingToDelete(process);
-                                setIsDeleteModalOpen(true);
+                                setBreedingToComplete(process);
+                                setIsCompleteModalOpen(true);
                               }}
                             >
-                              <Trash2 className="h-4 w-4" />
+                              ✓
                             </Button>
-                          ) : (
-                            <></>
                           )}
+
+                          {process.status !== BreedingStatus.COMPLETE &&
+                            process.status !== BreedingStatus.FAILED && (
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                className="text-red-600"
+                                title="Hủy"
+                                onClick={() => {
+                                  setBreedingToDelete(process);
+                                  setIsDeleteModalOpen(true);
+                                }}
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            )}
                         </TableCell>
                       </TableRow>
                     ))
@@ -676,7 +708,42 @@ export default function BreedingManagement() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-      {/* KẾT THÚC DIALOG BỘ LỌC */}
+
+      {/* Confirm Complete Classification Dialog */}
+      <Dialog open={isCompleteModalOpen} onOpenChange={setIsCompleteModalOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Xác nhận hoàn thành phân loại</DialogTitle>
+            <DialogDescription>
+              Đánh dấu đợt lai này đã hoàn thành giai đoạn phân loại.
+            </DialogDescription>
+          </DialogHeader>
+          <p>
+            Bạn có chắc chắn muốn hoàn thành phân loại cho đợt lai{" "}
+            <span className="font-semibold text-green-600">
+              {breedingToComplete?.maleKoiRFID} -{" "}
+              {breedingToComplete?.femaleKoiRFID}
+            </span>
+            ?
+          </p>
+          <div className="flex justify-end gap-3 pt-4 border-t">
+            <Button
+              variant="outline"
+              onClick={() => setIsCompleteModalOpen(false)}
+              disabled={isCompleting}
+            >
+              Hủy
+            </Button>
+            <Button
+              className="bg-green-600 hover:bg-green-700"
+              onClick={handleCompleteClassification}
+              disabled={isCompleting}
+            >
+              {isCompleting ? "Đang xử lý..." : "Hoàn thành"}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Confirm Delete Dialog */}
       <Dialog open={isDeleteModalOpen} onOpenChange={setIsDeleteModalOpen}>

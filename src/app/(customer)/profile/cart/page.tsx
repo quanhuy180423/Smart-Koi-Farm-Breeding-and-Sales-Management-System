@@ -1,0 +1,164 @@
+"use client";
+
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import {
+  ShoppingCart,
+  ArrowLeft,
+  Shield,
+  Truck,
+  Clock,
+  Loader2,
+} from "lucide-react";
+import Link from "next/link";
+import { formatCurrency } from "@/lib/utils/numbers/formatCurrency";
+import { useGetCart } from "@/hooks/useCart";
+import { CartPageItem } from "./CartPageItem";
+import CustomerLayout from "@/components/customer/CustomerLayout";
+
+export default function CartPage() {
+  const { data: cart, isLoading: isCartLoading } = useGetCart();
+
+  // Loading state
+  if (isCartLoading) {
+    return (
+      <div className="container mx-auto px-4 py-6 md:py-8 flex items-center justify-center min-h-[60vh]">
+        <Loader2 className="w-8 h-8 mr-2 animate-spin text-muted-foreground" />
+        <p className="text-muted-foreground">Đang tải giỏ hàng...</p>
+      </div>
+    );
+  }
+
+  // Empty cart state
+  if (!cart || cart.cartItems.length === 0) {
+    return (
+      <div className="container mx-auto px-4 py-6 md:py-8">
+        <div className="max-w-2xl mx-auto text-center">
+          <div className="bg-muted/50 rounded-full w-24 h-24 md:w-32 md:h-32 flex items-center justify-center mx-auto mb-4 md:mb-6">
+            <ShoppingCart className="h-12 w-12 md:h-16 md:w-16 text-muted-foreground" />
+          </div>
+          <h1 className="text-2xl md:text-3xl font-bold mb-3 md:mb-4">
+            Giỏ hàng trống
+          </h1>
+          <p className="text-muted-foreground mb-6 md:mb-8 text-base md:text-lg px-4">
+            Bạn chưa có sản phẩm nào trong giỏ hàng. Hãy khám phá bộ sưu tập cá
+            Koi tuyệt đẹp của chúng tôi.
+          </p>
+          <div className="space-y-3 md:space-y-4 px-4">
+            <Button asChild size="lg" className="w-full md:w-auto md:px-8">
+              <Link href="/catalog">
+                <ShoppingCart className="mr-2 h-5 w-5" />
+                Xem danh mục cá Koi
+              </Link>
+            </Button>
+            <div>
+              <Button
+                asChild
+                variant="outline"
+                size="lg"
+                className="w-full md:w-auto md:px-11"
+              >
+                <Link href="/">
+                  <ArrowLeft className="mr-2 h-4 w-4" />
+                  Về trang chủ
+                </Link>
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Cart content
+  return (
+    <CustomerLayout>
+      <div className="max-w-6xl mx-auto">
+        <div className="flex items-center gap-3 md:gap-4 mb-6 md:mb-8">
+          <div>
+            <h1 className="text-2xl md:text-3xl font-bold">Giỏ hàng</h1>
+            <p className="text-sm md:text-base text-muted-foreground">
+              {cart.cartItems.length || 0} sản phẩm
+            </p>
+          </div>
+        </div>
+
+        <div className="grid lg:grid-cols-3 gap-4 md:gap-8">
+          <div className="lg:col-span-2 space-y-3 md:space-y-4">
+            {cart.cartItems.map((item) => (
+              <CartPageItem key={item.id} item={item} />
+            ))}
+          </div>
+
+          <div className="lg:col-span-1 mt-6 lg:mt-0">
+            <Card className="lg:sticky lg:top-4">
+              <CardHeader className="pb-3 md:pb-4">
+                <CardTitle className="text-lg md:text-xl">
+                  Tóm tắt đơn hàng
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4 md:space-y-5">
+                <div className="space-y-2 md:space-y-3">
+                  <div className="flex justify-between text-sm md:text-base">
+                    <span>
+                      Tạm tính ({cart.cartItems.length || 0} sản phẩm)
+                    </span>
+                    <span className="font-medium">
+                      {formatCurrency(cart.totalPrice || 0)}
+                    </span>
+                  </div>
+                  <div className="flex justify-between text-sm md:text-base">
+                    <span>Phí vận chuyển</span>
+                    <span className="text-green-600 font-medium">Miễn phí</span>
+                  </div>
+                  <Separator />
+                  <div className="flex justify-between font-bold text-lg md:text-xl">
+                    <span>Tổng cộng</span>
+                    <span className="text-primary">
+                      {formatCurrency(cart.totalPrice || 0)}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <Button
+                    asChild
+                    className="w-full"
+                    size="lg"
+                    disabled={cart.cartItems.length === 0}
+                  >
+                    <Link href="/checkout">Tiến hành thanh toán</Link>
+                  </Button>
+                  <Button
+                    asChild
+                    variant="outline"
+                    className="w-full bg-transparent"
+                    size="lg"
+                  >
+                    <Link href="/catalog">Tiếp tục mua sắm</Link>
+                  </Button>
+                </div>
+
+                <div className="text-xs md:text-sm text-muted-foreground space-y-2 pt-2 border-t">
+                  <div className="flex items-center gap-2">
+                    <Truck className="h-4 w-4 text-green-600 flex-shrink-0" />
+                    <span>Miễn phí vận chuyển toàn quốc</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Shield className="h-4 w-4 text-blue-600 flex-shrink-0" />
+                    <span>Bảo hành sức khỏe cá 30 ngày</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Clock className="h-4 w-4 text-purple-600 flex-shrink-0" />
+                    <span>Hỗ trợ kỹ thuật 24/7</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </div>
+    </CustomerLayout>
+  );
+}

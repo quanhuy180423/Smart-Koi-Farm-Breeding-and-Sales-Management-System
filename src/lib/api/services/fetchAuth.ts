@@ -60,6 +60,12 @@ export interface RenewTokenRequest {
   refreshToken: string;
 }
 
+export interface ChangePasswordRequest {
+  oldPassword: string;
+  newPassword: string;
+  confirmedNewPassword: string;
+}
+
 const baseUrl = "/api/Accounts";
 
 export const fetchAuth = {
@@ -141,6 +147,19 @@ export const fetchAuth = {
         BaseResponse<LoginResponse>,
         RenewTokenRequest
       >(`${baseUrl}/renew-token`, data);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+  changePassword: async (
+    data: ChangePasswordRequest,
+  ): Promise<BaseResponse<LoginResponse>> => {
+    try {
+      const response = await apiService.post<
+        BaseResponse<LoginResponse>,
+        ChangePasswordRequest
+      >(`${baseUrl}/change-password`, data);
       return response.data;
     } catch (error) {
       throw error;

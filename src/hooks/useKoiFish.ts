@@ -3,9 +3,17 @@ import koiFishService, {
   KoiFishFamilyResponse,
   KoiFishResponse,
   KoiFishSearchParams,
+  KoiFishUpdateRequest,
 } from "@/lib/api/services/fetchKoiFish";
 import { useAuthStore } from "@/store/auth-store";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { ApiError } from "next/dist/server/api-utils";
+import toast from "react-hot-toast";
+
+export interface KoiFishUpdatePayloads {
+  request: Partial<KoiFishUpdateRequest>;
+  id: number;
+}
 
 export function useGetKoiFishes(request: KoiFishSearchParams) {
   return useQuery({
@@ -69,6 +77,24 @@ export function useGetKoiFishById(id?: number) {
         return false;
       }
       return failureCount < 2;
+    },
+  });
+}
+
+export function useUpdateKoiFish() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (payload: KoiFishUpdatePayloads) =>
+      koiFishService.updateKoiFish(payload.id, payload.request),
+    onSuccess: (data: BaseResponse<string>) => {
+      if (data.isSuccess) {
+        queryClient.invalidateQueries({ queryKey: ["koi-fishes"] });
+      }
+      toast.success(data.message || "Chỉnh sửa cá Koi thành công");
+    },
+    onError: (error: ApiError) => {
+      toast.error(error.message || "Có lỗi xảy ra khi cập nhật thông tin");
     },
   });
 }

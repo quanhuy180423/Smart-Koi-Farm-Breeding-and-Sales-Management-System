@@ -31,7 +31,8 @@ export default function RenewPasswordPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
 
-  const { resetPasswordAsync, isLoading } = useResetPassword();
+  const { mutateAsync: resetPasswordAsync, isPending: isLoading } =
+    useResetPassword();
 
   useEffect(() => {
     if (!token || !emailFromQuery) {

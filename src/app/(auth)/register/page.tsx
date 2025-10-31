@@ -54,7 +54,7 @@ export default function SignUpPage() {
   const router = useRouter() as unknown as {
     push: (to: string | { pathname: string }) => void;
   };
-  const { loginWithGoogle: googleLogin } = useGoogleLogin();
+  const { mutate: googleLogin } = useGoogleLogin();
 
   useEffect(() => {
     if (registerSuccess) {
