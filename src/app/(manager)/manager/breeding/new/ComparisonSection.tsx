@@ -103,62 +103,63 @@ export default function ComparisonSection({
 
   const geneticData = analysisData
     ? [
-        {
-          label: "Tỷ lệ cận huyết:",
-          value: `${analysisData.percentInbreeding}%`,
-          color: getRiskLevel(analysisData.percentInbreeding).textColor,
-        },
-        {
-          label: "Tương hợp hình dáng cơ thể:",
-          value: `${analysisData.bodyShapeCompatibility}%`,
-          color: getCompatibilityLevel(analysisData.bodyShapeCompatibility)
-            .color,
-        },
-        {
-          label: "Tương hợp hoa văn:",
-          value: `${analysisData.patternMatchScore}%`,
-          color: getPatternLevel(analysisData.patternMatchScore).color,
-        },
-      ]
+      {
+        label: "Tỷ lệ cận huyết:",
+        value: `${analysisData.percentInbreeding}%`,
+        color: getRiskLevel(analysisData.percentInbreeding).textColor,
+      },
+      {
+        label: "Tương hợp hình dáng cơ thể:",
+        value: `${analysisData.bodyShapeCompatibility}%`,
+        color: getCompatibilityLevel(analysisData.bodyShapeCompatibility)
+          .color,
+      },
+      {
+        label: "Tương hợp hoa văn:",
+        value: `${analysisData.patternMatchScore}%`,
+        color: getPatternLevel(analysisData.patternMatchScore).color,
+      },
+    ]
     : [];
 
   const qualityData = analysisData
     ? [
-        {
-          label: "Tỷ lệ thụ tinh dự kiến:",
-          value: `${analysisData.predictedFertilizationRate.toFixed(1)}%`,
-          color: "text-blue-600",
-        },
-        {
-          label: "Tỷ lệ nở dự kiến:",
-          value: `${analysisData.predictedHatchRate.toFixed(1)}%`,
-          color: "text-blue-600",
-        },
-        {
-          label: "Tỷ lệ sống sót dự kiến:",
-          value: `${analysisData.predictedSurvivalRate.toFixed(1)}%`,
-          color: "text-blue-600",
-        },
-      ]
+      {
+        label: "Tỷ lệ thụ tinh dự kiến:",
+        value: `${analysisData.predictedFertilizationRate.toFixed(1)}%`,
+        color: "text-blue-600",
+      },
+      {
+        label: "Tỷ lệ nở dự kiến:",
+        value: `${analysisData.predictedHatchRate.toFixed(1)}%`,
+        color: "text-blue-600",
+      },
+      {
+        label: "Tỷ lệ sống sót dự kiến:",
+        value: `${analysisData.predictedSurvivalRate.toFixed(1)}%`,
+        color: "text-blue-600",
+      },
+    ]
     : [];
 
   const riskAssessmentList = analysisData
     ? [
-        {
-          message: `Nguy cơ cận huyết ${analysisData.percentInbreeding > 0 ? "ở mức " + analysisData.percentInbreeding.toFixed(1) + "%" : "rất thấp"}. ${analysisData.percentInbreeding < 2 ? "An toàn cho phối giống." : "Cần xem xét."}`,
-          ...getRiskLevel(analysisData.percentInbreeding),
-        },
-        {
-          message: `Tương hợp hình dáng cơ thể ở mức ${analysisData.bodyShapeCompatibility}%. ${getCompatibilityLevel(analysisData.bodyShapeCompatibility).label}`,
-          ...getRiskLevel(
-            analysisData.bodyShapeCompatibility < 50
-              ? 5
-              : analysisData.bodyShapeCompatibility < 70
-                ? 3
-                : 1,
-          ),
-        },
-      ]
+      {
+        message: `Nguy cơ cận huyết ${analysisData.percentInbreeding > 0 ? "ở mức " + analysisData.percentInbreeding.toFixed(1) + "%" : "rất thấp"}. ${analysisData.percentInbreeding < 2 ? "An toàn cho phối giống." : "Cần xem xét."}`,
+        percent: analysisData.percentInbreeding,
+        ...getRiskLevel(analysisData.percentInbreeding),
+      },
+      {
+        message: `Tương hợp hình dáng cơ thể đạt ${analysisData.bodyShapeCompatibility}%. ${getCompatibilityLevel(analysisData.bodyShapeCompatibility).label}.`,
+        percent: analysisData.bodyShapeCompatibility,
+        ...(() => {
+          const score = analysisData.bodyShapeCompatibility;
+          if (score >= 70) return getRiskLevel(1);
+          if (score >= 50) return getRiskLevel(3);
+          return getRiskLevel(5);
+        })(),
+      },
+    ]
     : [];
 
   if (isPending) {
@@ -439,13 +440,12 @@ export default function ComparisonSection({
               <CardContent className="px-5">
                 <div className="flex items-start gap-4">
                   <div
-                    className={`rounded-full w-10 h-10 flex items-center justify-center text-lg font-bold flex-shrink-0 ${
-                      assessment.bgColor.includes("green")
-                        ? "bg-green-200 text-green-800 shadow-green-100 shadow-md"
-                        : assessment.bgColor.includes("yellow")
-                          ? "bg-yellow-200 text-yellow-800 shadow-yellow-100 shadow-md"
-                          : "bg-red-200 text-red-800 shadow-red-100 shadow-md"
-                    }`}
+                    className={`rounded-full w-10 h-10 flex items-center justify-center text-lg font-bold flex-shrink-0 ${assessment.bgColor.includes("green")
+                      ? "bg-green-200 text-green-800 shadow-green-100 shadow-md"
+                      : assessment.bgColor.includes("yellow")
+                        ? "bg-yellow-200 text-yellow-800 shadow-yellow-100 shadow-md"
+                        : "bg-red-200 text-red-800 shadow-red-100 shadow-md"
+                      }`}
                   >
                     {assessment.bgColor.includes("green")
                       ? "✓"
@@ -461,32 +461,32 @@ export default function ComparisonSection({
                     </div>
                     <div className="flex items-center gap-2">
                       <div
-                        className={`h-1.5 rounded-full flex-1 ${
-                          assessment.bgColor.includes("green")
-                            ? "bg-green-100"
-                            : assessment.bgColor.includes("yellow")
-                              ? "bg-yellow-100"
-                              : "bg-red-100"
-                        }`}
+                        className={`h-1.5 rounded-full flex-1 ${assessment.bgColor.includes("green")
+                          ? "bg-green-100"
+                          : assessment.bgColor.includes("yellow")
+                            ? "bg-yellow-100"
+                            : "bg-red-100"
+                          }`}
                       >
                         <div
-                          className={`h-1.5 rounded-full transition-all duration-500 ${
-                            assessment.bgColor.includes("green")
-                              ? "bg-green-500 w-3/4"
+                          className="h-1.5 rounded-full transition-all duration-500"
+                          style={{
+                            width: `${Math.min(assessment.percent ?? 0, 100)}%`,
+                            backgroundColor: assessment.bgColor.includes("green")
+                              ? "#22c55e"
                               : assessment.bgColor.includes("yellow")
-                                ? "bg-yellow-500 w-1/2"
-                                : "bg-red-500 w-1/4"
-                          }`}
+                                ? "#eab308"
+                                : "#ef4444",
+                          }}
                         ></div>
                       </div>
                       <span
-                        className={`text-xs font-bold ${
-                          assessment.bgColor.includes("green")
-                            ? "text-green-700"
-                            : assessment.bgColor.includes("yellow")
-                              ? "text-yellow-700"
-                              : "text-red-700"
-                        }`}
+                        className={`text-xs font-bold ${assessment.bgColor.includes("green")
+                          ? "text-green-700"
+                          : assessment.bgColor.includes("yellow")
+                            ? "text-yellow-700"
+                            : "text-red-700"
+                          }`}
                       >
                         {assessment.label}
                       </span>
