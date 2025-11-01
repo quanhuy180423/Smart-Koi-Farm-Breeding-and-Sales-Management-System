@@ -147,6 +147,31 @@ export interface BreeedingRecommendResponse {
   recommendedPairs: RecommendedPair[];
 }
 
+export interface AnalyzePairRequest {
+  maleId: number;
+  femaleId: number;
+}
+
+export interface BreedingInfo {
+  sumary: string;
+  breedingSuccessRate: number;
+}
+
+export interface AnalyzePairResponse {
+  maleId: number;
+  femaleId: number;
+  predictedFertilizationRate: number;
+  predictedHatchRate: number;
+  predictedSurvivalRate: number;
+  predictedHighQualifiedRate: number;
+  patternMatchScore: number;
+  bodyShapeCompatibility: number;
+  percentInbreeding: number;
+  summary: string;
+  maleBreeingInfo?: BreedingInfo;
+  femaleBreedingInfo?: BreedingInfo;
+}
+
 export const breedingProcessService = {
   getBreedingProcesses: async (
     request: BreedingProcessSearchParams,
@@ -195,6 +220,15 @@ export const breedingProcessService = {
     const response = await apiService.get<BaseResponse<BreedingDetailResponse>>(
       `${baseUrl}/detail/${id}`,
     );
+    return response.data;
+  },
+  analyzePair: async (
+    request: AnalyzePairRequest,
+  ): Promise<BaseResponse<AnalyzePairResponse>> => {
+    const response = await apiService.post<
+      BaseResponse<AnalyzePairResponse>,
+      AnalyzePairRequest
+    >(`${baseUrl}/analyze-pair`, request);
     return response.data;
   },
 };
