@@ -441,21 +441,20 @@ export default function BreedingManagement() {
                             </Button>
                           )}
 
-                          {process.status !== BreedingStatus.COMPLETE &&
-                            process.status !== BreedingStatus.FAILED && (
-                              <Button
-                                size="sm"
-                                variant="ghost"
-                                className="text-red-600"
-                                title="Hủy"
-                                onClick={() => {
-                                  setBreedingToDelete(process);
-                                  setIsDeleteModalOpen(true);
-                                }}
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            )}
+                          {process.status === BreedingStatus.PAIRING && (
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="text-red-600"
+                              title="Hủy"
+                              onClick={() => {
+                                setBreedingToDelete(process);
+                                setIsDeleteModalOpen(true);
+                              }}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          )}
                         </TableCell>
                       </TableRow>
                     ))

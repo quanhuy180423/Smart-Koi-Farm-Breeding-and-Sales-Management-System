@@ -6,6 +6,7 @@ import breedingProcessService, {
   BreedingProcessResponse,
   BreedingProcessSearchParams,
   BreeedingRecommendRequest,
+  AnalyzePairRequest,
 } from "@/lib/api/services/fetchBreedingProcess";
 import { useAuthStore } from "@/store/auth-store";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -131,6 +132,16 @@ export function useGetBreedingRecommend() {
       breedingProcessService.getRecommends(request),
     onError: (error: ApiError) => {
       toast.error(error.error?.result || "Có lỗi xảy ra khi lấy thông tin");
+    },
+  });
+}
+
+export function useAnalyzePair() {
+  return useMutation({
+    mutationFn: (request: AnalyzePairRequest) =>
+      breedingProcessService.analyzePair(request),
+    onError: (error: ApiError) => {
+      toast.error(error.error?.result || "Có lỗi xảy ra khi phân tích cặp cá");
     },
   });
 }
