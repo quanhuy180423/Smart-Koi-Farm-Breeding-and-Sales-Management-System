@@ -31,6 +31,7 @@ import { RecommendedPair } from "@/lib/api/services/fetchBreedingProcess";
 import { useGetBreedingRecommend } from "@/hooks/useBreedingProcess";
 import * as z from "zod";
 import { getFishSizeLabel } from "@/lib/utils/enum";
+import { FishDetailDialog } from "./FishDetailDialog";
 
 const recommendSchema = z.object({
   targetVariety: z.string().min(1, { message: "Giống mong muốn là bắt buộc." }),
@@ -189,6 +190,14 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
   const [isFatherDialogOpen, setIsFatherDialogOpen] = useState(false);
   const [isMotherDialogOpen, setIsMotherDialogOpen] = useState(false);
 
+  // Detail dialog states for father and mother
+  const [fatherDetailKoi, setFatherDetailKoi] =
+    useState<KoiFishResponse | null>(null);
+  const [isFatherDetailOpen, setIsFatherDetailOpen] = useState(false);
+  const [motherDetailKoi, setMotherDetailKoi] =
+    useState<KoiFishResponse | null>(null);
+  const [isMotherDetailOpen, setIsMotherDetailOpen] = useState(false);
+
   const handleNumericInput = (e: React.FormEvent<HTMLInputElement>) => {
     const target = e.currentTarget;
     const value = target.value;
@@ -223,7 +232,6 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
   const CircularSelector = ({
     type,
     selected,
-    onSelect,
     availableKoi,
     isOpen,
     setIsOpen,
@@ -232,10 +240,10 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
     isLoading = false,
     hasNextPage = false,
     hasPreviousPage = false,
+    onOpenDetail,
   }: {
     type: "father" | "mother";
     selected: KoiFishResponse | null;
-    onSelect: (koi: KoiFishResponse) => void;
     availableKoi: KoiFishResponse[];
     isOpen: boolean;
     setIsOpen: (open: boolean) => void;
@@ -244,6 +252,7 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
     isLoading?: boolean;
     hasNextPage?: boolean;
     hasPreviousPage?: boolean;
+    onOpenDetail: (fish: KoiFishResponse) => void;
   }) => {
     return (
       <div className="flex flex-col items-center">
@@ -304,10 +313,7 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
                     <Card
                       key={fish.id}
                       className="cursor-pointer hover:shadow-lg transition-all duration-300 hover:scale-105 pt-0 pb-2 gap-3"
-                      onClick={() => {
-                        onSelect(fish);
-                        setIsOpen(false);
-                      }}
+                      onClick={() => onOpenDetail(fish)}
                     >
                       <div className="relative overflow-hidden rounded-t-lg">
                         <Image
@@ -424,7 +430,6 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
             <CircularSelector
               type="father"
               selected={selectedFather || null}
-              onSelect={(koi) => setSelectedFatherId(koi.id)}
               availableKoi={fatherKoiResponse?.data || []}
               isOpen={isFatherDialogOpen}
               setIsOpen={setIsFatherDialogOpen}
@@ -433,6 +438,10 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
               isLoading={isFatherLoading}
               hasNextPage={fatherKoiResponse?.hasNextPage}
               hasPreviousPage={fatherKoiResponse?.hasPreviousPage}
+              onOpenDetail={(fish) => {
+                setFatherDetailKoi(fish);
+                setIsFatherDetailOpen(true);
+              }}
             />
             <div className="flex flex-col items-center">
               <div
@@ -448,7 +457,6 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
             <CircularSelector
               type="mother"
               selected={selectedMother || null}
-              onSelect={(koi) => setSelectedMotherId(koi.id)}
               availableKoi={motherKoiResponse?.data || []}
               isOpen={isMotherDialogOpen}
               setIsOpen={setIsMotherDialogOpen}
@@ -457,6 +465,10 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
               isLoading={isMotherLoading}
               hasNextPage={motherKoiResponse?.hasNextPage}
               hasPreviousPage={motherKoiResponse?.hasPreviousPage}
+              onOpenDetail={(fish) => {
+                setMotherDetailKoi(fish);
+                setIsMotherDetailOpen(true);
+              }}
             />
           </div>
 
@@ -699,6 +711,26 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
           )}
         </TabsContent>
       </Tabs>
+
+      {/* Father Detail Dialog */}
+      <FishDetailDialog
+        isOpen={isFatherDetailOpen}
+        onOpenChange={setIsFatherDetailOpen}
+        selectedFish={fatherDetailKoi}
+        type="father"
+        onSelect={(fish) => setSelectedFatherId(fish.id)}
+        onListClose={() => setIsFatherDialogOpen(false)}
+      />
+
+      {/* Mother Detail Dialog */}
+      <FishDetailDialog
+        isOpen={isMotherDetailOpen}
+        onOpenChange={setIsMotherDetailOpen}
+        selectedFish={motherDetailKoi}
+        type="mother"
+        onSelect={(fish) => setSelectedMotherId(fish.id)}
+        onListClose={() => setIsMotherDialogOpen(false)}
+      />
     </section>
   );
 }
