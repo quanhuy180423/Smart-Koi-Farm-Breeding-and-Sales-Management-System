@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import {
   Card,
   CardContent,
@@ -11,7 +12,17 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Search, Trash2, Eye, Loader2, Filter, Network } from "lucide-react";
+import {
+  Search,
+  Trash2,
+  Eye,
+  Loader2,
+  Filter,
+  Network,
+  ChevronLeft,
+  ChevronRight,
+  X,
+} from "lucide-react";
 import {
   Table,
   TableBody,
@@ -59,6 +70,8 @@ export default function KoiManagement() {
   const [selectedKoi, setSelectedKoi] = useState<KoiFishResponse | null>(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState<boolean>(false);
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
+  const [selectedImageIdx, setSelectedImageIdx] = useState(0);
+  const [isImageViewerOpen, setIsImageViewerOpen] = useState(false);
 
   const [searchTerm, setSearchTerm] = useState<string>("");
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
@@ -103,7 +116,24 @@ export default function KoiManagement() {
 
   const handleViewDetails = (koi: KoiFishResponse) => {
     setSelectedKoi(koi);
+    setSelectedImageIdx(0);
     setIsDetailModalOpen(true);
+  };
+
+  const handlePrevImage = () => {
+    if (selectedKoi && selectedKoi.images && selectedKoi.images.length > 0) {
+      setSelectedImageIdx((prev) =>
+        prev === 0 ? selectedKoi.images.length - 1 : prev - 1
+      );
+    }
+  };
+
+  const handleNextImage = () => {
+    if (selectedKoi && selectedKoi.images && selectedKoi.images.length > 0) {
+      setSelectedImageIdx((prev) =>
+        prev === selectedKoi.images.length - 1 ? 0 : prev + 1
+      );
+    }
   };
 
   const handleApplyFilters = () => {
@@ -380,6 +410,55 @@ export default function KoiManagement() {
             </DialogHeader>
 
             <div className="space-y-4">
+              {/* Images Gallery */}
+              {selectedKoi.images && selectedKoi.images.length > 0 && (
+                <div className="space-y-2">
+                  {/* Main Image */}
+                  <div
+                    onClick={() => setIsImageViewerOpen(true)}
+                    className="relative w-full h-48 bg-muted rounded-lg overflow-hidden border cursor-pointer group hover:opacity-90 transition-opacity"
+                  >
+                    <Image
+                      src={selectedKoi.images[selectedImageIdx]}
+                      alt={`${selectedKoi.rfid} - Ảnh ${selectedImageIdx + 1}`}
+                      fill
+                      className="object-cover"
+                      priority
+                    />
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
+                      <div className="text-white opacity-0 group-hover:opacity-100 transition-opacity">
+                        <p className="text-sm font-semibold">Nhấn để xem to hơn</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Thumbnails */}
+                  {selectedKoi.images.length > 1 && (
+                    <div className="flex gap-2 overflow-x-auto pb-1">
+                      {selectedKoi.images.map((img, idx) => (
+                        <button
+                          key={idx}
+                          onClick={() => setSelectedImageIdx(idx)}
+                          className={`flex-shrink-0 relative w-12 h-12 rounded-md overflow-hidden border-2 transition-colors ${
+                            selectedImageIdx === idx
+                              ? "border-primary"
+                              : "border-gray-300 hover:border-primary"
+                          }`}
+                          title={`Ảnh ${idx + 1}`}
+                        >
+                          <Image
+                            src={img}
+                            alt={`Thumbnail ${idx + 1}`}
+                            fill
+                            className="object-cover"
+                          />
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
                   <h4 className="font-medium text-muted-foreground">
@@ -487,6 +566,87 @@ export default function KoiManagement() {
                 </div>
               </div>
             </div>
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {/* Image Viewer Modal */}
+      {isImageViewerOpen && selectedKoi && selectedKoi.images && (
+        <Dialog open={isImageViewerOpen} onOpenChange={setIsImageViewerOpen}>
+          <DialogContent className="max-w-4xl max-h-[90vh] flex flex-col p-0 border-0">
+            {/* Header */}
+            <div className="flex items-center justify-between p-4 border-b bg-white z-10">
+              <div>
+                <DialogTitle className="text-lg">
+                  {selectedKoi.rfid} - Ảnh số {selectedImageIdx + 1} / {selectedKoi.images.length}
+                </DialogTitle>
+              </div>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setIsImageViewerOpen(false)}
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+
+            {/* Image Container */}
+            <div className="flex-1 w-full h-auto flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 p-4">
+              <Image
+                src={selectedKoi.images[selectedImageIdx]}
+                alt={`${selectedKoi.rfid} - Ảnh ${selectedImageIdx + 1}`}
+                width={1000}
+                height={800}
+                sizes="(max-width: 1024px) 100vw, 1024px"
+                className="w-auto h-auto max-w-full max-h-[70vh] object-contain"
+                priority
+                unoptimized
+              />
+            </div>
+
+            {/* Navigation Footer */}
+            {selectedKoi.images.length > 1 && (
+              <div className="flex items-center justify-between gap-4 p-4 border-t bg-gray-50">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={handlePrevImage}
+                  disabled={selectedKoi.images.length === 1}
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </Button>
+
+                <div className="flex gap-2 overflow-x-auto">
+                  {selectedKoi.images.map((img, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => setSelectedImageIdx(idx)}
+                      className={`flex-shrink-0 relative w-16 h-16 rounded-md overflow-hidden border-2 transition-colors ${
+                        selectedImageIdx === idx
+                          ? "border-primary ring-2 ring-primary"
+                          : "border-gray-300 hover:border-primary"
+                      }`}
+                    >
+                      <Image
+                        src={img}
+                        alt={`Thumbnail ${idx + 1}`}
+                        fill
+                        className="object-cover"
+                      />
+                    </button>
+                  ))}
+                </div>
+
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={handleNextImage}
+                  disabled={selectedKoi.images.length === 1}
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
+            )}
           </DialogContent>
         </Dialog>
       )}
