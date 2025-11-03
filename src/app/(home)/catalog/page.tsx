@@ -38,7 +38,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
-import { formatCurrency } from "@/lib/utils/numbers/formatCurrency"; // Đảm bảo bạn đã có hàm này
+import { formatCurrency } from "@/lib/utils/numbers/formatCurrency";
 import { useGetKoiFishes } from "@/hooks/useKoiFish";
 import {
   FishSize,
@@ -50,7 +50,7 @@ import getAge from "@/lib/utils/dates/age";
 import { getFishSizeLabel, getGenderLabel } from "@/lib/utils/enum";
 import { PaginationSection } from "@/components/common/PaginationSection";
 import { Slider } from "@/components/ui/slider";
-import { useAddItemToCart } from "@/hooks/useCart"; // 👈 1. Import hook thêm vào giỏ hàng
+import { useAddItemToCart } from "@/hooks/useCart";
 
 const PAGE_SIZE_OPTIONS = [9, 12, 24];
 

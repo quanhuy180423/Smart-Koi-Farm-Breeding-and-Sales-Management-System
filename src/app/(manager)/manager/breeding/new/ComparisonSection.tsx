@@ -146,17 +146,18 @@ export default function ComparisonSection({
     ? [
         {
           message: `Nguy cơ cận huyết ${analysisData.percentInbreeding > 0 ? "ở mức " + analysisData.percentInbreeding.toFixed(1) + "%" : "rất thấp"}. ${analysisData.percentInbreeding < 2 ? "An toàn cho phối giống." : "Cần xem xét."}`,
+          percent: analysisData.percentInbreeding,
           ...getRiskLevel(analysisData.percentInbreeding),
         },
         {
-          message: `Tương hợp hình dáng cơ thể ở mức ${analysisData.bodyShapeCompatibility}%. ${getCompatibilityLevel(analysisData.bodyShapeCompatibility).label}`,
-          ...getRiskLevel(
-            analysisData.bodyShapeCompatibility < 50
-              ? 5
-              : analysisData.bodyShapeCompatibility < 70
-                ? 3
-                : 1,
-          ),
+          message: `Tương hợp hình dáng cơ thể đạt ${analysisData.bodyShapeCompatibility}%. ${getCompatibilityLevel(analysisData.bodyShapeCompatibility).label}.`,
+          percent: analysisData.bodyShapeCompatibility,
+          ...(() => {
+            const score = analysisData.bodyShapeCompatibility;
+            if (score >= 70) return getRiskLevel(1);
+            if (score >= 50) return getRiskLevel(3);
+            return getRiskLevel(5);
+          })(),
         },
       ]
     : [];
@@ -470,13 +471,17 @@ export default function ComparisonSection({
                         }`}
                       >
                         <div
-                          className={`h-1.5 rounded-full transition-all duration-500 ${
-                            assessment.bgColor.includes("green")
-                              ? "bg-green-500 w-3/4"
+                          className="h-1.5 rounded-full transition-all duration-500"
+                          style={{
+                            width: `${Math.min(assessment.percent ?? 0, 100)}%`,
+                            backgroundColor: assessment.bgColor.includes(
+                              "green",
+                            )
+                              ? "#22c55e"
                               : assessment.bgColor.includes("yellow")
-                                ? "bg-yellow-500 w-1/2"
-                                : "bg-red-500 w-1/4"
-                          }`}
+                                ? "#eab308"
+                                : "#ef4444",
+                          }}
                         ></div>
                       </div>
                       <span

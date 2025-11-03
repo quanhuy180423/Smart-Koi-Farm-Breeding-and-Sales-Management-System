@@ -54,7 +54,6 @@ import {
   KoiFishSearchParams,
 } from "@/lib/api/services/fetchKoiFish";
 import { useGetKoiFishes } from "@/hooks/useKoiFish";
-import { DATE_FORMATS, formatDate } from "@/lib/utils/dates";
 import formatCurrency from "@/lib/utils/numbers";
 import {
   PAGE_SIZE_OPTIONS_DEFAULT,
@@ -65,6 +64,7 @@ import { getFishSizeLabel, getHealthStatusLabel } from "@/lib/utils/enum";
 import { useDebounce } from "@/hooks/useDebounce";
 import { Label } from "@/components/ui/label";
 import PedigreeModal from "./PedigreeModal";
+import { KoiDetailDialog } from "@/components/dialogs/KoiDetailDialog";
 
 export default function KoiManagement() {
   const [selectedKoi, setSelectedKoi] = useState<KoiFishResponse | null>(null);
@@ -123,7 +123,7 @@ export default function KoiManagement() {
   const handlePrevImage = () => {
     if (selectedKoi && selectedKoi.images && selectedKoi.images.length > 0) {
       setSelectedImageIdx((prev) =>
-        prev === 0 ? selectedKoi.images.length - 1 : prev - 1
+        prev === 0 ? selectedKoi.images.length - 1 : prev - 1,
       );
     }
   };
@@ -131,7 +131,7 @@ export default function KoiManagement() {
   const handleNextImage = () => {
     if (selectedKoi && selectedKoi.images && selectedKoi.images.length > 0) {
       setSelectedImageIdx((prev) =>
-        prev === selectedKoi.images.length - 1 ? 0 : prev + 1
+        prev === selectedKoi.images.length - 1 ? 0 : prev + 1,
       );
     }
   };
@@ -394,181 +394,12 @@ export default function KoiManagement() {
       </Card>
 
       {/* Detail Modal */}
-      {isDetailModalOpen && selectedKoi && (
-        <Dialog open={isDetailModalOpen} onOpenChange={setIsDetailModalOpen}>
-          <DialogContent className="max-w-xl!">
-            <DialogHeader className="flex flex-row items-center justify-between">
-              <div>
-                <DialogTitle className="text-lg font-semibold">
-                  {selectedKoi.variety.varietyName}
-                </DialogTitle>
-                <DialogDescription className="text-sm text-muted-foreground">
-                  RFID: {selectedKoi.rfid} • Giống:{" "}
-                  {selectedKoi.variety.varietyName}
-                </DialogDescription>
-              </div>
-            </DialogHeader>
-
-            <div className="space-y-4">
-              {/* Images Gallery */}
-              {selectedKoi.images && selectedKoi.images.length > 0 && (
-                <div className="space-y-2">
-                  {/* Main Image */}
-                  <div
-                    onClick={() => setIsImageViewerOpen(true)}
-                    className="relative w-full h-48 bg-muted rounded-lg overflow-hidden border cursor-pointer group hover:opacity-90 transition-opacity"
-                  >
-                    <Image
-                      src={selectedKoi.images[selectedImageIdx]}
-                      alt={`${selectedKoi.rfid} - Ảnh ${selectedImageIdx + 1}`}
-                      fill
-                      className="object-cover"
-                      priority
-                    />
-                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
-                      <div className="text-white opacity-0 group-hover:opacity-100 transition-opacity">
-                        <p className="text-sm font-semibold">Nhấn để xem to hơn</p>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Thumbnails */}
-                  {selectedKoi.images.length > 1 && (
-                    <div className="flex gap-2 overflow-x-auto pb-1">
-                      {selectedKoi.images.map((img, idx) => (
-                        <button
-                          key={idx}
-                          onClick={() => setSelectedImageIdx(idx)}
-                          className={`flex-shrink-0 relative w-12 h-12 rounded-md overflow-hidden border-2 transition-colors ${
-                            selectedImageIdx === idx
-                              ? "border-primary"
-                              : "border-gray-300 hover:border-primary"
-                          }`}
-                          title={`Ảnh ${idx + 1}`}
-                        >
-                          <Image
-                            src={img}
-                            alt={`Thumbnail ${idx + 1}`}
-                            fill
-                            className="object-cover"
-                          />
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
-
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                <div>
-                  <h4 className="font-medium text-muted-foreground">
-                    Thuộc tính vật lý
-                  </h4>
-                  <div className="mt-2 space-y-2">
-                    <div className="flex justify-between">
-                      <span>Tuổi:</span>
-                      <span className="font-medium">
-                        {getAge(selectedKoi.birthDate)}
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Kích thước:</span>
-                      <span className="font-medium">
-                        {getFishSizeLabel(selectedKoi.size)}
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Giá trị mô tả cơ thể:</span>
-                      <span className="font-medium">
-                        {selectedKoi.bodyShape}
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Giới tính:</span>
-                      <span className="font-medium">
-                        {selectedKoi.gender === Gender.MALE
-                          ? "Đực"
-                          : selectedKoi.gender === Gender.FEMALE
-                            ? "Cái"
-                            : "Không rõ"}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                <div>
-                  <h4 className="font-medium text-muted-foreground">
-                    Vị trí & Nguồn gốc
-                  </h4>
-                  <div className="mt-2 space-y-2">
-                    <div className="flex justify-between">
-                      <span>Hồ:</span>
-                      <span className="font-medium">
-                        {selectedKoi.pond.pondName}
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Xuất xứ:</span>
-                      <span className="font-medium">
-                        {selectedKoi.variety.originCountry}
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Tình trạng sức khỏe:</span>
-                      {(() => {
-                        const label = getHealthStatusLabel(
-                          selectedKoi.healthStatus,
-                        );
-                        return (
-                          <Badge
-                            className={`font-semibold ${label.colorClass}`}
-                          >
-                            {label.label}
-                          </Badge>
-                        );
-                      })()}
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Nguồn gốc sinh sản:</span>
-                      <Badge variant="outline" className="text-xs">
-                        {selectedKoi.breedingProcess?.processName || "Không rõ"}
-                      </Badge>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="border-t pt-4">
-                <h4 className="font-medium text-muted-foreground mb-2">
-                  Mô tả
-                </h4>
-                <p className="text-sm text-gray-700 italic">
-                  {selectedKoi.description}
-                </p>
-                <div className="mt-4 flex justify-between items-center">
-                  <div>
-                    <h4 className="font-medium">Giá bán</h4>
-                    <p className="text-2xl font-bold text-primary">
-                      {formatCurrency(selectedKoi.sellingPrice || 0)}
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-sm text-muted-foreground">
-                      Ngày cập nhật cuối
-                    </p>
-                    <p className="font-medium">
-                      {formatDate(
-                        selectedKoi.updatedAt || selectedKoi.createdAt,
-                        DATE_FORMATS.MEDIUM_DATE,
-                      )}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </DialogContent>
-        </Dialog>
-      )}
+      <KoiDetailDialog
+        isOpen={isDetailModalOpen}
+        onOpenChange={setIsDetailModalOpen}
+        koi={selectedKoi}
+        showPricingInfo={true}
+      />
 
       {/* Image Viewer Modal */}
       {isImageViewerOpen && selectedKoi && selectedKoi.images && (
@@ -578,7 +409,8 @@ export default function KoiManagement() {
             <div className="flex items-center justify-between p-4 border-b bg-white z-10">
               <div>
                 <DialogTitle className="text-lg">
-                  {selectedKoi.rfid} - Ảnh số {selectedImageIdx + 1} / {selectedKoi.images.length}
+                  {selectedKoi.rfid} - Ảnh số {selectedImageIdx + 1} /{" "}
+                  {selectedKoi.images.length}
                 </DialogTitle>
               </div>
               <Button

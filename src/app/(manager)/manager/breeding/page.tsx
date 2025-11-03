@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { Eye, Trash2, Plus, Loader2, Search, Filter } from "lucide-react";
+import { Eye, X, Plus, Loader2, Search, Filter } from "lucide-react";
 import { useEffect, useState } from "react";
 import {
   Card,
@@ -452,7 +452,7 @@ export default function BreedingManagement() {
                                 setIsDeleteModalOpen(true);
                               }}
                             >
-                              <Trash2 className="h-4 w-4" />
+                              <X className="h-4 w-4" />
                             </Button>
                           )}
                         </TableCell>

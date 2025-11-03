@@ -12,7 +12,6 @@ export interface RoleRedirectRule {
  * Vai trò mặc định là "guest". Vai trò rỗng ("") cũng được coi là "guest".
  */
 async function getCurrentRole(): Promise<string> {
-  // Sửa lỗi TS2339: Await để đảm bảo cookieStore được resolve thành ReadonlyRequestCookies
   const cookieStore = await cookies();
 
   // Lấy giá trị cookie, nếu không có thì mặc định là "Guest"
