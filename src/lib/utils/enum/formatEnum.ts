@@ -7,7 +7,7 @@ import {
   FishSize,
   Gender,
   HealthStatus,
-  SaleStatus, // 👈 Thêm SaleStatus
+  SaleStatus,
 } from "@/lib/api/services/fetchKoiFish";
 import { PondStatus } from "@/lib/api/services/fetchPond";
 import { OrderStatus } from "@/lib/api/services/fetchOrder";
@@ -17,7 +17,7 @@ import { CheckCircle, Clock, AlertCircle, XCircle } from "lucide-react";
 export interface Label {
   label: string;
   colorClass: string;
-  icon?: React.ReactNode | React.ComponentType<{ className?: string }>; // Hỗ trợ cả ReactNode và icon component
+  icon?: React.ReactNode | React.ComponentType<{ className?: string }>;
 }
 
 // --- METADATA CHO CÁC ENUM ---

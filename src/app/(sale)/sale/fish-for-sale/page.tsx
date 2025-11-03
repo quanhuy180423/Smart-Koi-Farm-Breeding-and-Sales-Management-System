@@ -50,7 +50,7 @@ import {
 import { PaginationSection } from "@/components/common/PaginationSection";
 import Image from "next/image";
 import { AddFishDialog } from "./AddFishDialog";
-import { KoiFishDetailDialog } from "./KoiFishDetailDialog";
+import { KoiDetailDialog } from "@/components/dialogs/KoiDetailDialog";
 
 const PAGE_SIZE_OPTIONS: number[] = [9, 12, 15, 18];
 
@@ -297,17 +297,12 @@ export default function FishForSalePage() {
       </Card>
 
       {/* Detail Dialog */}
-      <Dialog
-        open={!!selectedKoi}
+      <KoiDetailDialog
+        isOpen={!!selectedKoi}
         onOpenChange={(open) => !open && setSelectedKoi(null)}
-      >
-        {selectedKoi && (
-          <KoiFishDetailDialog
-            koi={selectedKoi}
-            onClose={() => setSelectedKoi(null)}
-          />
-        )}
-      </Dialog>
+        koi={selectedKoi}
+        showPricingInfo={true}
+      />
     </div>
   );
 }

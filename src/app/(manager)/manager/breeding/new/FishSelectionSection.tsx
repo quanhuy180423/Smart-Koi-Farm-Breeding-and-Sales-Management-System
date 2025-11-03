@@ -10,7 +10,6 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
@@ -30,7 +29,7 @@ import getAge from "@/lib/utils/dates/age";
 import { RecommendedPair } from "@/lib/api/services/fetchBreedingProcess";
 import { useGetBreedingRecommend } from "@/hooks/useBreedingProcess";
 import * as z from "zod";
-import { getFishSizeLabel } from "@/lib/utils/enum";
+import { getFishSizeLabel, getGenderLabel } from "@/lib/utils/enum";
 import { FishDetailDialog } from "./FishDetailDialog";
 
 const recommendSchema = z.object({
@@ -209,15 +208,6 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
     }
   };
 
-  const handleUnchooseFish = (
-    e: React.MouseEvent<HTMLButtonElement>,
-    type: "father" | "mother",
-  ) => {
-    e.preventDefault();
-    if (type === "father") setSelectedFatherId(null);
-    else setSelectedMotherId(null);
-  };
-
   const handleSelectRecommendedPair = (pair: RecommendedPair) => {
     setSelectedPairToFetch({ fatherId: pair.maleId, motherId: pair.femaleId });
   };
@@ -232,158 +222,55 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
   const CircularSelector = ({
     type,
     selected,
-    availableKoi,
-    isOpen,
-    setIsOpen,
-    pageIndex,
-    setPageIndex,
-    isLoading = false,
-    hasNextPage = false,
-    hasPreviousPage = false,
-    onOpenDetail,
+    onClickTrigger,
+    onRemove,
   }: {
     type: "father" | "mother";
     selected: KoiFishResponse | null;
-    availableKoi: KoiFishResponse[];
-    isOpen: boolean;
-    setIsOpen: (open: boolean) => void;
-    pageIndex: number;
-    setPageIndex: (index: number) => void;
-    isLoading?: boolean;
-    hasNextPage?: boolean;
-    hasPreviousPage?: boolean;
-    onOpenDetail: (fish: KoiFishResponse) => void;
+    onClickTrigger: () => void;
+    onRemove: () => void;
   }) => {
     return (
       <div className="flex flex-col items-center">
-        <Dialog open={isOpen} onOpenChange={setIsOpen}>
-          <DialogTrigger asChild>
-            <div className="relative cursor-pointer group">
-              {selected ? (
-                <div className="relative">
-                  <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-white shadow-lg group-hover:scale-105 transition-transform duration-300">
-                    <Image
-                      src={selected.images[0]}
-                      alt={selected.rfid}
-                      width={128}
-                      height={128}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                  <button
-                    onClick={(e: React.MouseEvent<HTMLButtonElement>) =>
-                      handleUnchooseFish(e, type)
-                    }
-                    className="absolute -top-2 -right-2 w-8 h-8 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-colors shadow-lg"
-                  >
-                    <X className="h-4 w-4" />
-                  </button>
-                </div>
-              ) : (
-                <div
-                  className={`w-32 h-32 rounded-full border-4 border-dashed flex items-center justify-center group-hover:scale-105 transition-all duration-300 ${
-                    type === "father"
-                      ? "border-blue-300 bg-blue-50 hover:bg-blue-100"
-                      : "border-pink-300 bg-pink-50 hover:bg-pink-100"
-                  }`}
-                >
-                  <Plus
-                    className={`h-12 w-12 ${type === "father" ? "text-blue-400" : "text-pink-400"}`}
-                  />
-                </div>
-              )}
-            </div>
-          </DialogTrigger>
-
-          <DialogContent className="max-w-7xl sm:max-w-4xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle className="text-center text-xl">
-                Chọn Cá {type === "father" ? "Bố" : "Mẹ"}
-              </DialogTitle>
-            </DialogHeader>
-            {isLoading ? (
-              <div className="flex items-center justify-center py-10 text-gray-500">
-                <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                Đang tải dữ liệu...
+        <button
+          onClick={onClickTrigger}
+          className="relative cursor-pointer group"
+        >
+          {selected ? (
+            <div className="relative">
+              <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-white shadow-lg group-hover:scale-105 transition-transform duration-300">
+                <Image
+                  src={selected.images[0]}
+                  alt={selected.rfid}
+                  width={128}
+                  height={128}
+                  className="w-full h-full object-cover"
+                />
               </div>
-            ) : (
-              <>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
-                  {availableKoi.map((fish) => (
-                    <Card
-                      key={fish.id}
-                      className="cursor-pointer hover:shadow-lg transition-all duration-300 hover:scale-105 pt-0 pb-2 gap-3"
-                      onClick={() => onOpenDetail(fish)}
-                    >
-                      <div className="relative overflow-hidden rounded-t-lg">
-                        <Image
-                          src={fish.images[0]}
-                          alt={fish.rfid}
-                          width={300}
-                          height={240}
-                          className="w-full h-52 object-cover"
-                        />
-                        <div className="absolute top-2 right-2">
-                          <Badge
-                            variant={
-                              type === "father" ? "default" : "secondary"
-                            }
-                            className={
-                              type === "father" ? "bg-blue-500" : "bg-pink-500"
-                            }
-                          >
-                            {fish.gender}
-                          </Badge>
-                        </div>
-                      </div>
-
-                      <CardContent className="px-4 space-y-3">
-                        <h3 className="font-bold text-base mb-1 text-gray-900">
-                          {fish.rfid}
-                        </h3>
-                        <p className="text-sm font-medium text-blue-600 mb-2">
-                          {fish?.variety?.varietyName || ""}
-                        </p>
-                        <div className="grid grid-cols-2 gap-2 text-sm">
-                          <div className="flex items-center gap-2">
-                            <Ruler className="h-4 w-4 text-blue-500" />
-                            <span className="text-gray-700">
-                              {getFishSizeLabel(fish.size)}
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <Calendar className="h-4 w-4 text-green-500" />
-                            <span className="text-gray-700">
-                              {getAge(fish.birthDate)} tuổi
-                            </span>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-
-                <div className="flex justify-center gap-2 mt-4">
-                  <Button
-                    size="sm"
-                    onClick={() => setPageIndex(pageIndex - 1)}
-                    disabled={!hasPreviousPage}
-                  >
-                    {"<"}
-                  </Button>
-                  <span className="px-2">{pageIndex}</span>
-                  <Button
-                    size="sm"
-                    onClick={() => setPageIndex(pageIndex + 1)}
-                    disabled={!hasNextPage}
-                  >
-                    {">"}
-                  </Button>
-                </div>
-              </>
-            )}
-          </DialogContent>
-        </Dialog>
+              <button
+                onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+                  e.stopPropagation();
+                  onRemove();
+                }}
+                className="absolute -top-2 -right-2 w-8 h-8 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-colors shadow-lg"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+          ) : (
+            <div
+              className={`w-32 h-32 rounded-full border-4 border-dashed flex items-center justify-center group-hover:scale-105 transition-all duration-300 ${
+                type === "father"
+                  ? "border-blue-300 bg-blue-50 hover:bg-blue-100"
+                  : "border-pink-300 bg-pink-50 hover:bg-pink-100"
+              }`}
+            >
+              <Plus
+                className={`h-12 w-12 ${type === "father" ? "text-blue-400" : "text-pink-400"}`}
+              />
+            </div>
+          )}
+        </button>
 
         <div className="mt-4 text-center max-w-[140px]">
           {selected ? (
@@ -427,22 +314,14 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
 
         <TabsContent value="select-fish" className="space-y-6 mt-6">
           <div className="flex items-center justify-center gap-8 md:gap-16">
+            {/* Father Selector - Dialog trigger via click event */}
             <CircularSelector
               type="father"
               selected={selectedFather || null}
-              availableKoi={fatherKoiResponse?.data || []}
-              isOpen={isFatherDialogOpen}
-              setIsOpen={setIsFatherDialogOpen}
-              pageIndex={pageIndexMale}
-              setPageIndex={setPageIndexMale}
-              isLoading={isFatherLoading}
-              hasNextPage={fatherKoiResponse?.hasNextPage}
-              hasPreviousPage={fatherKoiResponse?.hasPreviousPage}
-              onOpenDetail={(fish) => {
-                setFatherDetailKoi(fish);
-                setIsFatherDetailOpen(true);
-              }}
+              onClickTrigger={() => setIsFatherDialogOpen(true)}
+              onRemove={() => setSelectedFatherId(null)}
             />
+
             <div className="flex flex-col items-center">
               <div
                 className={`w-16 h-16 rounded-full flex items-center justify-center transition-all duration-500 ${
@@ -454,23 +333,215 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
                 <Heart className="h-8 w-8 text-white fill-white" />
               </div>
             </div>
+
+            {/* Mother Selector - Dialog trigger via click event */}
             <CircularSelector
               type="mother"
               selected={selectedMother || null}
-              availableKoi={motherKoiResponse?.data || []}
-              isOpen={isMotherDialogOpen}
-              setIsOpen={setIsMotherDialogOpen}
-              pageIndex={pageIndexFemale}
-              setPageIndex={setPageIndexFemale}
-              isLoading={isMotherLoading}
-              hasNextPage={motherKoiResponse?.hasNextPage}
-              hasPreviousPage={motherKoiResponse?.hasPreviousPage}
-              onOpenDetail={(fish) => {
-                setMotherDetailKoi(fish);
-                setIsMotherDetailOpen(true);
-              }}
+              onClickTrigger={() => setIsMotherDialogOpen(true)}
+              onRemove={() => setSelectedMotherId(null)}
             />
           </div>
+
+          {/* Father Fish List Dialog */}
+          <Dialog
+            open={isFatherDialogOpen}
+            onOpenChange={setIsFatherDialogOpen}
+          >
+            <DialogContent className="max-w-7xl sm:max-w-4xl max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle className="text-center text-xl">
+                  Chọn Cá Bố
+                </DialogTitle>
+              </DialogHeader>
+              {isFatherLoading ? (
+                <div className="flex items-center justify-center py-10 text-gray-500">
+                  <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                  Đang tải dữ liệu...
+                </div>
+              ) : (
+                <>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
+                    {(fatherKoiResponse?.data || []).map((fish) => (
+                      <Card
+                        key={fish.id}
+                        className="cursor-pointer hover:shadow-lg transition-all duration-300 hover:scale-105 pt-0 pb-2 gap-3"
+                        onClick={() => {
+                          setFatherDetailKoi(fish);
+                          setIsFatherDetailOpen(true);
+                        }}
+                      >
+                        <div className="relative overflow-hidden rounded-t-lg">
+                          <Image
+                            src={fish.images[0]}
+                            alt={fish.rfid}
+                            width={300}
+                            height={240}
+                            className="w-full h-52 object-cover"
+                          />
+                          <div className="absolute top-2 right-2">
+                            <Badge className="bg-blue-500">
+                              {getGenderLabel(fish.gender).label}
+                            </Badge>
+                          </div>
+                        </div>
+
+                        <CardContent className="px-4 space-y-3">
+                          <h3 className="font-bold text-base mb-1 text-gray-900">
+                            {fish.rfid}
+                          </h3>
+                          <p className="text-sm font-medium text-blue-600 mb-2">
+                            {fish?.variety?.varietyName || ""}
+                          </p>
+                          <div className="grid grid-cols-2 gap-2 text-sm">
+                            <div className="flex items-center gap-2">
+                              <Ruler className="h-4 w-4 text-blue-500" />
+                              <span className="text-gray-700">
+                                {getFishSizeLabel(fish.size)}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Calendar className="h-4 w-4 text-green-500" />
+                              <span className="text-gray-700">
+                                {getAge(fish.birthDate)} tuổi
+                              </span>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+
+                  <div className="flex justify-center gap-2 mt-4">
+                    <Button
+                      size="sm"
+                      onClick={() => setPageIndexMale(pageIndexMale - 1)}
+                      disabled={!fatherKoiResponse?.hasPreviousPage}
+                    >
+                      {"<"}
+                    </Button>
+                    <span className="px-2">{pageIndexMale}</span>
+                    <Button
+                      size="sm"
+                      onClick={() => setPageIndexMale(pageIndexMale + 1)}
+                      disabled={!fatherKoiResponse?.hasNextPage}
+                    >
+                      {">"}
+                    </Button>
+                  </div>
+                </>
+              )}
+
+              {/* Father Detail Dialog */}
+              <FishDetailDialog
+                isOpen={isFatherDetailOpen}
+                onOpenChange={setIsFatherDetailOpen}
+                selectedFish={fatherDetailKoi}
+                type="father"
+                onSelect={(fish) => setSelectedFatherId(fish.id)}
+                onListClose={() => setIsFatherDialogOpen(false)}
+              />
+            </DialogContent>
+          </Dialog>
+
+          {/* Mother Fish List Dialog */}
+          <Dialog
+            open={isMotherDialogOpen}
+            onOpenChange={setIsMotherDialogOpen}
+          >
+            <DialogContent className="max-w-7xl sm:max-w-4xl max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle className="text-center text-xl">
+                  Chọn Cá Mẹ
+                </DialogTitle>
+              </DialogHeader>
+              {isMotherLoading ? (
+                <div className="flex items-center justify-center py-10 text-gray-500">
+                  <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                  Đang tải dữ liệu...
+                </div>
+              ) : (
+                <>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
+                    {(motherKoiResponse?.data || []).map((fish) => (
+                      <Card
+                        key={fish.id}
+                        className="cursor-pointer hover:shadow-lg transition-all duration-300 hover:scale-105 pt-0 pb-2 gap-3"
+                        onClick={() => {
+                          setMotherDetailKoi(fish);
+                          setIsMotherDetailOpen(true);
+                        }}
+                      >
+                        <div className="relative overflow-hidden rounded-t-lg">
+                          <Image
+                            src={fish.images[0]}
+                            alt={fish.rfid}
+                            width={300}
+                            height={240}
+                            className="w-full h-52 object-cover"
+                          />
+                          <div className="absolute top-2 right-2">
+                            <Badge className="bg-pink-500">{fish.gender}</Badge>
+                          </div>
+                        </div>
+
+                        <CardContent className="px-4 space-y-3">
+                          <h3 className="font-bold text-base mb-1 text-gray-900">
+                            {fish.rfid}
+                          </h3>
+                          <p className="text-sm font-medium text-blue-600 mb-2">
+                            {fish?.variety?.varietyName || ""}
+                          </p>
+                          <div className="grid grid-cols-2 gap-2 text-sm">
+                            <div className="flex items-center gap-2">
+                              <Ruler className="h-4 w-4 text-blue-500" />
+                              <span className="text-gray-700">
+                                {getFishSizeLabel(fish.size)}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Calendar className="h-4 w-4 text-green-500" />
+                              <span className="text-gray-700">
+                                {getAge(fish.birthDate)} tuổi
+                              </span>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+
+                  <div className="flex justify-center gap-2 mt-4">
+                    <Button
+                      size="sm"
+                      onClick={() => setPageIndexFemale(pageIndexFemale - 1)}
+                      disabled={!motherKoiResponse?.hasPreviousPage}
+                    >
+                      {"<"}
+                    </Button>
+                    <span className="px-2">{pageIndexFemale}</span>
+                    <Button
+                      size="sm"
+                      onClick={() => setPageIndexFemale(pageIndexFemale + 1)}
+                      disabled={!motherKoiResponse?.hasNextPage}
+                    >
+                      {">"}
+                    </Button>
+                  </div>
+                </>
+              )}
+
+              {/* Mother Detail Dialog */}
+              <FishDetailDialog
+                isOpen={isMotherDetailOpen}
+                onOpenChange={setIsMotherDetailOpen}
+                selectedFish={motherDetailKoi}
+                type="mother"
+                onSelect={(fish) => setSelectedMotherId(fish.id)}
+                onListClose={() => setIsMotherDialogOpen(false)}
+              />
+            </DialogContent>
+          </Dialog>
 
           {selectedFather && selectedMother && (
             <div className="flex justify-center pt-6">
@@ -711,26 +782,6 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
           )}
         </TabsContent>
       </Tabs>
-
-      {/* Father Detail Dialog */}
-      <FishDetailDialog
-        isOpen={isFatherDetailOpen}
-        onOpenChange={setIsFatherDetailOpen}
-        selectedFish={fatherDetailKoi}
-        type="father"
-        onSelect={(fish) => setSelectedFatherId(fish.id)}
-        onListClose={() => setIsFatherDialogOpen(false)}
-      />
-
-      {/* Mother Detail Dialog */}
-      <FishDetailDialog
-        isOpen={isMotherDetailOpen}
-        onOpenChange={setIsMotherDetailOpen}
-        selectedFish={motherDetailKoi}
-        type="mother"
-        onSelect={(fish) => setSelectedMotherId(fish.id)}
-        onListClose={() => setIsMotherDialogOpen(false)}
-      />
     </section>
   );
 }

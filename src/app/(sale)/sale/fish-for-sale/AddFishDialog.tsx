@@ -6,7 +6,6 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  Dialog,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Loader2, Search } from "lucide-react";
@@ -23,7 +22,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { PaginationSection } from "@/components/common/PaginationSection";
 import { getFishSizeLabel, getGenderLabel } from "@/lib/utils/enum";
 import { formatCurrency } from "@/lib/utils/numbers/formatCurrency";
-import { KoiFishDetailDialog } from "./KoiFishDetailDialog";
+import { KoiDetailDialog } from "@/components/dialogs/KoiDetailDialog";
 
 const PAGE_SIZE_OPTIONS = [6, 12, 18];
 
@@ -55,7 +54,6 @@ export function AddFishDialog({ onClose }: AddFishDialogProps) {
     }));
   }, [debouncedSearchTerm]);
 
-  // 👇 **LOGIC QUAN TRỌNG NHẤT NẰM Ở ĐÂY** 👇
   const handleSelectFish = (koi: KoiFishResponse) => {
     setUpdatingFishId(koi.id);
 
@@ -75,7 +73,7 @@ export function AddFishDialog({ onClose }: AddFishDialogProps) {
       sellingPrice: koi.sellingPrice ?? 0,
       bodyShape: koi.bodyShape,
       description: koi.description,
-      colorPattern: "", // Trường này không có trong KoiFishResponse, gửi giá trị mặc định
+      colorPattern: "",
 
       // 2. Cập nhật trường mong muốn
       saleStatus: SaleStatus.AVAILABLE,
@@ -191,23 +189,19 @@ export function AddFishDialog({ onClose }: AddFishDialogProps) {
       )}
 
       {/* Detail Dialog */}
-      <Dialog
-        open={!!selectedKoi}
+      <KoiDetailDialog
+        isOpen={!!selectedKoi}
         onOpenChange={(open) => !open && setSelectedKoi(null)}
-      >
-        {selectedKoi && (
-          <KoiFishDetailDialog
-            koi={selectedKoi}
-            onClose={() => setSelectedKoi(null)}
-            onSelect={(koi) => {
-              setSelectedKoi(null);
-              setUpdatingFishId(koi.id);
-              handleSelectFish(koi);
-            }}
-            isSelectLoading={updatingFishId === selectedKoi.id && isUpdating}
-          />
-        )}
-      </Dialog>
+        koi={selectedKoi}
+        showPricingInfo={false}
+        onSelectFish={(koi) => {
+          setSelectedKoi(null);
+          setUpdatingFishId(koi.id);
+          handleSelectFish(koi);
+        }}
+        onSelectLabel="Thêm vào danh sách bán"
+        isSelectLoading={updatingFishId === selectedKoi?.id && isUpdating}
+      />
     </DialogContent>
   );
 }

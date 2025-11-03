@@ -24,7 +24,6 @@ export default function RenewPasswordPage() {
   const token = searchParams?.get("token") || "";
   const emailFromQuery = searchParams?.get("email") || "";
 
-  // email is provided via query param; do not show it in the UI
   const email = emailFromQuery;
   const [newPassword, setNewPassword] = useState("");
   const [confirmedNewPassword, setConfirmedNewPassword] = useState("");
