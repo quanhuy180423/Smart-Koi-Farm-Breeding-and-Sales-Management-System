@@ -88,23 +88,23 @@ const PedigreeModal = ({ isOpen, onOpenChange, koi }: PedigreeModalProps) => {
             Đang tải dữ liệu...
           </div>
         ) : (
-          <div className="flex flex-col items-center py-8 space-y-12 relative">
+          <div className="flex flex-col-reverse items-center py-8 space-y-12 space-y-reverse relative">
             {/* Cá hiện tại */}
             <div className="relative flex flex-col items-center">
               <PedigreeNode koi={fish} role="Cá Hiện tại" />
               {(fish?.father || fish?.mother) && (
-                <div className="w-0.5 h-6 bg-indigo-500 absolute bottom-[-1.5rem]"></div>
+                <div className="w-0.5 h-6 bg-indigo-500 absolute top-[-1.5rem]"></div>
               )}
             </div>
 
             {/* Bố mẹ */}
             {(fish?.father || fish?.mother) && (
-              <div className="relative flex justify-center w-full max-w-3xl">
+              <div className="relative flex justify-center w-full max-w-5xl">
                 {fish?.father && (
                   <div className="relative flex flex-col items-center w-1/2">
                     <PedigreeNode koi={fish.father} role="Bố (P1)" />
                     {(fish.father?.father || fish.father?.mother) && (
-                      <div className="absolute bottom-[-1.5rem] left-1/2 transform -translate-x-1/2 w-0.5 h-6 bg-indigo-500"></div>
+                      <div className="absolute top-[-1.5rem] left-1/2 transform -translate-x-1/2 w-0.5 h-6 bg-indigo-500"></div>
                     )}
                   </div>
                 )}
@@ -113,26 +113,26 @@ const PedigreeModal = ({ isOpen, onOpenChange, koi }: PedigreeModalProps) => {
                   <div className="relative flex flex-col items-center w-1/2">
                     <PedigreeNode koi={fish.mother} role="Mẹ (P1)" />
                     {(fish.mother?.father || fish.mother?.mother) && (
-                      <div className="absolute bottom-[-1.5rem] left-1/2 transform -translate-x-1/2 w-0.5 h-6 bg-indigo-500"></div>
+                      <div className="absolute top-[-1.5rem] left-1/2 transform -translate-x-1/2 w-0.5 h-6 bg-indigo-500"></div>
                     )}
                   </div>
                 )}
 
                 {/* Đường ngang nối từ Cá hiện tại xuống Bố Mẹ */}
                 {fish?.father && fish?.mother ? (
-                  <div className="absolute -top-6 left-1/4 right-1/4 h-0.5 bg-indigo-500"></div>
+                  <div className="absolute -bottom-6 left-1/4 right-1/4 h-0.5 bg-indigo-500"></div>
                 ) : fish?.father ? (
-                  <div className="absolute -top-6 left-1/2 w-0 h-0.5 bg-indigo-500"></div>
+                  <div className="absolute -bottom-6 left-1/2 w-0 h-0.5 bg-indigo-500"></div>
                 ) : (
-                  <div className="absolute -top-6 right-1/2 w-0 h-0.5 bg-indigo-500"></div>
+                  <div className="absolute -bottom-6 right-1/2 w-0 h-0.5 bg-indigo-500"></div>
                 )}
 
                 {/* Đường dọc nối từ đường ngang xuống mỗi node */}
                 {fish?.father && (
-                  <div className="absolute -top-6 left-1/4 w-0.5 h-6 bg-indigo-500"></div>
+                  <div className="absolute -bottom-6 left-1/4 w-0.5 h-6 bg-indigo-500"></div>
                 )}
                 {fish?.mother && (
-                  <div className="absolute -top-6 right-1/4 w-0.5 h-6 bg-indigo-500"></div>
+                  <div className="absolute -bottom-6 right-1/4 w-0.5 h-6 bg-indigo-500"></div>
                 )}
               </div>
             )}
@@ -155,17 +155,17 @@ const PedigreeModal = ({ isOpen, onOpenChange, koi }: PedigreeModalProps) => {
 
                     {/* Đường ngang nối 2 ông bà bên cha */}
                     {fish.father?.father && fish.father?.mother && (
-                      <div className="absolute top-[-1.5rem] left-1/4 right-1/4 h-0.5 bg-indigo-500"></div>
+                      <div className="absolute bottom-[-1.5rem] left-1/4 right-1/4 h-0.5 bg-indigo-500"></div>
                     )}
 
                     {/* Đường dọc xuống ông */}
                     {fish.father?.father && (
-                      <div className="absolute top-[-1.5rem] left-1/4 w-0.5 h-6 bg-indigo-500"></div>
+                      <div className="absolute bottom-[-1.5rem] left-1/4 w-0.5 h-6 bg-indigo-500"></div>
                     )}
 
                     {/* Đường dọc xuống bà */}
                     {fish.father?.mother && (
-                      <div className="absolute top-[-1.5rem] right-1/4 w-0.5 h-6 bg-indigo-500"></div>
+                      <div className="absolute bottom-[-1.5rem] right-1/4 w-0.5 h-6 bg-indigo-500"></div>
                     )}
                   </div>
                 )}
@@ -182,17 +182,17 @@ const PedigreeModal = ({ isOpen, onOpenChange, koi }: PedigreeModalProps) => {
 
                     {/* Đường ngang nối 2 ông bà bên mẹ */}
                     {fish.mother?.father && fish.mother?.mother && (
-                      <div className="absolute top-[-1.5rem] left-1/4 right-1/4 h-0.5 bg-indigo-500"></div>
+                      <div className="absolute bottom-[-1.5rem] left-1/4 right-1/4 h-0.5 bg-indigo-500"></div>
                     )}
 
                     {/* Đường dọc xuống ông */}
                     {fish.mother?.father && (
-                      <div className="absolute top-[-1.5rem] left-1/4 w-0.5 h-6 bg-indigo-500"></div>
+                      <div className="absolute bottom-[-1.5rem] left-1/4 w-0.5 h-6 bg-indigo-500"></div>
                     )}
 
                     {/* Đường dọc xuống bà */}
                     {fish.mother?.mother && (
-                      <div className="absolute top-[-1.5rem] right-1/4 w-0.5 h-6 bg-indigo-500"></div>
+                      <div className="absolute bottom-[-1.5rem] right-1/4 w-0.5 h-6 bg-indigo-500"></div>
                     )}
                   </div>
                 )}
