@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -10,6 +10,20 @@ import { Separator } from "@/components/ui/separator";
 import { Checkbox } from "@/components/ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
   ArrowLeft,
   CreditCard,
   Truck,
@@ -17,30 +31,149 @@ import {
   CheckCircle,
   ShoppingCart,
   Loader2,
+  MapPin,
+  Plus,
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { useGetCart, useConverCartToOrder } from "@/hooks/useCart";
 import { useCreatePayment } from "@/hooks/useOrderPayment";
+import {
+  useGetCustomerAddresses,
+  useCreateAddress,
+} from "@/hooks/useCustomerAddress";
+import { useDebounce } from "@/hooks/useDebounce";
+import { useCalculateShippingFee } from "@/hooks/useShippingFee";
+import {
+  ShippingFeeCalculateResponse,
+  ShippingBox,
+} from "@/lib/api/services/fetchShippingFee";
+import {
+  MapContainer,
+  TileLayer,
+  useMapEvents,
+  Marker,
+  Popup,
+  useMap,
+} from "react-leaflet";
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
 import { PaymentMethod } from "@/lib/api/services/fetchOrderPayment";
 import { formatCurrency } from "@/lib/utils/numbers/formatCurrency";
 import { getFishSizeLabel } from "@/lib/utils/enum";
 
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl:
+    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png",
+  iconUrl:
+    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png",
+  shadowUrl:
+    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
+});
+
+interface NominatimResult {
+  lat: string;
+  lon: string;
+  display_name: string;
+}
+
+interface MapClickEvent {
+  latlng: {
+    lat: number;
+    lng: number;
+  };
+}
+
+async function geocodeAddress(
+  address: string,
+): Promise<NominatimResult | null> {
+  if (!address.trim()) return null;
+
+  try {
+    const response = await fetch(
+      `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&limit=1`,
+      {
+        headers: {
+          Accept: "application/json",
+        },
+      },
+    );
+
+    if (!response.ok) return null;
+
+    const results: NominatimResult[] = await response.json();
+    return results.length > 0 ? results[0] : null;
+  } catch (error) {
+    console.error("Geocoding error:", error);
+    return null;
+  }
+}
+
+function QuickAddMapClickHandler({
+  onMapClick,
+}: {
+  onMapClick: (lat: number, lng: number) => void;
+}) {
+  useMapEvents({
+    click: (e: MapClickEvent) => {
+      onMapClick(e.latlng.lat, e.latlng.lng);
+    },
+  });
+  return null;
+}
+
+function QuickAddMapMover({ lat, lng }: { lat: number; lng: number }) {
+  const map = useMap();
+
+  useEffect(() => {
+    map.setView([lat, lng], map.getZoom());
+  }, [lat, lng, map]);
+
+  return null;
+}
+
 export default function CheckoutPage() {
   const router = useRouter();
   const { data: cartData, isLoading, isError, refetch } = useGetCart();
+  const {
+    data: addresses,
+    isLoading: isLoadingAddresses,
+    refetch: refetchAddresses,
+  } = useGetCustomerAddresses();
   const { mutate: convertToOrder, isPending: isSubmitting } =
     useConverCartToOrder();
   const { mutate: createPayment, isPending: isCreatingPayment } =
     useCreatePayment();
+  const { mutate: createAddress, isPending: isCreatingAddress } =
+    useCreateAddress();
+  const {
+    mutateAsync: calculateShippingFee,
+    isPending: isCalculatingShippingFee,
+  } = useCalculateShippingFee();
 
   const [step, setStep] = useState(1);
+  const [selectedAddressId, setSelectedAddressId] = useState<number | null>(
+    null,
+  );
+  const [showQuickAddModal, setShowQuickAddModal] = useState(false);
+  const [quickAddForm, setQuickAddForm] = useState({
+    fullAddress: "",
+    city: "",
+    district: "",
+    ward: "",
+    streetAddress: "",
+    latitude: 21.0285,
+    longitude: 105.8542,
+    recipientPhone: "",
+    isDefault: false,
+  });
+  const [quickAddMapSearch, setQuickAddMapSearch] = useState("");
+  const [isGeocoding, setIsGeocoding] = useState(false);
+  const [quickAddMapKey, setQuickAddMapKey] = useState(0);
   const [orderData, setOrderData] = useState({
-    // Shipping Info
-    shippingAddress: "",
-    contactNumber: "",
-
     // Payment
     paymentMethod: "vnpay",
 
@@ -48,6 +181,137 @@ export default function CheckoutPage() {
     agreeTerms: false,
     subscribeNewsletter: false,
   });
+  const [shippingFeeData, setShippingFeeData] =
+    useState<ShippingFeeCalculateResponse | null>(null);
+
+  const debouncedQuickAddMapSearch = useDebounce(quickAddMapSearch, 1500);
+
+  // Set default address when addresses are loaded
+  useEffect(() => {
+    if (addresses && addresses.length > 0 && !selectedAddressId) {
+      const defaultAddress = addresses.find((addr) => addr.isDefault);
+      if (defaultAddress) {
+        setSelectedAddressId(defaultAddress.id);
+      } else {
+        setSelectedAddressId(addresses[0].id);
+      }
+    }
+  }, [addresses, selectedAddressId]);
+
+  // Auto-geocode when user finishes typing in map search
+  useEffect(() => {
+    if (!debouncedQuickAddMapSearch.trim()) return;
+
+    const performGeocoding = async () => {
+      setIsGeocoding(true);
+      try {
+        const result = await geocodeAddress(debouncedQuickAddMapSearch);
+        if (result) {
+          setQuickAddForm((prev) => ({
+            ...prev,
+            latitude: parseFloat(result.lat),
+            longitude: parseFloat(result.lon),
+          }));
+          setQuickAddMapKey((prev) => prev + 1);
+          toast.success(`Tìm thấy: ${result.display_name}`);
+          setQuickAddMapSearch("");
+        } else {
+          toast.error("Không tìm thấy địa chỉ này");
+        }
+      } catch (error) {
+        console.error("Geocoding error:", error);
+      } finally {
+        setIsGeocoding(false);
+      }
+    };
+
+    performGeocoding();
+  }, [debouncedQuickAddMapSearch]);
+
+  const handleQuickAddInputChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const { name, value } = e.target;
+    setQuickAddForm((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleQuickAddCheckboxChange = (checked: boolean) => {
+    setQuickAddForm((prev) => ({
+      ...prev,
+      isDefault: checked,
+    }));
+  };
+
+  const handleQuickAddMapSearchChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    setQuickAddMapSearch(e.target.value);
+  };
+
+  const handleQuickAddMapClick = (lat: number, lng: number) => {
+    setQuickAddForm((prev) => ({
+      ...prev,
+      latitude: lat,
+      longitude: lng,
+    }));
+  };
+
+  const handleQuickAddSubmit = () => {
+    // Validate required fields
+    if (
+      !quickAddForm.fullAddress ||
+      !quickAddForm.city ||
+      !quickAddForm.district ||
+      !quickAddForm.ward ||
+      !quickAddForm.streetAddress ||
+      !quickAddForm.recipientPhone
+    ) {
+      toast.error("Vui lòng điền đầy đủ thông tin");
+      return;
+    }
+
+    // Validate phone
+    const phoneRegex = /^0\d{9}$/;
+    if (!phoneRegex.test(quickAddForm.recipientPhone)) {
+      toast.error(
+        "Số điện thoại không hợp lệ (cần có 10 chữ số, bắt đầu từ 0)",
+      );
+      return;
+    }
+
+    createAddress(quickAddForm, {
+      onSuccess: (data) => {
+        toast.success("Địa chỉ đã được thêm thành công");
+        setShowQuickAddModal(false);
+        // Reset form
+        setQuickAddForm({
+          fullAddress: "",
+          city: "",
+          district: "",
+          ward: "",
+          streetAddress: "",
+          latitude: 21.0285,
+          longitude: 105.8542,
+          recipientPhone: "",
+          isDefault: false,
+        });
+        setQuickAddMapSearch("");
+        // Refetch addresses and select the new one
+        refetchAddresses();
+        if (data.result?.id) {
+          setSelectedAddressId(data.result.id);
+        }
+      },
+      onError: (error) => {
+        toast.error(
+          error instanceof Error ? error.message : "Không thể tạo địa chỉ",
+        );
+      },
+    });
+  };
 
   const items = cartData?.cartItems || [];
   const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
@@ -67,10 +331,68 @@ export default function CheckoutPage() {
     setOrderData((prev) => ({ ...prev, [field]: value }));
   };
 
+  const handleCalculateShippingAndContinue = async () => {
+    console.log("=== Starting shipping fee calculation ===");
+    if (!selectedAddressId) {
+      toast.error("Vui lòng chọn địa chỉ giao hàng");
+      return;
+    }
+
+    try {
+      // Map cart items to shipping fee request format
+      const itemsForShippingFee = items.map((item) => ({
+        koiFishId: item.koiFishId || 0,
+        packetFishId: item.packetFishId || 0,
+        quantity: item.quantity,
+      }));
+
+      console.log("Items for shipping fee:", itemsForShippingFee);
+      console.log("Selected address ID:", selectedAddressId);
+
+      console.log("Calling calculateShippingFee mutation...");
+      const result = await calculateShippingFee({
+        items: itemsForShippingFee,
+        customerAddressId: selectedAddressId,
+      });
+
+      console.log("=== [Checkout] Got result from mutation ===");
+      console.log("Response data:", result);
+      console.log("Type of result:", typeof result);
+      console.log("result.isSuccess:", result?.isSuccess);
+      console.log("result.result:", result?.result);
+
+      if (result?.isSuccess && result?.result) {
+        console.log("Setting shipping fee data and moving to step 2...");
+        setShippingFeeData(result.result);
+        toast.success("Tính phí vận chuyển thành công");
+        setStep(2);
+      } else {
+        console.error(
+          "API returned unsuccessful response:",
+          result?.message || "Unknown error",
+        );
+        toast.error(
+          result?.message || "Không thể tính phí vận chuyển. Vui lòng thử lại",
+        );
+      }
+    } catch (error: Error | unknown) {
+      console.error("=== [Checkout] Error caught ===");
+      console.error("Error details:", error);
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
+      console.error("Error message:", errorMessage);
+      toast.error(
+        errorMessage ||
+          "Có lỗi xảy ra khi tính phí vận chuyển. Vui lòng thử lại",
+      );
+    }
+  };
+
   const handleSubmitOrder = () => {
     convertToOrder(
       {
-        shippingFee: 0,
+        customerAddressId: selectedAddressId || undefined,
+        shippingFee: shippingFeeData?.totalShippingFee || 0,
       },
       {
         onSuccess: (data) => {
@@ -92,8 +414,11 @@ export default function CheckoutPage() {
     );
   };
 
-  const isStep1Valid = orderData.shippingAddress && orderData.contactNumber;
+  const isStep1Valid = selectedAddressId && !isLoadingAddresses;
   const isStep2Valid = orderData.paymentMethod && orderData.agreeTerms;
+  const selectedAddress = addresses?.find(
+    (addr) => addr.id === selectedAddressId,
+  );
 
   // Loading state
   if (isLoading) {
@@ -257,77 +582,173 @@ export default function CheckoutPage() {
                       Thông tin giao hàng
                     </CardTitle>
                     <p className="text-sm text-muted-foreground">
-                      Vui lòng cung cấp địa chỉ giao hàng và số liên hệ
+                      Vui lòng chọn địa chỉ giao hàng
                     </p>
                   </CardHeader>
                   <CardContent className="space-y-4 md:space-y-6">
-                    <div className="space-y-2">
-                      <Label
-                        htmlFor="shippingAddress"
-                        className="text-sm font-medium"
-                      >
-                        Địa chỉ giao hàng{" "}
-                        <span className="text-destructive">*</span>
-                      </Label>
-                      <Input
-                        id="shippingAddress"
-                        value={orderData.shippingAddress}
-                        onChange={(e) =>
-                          handleInputChange("shippingAddress", e.target.value)
-                        }
-                        placeholder="VD: 123 Đường ABC, Phường XYZ, Quận ABC, TP. Hồ Chí Minh"
-                        className={`transition-colors ${
-                          orderData.shippingAddress
-                            ? "border-green-500 bg-green-50/50"
-                            : ""
-                        }`}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label
-                        htmlFor="contactNumber"
-                        className="text-sm font-medium"
-                      >
-                        Số điện thoại liên hệ{" "}
-                        <span className="text-destructive">*</span>
-                      </Label>
-                      <Input
-                        id="contactNumber"
-                        value={orderData.contactNumber}
-                        onChange={(e) =>
-                          handleInputChange("contactNumber", e.target.value)
-                        }
-                        placeholder="0xxxxxxxxx"
-                        className={`transition-colors ${
-                          orderData.contactNumber
-                            ? "border-green-500 bg-green-50/50"
-                            : ""
-                        }`}
-                      />
-                    </div>
-                    <div className="flex justify-between items-center pt-4">
-                      <p className="text-xs text-muted-foreground">
-                        Các trường có dấu{" "}
-                        <span className="text-destructive">*</span> là bắt buộc
-                      </p>
-                      <div className="flex gap-2">
+                    {/* Address Selection */}
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <Label className="text-sm font-medium">
+                          Địa chỉ giao hàng{" "}
+                          <span className="text-destructive">*</span>
+                        </Label>
                         <Button
+                          size="sm"
                           variant="outline"
-                          onClick={() => setStep(2)}
-                          className="px-6"
+                          onClick={() => setShowQuickAddModal(true)}
+                          className="gap-1"
                         >
-                          Bỏ qua
-                          <ArrowLeft className="ml-2 h-4 w-4 rotate-180" />
-                        </Button>
-                        <Button
-                          onClick={() => setStep(2)}
-                          disabled={!isStep1Valid}
-                          className="px-8"
-                        >
-                          Tiếp tục
-                          <ArrowLeft className="ml-2 h-4 w-4 rotate-180" />
+                          <Plus className="h-4 w-4" />
+                          <span className="hidden sm:inline">Thêm mới</span>
                         </Button>
                       </div>
+
+                      {isLoadingAddresses ? (
+                        <div className="flex items-center justify-center p-6">
+                          <Loader2 className="h-5 w-5 animate-spin text-primary" />
+                          <span className="ml-2 text-sm text-muted-foreground">
+                            Đang tải địa chỉ...
+                          </span>
+                        </div>
+                      ) : addresses && addresses.length > 0 ? (
+                        <>
+                          <Select
+                            value={selectedAddressId?.toString() || ""}
+                            onValueChange={(value) =>
+                              setSelectedAddressId(parseInt(value))
+                            }
+                          >
+                            <SelectTrigger className="transition-colors border-2 hover:border-primary/50 focus:border-primary">
+                              <SelectValue placeholder="Chọn địa chỉ giao hàng" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {addresses.map((addr) => (
+                                <SelectItem
+                                  key={addr.id}
+                                  value={addr.id.toString()}
+                                >
+                                  <div className="flex items-center gap-2">
+                                    <MapPin className="h-4 w-4" />
+                                    <span>
+                                      {addr.customerName} - {addr.fullAddress}
+                                    </span>
+                                    {addr.isDefault && (
+                                      <Badge
+                                        variant="secondary"
+                                        className="ml-2"
+                                      >
+                                        Mặc định
+                                      </Badge>
+                                    )}
+                                  </div>
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+
+                          {/* Selected Address Details */}
+                          {selectedAddress && (
+                            <Card className="bg-primary/5 border-primary/20">
+                              <CardContent className="pt-4">
+                                <div className="space-y-2 text-sm">
+                                  <div className="flex items-start gap-2">
+                                    <MapPin className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+                                    <div>
+                                      <p className="font-medium">
+                                        {selectedAddress.customerName}
+                                      </p>
+                                      <p className="text-muted-foreground">
+                                        {selectedAddress.fullAddress}
+                                      </p>
+                                    </div>
+                                  </div>
+                                  <div className="grid grid-cols-2 gap-2 text-xs">
+                                    <div>
+                                      <p className="text-muted-foreground">
+                                        Thành phố
+                                      </p>
+                                      <p className="font-medium">
+                                        {selectedAddress.city}
+                                      </p>
+                                    </div>
+                                    <div>
+                                      <p className="text-muted-foreground">
+                                        Quận/Huyện
+                                      </p>
+                                      <p className="font-medium">
+                                        {selectedAddress.district}
+                                      </p>
+                                    </div>
+                                    <div>
+                                      <p className="text-muted-foreground">
+                                        Phường/Xã
+                                      </p>
+                                      <p className="font-medium">
+                                        {selectedAddress.ward}
+                                      </p>
+                                    </div>
+                                    <div>
+                                      <p className="text-muted-foreground">
+                                        Điện thoại
+                                      </p>
+                                      <p className="font-medium">
+                                        {selectedAddress.recipientPhone}
+                                      </p>
+                                    </div>
+                                  </div>
+                                </div>
+                              </CardContent>
+                            </Card>
+                          )}
+                        </>
+                      ) : (
+                        <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg">
+                          <p className="text-sm text-amber-800">
+                            Bạn chưa có địa chỉ nào. Vui lòng nhập địa chỉ giao
+                            hàng dưới đây.
+                          </p>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Fallback: Manual Address Input */}
+                    {!selectedAddress && (
+                      <div className="space-y-2">
+                        <Label
+                          htmlFor="shippingAddress"
+                          className="text-sm font-medium"
+                        >
+                          Hoặc nhập địa chỉ thủ công{" "}
+                          <span className="text-destructive">*</span>
+                        </Label>
+                        <Input
+                          id="shippingAddress"
+                          placeholder="VD: 123 Đường ABC, Phường XYZ, Quận ABC, TP. Hồ Chí Minh"
+                          disabled
+                          className="bg-muted/30 text-muted-foreground cursor-not-allowed"
+                          value="Vui lòng chọn một địa chỉ từ danh sách trên"
+                        />
+                      </div>
+                    )}
+                    <div className="flex justify-end items-center pt-4">
+                      <Button
+                        onClick={handleCalculateShippingAndContinue}
+                        disabled={!isStep1Valid || isCalculatingShippingFee}
+                        className="px-8"
+                      >
+                        {isCalculatingShippingFee ? (
+                          <>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            Đang tính phí...
+                          </>
+                        ) : (
+                          <>
+                            Tiếp tục
+                            <ArrowLeft className="ml-2 h-4 w-4 rotate-180" />
+                          </>
+                        )}
+                      </Button>
                     </div>
                   </CardContent>
                 </Card>
@@ -335,65 +756,145 @@ export default function CheckoutPage() {
 
               {/* Step 2: Payment */}
               {step === 2 && (
-                <Card className="shadow-sm border-0 bg-card/50 backdrop-blur-sm">
-                  <CardHeader className="pb-4">
-                    <CardTitle className="flex items-center gap-2">
-                      <div className="w-2 h-2 rounded-full bg-primary"></div>
-                      Phương thức thanh toán
-                    </CardTitle>
-                    <p className="text-sm text-muted-foreground">
-                      Thanh toán an toàn qua cổng VNPay
-                    </p>
-                  </CardHeader>
-                  <CardContent className="space-y-6">
-                    <RadioGroup
-                      value={orderData.paymentMethod}
-                      onValueChange={(value) =>
-                        handleInputChange("paymentMethod", value)
-                      }
-                      className="space-y-3"
-                    >
-                      {/* VNPay Payment Method */}
-                      <div
-                        className={`relative flex items-center space-x-3 p-4 border-2 rounded-xl transition-all cursor-pointer hover:bg-muted/50 ${
-                          orderData.paymentMethod === "vnpay"
-                            ? "border-primary bg-primary/5 shadow-sm"
-                            : "border-border hover:border-muted-foreground/30"
-                        }`}
-                      >
-                        <RadioGroupItem
-                          value="vnpay"
-                          id="vnpay"
-                          className="mt-1"
-                        />
-                        <Label
-                          htmlFor="vnpay"
-                          className="flex-1 cursor-pointer"
-                        >
-                          <div className="flex items-start gap-3">
-                            <div className="p-2 rounded-lg bg-blue-100 text-blue-600">
-                              <CreditCard className="h-5 w-5" />
-                            </div>
-                            <div className="space-y-1">
-                              <p className="font-semibold">
-                                Thanh toán qua VNPay
-                              </p>
-                              <p className="text-sm text-muted-foreground">
-                                Thanh toán trực tuyến an toàn qua cổng VNPay. Hỗ
-                                trợ tất cả thẻ tín dụng, thẻ ghi nợ và ví điện
-                                tử.
-                              </p>
-                              <div className="flex items-center gap-2 text-xs text-blue-600">
-                                <Shield className="h-3 w-3" />
-                                Bảo mật cao - Thanh toán online tối ưu
+                <>
+                  {/* Shipping Fee Details */}
+                  {shippingFeeData && (
+                    <Card className="shadow-sm border-0 bg-blue-50/50 border-blue-200">
+                      <CardHeader className="pb-3">
+                        <CardTitle className="flex items-center gap-2 text-base">
+                          <div className="w-2 h-2 rounded-full bg-blue-600"></div>
+                          Chi tiết phí vận chuyển
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-3">
+                        <div className="space-y-2 text-sm">
+                          {shippingFeeData.boxes &&
+                            shippingFeeData.boxes.length > 0 && (
+                              <div>
+                                <p className="font-medium text-foreground mb-2">
+                                  Thông tin thùng:
+                                </p>
+                                <div className="space-y-2">
+                                  {shippingFeeData.boxes.map(
+                                    (box: ShippingBox, index: number) => (
+                                      <div
+                                        key={index}
+                                        className="p-2 bg-white rounded border border-blue-100"
+                                      >
+                                        <div className="flex justify-between items-start">
+                                          <div>
+                                            <p className="font-medium">
+                                              {box.boxName}
+                                            </p>
+                                            <p className="text-xs text-muted-foreground">
+                                              Số lượng: {box.quantity}
+                                            </p>
+                                          </div>
+                                          <div className="text-right">
+                                            <p className="font-medium">
+                                              {formatPrice(box.subtotal)}
+                                            </p>
+                                            <p className="text-xs text-muted-foreground">
+                                              {formatPrice(box.feePerBox)}/thùng
+                                            </p>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    ),
+                                  )}
+                                </div>
                               </div>
+                            )}
+                          <div className="pt-2 space-y-1 border-t border-blue-100">
+                            <div className="flex justify-between">
+                              <span>Phí theo thùng:</span>
+                              <span>{formatPrice(shippingFeeData.boxFee)}</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span>
+                                Phí theo khoảng cách (
+                                {shippingFeeData.distanceKm} km):
+                              </span>
+                              <span>
+                                {formatPrice(shippingFeeData.distanceFee)}
+                              </span>
+                            </div>
+                            <div className="flex justify-between font-bold pt-1 text-primary">
+                              <span>Tổng phí vận chuyển:</span>
+                              <span>
+                                {formatPrice(shippingFeeData.totalShippingFee)}
+                              </span>
                             </div>
                           </div>
-                        </Label>
-                      </div>
+                          {shippingFeeData.notes && (
+                            <p className="text-xs italic text-muted-foreground pt-2">
+                              Ghi chú: {shippingFeeData.notes}
+                            </p>
+                          )}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
 
-                      {/* Momo Payment Method (thêm sau) - Ẩn tạm thời */}
-                      {/*
+                  <Card className="shadow-sm border-0 bg-card/50 backdrop-blur-sm">
+                    <CardHeader className="pb-4">
+                      <CardTitle className="flex items-center gap-2">
+                        <div className="w-2 h-2 rounded-full bg-primary"></div>
+                        Phương thức thanh toán
+                      </CardTitle>
+                      <p className="text-sm text-muted-foreground">
+                        Thanh toán an toàn qua cổng VNPay
+                      </p>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                      <RadioGroup
+                        value={orderData.paymentMethod}
+                        onValueChange={(value) =>
+                          handleInputChange("paymentMethod", value)
+                        }
+                        className="space-y-3"
+                      >
+                        {/* VNPay Payment Method */}
+                        <div
+                          className={`relative flex items-center space-x-3 p-4 border-2 rounded-xl transition-all cursor-pointer hover:bg-muted/50 ${
+                            orderData.paymentMethod === "vnpay"
+                              ? "border-primary bg-primary/5 shadow-sm"
+                              : "border-border hover:border-muted-foreground/30"
+                          }`}
+                        >
+                          <RadioGroupItem
+                            value="vnpay"
+                            id="vnpay"
+                            className="mt-1"
+                          />
+                          <Label
+                            htmlFor="vnpay"
+                            className="flex-1 cursor-pointer"
+                          >
+                            <div className="flex items-start gap-3">
+                              <div className="p-2 rounded-lg bg-blue-100 text-blue-600">
+                                <CreditCard className="h-5 w-5" />
+                              </div>
+                              <div className="space-y-1">
+                                <p className="font-semibold">
+                                  Thanh toán qua VNPay
+                                </p>
+                                <p className="text-sm text-muted-foreground">
+                                  Thanh toán trực tuyến an toàn qua cổng VNPay.
+                                  Hỗ trợ tất cả thẻ tín dụng, thẻ ghi nợ và ví
+                                  điện tử.
+                                </p>
+                                <div className="flex items-center gap-2 text-xs text-blue-600">
+                                  <Shield className="h-3 w-3" />
+                                  Bảo mật cao - Thanh toán online tối ưu
+                                </div>
+                              </div>
+                            </div>
+                          </Label>
+                        </div>
+
+                        {/* Momo Payment Method (thêm sau) - Ẩn tạm thời */}
+                        {/*
                       <div className={`relative flex items-center space-x-3 p-4 border-2 rounded-xl transition-all cursor-pointer hover:bg-muted/50 ${
                         orderData.paymentMethod === "momo"
                           ? "border-primary bg-primary/5 shadow-sm"
@@ -415,87 +916,89 @@ export default function CheckoutPage() {
                         </Label>
                       </div>
                       */}
-                    </RadioGroup>
+                      </RadioGroup>
 
-                    {/* VNPay Information */}
-                    {orderData.paymentMethod === "vnpay" && (
-                      <Card className="bg-blue-50 border-blue-200">
-                        <CardContent className="p-4">
-                          <h4 className="font-medium mb-3 text-blue-900">
-                            Thông tin thanh toán VNPay:
-                          </h4>
-                          <div className="space-y-2 text-sm text-blue-800">
-                            <p>
-                              ✓ Thanh toán qua tất cả ngân hàng tại Việt Nam
-                            </p>
-                            <p>
-                              ✓ Hỗ trợ ví điện tử (VN Pay, Momo, Zalo Pay, ...)
-                            </p>
-                            <p>
-                              ✓ Hoàn tiền nhanh chóng nếu giao dịch thất bại
-                            </p>
-                            <p>✓ An toàn, bảo mật, được chứng thực</p>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    )}
+                      {/* VNPay Information */}
+                      {orderData.paymentMethod === "vnpay" && (
+                        <Card className="bg-blue-50 border-blue-200">
+                          <CardContent className="p-4">
+                            <h4 className="font-medium mb-3 text-blue-900">
+                              Thông tin thanh toán VNPay:
+                            </h4>
+                            <div className="space-y-2 text-sm text-blue-800">
+                              <p>
+                                ✓ Thanh toán qua tất cả ngân hàng tại Việt Nam
+                              </p>
+                              <p>
+                                ✓ Hỗ trợ ví điện tử (VN Pay, Momo, Zalo Pay,
+                                ...)
+                              </p>
+                              <p>
+                                ✓ Hoàn tiền nhanh chóng nếu giao dịch thất bại
+                              </p>
+                              <p>✓ An toàn, bảo mật, được chứng thực</p>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      )}
 
-                    <div className="space-y-3">
-                      <div className="flex items-center space-x-2">
-                        <Checkbox
-                          id="terms"
-                          checked={orderData.agreeTerms}
-                          onCheckedChange={(checked) =>
-                            handleInputChange("agreeTerms", checked)
-                          }
-                        />
-                        <Label htmlFor="terms" className="text-sm">
-                          Tôi đồng ý với{" "}
-                          <Link
-                            href="/polycies"
-                            className="text-primary hover:underline"
-                          >
-                            điều khoản và điều kiện
-                          </Link>{" "}
-                          <span className="text-destructive">*</span>
-                        </Label>
+                      <div className="space-y-3">
+                        <div className="flex items-center space-x-2">
+                          <Checkbox
+                            id="terms"
+                            checked={orderData.agreeTerms}
+                            onCheckedChange={(checked) =>
+                              handleInputChange("agreeTerms", checked)
+                            }
+                          />
+                          <Label htmlFor="terms" className="text-sm">
+                            Tôi đồng ý với{" "}
+                            <Link
+                              href="/polycies"
+                              className="text-primary hover:underline"
+                            >
+                              điều khoản và điều kiện
+                            </Link>{" "}
+                            <span className="text-destructive">*</span>
+                          </Label>
+                        </div>
                       </div>
-                    </div>
 
-                    <div className="flex justify-between items-center pt-6 border-t">
-                      <Button
-                        variant="outline"
-                        onClick={() => setStep(1)}
-                        className="px-6"
-                        disabled={isSubmitting}
-                      >
-                        <ArrowLeft className="mr-2 h-4 w-4" />
-                        Quay lại
-                      </Button>
-                      <Button
-                        onClick={handleSubmitOrder}
-                        disabled={
-                          !isStep2Valid || isSubmitting || isCreatingPayment
-                        }
-                        className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 px-8 py-2.5 shadow-lg disabled:opacity-50"
-                      >
-                        {isSubmitting || isCreatingPayment ? (
-                          <>
-                            <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                            {isSubmitting
-                              ? "Đang tạo đơn hàng..."
-                              : "Đang khởi tạo thanh toán..."}
-                          </>
-                        ) : (
-                          <>
-                            <CheckCircle className="mr-2 h-4 w-4" />
-                            Hoàn tất đặt hàng
-                          </>
-                        )}
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
+                      <div className="flex justify-between items-center pt-6 border-t">
+                        <Button
+                          variant="outline"
+                          onClick={() => setStep(1)}
+                          className="px-6"
+                          disabled={isSubmitting}
+                        >
+                          <ArrowLeft className="mr-2 h-4 w-4" />
+                          Quay lại
+                        </Button>
+                        <Button
+                          onClick={handleSubmitOrder}
+                          disabled={
+                            !isStep2Valid || isSubmitting || isCreatingPayment
+                          }
+                          className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 px-8 py-2.5 shadow-lg disabled:opacity-50"
+                        >
+                          {isSubmitting || isCreatingPayment ? (
+                            <>
+                              <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                              {isSubmitting
+                                ? "Đang tạo đơn hàng..."
+                                : "Đang khởi tạo thanh toán..."}
+                            </>
+                          ) : (
+                            <>
+                              <CheckCircle className="mr-2 h-4 w-4" />
+                              Hoàn tất đặt hàng
+                            </>
+                          )}
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </>
               )}
             </div>
 
@@ -586,12 +1089,48 @@ export default function CheckoutPage() {
                       </span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">
-                        Phí vận chuyển
-                      </span>
-                      <span className="text-green-600 font-medium">
-                        Miễn phí
-                      </span>
+                      <div className="flex flex-col">
+                        <span className="text-muted-foreground">
+                          Phí vận chuyển
+                        </span>
+                        {shippingFeeData && (
+                          <span className="text-xs text-muted-foreground">
+                            {shippingFeeData.distanceKm > 0 &&
+                              `${shippingFeeData.distanceKm} km`}
+                            {shippingFeeData.distanceKm > 0 &&
+                              shippingFeeData.boxes.length > 0 &&
+                              " • "}
+                            {shippingFeeData.boxes.length > 0 &&
+                              `${shippingFeeData.boxes.reduce((sum: number, box: ShippingBox) => sum + box.quantity, 0)} thùng`}
+                          </span>
+                        )}
+                      </div>
+                      <div className="text-right">
+                        {shippingFeeData ? (
+                          <div className="flex flex-col items-end">
+                            <span
+                              className={`font-medium ${
+                                shippingFeeData.totalShippingFee === 0
+                                  ? "text-green-600"
+                                  : ""
+                              }`}
+                            >
+                              {shippingFeeData.totalShippingFee === 0
+                                ? "Miễn phí"
+                                : formatPrice(shippingFeeData.totalShippingFee)}
+                            </span>
+                            {shippingFeeData.notes && (
+                              <span className="text-xs text-muted-foreground">
+                                {shippingFeeData.notes}
+                              </span>
+                            )}
+                          </div>
+                        ) : (
+                          <span className="text-muted-foreground text-sm">
+                            Chưa tính
+                          </span>
+                        )}
+                      </div>
                     </div>
                     <div className="flex justify-between text-sm">
                       <span className="text-muted-foreground">Thuế VAT</span>
@@ -601,7 +1140,10 @@ export default function CheckoutPage() {
                     <div className="flex justify-between font-bold text-lg">
                       <span>Tổng cộng</span>
                       <span className="text-primary text-xl">
-                        {formatPrice(getTotalPrice())}
+                        {formatPrice(
+                          getTotalPrice() +
+                            (shippingFeeData?.totalShippingFee || 0),
+                        )}
                       </span>
                     </div>
                   </div>
@@ -635,6 +1177,226 @@ export default function CheckoutPage() {
           </div>
         </div>
       </div>
+
+      {/* Quick Add Address Modal */}
+      <Dialog
+        open={showQuickAddModal}
+        onOpenChange={(open) => {
+          setShowQuickAddModal(open);
+          if (!open) {
+            // Reset search when modal closes
+            setQuickAddMapSearch("");
+          }
+        }}
+      >
+        <DialogContent className="sm:max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Thêm địa chỉ nhanh</DialogTitle>
+            <DialogDescription>
+              Nhập thông tin địa chỉ hoặc tìm kiếm trên bản đồ để xác định vị
+              trí
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Form Fields */}
+            <div className="space-y-3">
+              {/* Full Address */}
+              <div className="space-y-1">
+                <Label htmlFor="qa-fullAddress" className="text-sm">
+                  Địa chỉ đầy đủ
+                </Label>
+                <Input
+                  id="qa-fullAddress"
+                  name="fullAddress"
+                  placeholder="VD: 123 Đường ABC, Hà Nội"
+                  value={quickAddForm.fullAddress}
+                  onChange={handleQuickAddInputChange}
+                  disabled={isCreatingAddress}
+                  className="h-9"
+                />
+              </div>
+
+              {/* City */}
+              <div className="space-y-1">
+                <Label htmlFor="qa-city" className="text-sm">
+                  Thành phố
+                </Label>
+                <Input
+                  id="qa-city"
+                  name="city"
+                  placeholder="VD: Hà Nội"
+                  value={quickAddForm.city}
+                  onChange={handleQuickAddInputChange}
+                  disabled={isCreatingAddress}
+                  className="h-9"
+                />
+              </div>
+
+              {/* District */}
+              <div className="space-y-1">
+                <Label htmlFor="qa-district" className="text-sm">
+                  Quận/Huyện
+                </Label>
+                <Input
+                  id="qa-district"
+                  name="district"
+                  placeholder="VD: Hoàn Kiếm"
+                  value={quickAddForm.district}
+                  onChange={handleQuickAddInputChange}
+                  disabled={isCreatingAddress}
+                  className="h-9"
+                />
+              </div>
+
+              {/* Ward */}
+              <div className="space-y-1">
+                <Label htmlFor="qa-ward" className="text-sm">
+                  Phường/Xã
+                </Label>
+                <Input
+                  id="qa-ward"
+                  name="ward"
+                  placeholder="VD: Hàng Trống"
+                  value={quickAddForm.ward}
+                  onChange={handleQuickAddInputChange}
+                  disabled={isCreatingAddress}
+                  className="h-9"
+                />
+              </div>
+
+              {/* Street Address */}
+              <div className="space-y-1">
+                <Label htmlFor="qa-streetAddress" className="text-sm">
+                  Số nhà/Đường phố
+                </Label>
+                <Input
+                  id="qa-streetAddress"
+                  name="streetAddress"
+                  placeholder="VD: 123 Đường ABC"
+                  value={quickAddForm.streetAddress}
+                  onChange={handleQuickAddInputChange}
+                  disabled={isCreatingAddress}
+                  className="h-9"
+                />
+              </div>
+
+              {/* Phone */}
+              <div className="space-y-1">
+                <Label htmlFor="qa-phone" className="text-sm">
+                  Số điện thoại
+                </Label>
+                <Input
+                  id="qa-phone"
+                  name="recipientPhone"
+                  placeholder="VD: 0987654321"
+                  value={quickAddForm.recipientPhone}
+                  onChange={handleQuickAddInputChange}
+                  disabled={isCreatingAddress}
+                  maxLength={10}
+                  className="h-9"
+                />
+              </div>
+
+              {/* Default Address Checkbox */}
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="qa-isDefault"
+                  checked={quickAddForm.isDefault}
+                  onCheckedChange={handleQuickAddCheckboxChange}
+                  disabled={isCreatingAddress}
+                />
+                <Label
+                  htmlFor="qa-isDefault"
+                  className="text-xs font-normal cursor-pointer"
+                >
+                  Đặt làm địa chỉ mặc định
+                </Label>
+              </div>
+            </div>
+
+            {/* Map */}
+            <div className="flex flex-col gap-2">
+              <Label className="text-sm font-medium">
+                Tìm kiếm & Chọn vị trí
+              </Label>
+
+              {/* Search Box */}
+              <div className="relative">
+                <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+                <Input
+                  placeholder="Tìm kiếm địa chỉ..."
+                  value={quickAddMapSearch}
+                  onChange={handleQuickAddMapSearchChange}
+                  disabled={isCreatingAddress}
+                  className="pl-10 h-9"
+                />
+                {isGeocoding && (
+                  <Loader2 className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 animate-spin text-primary" />
+                )}
+              </div>
+
+              {/* Map Container */}
+              <div className="w-full h-80 rounded-lg overflow-hidden border border-border flex-1">
+                <MapContainer
+                  key={quickAddMapKey}
+                  center={[quickAddForm.latitude, quickAddForm.longitude]}
+                  zoom={13}
+                  style={{ height: "100%", width: "100%" }}
+                >
+                  <TileLayer
+                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                  />
+                  <QuickAddMapMover
+                    lat={quickAddForm.latitude}
+                    lng={quickAddForm.longitude}
+                  />
+                  <QuickAddMapClickHandler
+                    onMapClick={handleQuickAddMapClick}
+                  />
+                  <Marker
+                    position={[quickAddForm.latitude, quickAddForm.longitude]}
+                  >
+                    <Popup>
+                      Vĩ độ: {quickAddForm.latitude.toFixed(6)}
+                      <br />
+                      Kinh độ: {quickAddForm.longitude.toFixed(6)}
+                    </Popup>
+                  </Marker>
+                </MapContainer>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                💡 Tìm kiếm địa chỉ hoặc nhấp trên bản đồ để chọn vị trí
+              </p>
+            </div>
+          </div>
+
+          {/* Buttons */}
+          <div className="flex gap-2 justify-end pt-4 border-t">
+            <Button
+              variant="outline"
+              onClick={() => setShowQuickAddModal(false)}
+              disabled={isCreatingAddress}
+            >
+              Hủy
+            </Button>
+            <Button onClick={handleQuickAddSubmit} disabled={isCreatingAddress}>
+              {isCreatingAddress ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Đang thêm...
+                </>
+              ) : (
+                <>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Thêm địa chỉ
+                </>
+              )}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

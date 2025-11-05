@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
+import Image from "next/image";
 import { useGetOrderById } from "@/hooks/useOrder";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -147,10 +148,30 @@ export default function CheckoutSuccessPage() {
                     {order.orderDetails.map((item, index) => (
                       <div
                         key={index}
-                        className="flex justify-between items-center p-3 bg-muted/30 rounded-lg"
+                        className="flex gap-3 p-3 bg-muted/30 rounded-lg hover:bg-muted/50 transition-colors"
                       >
-                        <div>
-                          <p className="font-medium">
+                        {/* Product Image */}
+                        <div className="relative w-20 h-20 rounded-md overflow-hidden flex-shrink-0 bg-muted">
+                          <Image
+                            src={
+                              item.koiFish?.images?.[0] ||
+                              item.packetFish?.images?.[0] ||
+                              ""
+                            }
+                            alt={
+                              item.koiFish?.rfid ||
+                              item.packetFish?.name ||
+                              "Sản phẩm"
+                            }
+                            fill
+                            className="object-cover"
+                            sizes="80px"
+                          />
+                        </div>
+
+                        {/* Product Details */}
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium truncate">
                             {item.koiFish?.rfid ||
                               item.packetFish?.name ||
                               "Sản phẩm"}
@@ -158,10 +179,17 @@ export default function CheckoutSuccessPage() {
                           <p className="text-sm text-muted-foreground">
                             Số lượng: {item.quantity}
                           </p>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            {formatCurrency(item.unitPrice)} / cái
+                          </p>
                         </div>
-                        <p className="font-semibold">
-                          {formatCurrency(item.totalPrice)}
-                        </p>
+
+                        {/* Price */}
+                        <div className="flex flex-col items-end justify-center min-w-0">
+                          <p className="font-semibold">
+                            {formatCurrency(item.totalPrice)}
+                          </p>
+                        </div>
                       </div>
                     ))}
                   </div>

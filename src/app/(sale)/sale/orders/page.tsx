@@ -56,6 +56,7 @@ import {
   DollarSign,
   Loader2,
   X,
+  Truck,
 } from "lucide-react";
 import { formatCurrency } from "@/lib/utils/numbers/formatCurrency";
 import { useGetAllOrders, useUpdateOrderStatus } from "@/hooks/useOrder";
@@ -89,6 +90,14 @@ export default function OrdersPage() {
   const [isCancelDialogOpen, setIsCancelDialogOpen] = useState(false);
   const [cancelReason, setCancelReason] = useState<string>("");
 
+  // Ship order dialog state
+  const [isShipDialogOpen, setIsShipDialogOpen] = useState(false);
+  const [shipNote, setShipNote] = useState<string>("");
+
+  // Complete order dialog state
+  const [isCompleteDialogOpen, setIsCompleteDialogOpen] = useState(false);
+  const [completeNote, setCompleteNote] = useState<string>("");
+
   // Selected order for actions
   const [selectedOrderId, setSelectedOrderId] = useState<number | null>(null);
 
@@ -97,7 +106,28 @@ export default function OrdersPage() {
 
   // Check if order can be updated
   const canUpdateOrder = (status: string): boolean => {
-    return status === OrderStatus.PAID;
+    return (
+      status === OrderStatus.PAID ||
+      status === OrderStatus.CONFIRMED ||
+      status === OrderStatus.SHIPPED
+    );
+  };
+
+  // Get available actions for order status
+  const getAvailableActions = (
+    status: string,
+  ): {
+    canConfirm: boolean;
+    canCancel: boolean;
+    canShip: boolean;
+    canComplete: boolean;
+  } => {
+    return {
+      canConfirm: status === OrderStatus.PAID,
+      canCancel: status === OrderStatus.PAID,
+      canShip: status === OrderStatus.CONFIRMED,
+      canComplete: status === OrderStatus.SHIPPED,
+    };
   };
 
   // Handler for opening confirm dialog
@@ -177,6 +207,84 @@ export default function OrdersPage() {
         onError: (error) => {
           toast.error(
             error instanceof Error ? error.message : "Không thể hủy đơn hàng",
+          );
+        },
+      },
+    );
+  };
+
+  // Handler for opening ship dialog
+  const handleOpenShipDialog = (orderId: number) => {
+    setSelectedOrderId(orderId);
+    setShipNote("");
+    setIsShipDialogOpen(true);
+  };
+
+  // Handler for shipping order (CONFIRMED -> SHIPPED)
+  const handleShipOrder = () => {
+    if (!selectedOrderId) {
+      toast.error("Không tìm thấy đơn hàng");
+      return;
+    }
+
+    updateStatusMutation.mutate(
+      {
+        orderId: selectedOrderId,
+        request: {
+          status: OrderStatus.SHIPPED,
+          note: shipNote || undefined,
+        },
+      },
+      {
+        onSuccess: () => {
+          toast.success("Đơn hàng đã được gửi đi");
+          setIsShipDialogOpen(false);
+          setSelectedOrderId(null);
+          setShipNote("");
+        },
+        onError: (error) => {
+          toast.error(
+            error instanceof Error ? error.message : "Không thể gửi đơn hàng",
+          );
+        },
+      },
+    );
+  };
+
+  // Handler for opening complete dialog
+  const handleOpenCompleteDialog = (orderId: number) => {
+    setSelectedOrderId(orderId);
+    setCompleteNote("");
+    setIsCompleteDialogOpen(true);
+  };
+
+  // Handler for completing order (SHIPPED -> COMPLETED)
+  const handleCompleteOrder = () => {
+    if (!selectedOrderId) {
+      toast.error("Không tìm thấy đơn hàng");
+      return;
+    }
+
+    updateStatusMutation.mutate(
+      {
+        orderId: selectedOrderId,
+        request: {
+          status: OrderStatus.COMPLETED,
+          note: completeNote || undefined,
+        },
+      },
+      {
+        onSuccess: () => {
+          toast.success("Đơn hàng đã hoàn thành");
+          setIsCompleteDialogOpen(false);
+          setSelectedOrderId(null);
+          setCompleteNote("");
+        },
+        onError: (error) => {
+          toast.error(
+            error instanceof Error
+              ? error.message
+              : "Không thể hoàn thành đơn hàng",
           );
         },
       },
@@ -637,24 +745,52 @@ export default function OrdersPage() {
                           </Link>
                         </DropdownMenuItem>
 
-                        {/* Show action buttons only for PAID status */}
+                        {/* Show action buttons based on status */}
                         {canUpdateOrder(order.status) && (
                           <>
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem
-                              onClick={() => handleOpenConfirmDialog(order.id)}
-                              className="text-green-600"
-                            >
-                              <CheckCircle className="mr-2 h-4 w-4" />
-                              Xác nhận đơn
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={() => handleOpenCancelDialog(order.id)}
-                              className="text-red-600"
-                            >
-                              <XCircle className="mr-2 h-4 w-4" />
-                              Hủy đơn hàng
-                            </DropdownMenuItem>
+                            {getAvailableActions(order.status).canConfirm && (
+                              <>
+                                <DropdownMenuItem
+                                  onClick={() =>
+                                    handleOpenConfirmDialog(order.id)
+                                  }
+                                  className="text-green-600"
+                                >
+                                  <CheckCircle className="mr-2 h-4 w-4" />
+                                  Xác nhận đơn
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                  onClick={() =>
+                                    handleOpenCancelDialog(order.id)
+                                  }
+                                  className="text-red-600"
+                                >
+                                  <XCircle className="mr-2 h-4 w-4" />
+                                  Hủy đơn hàng
+                                </DropdownMenuItem>
+                              </>
+                            )}
+                            {getAvailableActions(order.status).canShip && (
+                              <DropdownMenuItem
+                                onClick={() => handleOpenShipDialog(order.id)}
+                                className="text-blue-600"
+                              >
+                                <Truck className="mr-2 h-4 w-4" />
+                                Gửi đơn hàng
+                              </DropdownMenuItem>
+                            )}
+                            {getAvailableActions(order.status).canComplete && (
+                              <DropdownMenuItem
+                                onClick={() =>
+                                  handleOpenCompleteDialog(order.id)
+                                }
+                                className="text-emerald-600"
+                              >
+                                <CheckCircle className="mr-2 h-4 w-4" />
+                                Hoàn thành đơn
+                              </DropdownMenuItem>
+                            )}
                           </>
                         )}
                       </DropdownMenuContent>
@@ -811,6 +947,121 @@ export default function OrdersPage() {
                 </>
               ) : (
                 "Xác nhận hủy đơn"
+              )}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Ship Order Dialog */}
+      <Dialog open={isShipDialogOpen} onOpenChange={setIsShipDialogOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Gửi đơn hàng</DialogTitle>
+            <DialogDescription>
+              Chuyển đơn hàng sang trạng thái &quot;Đang giao&quot;
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+              <p className="text-sm text-blue-900">
+                Sau khi gửi, đơn hàng sẽ chuyển sang trạng thái &quot;Đang
+                giao&quot; và có thể được hoàn thành sau khi giao hàng.
+              </p>
+            </div>
+
+            <div>
+              <label className="text-sm font-medium mb-2 block">
+                Ghi chú (tùy chọn)
+              </label>
+              <Textarea
+                placeholder="Thêm ghi chú khi gửi đơn hàng..."
+                value={shipNote}
+                onChange={(e) => setShipNote(e.target.value)}
+                rows={3}
+              />
+            </div>
+          </div>
+
+          <div className="flex justify-end gap-3">
+            <Button
+              variant="outline"
+              onClick={() => setIsShipDialogOpen(false)}
+            >
+              Hủy
+            </Button>
+            <Button
+              onClick={handleShipOrder}
+              disabled={updateStatusMutation.isPending}
+              className="bg-blue-600 hover:bg-blue-700"
+            >
+              {updateStatusMutation.isPending ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Đang gửi...
+                </>
+              ) : (
+                "Gửi đơn hàng"
+              )}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Complete Order Dialog */}
+      <Dialog
+        open={isCompleteDialogOpen}
+        onOpenChange={setIsCompleteDialogOpen}
+      >
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Hoàn thành đơn hàng</DialogTitle>
+            <DialogDescription>
+              Xác nhận rằng đơn hàng đã được giao thành công
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+              <p className="text-sm text-green-900">
+                Sau khi hoàn thành, đơn hàng sẽ chuyển sang trạng thái
+                &quot;Hoàn thành&quot; và khách hàng có thể đánh giá sản phẩm.
+              </p>
+            </div>
+
+            <div>
+              <label className="text-sm font-medium mb-2 block">
+                Ghi chú (tùy chọn)
+              </label>
+              <Textarea
+                placeholder="Thêm ghi chú khi hoàn thành đơn hàng..."
+                value={completeNote}
+                onChange={(e) => setCompleteNote(e.target.value)}
+                rows={3}
+              />
+            </div>
+          </div>
+
+          <div className="flex justify-end gap-3">
+            <Button
+              variant="outline"
+              onClick={() => setIsCompleteDialogOpen(false)}
+            >
+              Hủy
+            </Button>
+            <Button
+              onClick={handleCompleteOrder}
+              disabled={updateStatusMutation.isPending}
+              className="bg-green-600 hover:bg-green-700"
+            >
+              {updateStatusMutation.isPending ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Đang hoàn thành...
+                </>
+              ) : (
+                "Hoàn thành đơn hàng"
               )}
             </Button>
           </div>

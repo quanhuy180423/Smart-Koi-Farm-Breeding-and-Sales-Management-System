@@ -22,6 +22,7 @@ import {
   Settings,
   Heart,
   Bell,
+  MapPin,
 } from "lucide-react";
 import Image from "next/image";
 import Logo from "@/assets/images/ZenKoi.png";
@@ -38,6 +39,12 @@ const sidebarItems = [
     href: "/profile/orders" as const,
     icon: ShoppingBag,
     description: "Lịch sử mua hàng",
+  },
+  {
+    title: "Địa chỉ",
+    href: "/profile/addresses" as const,
+    icon: MapPin,
+    description: "Quản lý địa chỉ giao hàng",
   },
   {
     title: "Giỏ hàng",

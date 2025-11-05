@@ -88,11 +88,14 @@ export const BreedingDetailDialog = ({
 
   const totalKept = classificationRecords.reduce(
     (sum, record) =>
-      sum + (record.highQualifiedCount || 0) + (record.qualifiedCount || 0),
+      sum +
+      (record.highQualifiedCount || 0) +
+      (record.showQualifiedCount || 0) +
+      (record.pondQualifiedCount || 0),
     0,
   );
   const totalCulled = classificationRecords.reduce(
-    (sum, record) => sum + (record.unqualifiedCount || 0),
+    (sum, record) => sum + (record.cullQualifiedCount || 0),
     0,
   );
 
@@ -236,11 +239,8 @@ export const BreedingDetailDialog = ({
                   <BreedingStageCard
                     title="Ấp trứng"
                     date={
-                      batch?.hatchingTime
-                        ? formatDate(
-                            batch.hatchingTime,
-                            DATE_FORMATS.MEDIUM_DATE,
-                          )
+                      batch?.endDate
+                        ? formatDate(batch.endDate, DATE_FORMATS.MEDIUM_DATE)
                         : "Chưa có"
                     }
                     status={getProcessStatus(
@@ -284,6 +284,7 @@ export const BreedingDetailDialog = ({
                                 <TableHead>Trứng Khỏe</TableHead>
                                 <TableHead>Trứng Hỏng</TableHead>
                                 <TableHead>Trứng Nở</TableHead>
+                                <TableHead>Trạng thái</TableHead>
                               </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -292,7 +293,10 @@ export const BreedingDetailDialog = ({
                                   (record: IncubationDailyRecordResponse) => (
                                     <TableRow key={record.id}>
                                       <TableCell className="font-medium">
-                                        {record.dayNumber}
+                                        {formatDate(
+                                          record.dayNumber,
+                                          DATE_FORMATS.SHORT_DATE,
+                                        )}
                                       </TableCell>
                                       <TableCell>
                                         {record.healthyEggs}
@@ -303,13 +307,24 @@ export const BreedingDetailDialog = ({
                                       <TableCell className="text-green-600">
                                         {record.hatchedEggs}
                                       </TableCell>
+                                      <TableCell>
+                                        {record.success ? (
+                                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                            Hoàn thành
+                                          </span>
+                                        ) : (
+                                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                            Chưa có
+                                          </span>
+                                        )}
+                                      </TableCell>
                                     </TableRow>
                                   ),
                                 )
                               ) : (
                                 <TableRow>
                                   <TableCell
-                                    colSpan={4}
+                                    colSpan={5}
                                     className="h-12 text-center text-gray-500"
                                   >
                                     Chưa có bản ghi theo dõi ấp trứng.
@@ -404,8 +419,7 @@ export const BreedingDetailDialog = ({
                                         )}
                                       </TableCell>
                                       <TableCell className="font-semibold text-green-600">
-                                        {(record.survivalRate * 100).toFixed(1)}
-                                        %
+                                        {record.survivalRate.toFixed(1)}%
                                       </TableCell>
                                       <TableCell>{record.countAlive}</TableCell>
                                       <TableCell className="truncate max-w-xs">
@@ -522,25 +536,22 @@ export const BreedingDetailDialog = ({
                             <TableBody>
                               {classificationRecords.length > 0 ? (
                                 classificationRecords.map(
-                                  (
-                                    record: ClassificationRecordResponse,
-                                    index,
-                                  ) => (
+                                  (record: ClassificationRecordResponse) => (
                                     <TableRow key={record.id}>
                                       <TableCell className="font-medium">
-                                        Đợt {index + 1} ({record.stageName})
+                                        Đợt {record.stageNumber}
                                       </TableCell>
                                       <TableCell className="text-blue-600">
                                         {record.highQualifiedCount || 0}
                                       </TableCell>
                                       <TableCell className="text-green-600">
-                                        {record.qualifiedCount || 0}
+                                        {record.showQualifiedCount || 0}
                                       </TableCell>
                                       <TableCell>
-                                        {record.unqualifiedCount || 0}
+                                        {record.pondQualifiedCount || 0}
                                       </TableCell>
                                       <TableCell className="text-red-600">
-                                        {record.unqualifiedCount || 0}
+                                        {record.cullQualifiedCount || 0}
                                       </TableCell>
                                       <TableCell className="truncate max-w-xs">
                                         {record.notes}

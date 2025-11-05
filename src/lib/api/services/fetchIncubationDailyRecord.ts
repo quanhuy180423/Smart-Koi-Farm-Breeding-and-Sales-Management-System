@@ -9,9 +9,9 @@ const baseUrl = "/api/IncubationDailyRecord";
 export interface IncubationDailyRecordResponse {
   id: number;
   eggBatchId: number;
-  dayNumber: number;
+  dayNumber: string;
   healthyEggs: number;
-  rottenEggs: number;
+  rottenEggs: number | null;
   hatchedEggs: number;
   success: boolean;
 }
