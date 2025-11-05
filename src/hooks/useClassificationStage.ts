@@ -7,8 +7,22 @@ export function useCompleteClassification() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (breedingId: number) =>
-      classificationStageService.completeClassification(breedingId),
+    mutationFn: async (breedingId: number) => {
+      // First, fetch the classification stage to get its ID
+      const stageResponse =
+        await classificationStageService.getClassificationStageByBreedingId(
+          breedingId,
+        );
+
+      if (!stageResponse.isSuccess || !stageResponse.result) {
+        throw new Error("Không thể lấy dữ liệu giai đoạn phân loại");
+      }
+
+      // Then, complete the classification using the stage ID
+      return classificationStageService.completeClassification(
+        stageResponse.result.id,
+      );
+    },
     onSuccess: (data: BaseResponse<boolean>) => {
       if (data.isSuccess) {
         toast.success(data.message || "Hoàn thành phân loại thành công");

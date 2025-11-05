@@ -290,7 +290,7 @@ export default function BreedingManagement() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Danh sách đợt lai</CardTitle>
+          <CardTitle>Danh sách đợt sinh sản</CardTitle>
           <CardDescription>
             Danh sách chi tiết các đợt lai cá hiện có
           </CardDescription>
@@ -532,7 +532,7 @@ export default function BreedingManagement() {
           <DialogHeader>
             <DialogTitle>Bộ lọc Đợt lai</DialogTitle>
             <DialogDescription>
-              Lọc danh sách đợt lai theo tiêu chí.
+              Lọc danh sách đợt sinh sản theo tiêu chí.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-6">

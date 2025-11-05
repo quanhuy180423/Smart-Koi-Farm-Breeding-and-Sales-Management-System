@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select,
   SelectContent,
@@ -21,6 +22,13 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
+import { Slider } from "@/components/ui/slider";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
 import {
   Package,
   Search,
@@ -30,8 +38,12 @@ import {
   Loader2,
   CheckCircle,
   CreditCard,
+  Filter,
+  X,
+  Calendar as CalendarIcon,
 } from "lucide-react";
 import { toast } from "sonner";
+import Image from "next/image";
 import { formatCurrency } from "@/lib/utils/numbers/formatCurrency";
 import CustomerLayout from "@/components/customer/CustomerLayout";
 import { useGetCustomerOrders, useUpdateOrderStatus } from "@/hooks/useOrder";
@@ -51,6 +63,15 @@ export default function OrdersPage() {
   const [statusFilter, setStatusFilter] = useState<OrderStatus | string>("all");
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
+
+  // Advanced filters
+  const [createdFromDate, setCreatedFromDate] = useState<Date | undefined>();
+  const [createdToDate, setCreatedToDate] = useState<Date | undefined>();
+  const [priceRange, setPriceRange] = useState<[number, number]>([
+    0, 100000000,
+  ]);
+  const [hasPromotion, setHasPromotion] = useState(false);
 
   // Complete order dialog state
   const [isCompleteDialogOpen, setIsCompleteDialogOpen] = useState(false);
@@ -102,8 +123,9 @@ export default function OrdersPage() {
     });
   };
 
-  // Debounce search term
+  // Debounce search term and price range
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
+  const debouncedPriceRange = useDebounce(priceRange, 800);
 
   // Build search params
   const searchParams = useMemo<OrderSearchParams>(() => {
@@ -113,10 +135,30 @@ export default function OrdersPage() {
         statusFilter && statusFilter !== "all"
           ? (statusFilter as OrderStatus)
           : undefined,
+      createdFrom: createdFromDate
+        ? Math.floor(createdFromDate.getTime() / 1000)
+        : undefined,
+      createdTo: createdToDate
+        ? Math.floor(createdToDate.getTime() / 1000)
+        : undefined,
+      minTotalAmount:
+        debouncedPriceRange[0] > 0 ? debouncedPriceRange[0] : undefined,
+      maxTotalAmount:
+        debouncedPriceRange[1] < 100000000 ? debouncedPriceRange[1] : undefined,
+      hasPromotion: hasPromotion ? true : undefined,
       pageIndex: currentPage,
       pageSize: pageSize,
     };
-  }, [debouncedSearchTerm, statusFilter, currentPage, pageSize]);
+  }, [
+    debouncedSearchTerm,
+    statusFilter,
+    createdFromDate,
+    createdToDate,
+    debouncedPriceRange,
+    hasPromotion,
+    currentPage,
+    pageSize,
+  ]);
 
   // Fetch orders
   const { data: ordersData, isLoading } = useGetCustomerOrders(searchParams);
@@ -162,8 +204,28 @@ export default function OrdersPage() {
             {specificOrder.orderDetails.map((item, idx) => (
               <div
                 key={idx}
-                className="flex flex-col md:flex-row gap-3 p-3 border rounded-lg"
+                className="flex gap-3 p-3 border rounded-lg hover:bg-muted/30 transition-colors"
               >
+                {/* Product Image */}
+                <div className="relative w-20 h-20 rounded-md overflow-hidden flex-shrink-0 bg-muted">
+                  <Image
+                    src={
+                      item?.koiFish?.images?.[0] ||
+                      item?.packetFish?.images?.[0] ||
+                      ""
+                    }
+                    alt={
+                      item?.koiFish?.rfid ||
+                      item?.packetFish?.name ||
+                      "Sản phẩm"
+                    }
+                    fill
+                    className="object-cover"
+                    sizes="80px"
+                  />
+                </div>
+
+                {/* Product Details */}
                 <div className="flex-1 min-w-0">
                   <p className="font-medium text-sm md:text-base truncate">
                     {item?.koiFish?.rfid || item.packetFish?.name || "Sản phẩm"}
@@ -171,13 +233,18 @@ export default function OrdersPage() {
                   <p className="text-xs md:text-sm text-muted-foreground">
                     Số lượng: {item.quantity}
                   </p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Đơn giá: {formatCurrency(item.unitPrice)}
+                  </p>
                 </div>
-                <div className="flex justify-between items-center md:flex-col md:items-end md:justify-center md:min-w-0">
-                  <span className="text-xs md:text-sm text-muted-foreground">
-                    Đơn giá
+
+                {/* Total Price */}
+                <div className="flex flex-col items-end justify-center min-w-0">
+                  <span className="text-xs text-muted-foreground mb-1">
+                    Tổng cộng
                   </span>
                   <span className="font-semibold text-sm md:text-base text-primary">
-                    {formatCurrency(item.unitPrice)}
+                    {formatCurrency(item.totalPrice)}
                   </span>
                 </div>
               </div>
@@ -346,19 +413,188 @@ export default function OrdersPage() {
               className="pl-10 rounded-xl border-2 border-border hover:border-primary/50 focus:border-primary transition-colors"
             />
           </div>
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-full rounded-xl border-2 border-border hover:border-primary/50 focus:border-primary transition-colors">
-              <SelectValue placeholder="Lọc theo trạng thái" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Tất cả trạng thái</SelectItem>
-              {Object.values(OrderStatus).map((r) => (
-                <SelectItem key={r} value={r}>
-                  {getOrderStatusLabel(r).label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <div className="flex flex-col md:flex-row gap-3">
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="flex-1 rounded-xl border-2 border-border hover:border-primary/50 focus:border-primary transition-colors">
+                <SelectValue placeholder="Lọc theo trạng thái" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Tất cả trạng thái</SelectItem>
+                {Object.values(OrderStatus).map((r) => (
+                  <SelectItem key={r} value={r}>
+                    {getOrderStatusLabel(r).label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Button
+              variant="outline"
+              onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
+              className="rounded-xl border-2 gap-2 hover:border-primary/50"
+            >
+              <Filter className="h-4 w-4" />
+              <span className="hidden sm:inline">
+                {showAdvancedFilters ? "Ẩn" : "Bộ lọc"} nâng cao
+              </span>
+              <span className="sm:hidden">Lọc</span>
+            </Button>
+          </div>
+
+          {/* Advanced Filters */}
+          {showAdvancedFilters && (
+            <Card className="p-4 border-2 border-primary/20 bg-primary/5">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="font-semibold text-sm">Bộ lọc nâng cao</h3>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      setCreatedFromDate(undefined);
+                      setCreatedToDate(undefined);
+                      setPriceRange([0, 100000000]);
+                      setHasPromotion(false);
+                    }}
+                  >
+                    <X className="h-4 w-4 mr-1" />
+                    Xóa bộ lọc
+                  </Button>
+                </div>
+
+                <Separator />
+
+                {/* Date Range */}
+                <div>
+                  <label className="text-sm font-semibold mb-3 block">
+                    Khoảng thời gian
+                  </label>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className="justify-start text-left font-normal rounded-lg"
+                        >
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {createdFromDate
+                            ? createdFromDate.toLocaleDateString("vi-VN")
+                            : "Từ ngày"}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={createdFromDate}
+                          onSelect={setCreatedFromDate}
+                          disabled={(date) =>
+                            createdToDate ? date > createdToDate : false
+                          }
+                        />
+                      </PopoverContent>
+                    </Popover>
+
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className="justify-start text-left font-normal rounded-lg"
+                        >
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {createdToDate
+                            ? createdToDate.toLocaleDateString("vi-VN")
+                            : "Đến ngày"}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={createdToDate}
+                          onSelect={setCreatedToDate}
+                          disabled={(date) =>
+                            createdFromDate ? date < createdFromDate : false
+                          }
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+                </div>
+
+                <Separator />
+
+                {/* Price Range Slider */}
+                <div>
+                  <div className="flex items-center justify-between mb-3">
+                    <label className="text-sm font-semibold">Khoảng giá</label>
+                    <span className="text-sm font-medium text-primary">
+                      {formatCurrency(priceRange[0])} -{" "}
+                      {formatCurrency(priceRange[1])}
+                    </span>
+                  </div>
+                  <Slider
+                    value={priceRange}
+                    onValueChange={(value) =>
+                      setPriceRange(value as [number, number])
+                    }
+                    min={0}
+                    max={100000000}
+                    step={100000}
+                    className="w-full"
+                  />
+                  <div className="flex gap-3 mt-3">
+                    <div className="flex-1">
+                      <p className="text-xs text-muted-foreground mb-1">Min</p>
+                      <Input
+                        type="number"
+                        value={priceRange[0]}
+                        onChange={(e) => {
+                          const value = parseInt(e.target.value) || 0;
+                          setPriceRange([
+                            Math.min(value, priceRange[1]),
+                            priceRange[1],
+                          ]);
+                        }}
+                        className="rounded-lg border-border text-xs"
+                      />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-xs text-muted-foreground mb-1">Max</p>
+                      <Input
+                        type="number"
+                        value={priceRange[1]}
+                        onChange={(e) => {
+                          const value = parseInt(e.target.value) || 100000000;
+                          setPriceRange([
+                            priceRange[0],
+                            Math.max(value, priceRange[0]),
+                          ]);
+                        }}
+                        className="rounded-lg border-border text-xs"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <Separator />
+
+                {/* Has Promotion */}
+                <div className="flex items-center gap-3 p-3 bg-background rounded-lg border border-border">
+                  <Checkbox
+                    id="has-promotion"
+                    checked={hasPromotion}
+                    onCheckedChange={(checked) =>
+                      setHasPromotion(checked === true)
+                    }
+                  />
+                  <label
+                    htmlFor="has-promotion"
+                    className="text-sm font-medium cursor-pointer flex-1"
+                  >
+                    Chỉ hiển thị các đơn hàng có mã khuyến mãi
+                  </label>
+                </div>
+              </div>
+            </Card>
+          )}
         </div>
 
         {/* Orders List */}

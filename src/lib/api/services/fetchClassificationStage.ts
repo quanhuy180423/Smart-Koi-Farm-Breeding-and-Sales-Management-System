@@ -10,8 +10,9 @@ export interface ClassificationStageResponse {
   status: string;
   notes: string;
   highQualifiedCount: number;
-  qualifiedCount: number;
-  unqualifiedCount: number;
+  showQualifiedCount: number;
+  pondQualifiedCount: number;
+  cullQualifiedCount: number;
   startDate: string;
   endDate: string;
   classificationRecords: ClassificationRecordResponse[];
@@ -28,12 +29,12 @@ export const classificationStageService = {
   },
 
   completeClassification: async (
-    breedingId: number,
+    classificationStageId: number,
   ): Promise<BaseResponse<boolean>> => {
     const response = await apiService.put<
       BaseResponse<boolean>,
       Record<string, never>
-    >(`${baseUrl}/complete/${breedingId}`, {});
+    >(`${baseUrl}/complete/${classificationStageId}`, {});
     return response.data;
   },
 };

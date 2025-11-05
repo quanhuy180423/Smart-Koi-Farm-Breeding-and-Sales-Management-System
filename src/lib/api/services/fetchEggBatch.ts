@@ -20,6 +20,7 @@ export interface EggBatchResponse {
   status: EggBatchStatus;
   hatchingTime: string;
   spawnDate: string;
+  endDate: string;
   incubationDailyRecords: IncubationDailyRecordResponse[];
 }
 

@@ -127,14 +127,15 @@ export interface BreedingDetailResponse {
   femaleKoiVariety: string;
   pondId: number;
   pondName: string;
+  hatchedTime: string | null;
   startDate: string;
-  endDate: null;
+  endDate: string | null;
   status: BreedingStatus;
   result: BreedingResult;
   note: string;
   totalEggs: number;
   fertilizationRate: number;
-  currentSurvivalRate: null;
+  survivalRate: number;
   totalFishQualified: number;
   totalPackage: number;
   koiFishes: KoiFishResponse[];
