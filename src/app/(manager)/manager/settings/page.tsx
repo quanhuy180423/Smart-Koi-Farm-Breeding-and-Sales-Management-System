@@ -106,7 +106,6 @@ export default function ManagerSettings() {
 
   const handleSave = () => {
     // In real app, this would save to API
-    console.log("Saving settings:", settings);
     setHasChanges(false);
     // Show success message
   };

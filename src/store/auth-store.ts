@@ -279,12 +279,8 @@ export const authHelpers = {
 
   // Login helper
   login: async (email: string, _password: string) => {
-    // TODO: Use password for actual API authentication
     try {
       useAuthStore.getState().setLoading(true);
-
-      // TODO: Replace with actual API call
-      // const response = await api.login({ email, password });
 
       // Mock login response based on email
       let user: User;
@@ -336,12 +332,8 @@ export const authHelpers = {
 
   // Register helper
   register: async (email: string, username: string, _password: string) => {
-    // TODO: Use password for actual API registration
     try {
       useAuthStore.getState().setLoading(true);
-
-      // TODO: Replace with actual API call
-      // const response = await api.register({ email, username, password });
 
       // Mock register response - always create customer account
       const user: User = {
