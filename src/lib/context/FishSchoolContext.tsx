@@ -51,7 +51,7 @@ export const FishSchoolProvider = ({ children }: { children: ReactNode }) => {
 export const useFishSchool = () => {
   const context = useContext(FishSchoolContext);
   if (!context) {
-    throw new Error("useFishSchool must be used within FishSchoolProvider");
+    return { isEnabled: true, toggleFishSchool: () => {} };
   }
   return context;
 };
