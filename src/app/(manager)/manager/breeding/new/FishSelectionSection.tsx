@@ -32,7 +32,7 @@ import * as z from "zod";
 import { getFishSizeLabel, getGenderLabel } from "@/lib/utils/enum";
 import { FishDetailDialog } from "./FishDetailDialog";
 import { KoiFishFilterBar } from "./KoiFishFilterBar";
-import { FishSize, HealthStatus } from "@/lib/api/services/fetchKoiFish";
+import { HealthStatus } from "@/lib/api/services/fetchKoiFish";
 
 const recommendSchema = z.object({
   targetVariety: z.string().min(1, { message: "Giống mong muốn là bắt buộc." }),

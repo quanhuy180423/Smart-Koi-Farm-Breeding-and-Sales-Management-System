@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useFishSchool } from "@/lib/context/FishSchoolContext";
 
 interface Fish {
@@ -12,6 +12,11 @@ interface Fish {
   scale: number;
   rotation: number;
   pattern: number;
+  targetX?: number;
+  targetY?: number;
+  waveOffset?: number;
+  opacity?: number;
+  isFading?: boolean;
 }
 
 // Koi pattern types
@@ -67,6 +72,9 @@ const FishSVG = ({
       style={{
         transform: `rotate(${rotation}deg)`,
         transformOrigin: "center",
+        filter: `drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3)) drop-shadow(0 0 12px rgba(${
+          selectedPattern === "ogon" ? "255, 215, 0" : "255, 107, 53"
+        }, 0.4))`,
       }}
     >
       {/* Base body */}
@@ -101,220 +109,394 @@ const FishSVG = ({
       )}
       {selectedPattern === "ogon" && (
         <>
-          <ellipse cx="14" cy="12" rx="3" ry="2.5" fill="#FFA500" />
-          <ellipse cx="24" cy="16" rx="3" ry="2.5" fill="#FFA500" />
-          <ellipse cx="18" cy="18" rx="2" ry="1.5" fill="#FFA500" />
+          <circle cx="16" cy="14" r="3" fill="#FFA500" opacity={0.7} />
+          <circle cx="24" cy="15" r="2.5" fill="#FFA500" opacity={0.7} />
         </>
       )}
 
       {/* Head */}
       <circle cx="32" cy="15" r="6" fill={koiColor.primary} />
 
-      {/* Mouth - golden */}
-      <circle cx="37" cy="15" r="1.2" fill="#FFE082" />
+      {/* Eyes - prominent feature of Koi */}
+      <circle cx="35" cy="13" r="2.5" fill="#FFFFFF" />
+      <circle cx="35" cy="13" r="1.2" fill="#000000" />
 
-      {/* Barbel (whiskers) - Koi characteristic */}
-      <line
-        x1="38"
-        y1="15"
-        x2="42"
-        y2="16"
-        stroke="#FFE082"
-        strokeWidth="0.8"
-      />
+      {/* Mouth */}
+      <circle cx="38" cy="15" r="1.5" fill="#FFE082" />
+
+      {/* Barbels (whiskers) */}
       <line
         x1="38"
         y1="15"
         x2="42"
         y2="14"
         stroke="#FFE082"
-        strokeWidth="0.8"
+        strokeWidth={0.8}
+      />
+      <line
+        x1="38"
+        y1="15"
+        x2="42"
+        y2="16"
+        stroke="#FFE082"
+        strokeWidth={0.8}
       />
 
-      {/* Eye - large and prominent */}
-      <circle cx="35" cy="13" r="2" fill="#FFF" />
-      <circle cx="35.3" cy="13" r="1.2" fill="#000" />
+      {/* Dorsal fin - triangular */}
+      <polygon
+        points="22,5 18,15 26,15"
+        fill={koiColor.primary}
+        opacity={0.9}
+      />
+      <line x1="22" y1="5" x2="20" y2="12" stroke="#FFFFFF" strokeWidth={0.6} />
 
-      {/* Top fin - large dorsal fin with pattern */}
-      <path d="M 22 6 Q 24 2 26 6 L 24 12 Z" fill={koiColor.primary} />
-      {selectedPattern !== "showa" && (
-        <path
-          d="M 23 6 Q 24 3 25 6"
-          stroke="#FFFFFF"
-          strokeWidth="0.4"
-          fill="none"
-          opacity="0.6"
-        />
-      )}
+      {/* Tail fin - fan shape */}
+      <ellipse
+        cx="6"
+        cy="15"
+        rx="6"
+        ry="10"
+        fill={koiColor.primary}
+        opacity={0.8}
+      />
+      <ellipse
+        cx="4"
+        cy="15"
+        rx="4"
+        ry="7"
+        fill={koiColor.colors[1]}
+        opacity={0.5}
+      />
 
-      {/* Bottom fin */}
-      <path d="M 22 24 Q 24 28 26 24 L 24 18 Z" fill={koiColor.primary} />
+      {/* Bottom fins */}
+      <ellipse
+        cx="15"
+        cy="24"
+        rx="3"
+        ry="4"
+        fill={koiColor.primary}
+        opacity={0.7}
+      />
+      <ellipse
+        cx="22"
+        cy="24"
+        rx="3"
+        ry="4"
+        fill={koiColor.primary}
+        opacity={0.7}
+      />
 
-      {/* Side fins */}
-      <ellipse cx="16" cy="8" rx="2.5" ry="1.5" fill={koiColor.primary} />
-      <ellipse cx="16" cy="22" rx="2.5" ry="1.5" fill={koiColor.primary} />
-
-      {/* Tail - large and fan-like with distinct colors */}
-      <path d="M 6 15 L -2 8 L -1 15 L -2 22 Z" fill={koiColor.primary} />
-      {selectedPattern === "kohaku" && (
-        <path d="M 4 12 L 0 7 L 1 12 L 0 17 Z" fill="#FFFFFF" opacity="0.7" />
-      )}
-      {selectedPattern === "sanke" && (
-        <>
-          <path d="M 4 12 L 0 7 L 1 12 Z" fill="#FFFFFF" opacity="0.7" />
-          <path d="M 4 18 L 0 23 L 1 18 Z" fill="#1a1a1a" opacity="0.8" />
-        </>
-      )}
-      {selectedPattern === "showa" && (
-        <>
-          <path d="M 4 12 L 0 7 L 1 12 Z" fill="#FFFFFF" opacity="0.7" />
-          <path d="M 4 18 L 0 23 L 1 18 Z" fill="#FF6347" opacity="0.8" />
-        </>
-      )}
-      {selectedPattern === "asagi" && (
-        <path d="M 4 15 L 0 10 L 1 15 L 0 20 Z" fill="#FFB6C1" opacity="0.7" />
-      )}
-      {selectedPattern === "ogon" && (
-        <path d="M 4 15 L 0 10 L 1 15 L 0 20 Z" fill="#FFA500" opacity="0.8" />
-      )}
+      {/* Side pectoral fins */}
+      <ellipse
+        cx="18"
+        cy="10"
+        rx="4"
+        ry="2"
+        fill={koiColor.primary}
+        opacity={0.6}
+      />
+      <ellipse
+        cx="18"
+        cy="20"
+        rx="4"
+        ry="2"
+        fill={koiColor.primary}
+        opacity={0.6}
+      />
 
       {/* Gill lines */}
       <path
-        d="M 28 10 Q 30 10 31 12"
-        stroke="#FFF"
-        strokeWidth="0.6"
+        d="M 28 10 Q 26 15 28 20"
+        stroke="#FFFFFF"
+        strokeWidth={0.6}
         fill="none"
-        opacity="0.5"
-      />
-      <path
-        d="M 28 18 Q 30 18 31 16"
-        stroke="#FFF"
-        strokeWidth="0.6"
-        fill="none"
-        opacity="0.5"
+        opacity={0.5}
       />
 
-      {/* Scale shimmer */}
-      <circle cx="12" cy="12" r="1" fill="#FFF" opacity="0.3" />
-      <circle cx="18" cy="14" r="0.8" fill="#FFF" opacity="0.3" />
-      <circle cx="24" cy="12" r="1" fill="#FFF" opacity="0.3" />
+      {/* Scale shimmer effect */}
+      <circle cx="16" cy="12" r={1.2} fill="#FFFFFF" opacity={0.4} />
+      <circle cx="22" cy="14" r={1} fill="#FFFFFF" opacity={0.3} />
+      <circle cx="26" cy="16" r={1.1} fill="#FFFFFF" opacity={0.35} />
     </svg>
   );
 };
 
-export const FishSchool = () => {
+function FishSchoolComponent() {
   const { isEnabled } = useFishSchool();
   const [fishes, setFishes] = useState<Fish[]>([]);
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const animationIdRef = useRef<number | undefined>(undefined);
+  const timeRef = useRef(0);
+  const initialFishCountRef = useRef(15);
+  const nextFishIdRef = useRef(15);
+  const respawnTimerRef = useRef<NodeJS.Timeout | undefined>(undefined);
 
-  // Khởi tạo bầy cá
+  // Initialize fish
   useEffect(() => {
-    setDimensions({
-      width: window.innerWidth,
-      height: window.innerHeight,
-    });
+    if (!isEnabled) return;
 
-    const newFishes: Fish[] = Array.from({ length: 12 }, (_, i) => ({
-      id: i,
-      x: Math.random() * window.innerWidth,
-      y: Math.random() * window.innerHeight,
-      vx: (Math.random() - 0.5) * 2,
-      vy: (Math.random() - 0.5) * 1,
-      scale: 0.6 + Math.random() * 0.6,
-      rotation: Math.random() * 360,
-      pattern: Math.floor(Math.random() * 5), // Random Koi pattern
-    }));
-
-    setFishes(newFishes);
-  }, []);
-
-  // Animation loop
-  useEffect(() => {
-    let animationId: number;
-    const animate = () => {
-      setFishes((prevFishes) =>
-        prevFishes.map((fish) => {
-          let newX = fish.x + fish.vx;
-          let newY = fish.y + fish.vy;
-          let newVx = fish.vx;
-          let newVy = fish.vy;
-
-          // Wrap around edges
-          if (newX > dimensions.width + 50) {
-            newX = -50;
-          } else if (newX < -50) {
-            newX = dimensions.width + 50;
-          }
-
-          if (newY > dimensions.height + 50) {
-            newY = -50;
-          } else if (newY < -50) {
-            newY = dimensions.height + 50;
-          }
-
-          // Random direction change occasionally
-          if (Math.random() < 0.02) {
-            newVx = (Math.random() - 0.5) * 2;
-            newVy = (Math.random() - 0.5) * 1;
-          }
-
-          // Calculate rotation based on direction
-          const newRotation = Math.atan2(newVy, newVx) * (180 / Math.PI);
-
-          return {
-            ...fish,
-            x: newX,
-            y: newY,
-            vx: newVx,
-            vy: newVy,
-            rotation: newRotation,
-            pattern: fish.pattern,
-          };
-        }),
-      );
-
-      animationId = requestAnimationFrame(animate);
-    };
-
-    if (dimensions.width > 0) {
-      animationId = requestAnimationFrame(animate);
-      return () => cancelAnimationFrame(animationId);
+    const newFishes: Fish[] = [];
+    for (let i = 0; i < 15; i++) {
+      newFishes.push({
+        id: i,
+        x: Math.random() * window.innerWidth,
+        y: Math.random() * window.innerHeight,
+        vx: (Math.random() - 0.5) * 3,
+        vy: (Math.random() - 0.5) * 2,
+        scale: 0.6 + Math.random() * 0.6,
+        rotation: 0,
+        pattern: Math.floor(Math.random() * 5),
+        waveOffset: Math.random() * Math.PI * 2,
+      });
     }
-  }, [dimensions]);
+    setFishes(newFishes);
+    setDimensions({ width: window.innerWidth, height: window.innerHeight });
+  }, [isEnabled]);
 
   // Handle window resize
   useEffect(() => {
     const handleResize = () => {
-      setDimensions({
-        width: window.innerWidth,
-        height: window.innerHeight,
-      });
+      setDimensions({ width: window.innerWidth, height: window.innerHeight });
     };
 
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  if (!isEnabled) {
+  // Track mouse position
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      setMousePos({ x: e.clientX, y: e.clientY });
+    };
+
+    window.addEventListener("mousemove", handleMouseMove);
+    return () => window.removeEventListener("mousemove", handleMouseMove);
+  }, []);
+
+  // Main animation loop
+  useEffect(() => {
+    if (!isEnabled || fishes.length === 0) return;
+
+    const animate = () => {
+      timeRef.current += 0.016;
+
+      setFishes((prevFishes) => {
+        // Remove fading fish that have fully disappeared (after animation)
+        const visibleFishes = prevFishes.filter((f) => !f.isFading);
+
+        return [
+          ...visibleFishes.map((fish) => {
+            let newVx = fish.vx;
+            let newVy = fish.vy;
+
+            // Separation force - keep fish from sticking together
+            const tooCloseDistance = 60; // Minimum comfortable distance
+            const closeFish = prevFishes.filter((f) => {
+              const dist = Math.hypot(f.x - fish.x, f.y - fish.y);
+              return f.id !== fish.id && dist < tooCloseDistance && dist > 0;
+            });
+
+            closeFish.forEach((otherFish) => {
+              const dist = Math.hypot(
+                otherFish.x - fish.x,
+                otherFish.y - fish.y,
+              );
+              if (dist < tooCloseDistance) {
+                const separationForce =
+                  ((tooCloseDistance - dist) / tooCloseDistance) * 0.005;
+                const angle = Math.atan2(
+                  fish.y - otherFish.y,
+                  fish.x - otherFish.x,
+                );
+                newVx += Math.cos(angle) * separationForce;
+                newVy += Math.sin(angle) * separationForce;
+              }
+            });
+
+            // Repulsion from mouse (fish run away)
+            const mouseDistance = Math.hypot(
+              mousePos.x - fish.x,
+              mousePos.y - fish.y,
+            );
+            if (mouseDistance < 200) {
+              const repelForce = (0.002 * (200 - mouseDistance)) / 200;
+              newVx += (fish.x - mousePos.x) * repelForce;
+              newVy += (fish.y - mousePos.y) * repelForce;
+            }
+
+            // Attraction to food (center of screen) - gentle wandering
+            const centerX = dimensions.width / 2;
+            const centerY = dimensions.height / 2;
+            const distToCenter = Math.hypot(centerX - fish.x, centerY - fish.y);
+            if (distToCenter > dimensions.width * 0.8) {
+              newVx += (centerX - fish.x) * 0.00005;
+              newVy += (centerY - fish.y) * 0.00005;
+            }
+
+            // Random behavior - occasional direction change
+            if (Math.random() < 0.02) {
+              newVx += (Math.random() - 0.5) * 0.9;
+              newVy += (Math.random() - 0.5) * 0.8;
+            }
+
+            // Wave motion for natural swimming
+            const waveAmount =
+              Math.sin(timeRef.current * 2 + (fish.waveOffset || 0)) * 0.15;
+            newVy += waveAmount * 0.005;
+
+            // Speed damping
+            newVx *= 0.98;
+            newVy *= 0.98;
+
+            // Speed limits
+            const maxSpeed = 5;
+            const speed = Math.hypot(newVx, newVy);
+            if (speed > maxSpeed) {
+              newVx = (newVx / speed) * maxSpeed;
+              newVy = (newVy / speed) * maxSpeed;
+            }
+
+            // Update position
+            let newX = fish.x + newVx;
+            let newY = fish.y + newVy;
+
+            // Keep fish within screen bounds (no wrapping)
+            const boundary = 50;
+            if (newX > dimensions.width - boundary) {
+              newX = dimensions.width - boundary;
+              newVx *= -0.8; // Bounce back
+            }
+            if (newX < boundary) {
+              newX = boundary;
+              newVx *= -0.8; // Bounce back
+            }
+            if (newY > dimensions.height - boundary) {
+              newY = dimensions.height - boundary;
+              newVy *= -0.8; // Bounce back
+            }
+            if (newY < boundary) {
+              newY = boundary;
+              newVy *= -0.8; // Bounce back
+            }
+
+            // Calculate rotation
+            const newRotation = Math.atan2(newVy, newVx) * (180 / Math.PI);
+
+            return {
+              ...fish,
+              x: newX,
+              y: newY,
+              vx: newVx,
+              vy: newVy,
+              rotation: newRotation,
+            };
+          }),
+          // Keep fading fish so they can animate out
+          ...prevFishes.filter((f) => f.isFading),
+        ];
+      });
+
+      animationIdRef.current = requestAnimationFrame(animate);
+    };
+
+    animationIdRef.current = requestAnimationFrame(animate);
+
+    return () => {
+      if (animationIdRef.current) {
+        cancelAnimationFrame(animationIdRef.current);
+      }
+    };
+  }, [isEnabled, fishes.length, dimensions, mousePos]);
+
+  if (!isEnabled || fishes.length === 0) {
     return null;
   }
 
   return (
-    <div className="fixed inset-0 pointer-events-none overflow-hidden bg-transparent">
+    <div className="fixed inset-0 pointer-events-none overflow-hidden">
+      {/* Gradient background overlay for depth */}
+      <div
+        className="absolute inset-0"
+        style={{
+          background:
+            "radial-gradient(ellipse at center, rgba(100,200,255,0.05) 0%, transparent 100%)",
+          pointerEvents: "none",
+        }}
+      />
+
+      {/* Fish */}
       {fishes.map((fish) => (
         <div
           key={fish.id}
+          onClick={() => {
+            // Start fade out animation
+            setFishes((prev) =>
+              prev.map((f) =>
+                f.id === fish.id ? { ...f, isFading: true, opacity: 1 } : f,
+              ),
+            );
+
+            // Spawn new fish after 3 seconds if count is below initial
+            if (respawnTimerRef.current) {
+              clearTimeout(respawnTimerRef.current);
+            }
+            respawnTimerRef.current = setTimeout(() => {
+              setFishes((prev) => {
+                const currentCount = prev.filter((f) => !f.isFading).length;
+                if (currentCount < initialFishCountRef.current) {
+                  const newFish: Fish = {
+                    id: nextFishIdRef.current++,
+                    x: Math.random() * dimensions.width,
+                    y: Math.random() * dimensions.height,
+                    vx: (Math.random() - 0.5) * 3,
+                    vy: (Math.random() - 0.5) * 2,
+                    scale: 0.6 + Math.random() * 0.6,
+                    rotation: 0,
+                    pattern: Math.floor(Math.random() * 5),
+                    waveOffset: Math.random() * Math.PI * 2,
+                    opacity: 1,
+                    isFading: false,
+                  };
+                  return [...prev, newFish];
+                }
+                return prev;
+              });
+            }, 3000);
+          }}
           style={{
             position: "absolute",
             left: fish.x,
             top: fish.y,
             transform: `translate(-50%, -50%) scale(${fish.scale})`,
-            transition: "none",
+            pointerEvents: "auto",
+            cursor: "pointer",
+            transition: fish.isFading
+              ? "opacity 0.8s ease-out"
+              : "transform 0.1s ease-out",
+            opacity: fish.isFading ? 0 : (fish.opacity ?? 1),
+            zIndex: Math.floor(fish.y),
           }}
         >
-          <FishSVG scale={1} rotation={fish.rotation} pattern={fish.pattern} />
+          <FishSVG
+            scale={fish.scale}
+            rotation={fish.rotation}
+            pattern={fish.pattern}
+          />
         </div>
       ))}
+
+      {/* Ambient glow effect */}
+      <div
+        className="absolute inset-0"
+        style={{
+          background:
+            "radial-gradient(circle at top right, rgba(255,200,100,0.03), transparent 50%)",
+          pointerEvents: "none",
+        }}
+      />
     </div>
   );
-};
+}
+
+export default FishSchoolComponent;
