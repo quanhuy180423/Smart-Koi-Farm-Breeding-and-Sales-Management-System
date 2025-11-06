@@ -19,7 +19,7 @@ import logo from "@/assets/images/Logo_ZenKoi.png";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/auth-store";
-import toast from "react-hot-toast";
+import { useFishSchool } from "@/lib/context/FishSchoolContext";
 
 interface ManagerLayoutProps {
   children: React.ReactNode;
@@ -29,6 +29,7 @@ export function ManagerLayout({ children }: ManagerLayoutProps) {
   // client-side guard: only allow managers and farm staff here
   const router = useRouter();
   const [mounted, setMounted] = useState<boolean>(false);
+  const { isEnabled, toggleFishSchool } = useFishSchool();
 
   useEffect(() => {
     setMounted(true);
@@ -115,16 +116,32 @@ export function ManagerLayout({ children }: ManagerLayoutProps) {
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <div
+                    className="flex items-center gap-2 cursor-pointer px-2 py-1.5 hover:bg-accent/10 rounded transition-colors"
+                    onClick={toggleFishSchool}
+                  >
+                    <div className="flex items-center justify-center w-4 h-4">
+                      <span>🐠</span>
+                    </div>
+                    <span>Hiệu ứng cá</span>
+                    <div className="ml-auto">
+                      <div
+                        className={`w-8 h-5 rounded-full flex items-center relative transition-colors ${isEnabled ? "bg-primary/40" : "bg-muted/40"}`}
+                      >
+                        <div
+                          className={`w-4 h-4 rounded-full absolute transition-all ${isEnabled ? "bg-primary left-3.5" : "bg-muted left-0.5"}`}
+                        ></div>
+                      </div>
+                    </div>
+                  </div>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
                 <DropdownMenuItem
                   className="flex items-center text-red-600 cursor-pointer hover:bg-red-600 hover:text-white focus:bg-red-600 focus:text-white transition-colors group"
                   onClick={async () => {
-                    const ok = await useAuthStore.getState().logout();
-                    if (ok) {
-                      toast.success("Đăng xuất thành công");
-                      router.push("/login");
-                    } else {
-                      toast.error("Đăng xuất thất bại");
-                    }
+                    await useAuthStore.getState().logout();
+                    router.push("/login");
                   }}
                 >
                   <LogOut className="mr-2 h-4 w-4 group-hover:text-white" />

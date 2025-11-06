@@ -1,33 +1,43 @@
-import { BaseResponse } from "@/lib/api/apiClient";
-import classificationStageService, {
-  ClassificationStageResponse,
-} from "@/lib/api/services/fetchClassificationStage";
-import { useAuthStore } from "@/store/auth-store";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import toast from "react-hot-toast";
+import { ApiError, BaseResponse } from "@/lib/api/apiClient";
+import { classificationStageService } from "@/lib/api/services/fetchClassificationStage";
 
-export function useGetClassificationStageByBreedingProcessId(
-  breedingId: number | undefined,
-) {
-  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+export function useCompleteClassification() {
+  const queryClient = useQueryClient();
 
-  return useQuery({
-    queryKey: ["classification-stage", "breeding-process", breedingId],
-    queryFn: () =>
-      classificationStageService.getClassificationStageByBreedingId(breedingId),
-    enabled: isAuthenticated && breedingId !== undefined,
-    select: (
-      data: BaseResponse<ClassificationStageResponse>,
-    ): ClassificationStageResponse => data.result,
-    retry: (failureCount, error: unknown) => {
-      if (
-        error &&
-        typeof error === "object" &&
-        "status" in error &&
-        error.status === 401
-      ) {
-        return false;
+  return useMutation({
+    mutationFn: async (breedingId: number) => {
+      // First, fetch the classification stage to get its ID
+      const stageResponse =
+        await classificationStageService.getClassificationStageByBreedingId(
+          breedingId,
+        );
+
+      if (!stageResponse.isSuccess || !stageResponse.result) {
+        throw new Error("Không thể lấy dữ liệu giai đoạn phân loại");
       }
-      return failureCount < 2;
+
+      // Then, complete the classification using the stage ID
+      return classificationStageService.completeClassification(
+        stageResponse.result.id,
+      );
+    },
+    onSuccess: (data: BaseResponse<boolean>) => {
+      if (data.isSuccess) {
+        toast.success(data.message || "Hoàn thành phân loại thành công");
+        // Invalidate breeding processes query to refetch data
+        queryClient.invalidateQueries({ queryKey: ["breeding-processes"] });
+      } else {
+        toast.error(data.message || "Không thể hoàn thành phân loại");
+      }
+    },
+    onError: (error: ApiError) => {
+      toast.error(
+        error.error?.result ||
+          error.message ||
+          "Có lỗi xảy ra khi hoàn thành phân loại",
+      );
     },
   });
 }

@@ -6,10 +6,15 @@ const baseUrl = "/api/ClassificationStage";
 export interface ClassificationStageResponse {
   id: number;
   breedingProcessId: number;
-  pondId: number;
   totalCount: number;
   status: string;
   notes: string;
+  highQualifiedCount: number;
+  showQualifiedCount: number;
+  pondQualifiedCount: number;
+  cullQualifiedCount: number;
+  startDate: string;
+  endDate: string;
   classificationRecords: ClassificationRecordResponse[];
 }
 
@@ -20,6 +25,16 @@ export const classificationStageService = {
     const response = await apiService.get<
       BaseResponse<ClassificationStageResponse>
     >(`${baseUrl}/by-breeding/${breedId}`);
+    return response.data;
+  },
+
+  completeClassification: async (
+    classificationStageId: number,
+  ): Promise<BaseResponse<boolean>> => {
+    const response = await apiService.put<
+      BaseResponse<boolean>,
+      Record<string, never>
+    >(`${baseUrl}/complete/${classificationStageId}`, {});
     return response.data;
   },
 };

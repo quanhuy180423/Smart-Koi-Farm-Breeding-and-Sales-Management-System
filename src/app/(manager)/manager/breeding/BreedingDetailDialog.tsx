@@ -1,5 +1,3 @@
-"use client";
-import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Dialog,
@@ -15,10 +13,7 @@ import {
 import { DATE_FORMATS, formatDate } from "@/lib/utils/dates";
 import { getBreedingStatusLabel } from "@/lib/utils/enum";
 import { BreedingStageCard } from "./BreedingStageCard";
-import { useGetEggBatchByBreedingProcessId } from "@/hooks/useEggBatch";
-import { useGetIncubationDailyRecordByEggBatchId } from "@/hooks/useIncubationDailyRecord";
 import { IncubationDailyRecordResponse } from "@/lib/api/services/fetchIncubationDailyRecord";
-import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
@@ -27,13 +22,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
-import { useGetFryFishByBreedingProcessId } from "@/hooks/useFryFish";
-import { useGetFrySurvivalRecords } from "@/hooks/useFrySurvivalRecord";
+import { Loader2 } from "lucide-react";
 import { FrySurvivalRecordResponse } from "@/lib/api/services/fetchFrySurvivalRecord";
 import { cn } from "@/lib/utils";
-import { useGetClassificationStageByBreedingProcessId } from "@/hooks/useClassificationStage";
 import { ClassificationRecordResponse } from "@/lib/api/services/fetchClassificationRecord";
+import { useGetBreedingDetail } from "@/hooks/useBreedingProcess";
 
 interface BreedingDetailDialogProps {
   isOpen: boolean;
@@ -48,77 +41,16 @@ export const BreedingDetailDialog = ({
 }: BreedingDetailDialogProps) => {
   const breedingId = breedingProcess?.id;
 
-  const DEFAULT_PAGE_SIZE = 5;
-  const [incubationPagingRequest, setIncubationPagingRequest] = useState({
-    pageIndex: 1,
-    pageSize: DEFAULT_PAGE_SIZE,
-  });
-  const [frySurvivalPagingRequest, setFrySurvivalPagingRequest] = useState({
-    pageIndex: 1,
-    pageSize: DEFAULT_PAGE_SIZE,
-  });
+  const { data: breedingDetail, isLoading } = useGetBreedingDetail(breedingId);
 
-  const { data: eggBatch } = useGetEggBatchByBreedingProcessId(breedingId);
-  const { data: fryFish } = useGetFryFishByBreedingProcessId(breedingId);
-  const { data: classificationStages, isLoading: isLoadingClassification } =
-    useGetClassificationStageByBreedingProcessId(breedingId);
+  const batch = breedingDetail?.batch;
+  const fryFish = breedingDetail?.fryFish;
+  const classificationStage = breedingDetail?.classificationStage;
 
-  const {
-    data: incubationDailyRecords,
-    isLoading: isLoadingDailyRecords,
-    isFetching: isFetchingDailyRecords,
-  } = useGetIncubationDailyRecordByEggBatchId(
-    eggBatch?.id,
-    incubationPagingRequest,
-  );
-
-  const {
-    data: frySurvivalRecords,
-    isLoading: isLoadingFryRecords,
-    isFetching: isFetchingFryRecords,
-  } = useGetFrySurvivalRecords({
-    ...frySurvivalPagingRequest,
-    fryFishId: fryFish?.id,
-  });
-
-  const incubationRecords = incubationDailyRecords?.data || [];
-  const fryRecords = frySurvivalRecords?.data || [];
+  const incubationDailyRecords = batch?.incubationDailyRecords || [];
+  const frySurvivalRecords = fryFish?.frySurvivalRecords || [];
   const classificationRecords =
-    classificationStages?.classificationRecords || [];
-
-  const handleIncubationPreviousPage = () => {
-    setIncubationPagingRequest((prev) => ({
-      ...prev,
-      pageIndex: Math.max(1, prev.pageIndex - 1),
-    }));
-  };
-
-  const handleIncubationNextPage = () => {
-    setIncubationPagingRequest((prev) => ({
-      ...prev,
-      pageIndex: Math.min(
-        incubationDailyRecords?.totalPages || 1,
-        prev.pageIndex + 1,
-      ),
-    }));
-  };
-
-  const handleFrySurvivalPreviousPage = () => {
-    setFrySurvivalPagingRequest((prev) => ({
-      ...prev,
-      pageIndex: Math.max(1, prev.pageIndex - 1),
-    }));
-  };
-
-  const handleFrySurvivalNextPage = () => {
-    setFrySurvivalPagingRequest((prev) => ({
-      ...prev,
-      pageIndex: Math.min(
-        frySurvivalRecords?.totalPages || 1,
-        prev.pageIndex + 1,
-      ),
-    }));
-  };
+    classificationStage?.classificationRecords || [];
 
   const getProcessStatus = (
     currentStatus: BreedingStatus,
@@ -156,11 +88,14 @@ export const BreedingDetailDialog = ({
 
   const totalKept = classificationRecords.reduce(
     (sum, record) =>
-      sum + (record.highQualifiedCount || 0) + (record.qualifiedCount || 0),
+      sum +
+      (record.highQualifiedCount || 0) +
+      (record.showQualifiedCount || 0) +
+      (record.pondQualifiedCount || 0),
     0,
   );
   const totalCulled = classificationRecords.reduce(
-    (sum, record) => sum + (record.unqualifiedCount || 0),
+    (sum, record) => sum + (record.cullQualifiedCount || 0),
     0,
   );
 
@@ -211,404 +146,346 @@ export const BreedingDetailDialog = ({
             </Card>
 
             {/* --- Tiến trình sinh sản (Timeline) --- */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Tiến trình sinh sản</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-0 p-3">
-                {/* 1. Ghép cặp */}
-                <BreedingStageCard
-                  title="Ghép cặp"
-                  date={formatDate(
-                    breedingProcess.startDate,
-                    DATE_FORMATS.MEDIUM_DATE,
-                  )}
-                  status={getProcessStatus(
-                    currentBreedingStatus,
-                    BreedingStatus.PAIRING,
-                  )}
-                >
-                  <p className="text-muted-foreground">
-                    Cá đực (RFID): {breedingProcess.maleKoiRFID}
-                  </p>
-                  <p className="text-muted-foreground">
-                    Cá cái (RFID): {breedingProcess.femaleKoiRFID}
-                  </p>
-                </BreedingStageCard>
+            {isLoading ? (
+              <div className="flex items-center justify-center py-10 text-gray-500">
+                <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                Đang tải dữ liệu...
+              </div>
+            ) : (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Tiến trình sinh sản</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-0 p-3">
+                  {/* 1. Ghép cặp */}
+                  <BreedingStageCard
+                    title="Ghép cặp"
+                    date={formatDate(
+                      breedingProcess.startDate,
+                      DATE_FORMATS.MEDIUM_DATE,
+                    )}
+                    status={getProcessStatus(
+                      currentBreedingStatus,
+                      BreedingStatus.PAIRING,
+                    )}
+                  >
+                    <p className="text-muted-foreground">
+                      Cá đực (RFID): {breedingProcess.maleKoiRFID}
+                    </p>
+                    <p className="text-muted-foreground">
+                      Cá cái (RFID): {breedingProcess.femaleKoiRFID}
+                    </p>
+                  </BreedingStageCard>
 
-                {/* 2. Đẻ trứng */}
-                <BreedingStageCard
-                  title="Đẻ trứng"
-                  date={
-                    eggBatch?.spawnDate
-                      ? formatDate(eggBatch.spawnDate, DATE_FORMATS.MEDIUM_DATE)
-                      : "Chưa có"
-                  }
-                  status={getProcessStatus(
-                    currentBreedingStatus,
-                    BreedingStatus.SPAWNED,
-                  )}
-                >
-                  <p className="text-muted-foreground">
-                    Số lượng trứng:{" "}
-                    <span className="font-semibold">
-                      {eggBatch?.quantity || 0}
-                    </span>{" "}
-                    trứng
-                  </p>
-                  <p className="text-muted-foreground">
-                    Tỷ lệ thụ tinh:{" "}
-                    <span className="font-semibold">
-                      {(eggBatch?.fertilizationRate || 0) * 100}%
-                    </span>
-                  </p>
-                </BreedingStageCard>
-
-                {/* 3. Ấp trứng */}
-                <BreedingStageCard
-                  title="Ấp trứng"
-                  date={
-                    eggBatch?.hatchingTime
-                      ? formatDate(
-                          eggBatch.hatchingTime,
-                          DATE_FORMATS.MEDIUM_DATE,
-                        )
-                      : "Chưa có"
-                  }
-                  status={getProcessStatus(
-                    currentBreedingStatus,
-                    BreedingStatus.EGG_BATCH,
-                  )}
-                >
-                  {getProcessStatus(
-                    currentBreedingStatus,
-                    BreedingStatus.EGG_BATCH,
-                  ) !== "Sắp tới" &&
-                  getProcessStatus(
-                    currentBreedingStatus,
-                    BreedingStatus.EGG_BATCH,
-                  ) !== "Thất bại" ? (
-                    <div className="space-y-3">
-                      {/* Thống kê nhanh */}
-                      <p className="text-muted-foreground">
-                        Tổng trứng ban đầu:{" "}
-                        <span className="font-semibold">
-                          {eggBatch?.quantity}
-                        </span>{" "}
-                        | Ngày dự kiến nở:{" "}
-                        <span className="font-semibold">
-                          {formatDate(
-                            eggBatch?.hatchingTime,
-                            DATE_FORMATS.MEDIUM_DATE,
-                          )}
-                        </span>
+                  {/* 2. Đẻ trứng */}
+                  <BreedingStageCard
+                    title="Đẻ trứng"
+                    date={
+                      batch?.spawnDate
+                        ? formatDate(batch.spawnDate, DATE_FORMATS.MEDIUM_DATE)
+                        : "Chưa có"
+                    }
+                    status={getProcessStatus(
+                      currentBreedingStatus,
+                      BreedingStatus.SPAWNED,
+                    )}
+                  >
+                    {getProcessStatus(
+                      currentBreedingStatus,
+                      BreedingStatus.SPAWNED,
+                    ) !== "Sắp tới" &&
+                    getProcessStatus(
+                      currentBreedingStatus,
+                      BreedingStatus.SPAWNED,
+                    ) !== "Thất bại" ? (
+                      <>
+                        <p className="text-muted-foreground">
+                          Số lượng trứng:{" "}
+                          <span className="font-semibold">
+                            {batch?.quantity || 0}
+                          </span>{" "}
+                          trứng
+                        </p>
+                        <p className="text-muted-foreground">
+                          Tỷ lệ thụ tinh:{" "}
+                          <span className="font-semibold">
+                            {(batch?.fertilizationRate || 0) * 100}%
+                          </span>
+                        </p>
+                      </>
+                    ) : (
+                      <p
+                        className={cn(
+                          "font-medium",
+                          getProcessStatus(
+                            currentBreedingStatus,
+                            BreedingStatus.SPAWNED,
+                          ) === "Thất bại"
+                            ? "text-red-600"
+                            : "text-muted-foreground",
+                        )}
+                      >
+                        {getProcessStatus(
+                          currentBreedingStatus,
+                          BreedingStatus.SPAWNED,
+                        ) === "Thất bại"
+                          ? "Giai đoạn đã đẻ đã thất bại."
+                          : "Giai đoạn đã đẻ chưa bắt đầu."}
                       </p>
+                    )}
+                  </BreedingStageCard>
 
-                      <h4 className="font-semibold text-gray-700 mt-3">
-                        Theo dõi Ấp trứng hàng ngày{" "}
-                        {isFetchingDailyRecords && (
-                          <Loader2 className="h-4 w-4 inline-block ml-2 animate-spin text-blue-500" />
-                        )}
-                      </h4>
-
-                      <div className="overflow-x-auto border rounded-lg">
-                        <Table className="min-w-full">
-                          <TableHeader>
-                            <TableRow>
-                              <TableHead className="w-[80px]">Ngày</TableHead>
-                              <TableHead>Trứng Khỏe</TableHead>
-                              <TableHead>Trứng Hỏng</TableHead>
-                              <TableHead>Trứng Nở</TableHead>
-                            </TableRow>
-                          </TableHeader>
-                          <TableBody>
-                            {incubationRecords.length > 0 ? (
-                              incubationRecords.map(
-                                (record: IncubationDailyRecordResponse) => (
-                                  <TableRow key={record.id}>
-                                    <TableCell className="font-medium">
-                                      {record.dayNumber}
-                                    </TableCell>
-                                    <TableCell>{record.healthyEggs}</TableCell>
-                                    <TableCell className="text-red-500">
-                                      {record.rottenEggs}
-                                    </TableCell>
-                                    <TableCell className="text-green-600">
-                                      {record.hatchedEggs}
-                                    </TableCell>
-                                  </TableRow>
-                                ),
-                              )
-                            ) : (
-                              <TableRow>
-                                <TableCell
-                                  colSpan={4}
-                                  className="h-12 text-center text-gray-500"
-                                >
-                                  {isLoadingDailyRecords ||
-                                  isFetchingDailyRecords ? (
-                                    <div className="flex items-center justify-center py-10 text-gray-500">
-                                      <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                                      Đang tải dữ liệu...
-                                    </div>
-                                  ) : (
-                                    "Chưa có bản ghi theo dõi ấp trứng."
-                                  )}
-                                </TableCell>
-                              </TableRow>
+                  {/* 3. Ấp trứng */}
+                  <BreedingStageCard
+                    title="Ấp trứng"
+                    date={
+                      batch?.endDate
+                        ? formatDate(batch.endDate, DATE_FORMATS.MEDIUM_DATE)
+                        : "Chưa có"
+                    }
+                    status={getProcessStatus(
+                      currentBreedingStatus,
+                      BreedingStatus.EGG_BATCH,
+                    )}
+                  >
+                    {getProcessStatus(
+                      currentBreedingStatus,
+                      BreedingStatus.EGG_BATCH,
+                    ) !== "Sắp tới" &&
+                    getProcessStatus(
+                      currentBreedingStatus,
+                      BreedingStatus.EGG_BATCH,
+                    ) !== "Thất bại" ? (
+                      <div className="space-y-3">
+                        {/* Thống kê nhanh */}
+                        <p className="text-muted-foreground">
+                          Tổng trứng ban đầu:{" "}
+                          <span className="font-semibold">
+                            {batch?.quantity || 0}
+                          </span>{" "}
+                          | Ngày dự kiến nở:{" "}
+                          <span className="font-semibold">
+                            {formatDate(
+                              batch?.hatchingTime,
+                              DATE_FORMATS.MEDIUM_DATE,
                             )}
-                          </TableBody>
-                        </Table>
-                      </div>
+                          </span>
+                        </p>
 
-                      {/* Incubation Pagination - ĐÃ SỬA LỖI ẨN KHI KHÔNG CÓ DATA */}
-                      {incubationDailyRecords &&
-                        incubationDailyRecords.totalItems > 0 && (
-                          <div className="flex items-center justify-between py-2 px-1">
-                            <div className="text-xs text-muted-foreground">
-                              Hiển thị {incubationRecords.length} trong tổng số{" "}
-                              {incubationDailyRecords.totalItems} bản ghi.
-                            </div>
-                            <div className="space-x-2 flex items-center">
-                              <div className="text-xs text-muted-foreground">
-                                Trang {incubationDailyRecords.pageIndex} trên{" "}
-                                {incubationDailyRecords.totalPages}
-                              </div>
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={handleIncubationPreviousPage}
-                                disabled={
-                                  incubationDailyRecords.pageIndex === 1 ||
-                                  isFetchingDailyRecords
-                                }
-                              >
-                                <ChevronLeft className="h-4 w-4" />
-                              </Button>
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={handleIncubationNextPage}
-                                disabled={
-                                  incubationDailyRecords.pageIndex ===
-                                    incubationDailyRecords.totalPages ||
-                                  isFetchingDailyRecords
-                                }
-                              >
-                                <ChevronRight className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          </div>
+                        <h4 className="font-semibold text-gray-700 mt-3">
+                          Theo dõi Ấp trứng hàng ngày{" "}
+                        </h4>
+
+                        <div className="overflow-x-auto border rounded-lg">
+                          <Table className="min-w-full">
+                            <TableHeader>
+                              <TableRow>
+                                <TableHead className="w-[80px]">Ngày</TableHead>
+                                <TableHead>Trứng Khỏe</TableHead>
+                                <TableHead>Trứng Hỏng</TableHead>
+                                <TableHead>Trứng Nở</TableHead>
+                                <TableHead>Trạng thái</TableHead>
+                              </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                              {incubationDailyRecords.length > 0 ? (
+                                incubationDailyRecords.map(
+                                  (record: IncubationDailyRecordResponse) => (
+                                    <TableRow key={record.id}>
+                                      <TableCell className="font-medium">
+                                        {formatDate(
+                                          record.dayNumber,
+                                          DATE_FORMATS.SHORT_DATE,
+                                        )}
+                                      </TableCell>
+                                      <TableCell>
+                                        {record.healthyEggs}
+                                      </TableCell>
+                                      <TableCell className="text-red-500">
+                                        {record.rottenEggs}
+                                      </TableCell>
+                                      <TableCell className="text-green-600">
+                                        {record.hatchedEggs}
+                                      </TableCell>
+                                      <TableCell>
+                                        {record.success ? (
+                                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                            Hoàn thành
+                                          </span>
+                                        ) : (
+                                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                            Chưa có
+                                          </span>
+                                        )}
+                                      </TableCell>
+                                    </TableRow>
+                                  ),
+                                )
+                              ) : (
+                                <TableRow>
+                                  <TableCell
+                                    colSpan={5}
+                                    className="h-12 text-center text-gray-500"
+                                  >
+                                    Chưa có bản ghi theo dõi ấp trứng.
+                                  </TableCell>
+                                </TableRow>
+                              )}
+                            </TableBody>
+                          </Table>
+                        </div>
+                      </div>
+                    ) : (
+                      <p
+                        className={cn(
+                          "font-medium",
+                          getProcessStatus(
+                            currentBreedingStatus,
+                            BreedingStatus.EGG_BATCH,
+                          ) === "Thất bại"
+                            ? "text-red-600"
+                            : "text-muted-foreground",
                         )}
-                    </div>
-                  ) : (
-                    <p
-                      className={cn(
-                        "font-medium",
-                        getProcessStatus(
+                      >
+                        {getProcessStatus(
                           currentBreedingStatus,
                           BreedingStatus.EGG_BATCH,
                         ) === "Thất bại"
-                          ? "text-red-600"
-                          : "text-muted-foreground",
-                      )}
-                    >
-                      {getProcessStatus(
-                        currentBreedingStatus,
-                        BreedingStatus.EGG_BATCH,
-                      ) === "Thất bại"
-                        ? "Giai đoạn ấp trứng đã thất bại."
-                        : "Giai đoạn ấp trứng chưa bắt đầu."}
-                    </p>
-                  )}
-                </BreedingStageCard>
+                          ? "Giai đoạn ấp trứng đã thất bại."
+                          : "Giai đoạn ấp trứng chưa bắt đầu."}
+                      </p>
+                    )}
+                  </BreedingStageCard>
 
-                {/* 4. Nuôi Cá Bột (FRY_FISH) */}
-                <BreedingStageCard
-                  title="Nuôi Cá Bột"
-                  // date={fryFish?.createdAt ? formatDate(fryFish.createdAt, DATE_FORMATS.MEDIUM_DATE) : "Chưa có"}
-                  date="Chưa có"
-                  status={getProcessStatus(
-                    currentBreedingStatus,
-                    BreedingStatus.FRY_FISH,
-                  )}
-                  isLast={
+                  <BreedingStageCard
+                    title="Nuôi Cá Bột"
+                    date={
+                      fryFish?.endDate
+                        ? formatDate(fryFish.endDate, DATE_FORMATS.MEDIUM_DATE)
+                        : "Chưa có"
+                    }
+                    status={getProcessStatus(
+                      currentBreedingStatus,
+                      BreedingStatus.FRY_FISH,
+                    )}
+                    isLast={
+                      getProcessStatus(
+                        currentBreedingStatus,
+                        BreedingStatus.CLASSIFICATION,
+                      ) === "Sắp tới"
+                    }
+                  >
+                    {getProcessStatus(
+                      currentBreedingStatus,
+                      BreedingStatus.FRY_FISH,
+                    ) !== "Sắp tới" &&
                     getProcessStatus(
                       currentBreedingStatus,
-                      BreedingStatus.CLASSIFICATION,
-                    ) === "Sắp tới"
-                  }
-                >
-                  {getProcessStatus(
-                    currentBreedingStatus,
-                    BreedingStatus.FRY_FISH,
-                  ) !== "Sắp tới" &&
-                  getProcessStatus(
-                    currentBreedingStatus,
-                    BreedingStatus.FRY_FISH,
-                  ) !== "Thất bại" ? (
-                    <div className="space-y-3">
-                      <p className="text-muted-foreground">
-                        Cá bột được chuyển từ hồ:{" "}
-                        <span className="font-semibold">
-                          {fryFish?.pondId || "..."}
-                        </span>
-                      </p>
-                      <p className="text-muted-foreground">
-                        Tổng số cá bột ban đầu:{" "}
-                        <span className="font-semibold">
-                          {fryFish?.initialCount || "..."}
-                        </span>
-                      </p>
+                      BreedingStatus.FRY_FISH,
+                    ) !== "Thất bại" ? (
+                      <div className="space-y-3">
+                        <p className="text-muted-foreground">
+                          Tổng số cá bột ban đầu:{" "}
+                          <span className="font-semibold">
+                            {fryFish?.initialCount || 0}
+                          </span>
+                        </p>
 
-                      <h4 className="font-semibold text-gray-700 mt-3">
-                        Theo dõi Tỷ lệ sống sót cá bột
-                        {isFetchingFryRecords && (
-                          <Loader2 className="h-4 w-4 inline-block ml-2 animate-spin text-blue-500" />
-                        )}
-                      </h4>
+                        <h4 className="font-semibold text-gray-700 mt-3">
+                          Theo dõi Tỷ lệ sống sót cá bột
+                        </h4>
 
-                      <div className="overflow-x-auto border rounded-lg">
-                        <Table className="min-w-full">
-                          <TableHeader>
-                            <TableRow>
-                              <TableHead className="w-[80px]">Ngày #</TableHead>
-                              <TableHead>Ngày ghi nhận</TableHead>
-                              <TableHead>Tỷ lệ Sống sót</TableHead>
-                              <TableHead>Số lượng sống</TableHead>
-                              <TableHead className="w-[30%]">Ghi chú</TableHead>
-                            </TableRow>
-                          </TableHeader>
-                          <TableBody>
-                            {fryRecords.length > 0 ? (
-                              fryRecords.map(
-                                (record: FrySurvivalRecordResponse) => (
-                                  <TableRow key={record.id}>
-                                    <TableCell className="font-medium">
-                                      {record.dayNumber}
-                                    </TableCell>
-                                    <TableCell>
-                                      {formatDate(
-                                        record.createdAt,
-                                        DATE_FORMATS.SHORT_DATE,
-                                      )}
-                                    </TableCell>
-                                    <TableCell className="font-semibold text-green-600">
-                                      {(record.survivalRate * 100).toFixed(1)}%
-                                    </TableCell>
-                                    <TableCell>{record.countAlive}</TableCell>
-                                    <TableCell className="truncate max-w-xs">
-                                      {record.note}
-                                    </TableCell>
-                                  </TableRow>
-                                ),
-                              )
-                            ) : (
+                        <div className="overflow-x-auto border rounded-lg">
+                          <Table className="min-w-full">
+                            <TableHeader>
                               <TableRow>
-                                <TableCell
-                                  colSpan={5}
-                                  className="h-12 text-center text-gray-500"
-                                >
-                                  {isLoadingFryRecords ||
-                                  isFetchingFryRecords ? (
-                                    <div className="flex items-center justify-center py-10 text-gray-500">
-                                      <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                                      Đang tải dữ liệu...
-                                    </div>
-                                  ) : (
-                                    "Chưa có bản ghi theo dõi sống sót."
-                                  )}
-                                </TableCell>
+                                <TableHead>Ngày ghi nhận</TableHead>
+                                <TableHead>Tỷ lệ Sống sót</TableHead>
+                                <TableHead>Số lượng sống</TableHead>
+                                <TableHead className="w-[30%]">
+                                  Ghi chú
+                                </TableHead>
                               </TableRow>
-                            )}
-                          </TableBody>
-                        </Table>
+                            </TableHeader>
+                            <TableBody>
+                              {frySurvivalRecords.length > 0 ? (
+                                frySurvivalRecords.map(
+                                  (record: FrySurvivalRecordResponse) => (
+                                    <TableRow key={record.id}>
+                                      <TableCell>
+                                        {formatDate(
+                                          record.createdAt,
+                                          DATE_FORMATS.SHORT_DATE,
+                                        )}
+                                      </TableCell>
+                                      <TableCell className="font-semibold text-green-600">
+                                        {record.survivalRate.toFixed(1)}%
+                                      </TableCell>
+                                      <TableCell>{record.countAlive}</TableCell>
+                                      <TableCell className="truncate max-w-xs">
+                                        {record.note}
+                                      </TableCell>
+                                    </TableRow>
+                                  ),
+                                )
+                              ) : (
+                                <TableRow>
+                                  <TableCell
+                                    colSpan={5}
+                                    className="h-12 text-center text-gray-500"
+                                  >
+                                    Chưa có bản ghi theo dõi sống sót.
+                                  </TableCell>
+                                </TableRow>
+                              )}
+                            </TableBody>
+                          </Table>
+                        </div>
                       </div>
-
-                      {/* Fry Survival Pagination - ĐÃ SỬA LỖI ẨN KHI KHÔNG CÓ DATA */}
-                      {frySurvivalRecords &&
-                        frySurvivalRecords.totalItems > 0 && (
-                          <div className="flex items-center justify-between py-2 px-1">
-                            <div className="text-xs text-muted-foreground">
-                              Hiển thị {fryRecords.length} trong{" "}
-                              {frySurvivalRecords.totalItems} bản ghi.
-                            </div>
-                            <div className="space-x-2 flex items-center">
-                              <div className="text-xs text-muted-foreground">
-                                Trang {frySurvivalPagingRequest.pageIndex} trên{" "}
-                                {frySurvivalRecords.totalPages}
-                              </div>
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={handleFrySurvivalPreviousPage}
-                                disabled={
-                                  frySurvivalPagingRequest.pageIndex <= 1 ||
-                                  isFetchingFryRecords
-                                }
-                              >
-                                <ChevronLeft className="h-4 w-4" />
-                              </Button>
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={handleFrySurvivalNextPage}
-                                disabled={
-                                  frySurvivalPagingRequest.pageIndex >=
-                                    frySurvivalRecords.totalPages ||
-                                  isFetchingFryRecords
-                                }
-                              >
-                                <ChevronRight className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          </div>
+                    ) : (
+                      <p
+                        className={cn(
+                          "font-medium",
+                          getProcessStatus(
+                            currentBreedingStatus,
+                            BreedingStatus.FRY_FISH,
+                          ) === "Thất bại"
+                            ? "text-red-600"
+                            : "text-muted-foreground",
                         )}
-                    </div>
-                  ) : (
-                    <p
-                      className={cn(
-                        "font-medium",
-                        getProcessStatus(
+                      >
+                        {getProcessStatus(
                           currentBreedingStatus,
                           BreedingStatus.FRY_FISH,
                         ) === "Thất bại"
-                          ? "text-red-600"
-                          : "text-muted-foreground",
-                      )}
-                    >
-                      {getProcessStatus(
-                        currentBreedingStatus,
-                        BreedingStatus.FRY_FISH,
-                      ) === "Thất bại"
-                        ? "Giai đoạn nuôi cá bột đã thất bại."
-                        : "Giai đoạn nuôi cá bột chưa bắt đầu."}
-                    </p>
-                  )}
-                </BreedingStageCard>
+                          ? "Giai đoạn nuôi cá bột đã thất bại."
+                          : "Giai đoạn nuôi cá bột chưa bắt đầu."}
+                      </p>
+                    )}
+                  </BreedingStageCard>
 
-                {/* 5. Tuyển chọn (CLASSIFICATION) */}
-                <BreedingStageCard
-                  title="Tuyển chọn"
-                  // date={classificationDisplayDate}
-                  date="Chưa có"
-                  status={getProcessStatus(
-                    currentBreedingStatus,
-                    BreedingStatus.CLASSIFICATION,
-                  )}
-                  isLast={
-                    getProcessStatus(
+                  <BreedingStageCard
+                    title="Tuyển chọn"
+                    date={
+                      classificationStage?.endDate
+                        ? formatDate(
+                            classificationStage.endDate,
+                            DATE_FORMATS.MEDIUM_DATE,
+                          )
+                        : "Chưa có"
+                    }
+                    status={getProcessStatus(
                       currentBreedingStatus,
-                      BreedingStatus.COMPLETE,
-                    ) === "Sắp tới"
-                  }
-                >
-                  {isLoadingClassification ? (
-                    <div className="flex justify-center py-4 text-gray-500">
-                      <Loader2 className="h-5 w-5 mr-2 animate-spin" /> Đang tải
-                      dữ liệu tuyển chọn...
-                    </div>
-                  ) : getProcessStatus(
+                      BreedingStatus.CLASSIFICATION,
+                    )}
+                    isLast={
+                      getProcessStatus(
+                        currentBreedingStatus,
+                        BreedingStatus.COMPLETE,
+                      ) === "Sắp tới"
+                    }
+                  >
+                    {getProcessStatus(
                       currentBreedingStatus,
                       BreedingStatus.CLASSIFICATION,
                     ) !== "Sắp tới" &&
@@ -616,110 +493,110 @@ export const BreedingDetailDialog = ({
                       currentBreedingStatus,
                       BreedingStatus.CLASSIFICATION,
                     ) !== "Thất bại" ? (
-                    <div className="space-y-3">
-                      <p className="text-muted-foreground">
-                        Tổng số cá được phân loại:{" "}
-                        <span className="font-semibold">
-                          {classificationStages?.totalCount || 0}
-                        </span>
-                      </p>
-                      <p className="text-muted-foreground">
-                        Tổng số cá được giữ lại (Show/High/Pond):{" "}
-                        <span className="font-semibold text-green-600">
-                          {totalKept}
-                        </span>
-                      </p>
-                      <p className="text-muted-foreground">
-                        Tổng số cá loại bỏ (Culled):{" "}
-                        <span className="font-semibold text-red-600">
-                          {totalCulled}
-                        </span>
-                      </p>
+                      <div className="space-y-3">
+                        <p className="text-muted-foreground">
+                          Tổng số cá được phân loại:{" "}
+                          <span className="font-semibold">
+                            {classificationRecords?.length || 0}
+                          </span>
+                        </p>
+                        <p className="text-muted-foreground">
+                          Tổng số cá được giữ lại (Show/High/Pond):{" "}
+                          <span className="font-semibold text-green-600">
+                            {totalKept}
+                          </span>
+                        </p>
+                        <p className="text-muted-foreground">
+                          Tổng số cá loại bỏ (Culled):{" "}
+                          <span className="font-semibold text-red-600">
+                            {totalCulled}
+                          </span>
+                        </p>
 
-                      <h4 className="font-semibold text-gray-700 mt-4">
-                        Kết quả chi tiết qua các đợt tuyển:
-                      </h4>
+                        <h4 className="font-semibold text-gray-700 mt-4">
+                          Kết quả chi tiết qua các đợt tuyển:
+                        </h4>
 
-                      <div className="overflow-x-auto border rounded-lg">
-                        <Table className="min-w-full">
-                          <TableHeader>
-                            <TableRow>
-                              <TableHead className="w-[120px]">
-                                Đợt Tuyển
-                              </TableHead>
-                              <TableHead>Show</TableHead>
-                              <TableHead>High</TableHead>
-                              <TableHead>Pond</TableHead>
-                              <TableHead>Culled</TableHead>
-                              <TableHead className="w-[30%]">Ghi chú</TableHead>
-                            </TableRow>
-                          </TableHeader>
-                          <TableBody>
-                            {classificationRecords.length > 0 ? (
-                              classificationRecords.map(
-                                (
-                                  record: ClassificationRecordResponse,
-                                  index,
-                                ) => (
-                                  <TableRow key={record.id}>
-                                    <TableCell className="font-medium">
-                                      Đợt {index + 1} ({record.stageName})
-                                    </TableCell>
-                                    <TableCell className="text-blue-600">
-                                      {record.highQualifiedCount || 0}
-                                    </TableCell>
-                                    <TableCell className="text-green-600">
-                                      {record.qualifiedCount || 0}
-                                    </TableCell>
-                                    <TableCell>
-                                      {record.unqualifiedCount || 0}
-                                    </TableCell>
-                                    <TableCell className="text-red-600">
-                                      {record.unqualifiedCount || 0}
-                                    </TableCell>
-                                    <TableCell className="truncate max-w-xs">
-                                      {record.notes}
-                                    </TableCell>
-                                  </TableRow>
-                                ),
-                              )
-                            ) : (
+                        <div className="overflow-x-auto border rounded-lg">
+                          <Table className="min-w-full">
+                            <TableHeader>
                               <TableRow>
-                                <TableCell
-                                  colSpan={6}
-                                  className="h-12 text-center text-gray-500"
-                                >
-                                  Chưa có bản ghi phân loại nào được tạo.
-                                </TableCell>
+                                <TableHead className="w-[120px]">
+                                  Đợt Tuyển
+                                </TableHead>
+                                <TableHead>Show</TableHead>
+                                <TableHead>High</TableHead>
+                                <TableHead>Pond</TableHead>
+                                <TableHead>Culled</TableHead>
+                                <TableHead className="w-[30%]">
+                                  Ghi chú
+                                </TableHead>
                               </TableRow>
-                            )}
-                          </TableBody>
-                        </Table>
+                            </TableHeader>
+                            <TableBody>
+                              {classificationRecords.length > 0 ? (
+                                classificationRecords.map(
+                                  (record: ClassificationRecordResponse) => (
+                                    <TableRow key={record.id}>
+                                      <TableCell className="font-medium">
+                                        Đợt {record.stageNumber}
+                                      </TableCell>
+                                      <TableCell className="text-blue-600">
+                                        {record.highQualifiedCount || 0}
+                                      </TableCell>
+                                      <TableCell className="text-green-600">
+                                        {record.showQualifiedCount || 0}
+                                      </TableCell>
+                                      <TableCell>
+                                        {record.pondQualifiedCount || 0}
+                                      </TableCell>
+                                      <TableCell className="text-red-600">
+                                        {record.cullQualifiedCount || 0}
+                                      </TableCell>
+                                      <TableCell className="truncate max-w-xs">
+                                        {record.notes}
+                                      </TableCell>
+                                    </TableRow>
+                                  ),
+                                )
+                              ) : (
+                                <TableRow>
+                                  <TableCell
+                                    colSpan={6}
+                                    className="h-12 text-center text-gray-500"
+                                  >
+                                    Chưa có bản ghi phân loại nào được tạo.
+                                  </TableCell>
+                                </TableRow>
+                              )}
+                            </TableBody>
+                          </Table>
+                        </div>
                       </div>
-                    </div>
-                  ) : (
-                    <p
-                      className={cn(
-                        "font-medium",
-                        getProcessStatus(
+                    ) : (
+                      <p
+                        className={cn(
+                          "font-medium",
+                          getProcessStatus(
+                            currentBreedingStatus,
+                            BreedingStatus.CLASSIFICATION,
+                          ) === "Thất bại"
+                            ? "text-red-600"
+                            : "text-muted-foreground",
+                        )}
+                      >
+                        {getProcessStatus(
                           currentBreedingStatus,
                           BreedingStatus.CLASSIFICATION,
                         ) === "Thất bại"
-                          ? "text-red-600"
-                          : "text-muted-foreground",
-                      )}
-                    >
-                      {getProcessStatus(
-                        currentBreedingStatus,
-                        BreedingStatus.CLASSIFICATION,
-                      ) === "Thất bại"
-                        ? "Giai đoạn tuyển chọn đã thất bại/bị bỏ qua."
-                        : "Giai đoạn tuyển chọn chưa bắt đầu."}
-                    </p>
-                  )}
-                </BreedingStageCard>
-              </CardContent>
-            </Card>
+                          ? "Giai đoạn tuyển chọn đã thất bại/bị bỏ qua."
+                          : "Giai đoạn tuyển chọn chưa bắt đầu."}
+                      </p>
+                    )}
+                  </BreedingStageCard>
+                </CardContent>
+              </Card>
+            )}
           </div>
         )}
       </DialogContent>

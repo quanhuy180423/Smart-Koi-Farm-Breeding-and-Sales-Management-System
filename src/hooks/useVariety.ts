@@ -4,7 +4,6 @@ import varietyService, {
   VarietyResponse,
   VarietySearchParams,
 } from "@/lib/api/services/fetchVariety";
-import { useAuthStore } from "@/store/auth-store";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 
@@ -14,12 +13,9 @@ interface VarietyUpdatePayload {
 }
 
 export function useGetVarieties(request: VarietySearchParams) {
-  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
-
   return useQuery({
     queryKey: ["variety", request],
     queryFn: () => varietyService.getVarieties(request),
-    enabled: isAuthenticated,
     select: (
       data: BaseResponse<PagedResponse<VarietyResponse>>,
     ): PagedResponse<VarietyResponse> => data?.result,

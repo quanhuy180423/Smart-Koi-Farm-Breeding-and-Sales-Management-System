@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { Eye, Trash2, Plus, Loader2, Search, Filter } from "lucide-react";
+import { Eye, X, Plus, Loader2, Search, Filter } from "lucide-react";
 import { useEffect, useState } from "react";
 import {
   Card,
@@ -28,8 +28,11 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import toast from "react-hot-toast";
-import { useGetBreedingProcesses } from "@/hooks/useBreedingProcess";
+import {
+  useCancelBreeding,
+  useGetBreedingProcesses,
+} from "@/hooks/useBreedingProcess";
+import { useCompleteClassification } from "@/hooks/useClassificationStage";
 import {
   PAGE_SIZE_OPTIONS_DEFAULT,
   PaginationSection,
@@ -64,6 +67,11 @@ export default function BreedingManagement() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [breedingToDelete, setBreedingToDelete] =
     useState<BreedingProcessResponse>();
+
+  // Complete Classification
+  const [isCompleteModalOpen, setIsCompleteModalOpen] = useState(false);
+  const [breedingToComplete, setBreedingToComplete] =
+    useState<BreedingProcessResponse | null>(null);
 
   // Detail
   const [isDetailOpen, setIsDetailOpen] = useState(false);
@@ -118,6 +126,9 @@ export default function BreedingManagement() {
   );
 
   const { data, isLoading } = useGetBreedingProcesses(searchParams);
+  const { mutateAsync: cancelBreedingAsync } = useCancelBreeding();
+  const { mutate: completeClassification, isPending: isCompleting } =
+    useCompleteClassification();
   const breedingProcesses = data?.data || [];
   const totalItems = data?.totalItems || 0;
   const totalPages = data?.totalPages || 0;
@@ -226,13 +237,24 @@ export default function BreedingManagement() {
   };
 
   const handleDelete = async () => {
+    if (!breedingToDelete?.id) return;
+
     try {
-      toast.success("Đã hủy đợt lai thành công");
+      await cancelBreedingAsync(breedingToDelete?.id);
       setIsDeleteModalOpen(false);
       setBreedingToDelete(undefined);
-    } catch {
-      toast.error("Hủy thất bại");
-    }
+    } catch {}
+  };
+
+  const handleCompleteClassification = () => {
+    if (!breedingToComplete?.id) return;
+
+    completeClassification(breedingToComplete.id, {
+      onSuccess: () => {
+        setIsCompleteModalOpen(false);
+        setBreedingToComplete(null);
+      },
+    });
   };
 
   const handleCreateBreeding = () => {
@@ -268,7 +290,7 @@ export default function BreedingManagement() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Danh sách đợt lai</CardTitle>
+          <CardTitle>Danh sách đợt sinh sản</CardTitle>
           <CardDescription>
             Danh sách chi tiết các đợt lai cá hiện có
           </CardDescription>
@@ -315,12 +337,12 @@ export default function BreedingManagement() {
                 <TableHeader>
                   <TableRow>
                     <TableHead className="w-[10%]">STT</TableHead>
-                    <TableHead className="w-[10%]">Cá đực (RFID)</TableHead>
-                    <TableHead className="w-[10%]">Cá cái (RFID)</TableHead>
+                    <TableHead className="w-[15%]">Cá đực (RFID)</TableHead>
+                    <TableHead className="w-[15%]">Cá cái (RFID)</TableHead>
                     <TableHead className="w-[20%]">Thời gian diễn ra</TableHead>
                     <TableHead className="w-[15%]">Giai đoạn</TableHead>
                     <TableHead className="w-[15%]">Kết quả</TableHead>
-                    <TableHead className="w-[20%] text-center">
+                    <TableHead className="w-[10%] text-center">
                       Thao tác
                     </TableHead>
                   </TableRow>
@@ -391,7 +413,7 @@ export default function BreedingManagement() {
                             );
                           })()}
                         </TableCell>
-                        <TableCell className="text-center space-x-2">
+                        <TableCell className="text-center grid grid-cols-3 gap-1">
                           <Button
                             size="sm"
                             variant="ghost"
@@ -404,18 +426,35 @@ export default function BreedingManagement() {
                             <Eye className="h-4 w-4" />
                           </Button>
 
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            className="text-red-600"
-                            title="Hủy"
-                            onClick={() => {
-                              setBreedingToDelete(process);
-                              setIsDeleteModalOpen(true);
-                            }}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
+                          {process.status === BreedingStatus.CLASSIFICATION && (
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="text-green-600"
+                              title="Hoàn thành"
+                              onClick={() => {
+                                setBreedingToComplete(process);
+                                setIsCompleteModalOpen(true);
+                              }}
+                            >
+                              ✓
+                            </Button>
+                          )}
+
+                          {process.status === BreedingStatus.PAIRING && (
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="text-red-600"
+                              title="Hủy"
+                              onClick={() => {
+                                setBreedingToDelete(process);
+                                setIsDeleteModalOpen(true);
+                              }}
+                            >
+                              <X className="h-4 w-4" />
+                            </Button>
+                          )}
                         </TableCell>
                       </TableRow>
                     ))
@@ -493,7 +532,7 @@ export default function BreedingManagement() {
           <DialogHeader>
             <DialogTitle>Bộ lọc Đợt lai</DialogTitle>
             <DialogDescription>
-              Lọc danh sách đợt lai theo tiêu chí.
+              Lọc danh sách đợt sinh sản theo tiêu chí.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-6">
@@ -668,7 +707,42 @@ export default function BreedingManagement() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-      {/* KẾT THÚC DIALOG BỘ LỌC */}
+
+      {/* Confirm Complete Classification Dialog */}
+      <Dialog open={isCompleteModalOpen} onOpenChange={setIsCompleteModalOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Xác nhận hoàn thành phân loại</DialogTitle>
+            <DialogDescription>
+              Đánh dấu đợt lai này đã hoàn thành giai đoạn phân loại.
+            </DialogDescription>
+          </DialogHeader>
+          <p>
+            Bạn có chắc chắn muốn hoàn thành phân loại cho đợt lai{" "}
+            <span className="font-semibold text-green-600">
+              {breedingToComplete?.maleKoiRFID} -{" "}
+              {breedingToComplete?.femaleKoiRFID}
+            </span>
+            ?
+          </p>
+          <div className="flex justify-end gap-3 pt-4 border-t">
+            <Button
+              variant="outline"
+              onClick={() => setIsCompleteModalOpen(false)}
+              disabled={isCompleting}
+            >
+              Hủy
+            </Button>
+            <Button
+              className="bg-green-600 hover:bg-green-700"
+              onClick={handleCompleteClassification}
+              disabled={isCompleting}
+            >
+              {isCompleting ? "Đang xử lý..." : "Hoàn thành"}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Confirm Delete Dialog */}
       <Dialog open={isDeleteModalOpen} onOpenChange={setIsDeleteModalOpen}>

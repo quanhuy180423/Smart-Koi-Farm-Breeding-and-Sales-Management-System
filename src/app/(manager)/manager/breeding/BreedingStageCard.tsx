@@ -1,6 +1,5 @@
 "use client";
 import { useState } from "react";
-// Thêm icon XCircle cho trạng thái thất bại
 import {
   ChevronDown,
   ChevronRight,
@@ -9,7 +8,7 @@ import {
   Dot,
   XCircle,
 } from "lucide-react";
-import { cn } from "@/lib/utils"; // Giả định bạn có util `cn` từ shadcn/ui để merge classNames
+import { cn } from "@/lib/utils";
 
 interface BreedingStageCardProps {
   title: string;

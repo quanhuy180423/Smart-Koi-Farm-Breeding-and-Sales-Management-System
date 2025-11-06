@@ -24,14 +24,14 @@ export default function RenewPasswordPage() {
   const token = searchParams?.get("token") || "";
   const emailFromQuery = searchParams?.get("email") || "";
 
-  // email is provided via query param; do not show it in the UI
   const email = emailFromQuery;
   const [newPassword, setNewPassword] = useState("");
   const [confirmedNewPassword, setConfirmedNewPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
 
-  const { resetPasswordAsync, isLoading } = useResetPassword();
+  const { mutateAsync: resetPasswordAsync, isPending: isLoading } =
+    useResetPassword();
 
   useEffect(() => {
     if (!token || !emailFromQuery) {

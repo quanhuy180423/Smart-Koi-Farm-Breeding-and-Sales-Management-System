@@ -9,7 +9,7 @@ import {
 import { useGetBreedingParentHistory } from "@/hooks/useBreedingProcess";
 import { KoiFishResponse } from "@/lib/api/services/fetchKoiFish";
 import getAge from "@/lib/utils/dates/age";
-import getFishSizeLabel, { getHealthStatusLabel } from "@/lib/utils/enum";
+import { getFishSizeLabel, getHealthStatusLabel } from "@/lib/utils/enum";
 import { Venus } from "lucide-react";
 import Image from "next/image";
 import React from "react";
@@ -52,20 +52,20 @@ export default function MotherFishInfo({ selectedFish }: MotherFishInfoProps) {
   const breedData = [
     {
       label: "Giống cá",
-      value: selectedFish.variety.varietyName,
+      value: selectedFish?.variety?.varietyName || "",
     },
     {
       label: "Đặc tính giống",
-      value: selectedFish.variety.characteristic,
+      value: selectedFish?.variety?.characteristic || "",
     },
   ];
 
-  const geneticData = [
-    {
-      label: "Phả hệ (Bloodline)",
-      value: "Dainichi Bloodline, Generation 3, Premium Gin Rin traits",
-    },
-  ];
+  // const geneticData = [
+  //   {
+  //     label: "Phả hệ (Bloodline)",
+  //     value: "Dainichi Bloodline, Generation 3, Premium Gin Rin traits",
+  //   },
+  // ];
 
   const breedingHistoryData = [
     {
@@ -74,15 +74,24 @@ export default function MotherFishInfo({ selectedFish }: MotherFishInfoProps) {
     },
     {
       label: "Tỷ lệ nở trung bình",
-      value: `${breedingParentHistory?.hatchRate.toFixed(2)}%`,
+      value:
+        breedingParentHistory?.hatchRate !== null
+          ? `${breedingParentHistory?.hatchRate.toFixed(2)}%`
+          : "Chưa có",
     },
     {
       label: "Tỷ lệ cá con sống sót trung bình",
-      value: `${breedingParentHistory?.survivalRate.toFixed(2)}%`,
+      value:
+        breedingParentHistory?.survivalRate !== null
+          ? `${breedingParentHistory?.survivalRate.toFixed(2)}%`
+          : "Chưa có",
     },
     {
       label: "Tỷ lệ cá con chất lượng tốt trung bình",
-      value: `${breedingParentHistory?.highQualifiedRate.toFixed(2)}%`,
+      value:
+        breedingParentHistory?.highQualifiedRate !== null
+          ? `${breedingParentHistory?.highQualifiedRate.toFixed(2)}%`
+          : "Chưa có",
     },
   ];
 
@@ -105,8 +114,9 @@ export default function MotherFishInfo({ selectedFish }: MotherFishInfoProps) {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value={selectedFish.id.toString()}>
-                {selectedFish.variety.varietyName} RFID: {selectedFish.rfid} -{" "}
-                {getAge(selectedFish.birthDate)} tuổi - Sức khỏe:{" "}
+                {selectedFish?.variety?.varietyName || ""} RFID:{" "}
+                {selectedFish.rfid} - {getAge(selectedFish.birthDate)} tuổi -
+                Sức khỏe:{" "}
                 {getHealthStatusLabel(selectedFish.healthStatus).label}
               </SelectItem>
             </SelectContent>
@@ -153,16 +163,14 @@ export default function MotherFishInfo({ selectedFish }: MotherFishInfoProps) {
                   <div className="text-sm font-semibold text-gray-700 mb-2">
                     {item.label}
                   </div>
-                  <div className="text-sm font-medium text-gray-900">
-                    {item.value}
-                  </div>
+                  <div className="text-sm text-gray-900">{item.value}</div>
                 </CardContent>
               </Card>
             ))}
           </div>
         </div>
 
-        <div>
+        {/* <div>
           <h4 className="text-lg font-bold text-gray-800 mb-5 flex items-center gap-2">
             <span className="bg-pink-100 text-pink-800 rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold">
               2
@@ -184,12 +192,12 @@ export default function MotherFishInfo({ selectedFish }: MotherFishInfoProps) {
               </Card>
             ))}
           </div>
-        </div>
+        </div> */}
 
         <div>
           <h4 className="text-lg font-bold text-gray-800 mb-5 flex items-center gap-2">
             <span className="bg-pink-100 text-pink-800 rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold">
-              3
+              2
             </span>
             Sức Khỏe & Độ Tuổi
           </h4>
@@ -203,9 +211,7 @@ export default function MotherFishInfo({ selectedFish }: MotherFishInfoProps) {
                   <div className="text-sm font-semibold text-gray-700 mb-2">
                     {item.label}
                   </div>
-                  <div className="text-sm font-medium text-gray-900">
-                    {item.value}
-                  </div>
+                  <div className="text-sm text-gray-900">{item.value}</div>
                 </CardContent>
               </Card>
             ))}
@@ -215,7 +221,7 @@ export default function MotherFishInfo({ selectedFish }: MotherFishInfoProps) {
         <div>
           <h4 className="text-lg font-bold text-gray-800 mb-5 flex items-center gap-2">
             <span className="bg-pink-100 text-pink-800 rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold">
-              4
+              3
             </span>
             Đặc Tính Riêng Biệt Theo Giống
           </h4>
@@ -239,7 +245,7 @@ export default function MotherFishInfo({ selectedFish }: MotherFishInfoProps) {
         <div>
           <h4 className="text-lg font-bold text-gray-800 mb-5 flex items-center gap-2">
             <span className="bg-pink-100 text-pink-800 rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold">
-              5
+              4
             </span>
             Dữ Liệu Lịch Sử Sinh Sản
           </h4>

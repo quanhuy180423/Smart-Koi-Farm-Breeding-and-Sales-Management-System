@@ -1,6 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { KoiFishResponse } from "@/lib/api/services/fetchKoiFish";
+import { useAnalyzePair } from "@/hooks/useBreedingProcess";
 import {
   Heart,
   Dna,
@@ -10,59 +11,182 @@ import {
   FileText,
   Mars,
   Venus,
+  Loader2,
 } from "lucide-react";
 import Image from "next/image";
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { AnalyzePairResponse } from "@/lib/api/services/fetchBreedingProcess";
 
 interface ComparisonSectionProps {
   fatherFish: KoiFishResponse;
   motherFish: KoiFishResponse;
 }
 
-const geneticData = [
-  { label: "Tỷ lệ cận huyết:", value: "1.9%", color: "text-red-600" },
-  { label: "Tỷ lệ đột biến:", value: "1.1%", color: "text-blue-600" },
-  {
-    label: "Tương hợp giống:",
-    value: "Khác giống (Medium)",
-    color: "text-green-600",
-  },
-];
-
-const qualityData = [
-  {
-    label: "Mức độ tương hợp:",
-    value: "High - Tương hợp cao",
-    color: "text-green-600",
-  },
-  {
-    label: "Kỳ vọng chất lượng cá con:",
-    value: "Excellent - Chất lượng cao",
-    color: "text-green-600",
-  },
-  { label: "Tỷ lệ thành công dự kiến:", value: "90%", color: "text-green-600" },
-];
-
-const riskAssessments = [
-  {
-    message: "Nguy cơ cận huyết thấp (1.9%). An toàn cho phối giống.",
-    bgColor: "bg-green-50",
-    borderColor: "border-green-200",
-    textColor: "text-green-800",
-  },
-  {
-    message:
-      "Phối giống khác giống (Kohaku × Asagi). Có thể tạo ra đặc điểm lai thú vị.",
-    bgColor: "bg-blue-50",
-    borderColor: "border-blue-200",
-    textColor: "text-blue-800",
-  },
-];
-
 export default function ComparisonSection({
   fatherFish,
   motherFish,
 }: ComparisonSectionProps) {
+  const {
+    mutate: analyzePair,
+    data: analysisResult,
+    isPending,
+  } = useAnalyzePair();
+  const [analysisData, setAnalysisData] = useState<AnalyzePairResponse | null>(
+    null,
+  );
+
+  useEffect(() => {
+    if (fatherFish && motherFish) {
+      analyzePair({
+        maleId: fatherFish.id,
+        femaleId: motherFish.id,
+      });
+    }
+  }, [fatherFish, motherFish, analyzePair]);
+
+  useEffect(() => {
+    if (analysisResult?.result) {
+      setAnalysisData(analysisResult.result);
+    }
+  }, [analysisResult]);
+
+  // Helper function to get risk level based on percentage
+  const getRiskLevel = (
+    value: number,
+  ): {
+    label: string;
+    bgColor: string;
+    borderColor: string;
+    textColor: string;
+  } => {
+    if (value < 2)
+      return {
+        label: "Thấp",
+        bgColor: "bg-green-50",
+        borderColor: "border-green-200",
+        textColor: "text-green-800",
+      };
+    if (value < 5)
+      return {
+        label: "Trung bình",
+        bgColor: "bg-yellow-50",
+        borderColor: "border-yellow-200",
+        textColor: "text-yellow-800",
+      };
+    return {
+      label: "Cao",
+      bgColor: "bg-red-50",
+      borderColor: "border-red-200",
+      textColor: "text-red-800",
+    };
+  };
+
+  // Helper function to determine body shape compatibility level
+  const getCompatibilityLevel = (
+    score: number,
+  ): { label: string; color: string } => {
+    if (score >= 70) return { label: "Rất tương hợp", color: "text-green-600" };
+    if (score >= 50) return { label: "Tương hợp tốt", color: "text-green-600" };
+    if (score >= 30)
+      return { label: "Tương hợp vừa phải", color: "text-yellow-600" };
+    return { label: "Tương hợp thấp", color: "text-orange-600" };
+  };
+
+  // Helper function to determine pattern match level
+  const getPatternLevel = (score: number): { label: string; color: string } => {
+    if (score >= 80) return { label: "Khớp hoàn hảo", color: "text-green-600" };
+    if (score >= 60) return { label: "Khớp tốt", color: "text-green-600" };
+    if (score >= 40)
+      return { label: "Khớp vừa phải", color: "text-yellow-600" };
+    return { label: "Khớp thấp", color: "text-orange-600" };
+  };
+
+  const geneticData = analysisData
+    ? [
+        {
+          label: "Tỷ lệ cận huyết:",
+          value: `${analysisData.percentInbreeding}%`,
+          color: getRiskLevel(analysisData.percentInbreeding).textColor,
+        },
+        {
+          label: "Tương hợp hình dáng cơ thể:",
+          value: `${analysisData.bodyShapeCompatibility}%`,
+          color: getCompatibilityLevel(analysisData.bodyShapeCompatibility)
+            .color,
+        },
+        {
+          label: "Tương hợp hoa văn:",
+          value: `${analysisData.patternMatchScore}%`,
+          color: getPatternLevel(analysisData.patternMatchScore).color,
+        },
+      ]
+    : [];
+
+  const qualityData = analysisData
+    ? [
+        {
+          label: "Tỷ lệ thụ tinh dự kiến:",
+          value: `${analysisData.predictedFertilizationRate.toFixed(1)}%`,
+          color: "text-blue-600",
+        },
+        {
+          label: "Tỷ lệ nở dự kiến:",
+          value: `${analysisData.predictedHatchRate.toFixed(1)}%`,
+          color: "text-blue-600",
+        },
+        {
+          label: "Tỷ lệ sống sót dự kiến:",
+          value: `${analysisData.predictedSurvivalRate.toFixed(1)}%`,
+          color: "text-blue-600",
+        },
+      ]
+    : [];
+
+  const riskAssessmentList = analysisData
+    ? [
+        {
+          message: `Nguy cơ cận huyết ${analysisData.percentInbreeding > 0 ? "ở mức " + analysisData.percentInbreeding.toFixed(1) + "%" : "rất thấp"}. ${analysisData.percentInbreeding < 2 ? "An toàn cho phối giống." : "Cần xem xét."}`,
+          percent: analysisData.percentInbreeding,
+          ...getRiskLevel(analysisData.percentInbreeding),
+        },
+        {
+          message: `Tương hợp hình dáng cơ thể đạt ${analysisData.bodyShapeCompatibility}%. ${getCompatibilityLevel(analysisData.bodyShapeCompatibility).label}.`,
+          percent: analysisData.bodyShapeCompatibility,
+          ...(() => {
+            const score = analysisData.bodyShapeCompatibility;
+            if (score >= 70) return getRiskLevel(1);
+            if (score >= 50) return getRiskLevel(3);
+            return getRiskLevel(5);
+          })(),
+        },
+      ]
+    : [];
+
+  if (isPending) {
+    return (
+      <section className="w-full bg-white border border-gray-100 shadow-sm rounded-xl p-8 space-y-8">
+        <header>
+          <h2 className="text-xl font-bold text-gray-900 mb-2 flex items-center gap-3">
+            <div className="w-3 h-8 bg-gradient-to-b from-purple-500 to-pink-500 rounded-full"></div>
+            Đánh giá mức độ tương hợp
+          </h2>
+          <p className="text-gray-600 text-sm">
+            Phân tích chi tiết về khả năng phối giống và dự đoán kết quả
+          </p>
+        </header>
+
+        <Card className="border-purple-200 bg-gradient-to-r from-purple-50 via-blue-50 to-pink-50 shadow-lg">
+          <CardContent className="px-6 py-12 flex flex-col items-center justify-center gap-4">
+            <Loader2 className="w-8 h-8 text-purple-600 animate-spin" />
+            <p className="text-gray-600 font-medium">
+              Đang phân tích cặp cá...
+            </p>
+          </CardContent>
+        </Card>
+      </section>
+    );
+  }
+
   return (
     <section className="w-full bg-white border border-gray-100 shadow-sm rounded-xl p-8 space-y-8">
       <header>
@@ -206,20 +330,32 @@ export default function ComparisonSection({
                 <span className="text-base font-bold text-blue-800">Cá Bố</span>
               </div>
               <div className="text-sm text-gray-700 mb-3 leading-relaxed">
-                3 lần sinh sản thành công, cá con đạt chất lượng cao
+                {analysisData?.maleBreeingInfo?.sumary ||
+                  "Chưa có dữ liệu lịch sử sinh sản"}
               </div>
-              <div className="bg-white p-3 rounded-lg border border-blue-100">
-                <span className="text-xs text-gray-600">Tỷ lệ thành công:</span>
-                <div className="flex items-center gap-2 mt-1">
-                  <div className="flex-1 bg-gray-200 rounded-full h-2">
-                    <div
-                      className="bg-blue-500 h-2 rounded-full"
-                      style={{ width: "92%" }}
-                    ></div>
+              {analysisData?.maleBreeingInfo && (
+                <div className="bg-white p-3 rounded-lg border border-blue-100">
+                  <span className="text-xs text-gray-600">
+                    Tỷ lệ thành công:
+                  </span>
+                  <div className="flex items-center gap-2 mt-1">
+                    <div className="flex-1 bg-gray-200 rounded-full h-2">
+                      <div
+                        className="bg-blue-500 h-2 rounded-full"
+                        style={{
+                          width: `${analysisData?.maleBreeingInfo?.breedingSuccessRate?.toFixed(0)}%`,
+                        }}
+                      ></div>
+                    </div>
+                    <span className="text-sm font-bold text-blue-600">
+                      {analysisData?.maleBreeingInfo?.breedingSuccessRate?.toFixed(
+                        2,
+                      )}
+                      %
+                    </span>
                   </div>
-                  <span className="text-sm font-bold text-blue-600">92%</span>
                 </div>
-              </div>
+              )}
             </CardContent>
           </Card>
 
@@ -230,23 +366,61 @@ export default function ComparisonSection({
                 <span className="text-base font-bold text-pink-800">Cá Mẹ</span>
               </div>
               <div className="text-sm text-gray-700 mb-3 leading-relaxed">
-                2 lần sinh sản, kết quả tương đối tốt
+                {analysisData?.femaleBreedingInfo?.sumary ||
+                  "Chưa có dữ liệu lịch sử sinh sản"}
               </div>
-              <div className="bg-white p-3 rounded-lg border border-pink-100">
-                <span className="text-xs text-gray-600">Tỷ lệ thành công:</span>
-                <div className="flex items-center gap-2 mt-1">
-                  <div className="flex-1 bg-gray-200 rounded-full h-2">
-                    <div
-                      className="bg-pink-500 h-2 rounded-full"
-                      style={{ width: "88%" }}
-                    ></div>
+              {analysisData?.femaleBreedingInfo && (
+                <div className="bg-white p-3 rounded-lg border border-pink-100">
+                  <span className="text-xs text-gray-600">
+                    Tỷ lệ thành công:
+                  </span>
+                  <div className="flex items-center gap-2 mt-1">
+                    <div className="flex-1 bg-gray-200 rounded-full h-2">
+                      <div
+                        className="bg-pink-500 h-2 rounded-full"
+                        style={{
+                          width: `${analysisData?.femaleBreedingInfo?.breedingSuccessRate.toFixed(0)}%`,
+                        }}
+                      ></div>
+                    </div>
+                    <span className="text-sm font-bold text-pink-600">
+                      {analysisData?.femaleBreedingInfo?.breedingSuccessRate?.toFixed(
+                        2,
+                      )}
+                      %
+                    </span>
                   </div>
-                  <span className="text-sm font-bold text-pink-600">88%</span>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+
+      <div className="mb-8">
+        <h3 className="text-lg font-bold text-gray-800 mb-6 flex items-center gap-2">
+          <div className="bg-amber-100 text-amber-800 rounded-full w-8 h-8 flex items-center justify-center">
+            <BarChart3 className="w-4 h-4" />
+          </div>
+          Tóm tắt phân tích
+        </h3>
+
+        {analysisData && (
+          <Card className="bg-gradient-to-br from-blue-50 to-cyan-50 border-blue-200 shadow-sm hover:shadow-md transition-shadow">
+            <CardContent className="px-6">
+              <div className="flex items-start gap-4">
+                <div className="bg-blue-200 text-blue-800 rounded-full w-10 h-10 flex items-center justify-center text-lg font-bold flex-shrink-0 shadow-md">
+                  📋
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm leading-relaxed text-gray-800 font-medium">
+                    {analysisData.summary}
+                  </p>
                 </div>
               </div>
             </CardContent>
           </Card>
-        </div>
+        )}
       </div>
 
       <div className="mb-8">
@@ -258,7 +432,7 @@ export default function ComparisonSection({
         </h3>
 
         <div className="grid gap-4">
-          {riskAssessments.map((assessment, index) => (
+          {riskAssessmentList.map((assessment, index) => (
             <Card
               key={index}
               className={`${assessment.bgColor} ${assessment.borderColor} border-l-4 shadow-sm hover:shadow-lg transition-all duration-300 hover:scale-[1.02] cursor-pointer`}
@@ -297,13 +471,17 @@ export default function ComparisonSection({
                         }`}
                       >
                         <div
-                          className={`h-1.5 rounded-full transition-all duration-500 ${
-                            assessment.bgColor.includes("green")
-                              ? "bg-green-500 w-3/4"
+                          className="h-1.5 rounded-full transition-all duration-500"
+                          style={{
+                            width: `${Math.min(assessment.percent ?? 0, 100)}%`,
+                            backgroundColor: assessment.bgColor.includes(
+                              "green",
+                            )
+                              ? "#22c55e"
                               : assessment.bgColor.includes("yellow")
-                                ? "bg-yellow-500 w-1/2"
-                                : "bg-red-500 w-1/4"
-                          }`}
+                                ? "#eab308"
+                                : "#ef4444",
+                          }}
                         ></div>
                       </div>
                       <span
@@ -315,11 +493,7 @@ export default function ComparisonSection({
                               : "text-red-700"
                         }`}
                       >
-                        {assessment.bgColor.includes("green")
-                          ? "Thấp"
-                          : assessment.bgColor.includes("yellow")
-                            ? "Trung bình"
-                            : "Cao"}
+                        {assessment.label}
                       </span>
                     </div>
                   </div>

@@ -254,7 +254,6 @@ export default function ScheduleManagement() {
   };
 
   const handleAddSchedule = () => {
-    console.log("Adding new schedule:", newSchedule);
     setIsAddModalOpen(false);
     setNewSchedule({
       employeeName: "",
@@ -275,7 +274,6 @@ export default function ScheduleManagement() {
   };
 
   const handleUpdateSchedule = () => {
-    console.log("Updating schedule:", editingSchedule);
     setIsEditModalOpen(false);
     setEditingSchedule(null);
   };

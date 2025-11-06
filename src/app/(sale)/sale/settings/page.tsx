@@ -83,7 +83,6 @@ export default function SaleSettingsPage() {
 
   const handleSave = () => {
     // Save settings logic here
-    console.log("Settings saved:", settings);
   };
 
   const handlePasswordChange = () => {
@@ -92,7 +91,6 @@ export default function SaleSettingsPage() {
       return;
     }
     // Change password logic here
-    console.log("Password changed");
     setCurrentPassword("");
     setNewPassword("");
     setConfirmPassword("");

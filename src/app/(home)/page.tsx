@@ -33,7 +33,7 @@ export default function HomePage() {
 
     const interval = setInterval(() => {
       api.scrollNext();
-    }, 4000); // 4 seconds
+    }, 4000);
 
     return () => clearInterval(interval);
   }, [api, isHovered]);

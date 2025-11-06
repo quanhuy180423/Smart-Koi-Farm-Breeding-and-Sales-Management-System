@@ -3,19 +3,17 @@ import apiService, {
   PagedResponse,
   PagingRequest,
 } from "../apiClient";
-import { EggBatchResponse } from "./fetchEggBatch";
 
 const baseUrl = "/api/IncubationDailyRecord";
 
 export interface IncubationDailyRecordResponse {
   id: number;
   eggBatchId: number;
-  dayNumber: number;
+  dayNumber: string;
   healthyEggs: number;
-  rottenEggs: number;
+  rottenEggs: number | null;
   hatchedEggs: number;
   success: boolean;
-  eggBatch: EggBatchResponse;
 }
 
 export const incubationDailyRecordService = {

@@ -9,7 +9,7 @@ import FatherFishInfo from "./FatherFishInfo";
 import MotherFishInfo from "./MotherFishInfo";
 import ComparisonSection from "./ComparisonSection";
 import { KoiFishResponse } from "@/lib/api/services/fetchKoiFish";
-import { ArrowLeft, ArrowRight, Check, Loader2, MapPin } from "lucide-react"; // Thêm MapPin
+import { ArrowLeft, ArrowRight, Check, Loader2, MapPin } from "lucide-react";
 import {
   Dialog,
   DialogContent,

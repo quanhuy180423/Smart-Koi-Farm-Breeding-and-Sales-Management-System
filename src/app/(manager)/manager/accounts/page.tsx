@@ -196,7 +196,6 @@ export default function AccountManagement() {
   };
 
   const handleAddAccount = () => {
-    console.log("Adding new account:", newAccount);
     setIsAddModalOpen(false);
     setNewAccount({
       name: "",
@@ -214,7 +213,6 @@ export default function AccountManagement() {
   };
 
   const handleUpdateAccount = () => {
-    console.log("Updating account:", editingAccount);
     setIsEditModalOpen(false);
     setEditingAccount(null);
   };

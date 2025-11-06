@@ -28,9 +28,9 @@ interface EditPondModalProps {
   handleUpdatePond: () => void;
   isPending: boolean;
   handleOpenAreaSelection: (context: "new" | "edit") => void;
-  handleOpenPondTypeSelection: (context: "new" | "edit") => void; // NEW PROP
+  handleOpenPondTypeSelection: (context: "new" | "edit") => void;
   getAreaNameById: (id: string | number | undefined) => string;
-  getPondTypeNameById: (id: string | number | undefined) => string; // NEW PROP
+  getPondTypeNameById: (id: string | number | undefined) => string;
 }
 
 const EditPondModal = ({
@@ -42,9 +42,9 @@ const EditPondModal = ({
   handleUpdatePond,
   isPending,
   handleOpenAreaSelection,
-  handleOpenPondTypeSelection, // USED
+  handleOpenPondTypeSelection,
   getAreaNameById,
-  getPondTypeNameById, // USED
+  getPondTypeNameById,
 }: EditPondModalProps) => (
   <Dialog open={isOpen} onOpenChange={onOpenChange}>
     <DialogContent className="max-w-2xl">

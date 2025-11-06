@@ -10,11 +10,12 @@ const baseUrl = "/api/FrySurvivalRecord";
 export interface FrySurvivalRecordResponse {
   id: number;
   fryFishId: number;
-  dayNumber: number;
+  dayNumber: string;
   survivalRate: number;
   countAlive: number;
   note: string;
   createdAt: string;
+  initialCount?: number;
 }
 
 export interface FrySurvivalRecordSearchParams extends PagingRequest {

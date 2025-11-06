@@ -1,8 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
+import Image from "next/image";
+import { useGetOrderById } from "@/hooks/useOrder";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
 import {
   XCircle,
   AlertTriangle,
@@ -13,17 +18,36 @@ import {
   Truck,
   ShoppingCart,
   Home,
+  Loader2,
+  User,
+  Package,
+  Fish,
 } from "lucide-react";
 import Link from "next/link";
+import { formatCurrency } from "@/lib/utils/numbers/formatCurrency";
+import { DATE_FORMATS, formatDate } from "@/lib/utils/dates";
+import { getOrderStatusText } from "@/lib/utils/enum";
 
 export default function CheckoutFailurePage() {
+  const searchParams = useSearchParams();
+  const [orderId, setOrderId] = useState<number | null>(null);
   const [errorCode, setErrorCode] = useState("");
-  const [errorTime, setErrorTime] = useState("");
 
   useEffect(() => {
-    setErrorCode(`ERR_${Date.now().toString().slice(-6)}`);
-    setErrorTime(new Date().toLocaleString("vi-VN"));
-  }, []);
+    const paramCode = searchParams.get("code");
+    const paramOrderId = searchParams.get("orderId");
+
+    if (paramOrderId) {
+      setOrderId(Number(paramOrderId));
+    }
+
+    // Generate error code
+    setErrorCode(
+      paramCode ? `ERR_${paramCode}` : `ERR_${Date.now().toString().slice(-6)}`,
+    );
+  }, [searchParams]);
+
+  const { data: order, isLoading } = useGetOrderById(orderId ?? undefined);
 
   const commonIssues = [
     {
@@ -43,6 +67,14 @@ export default function CheckoutFailurePage() {
     },
   ];
 
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-background to-red-50/20">
       <div className="container mx-auto px-4 py-8">
@@ -61,36 +93,169 @@ export default function CheckoutFailurePage() {
             </p>
           </div>
 
-          <Card className="text-left mb-8 border-red-200 bg-red-50/30">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-red-700">
-                <AlertTriangle className="h-5 w-5" />
-                Chi tiết lỗi
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="bg-red-100/50 p-4 rounded-lg border border-red-200">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                  <div>
-                    <p className="text-muted-foreground">Mã lỗi:</p>
-                    <p className="font-mono text-red-600 font-medium">
-                      {errorCode || "Đang tải..."}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-muted-foreground">Thời gian:</p>
-                    <p className="font-medium">{errorTime || "Đang tải..."}</p>
-                  </div>
-                </div>
-                <div className="mt-3">
-                  <p className="text-muted-foreground text-sm">Lý do có thể:</p>
-                  <p className="text-red-700 font-medium">
-                    Lỗi kết nối hoặc thông tin thanh toán không hợp lệ
+          {order && (
+            <>
+              {/* Customer Information */}
+              <Card className="text-left mb-8">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <User className="h-5 w-5" />
+                    Thông tin khách hàng
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground mb-1">
+                    Tên khách hàng
                   </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+                  <p className="font-medium text-lg">{order.customerName}</p>
+                </CardContent>
+              </Card>
+
+              {/* Order Information */}
+              <Card className="text-left mb-8 border-red-200 bg-red-50/30">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-red-700">
+                    <Package className="h-5 w-5" />
+                    Thông tin đơn hàng
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="bg-red-100/50 p-4 rounded-lg border border-red-200">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                      <div>
+                        <p className="text-muted-foreground">Mã lỗi:</p>
+                        <p className="font-mono text-red-600 font-medium">
+                          {errorCode}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-muted-foreground">Mã đơn hàng:</p>
+                        <p className="font-mono text-red-600 font-medium">
+                          {order.orderNumber}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="mt-3">
+                      <p className="text-muted-foreground text-sm">
+                        Lý do có thể:
+                      </p>
+                      <p className="text-red-700 font-medium">
+                        Lỗi kết nối hoặc thông tin thanh toán không hợp lệ
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                    <div>
+                      <p className="text-muted-foreground">Thời gian đặt:</p>
+                      <p className="font-medium">
+                        {formatDate(order.createdAt, DATE_FORMATS.DATETIME_24H)}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-muted-foreground">Trạng thái:</p>
+                      <Badge className="mt-1">
+                        {getOrderStatusText(order.status)}
+                      </Badge>
+                    </div>
+                  </div>
+
+                  <div className="border-t pt-3 space-y-2">
+                    <div className="flex justify-between items-center text-sm">
+                      <p className="text-muted-foreground">Tạm tính:</p>
+                      <p className="font-medium">
+                        {formatCurrency(order.subtotal)}
+                      </p>
+                    </div>
+                    <div className="flex justify-between items-center text-sm">
+                      <p className="text-muted-foreground">Phí vận chuyển:</p>
+                      <p className="font-medium">
+                        {formatCurrency(order.shippingFee)}
+                      </p>
+                    </div>
+                    {order.discountAmount > 0 && (
+                      <div className="flex justify-between items-center text-sm">
+                        <p className="text-muted-foreground">Khuyến mãi:</p>
+                        <p className="font-medium text-green-600">
+                          -{formatCurrency(order.discountAmount)}
+                        </p>
+                      </div>
+                    )}
+                    <Separator className="my-1" />
+                    <div className="flex justify-between items-center">
+                      <p className="text-muted-foreground text-sm font-medium">
+                        Tổng tiền:
+                      </p>
+                      <p className="text-lg font-bold text-red-600">
+                        {formatCurrency(order.totalAmount)}
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Order Items */}
+              <Card className="text-left mb-8">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Fish className="h-5 w-5" />
+                    Sản phẩm trong đơn hàng
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {order.orderDetails.map((item, index) => (
+                      <div
+                        key={index}
+                        className="flex gap-3 p-3 bg-muted/30 rounded-lg hover:bg-muted/50 transition-colors"
+                      >
+                        {/* Product Image */}
+                        <div className="relative w-20 h-20 rounded-md overflow-hidden flex-shrink-0 bg-muted">
+                          <Image
+                            src={
+                              item.koiFish?.images?.[0] ||
+                              item.packetFish?.images?.[0] ||
+                              ""
+                            }
+                            alt={
+                              item.koiFish?.rfid ||
+                              item.packetFish?.name ||
+                              "Sản phẩm"
+                            }
+                            fill
+                            className="object-cover"
+                            sizes="80px"
+                          />
+                        </div>
+
+                        {/* Product Details */}
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium truncate">
+                            {item.koiFish?.rfid ||
+                              item.packetFish?.name ||
+                              "Sản phẩm"}
+                          </p>
+                          <p className="text-sm text-muted-foreground">
+                            Số lượng: {item.quantity}
+                          </p>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            {formatCurrency(item.unitPrice)} / cái
+                          </p>
+                        </div>
+
+                        {/* Price */}
+                        <div className="flex flex-col items-end justify-center min-w-0">
+                          <p className="font-semibold">
+                            {formatCurrency(item.totalPrice)}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </>
+          )}
 
           <Card className="text-left mb-8">
             <CardHeader>
@@ -179,7 +344,7 @@ export default function CheckoutFailurePage() {
                 </Link>
               </Button>
               <Button asChild variant="outline" className="sm:w-48">
-                <Link href="/cart">
+                <Link href="/profile/cart">
                   <ShoppingCart className="mr-2 h-4 w-4" />
                   Quay lại giỏ hàng
                 </Link>

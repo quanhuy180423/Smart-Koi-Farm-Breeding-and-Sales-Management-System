@@ -5,6 +5,9 @@ import apiService, {
   PagingRequest,
 } from "../apiClient";
 import { KoiFishResponse } from "./fetchKoiFish";
+import { EggBatchResponse } from "./fetchEggBatch";
+import { FryFishResponse } from "./fetchFryFish";
+import { ClassificationStageResponse } from "./fetchClassificationStage";
 
 const baseUrl = "/api/BreedingProcess";
 
@@ -84,6 +87,92 @@ export interface BreedingParentHistoryResponse {
   highQualifiedRate: number;
 }
 
+export interface BreeedingRecommendRequest {
+  targetVariety: string;
+  priority: string;
+  desiredPattern: string;
+  desiredBodyShape: string;
+  minHatchRate: number;
+  minSurvivalRate: number;
+  minHighQualifiedRate: number;
+}
+
+export interface RecommendedPair {
+  maleId: number;
+  maleRFID: string;
+  maleImage: string;
+  femaleId: number;
+  femaleRFID: string;
+  femaleImage: string;
+  reason: string;
+  predictedFertilizationRate: number;
+  predictedHatchRate: number;
+  predictedSurvivalRate: number;
+  predictedHighQualifiedRate: number;
+  patternMatchScore: number;
+  bodyShapeCompatibility: number;
+  rank: number;
+  // percentInbreeding: string;
+  // percentInbreedingValue?: number;
+}
+
+export interface BreedingDetailResponse {
+  id: number;
+  code: string;
+  maleKoiId: number;
+  maleKoiRFID: string;
+  maleKoiVariety: string;
+  femaleKoiId: number;
+  femaleKoiRFID: string;
+  femaleKoiVariety: string;
+  pondId: number;
+  pondName: string;
+  hatchedTime: string | null;
+  startDate: string;
+  endDate: string | null;
+  status: BreedingStatus;
+  result: BreedingResult;
+  note: string;
+  totalEggs: number;
+  fertilizationRate: number;
+  survivalRate: number;
+  totalFishQualified: number;
+  totalPackage: number;
+  koiFishes: KoiFishResponse[];
+  batch: EggBatchResponse;
+  fryFish: FryFishResponse;
+  classificationStage: ClassificationStageResponse;
+}
+
+export interface BreeedingRecommendResponse {
+  recommendedPairs: RecommendedPair[];
+}
+
+export interface AnalyzePairRequest {
+  maleId: number;
+  femaleId: number;
+}
+
+export interface BreedingInfo {
+  sumary: string;
+  breedingSuccessRate: number;
+}
+
+export interface AnalyzePairResponse {
+  maleId: number;
+  femaleId: number;
+  predictedFertilizationRate: number;
+  predictedHatchRate: number;
+  predictedSurvivalRate: number;
+  predictedHighQualifiedRate: number;
+  patternMatchScore: number;
+  bodyShapeCompatibility: number;
+  percentInbreeding: number;
+  summary: string;
+  maleBreeingInfo?: BreedingInfo;
+  femaleBreedingInfo?: BreedingInfo;
+}
+
 export const breedingProcessService = {
   getBreedingProcesses: async (
     request: BreedingProcessSearchParams,
@@ -109,6 +198,38 @@ export const breedingProcessService = {
     const response = await apiService.get<
       BaseResponse<BreedingParentHistoryResponse>
     >(`${baseUrl}/${id}/breeding-parent-history`);
+    return response.data;
+  },
+  getRecommends: async (
+    request: Partial<BreeedingRecommendRequest>,
+  ): Promise<BaseResponse<BreeedingRecommendResponse>> => {
+    const response = await apiService.post<
+      BaseResponse<BreeedingRecommendResponse>,
+      Partial<BreeedingRecommendRequest>
+    >(`${baseUrl}/recommend`, request);
+    return response.data;
+  },
+  cancelBreeding: async (id: number) => {
+    const response = await apiService.put<BaseResponse<boolean>>(
+      `${baseUrl}/cancel/${id}`,
+    );
+    return response.data;
+  },
+  getBreedingDetail: async (
+    id?: number,
+  ): Promise<BaseResponse<BreedingDetailResponse>> => {
+    const response = await apiService.get<BaseResponse<BreedingDetailResponse>>(
+      `${baseUrl}/detail/${id}`,
+    );
+    return response.data;
+  },
+  analyzePair: async (
+    request: AnalyzePairRequest,
+  ): Promise<BaseResponse<AnalyzePairResponse>> => {
+    const response = await apiService.post<
+      BaseResponse<AnalyzePairResponse>,
+      AnalyzePairRequest
+    >(`${baseUrl}/analyze-pair`, request);
     return response.data;
   },
 };

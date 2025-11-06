@@ -25,10 +25,30 @@ const nextConfig: NextConfig = {
         port: "",
         pathname: "/**",
       },
+      {
+        protocol: "http",
+        hostname: "res.cloudinary.com",
+        port: "",
+        pathname: "/**",
+      },
       // Làm tạm cho một số data ở db còn dùng
       {
         protocol: "https",
         hostname: "topanh.com",
+        port: "",
+        pathname: "/**",
+      },
+      // Làm tạm cho một số data ở db còn dùng
+      {
+        protocol: "https",
+        hostname: "cacanhthaihoa.com",
+        port: "",
+        pathname: "/**",
+      },
+      // Làm tạm cho một số data ở db còn dùng
+      {
+        protocol: "https",
+        hostname: "thanhnien.mediacdn.vn",
         port: "",
         pathname: "/**",
       },

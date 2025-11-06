@@ -1,6 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useMemo } from "react";
+import Link from "next/link";
+import { useDebounce } from "@/hooks/useDebounce";
 import {
   Card,
   CardContent,
@@ -19,12 +21,16 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import {
   DropdownMenu,
@@ -36,12 +42,9 @@ import {
 } from "@/components/ui/dropdown-menu";
 import {
   ShoppingCart,
-  Plus,
   Search,
   MoreHorizontal,
   Eye,
-  Edit,
-  Trash2,
   Package,
   Clock,
   CheckCircle,
@@ -49,198 +52,342 @@ import {
   AlertCircle,
   User,
   Fish,
-  Calendar,
+  Calendar as CalendarIcon,
   DollarSign,
+  Loader2,
+  X,
+  Truck,
 } from "lucide-react";
-import formatCurrency from "@/lib/utils/numbers";
-
-// Mock data - replace with real API calls
-const mockOrderStats = {
-  totalOrders: 287,
-  pendingOrders: 23,
-  processingOrders: 45,
-  completedOrders: 198,
-  cancelledOrders: 21,
-  totalRevenue: 892400000,
-};
-
-const mockOrders = [
-  {
-    id: "ORD001",
-    customerId: "CUST001",
-    customerName: "Nguyễn Văn An",
-    customerEmail: "nguyenvanan@email.com",
-    items: [
-      { name: "Koi Kohaku Premium", quantity: 1, price: 2500000 },
-      { name: "Thức ăn cá Koi", quantity: 2, price: 150000 },
-    ],
-    totalAmount: 2800000,
-    status: "completed",
-    paymentStatus: "paid",
-    orderDate: "2024-01-15",
-    deliveryDate: "2024-01-17",
-    shippingAddress: "123 Đường ABC, Quận 1, TP.HCM",
-    notes: "Giao hàng buổi sáng",
-  },
-  {
-    id: "ORD002",
-    customerId: "CUST002",
-    customerName: "Trần Thị Bình",
-    customerEmail: "tranthib@email.com",
-    items: [{ name: "Koi Sanke", quantity: 1, price: 1800000 }],
-    totalAmount: 1800000,
-    status: "processing",
-    paymentStatus: "paid",
-    orderDate: "2024-01-14",
-    deliveryDate: "2024-01-18",
-    shippingAddress: "456 Đường XYZ, Quận 3, TP.HCM",
-    notes: "",
-  },
-  {
-    id: "ORD003",
-    customerId: "CUST003",
-    customerName: "Lê Văn Cường",
-    customerEmail: "levanc@email.com",
-    items: [
-      { name: "Koi Showa", quantity: 1, price: 3200000 },
-      { name: "Bộ lọc nước", quantity: 1, price: 800000 },
-    ],
-    totalAmount: 4000000,
-    status: "pending",
-    paymentStatus: "pending",
-    orderDate: "2024-01-13",
-    deliveryDate: null,
-    shippingAddress: "789 Đường DEF, Quận 7, TP.HCM",
-    notes: "Khách hàng yêu cầu xem trước khi mua",
-  },
-  {
-    id: "ORD004",
-    customerId: "CUST004",
-    customerName: "Phạm Thị Dung",
-    customerEmail: "phamthid@email.com",
-    items: [{ name: "Koi Tancho", quantity: 1, price: 1500000 }],
-    totalAmount: 1500000,
-    status: "cancelled",
-    paymentStatus: "refunded",
-    orderDate: "2024-01-10",
-    deliveryDate: null,
-    shippingAddress: "321 Đường GHI, Quận 5, TP.HCM",
-    notes: "Khách hàng hủy do thay đổi ý định",
-  },
-];
+import { formatCurrency } from "@/lib/utils/numbers/formatCurrency";
+import { useGetAllOrders, useUpdateOrderStatus } from "@/hooks/useOrder";
+import { OrderStatus, OrderSearchParams } from "@/lib/api/services/fetchOrder";
+import { Textarea } from "@/components/ui/textarea";
+import { toast } from "sonner";
+import { PaginationSection } from "@/components/common/PaginationSection";
+import {
+  getOrderStatusLabel,
+  getOrderStatusText,
+  getOrderStatusColor,
+} from "@/lib/utils/enum/formatEnum";
+import { Calendar } from "@/components/ui/calendar";
+import { DATE_FORMATS, formatDate } from "@/lib/utils/dates";
 
 export default function OrdersPage() {
-  const [orders] = useState(mockOrders);
-  const [filteredOrders, setFilteredOrders] = useState(mockOrders);
   const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
-  const [isLoading, setIsLoading] = useState(true);
+  const [statusFilter, setStatusFilter] = useState<OrderStatus | string>("all");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [startDate, setStartDate] = useState<Date | undefined>();
+  const [endDate, setEndDate] = useState<Date | undefined>();
+  const [minPrice, setMinPrice] = useState<string>("");
+  const [maxPrice, setMaxPrice] = useState<string>("");
 
-  useEffect(() => {
-    // Simulate loading
-    const timer = setTimeout(() => setIsLoading(false), 1000);
-    return () => clearTimeout(timer);
-  }, []);
+  // Confirm order dialog state
+  const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
+  const [confirmNote, setConfirmNote] = useState<string>("");
 
-  useEffect(() => {
-    let filtered = orders;
+  // Cancel order dialog state
+  const [isCancelDialogOpen, setIsCancelDialogOpen] = useState(false);
+  const [cancelReason, setCancelReason] = useState<string>("");
 
-    // Filter by search term
-    if (searchTerm) {
-      filtered = filtered.filter(
-        (order) =>
-          order.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          order.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          order.customerEmail.toLowerCase().includes(searchTerm.toLowerCase()),
-      );
-    }
+  // Ship order dialog state
+  const [isShipDialogOpen, setIsShipDialogOpen] = useState(false);
+  const [shipNote, setShipNote] = useState<string>("");
 
-    // Filter by status
-    if (statusFilter !== "all") {
-      filtered = filtered.filter((order) => order.status === statusFilter);
-    }
+  // Complete order dialog state
+  const [isCompleteDialogOpen, setIsCompleteDialogOpen] = useState(false);
+  const [completeNote, setCompleteNote] = useState<string>("");
 
-    setFilteredOrders(filtered);
-  }, [searchTerm, statusFilter, orders]);
+  // Selected order for actions
+  const [selectedOrderId, setSelectedOrderId] = useState<number | null>(null);
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "completed":
-        return "bg-green-100 text-green-800";
-      case "processing":
-        return "bg-blue-100 text-blue-800";
-      case "pending":
-        return "bg-yellow-100 text-yellow-800";
-      case "cancelled":
-        return "bg-red-100 text-red-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
-  };
+  // Update order status mutation
+  const updateStatusMutation = useUpdateOrderStatus();
 
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case "completed":
-        return <CheckCircle className="h-4 w-4" />;
-      case "processing":
-        return <Clock className="h-4 w-4" />;
-      case "pending":
-        return <AlertCircle className="h-4 w-4" />;
-      case "cancelled":
-        return <XCircle className="h-4 w-4" />;
-      default:
-        return <Clock className="h-4 w-4" />;
-    }
-  };
-
-  const getStatusText = (status: string) => {
-    switch (status) {
-      case "completed":
-        return "Hoàn thành";
-      case "processing":
-        return "Đang xử lý";
-      case "pending":
-        return "Chờ xử lý";
-      case "cancelled":
-        return "Đã hủy";
-      default:
-        return "Không xác định";
-    }
-  };
-
-  const getPaymentStatusColor = (status: string) => {
-    switch (status) {
-      case "paid":
-        return "bg-green-100 text-green-800";
-      case "pending":
-        return "bg-yellow-100 text-yellow-800";
-      case "refunded":
-        return "bg-gray-100 text-gray-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
-  };
-
-  const getPaymentStatusText = (status: string) => {
-    switch (status) {
-      case "paid":
-        return "Đã thanh toán";
-      case "pending":
-        return "Chờ thanh toán";
-      case "refunded":
-        return "Đã hoàn tiền";
-      default:
-        return "Không xác định";
-    }
-  };
-
-  if (isLoading) {
+  // Check if order can be updated
+  const canUpdateOrder = (status: string): boolean => {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-      </div>
+      status === OrderStatus.PAID ||
+      status === OrderStatus.CONFIRMED ||
+      status === OrderStatus.SHIPPED
     );
-  }
+  };
+
+  // Get available actions for order status
+  const getAvailableActions = (
+    status: string,
+  ): {
+    canConfirm: boolean;
+    canCancel: boolean;
+    canShip: boolean;
+    canComplete: boolean;
+  } => {
+    return {
+      canConfirm: status === OrderStatus.PAID,
+      canCancel: status === OrderStatus.PAID,
+      canShip: status === OrderStatus.CONFIRMED,
+      canComplete: status === OrderStatus.SHIPPED,
+    };
+  };
+
+  // Handler for opening confirm dialog
+  const handleOpenConfirmDialog = (orderId: number) => {
+    setSelectedOrderId(orderId);
+    setConfirmNote("");
+    setIsConfirmDialogOpen(true);
+  };
+
+  // Handler for opening cancel dialog
+  const handleOpenCancelDialog = (orderId: number) => {
+    setSelectedOrderId(orderId);
+    setCancelReason("");
+    setIsCancelDialogOpen(true);
+  };
+
+  // Handler for confirming order (PAID -> CONFIRMED)
+  const handleConfirmOrder = () => {
+    if (!selectedOrderId) {
+      toast.error("Không tìm thấy đơn hàng");
+      return;
+    }
+
+    updateStatusMutation.mutate(
+      {
+        orderId: selectedOrderId,
+        request: {
+          status: OrderStatus.CONFIRMED,
+          note: confirmNote || undefined,
+        },
+      },
+      {
+        onSuccess: () => {
+          toast.success("Đơn hàng đã được xác nhận");
+          setIsConfirmDialogOpen(false);
+          setSelectedOrderId(null);
+          setConfirmNote("");
+        },
+        onError: (error) => {
+          toast.error(
+            error instanceof Error
+              ? error.message
+              : "Không thể xác nhận đơn hàng",
+          );
+        },
+      },
+    );
+  };
+
+  // Handler for cancelling order (PAID -> CANCELLED)
+  const handleCancelOrder = () => {
+    if (!selectedOrderId) {
+      toast.error("Không tìm thấy đơn hàng");
+      return;
+    }
+
+    if (!cancelReason.trim()) {
+      toast.error("Vui lòng nhập lý do hủy đơn");
+      return;
+    }
+
+    updateStatusMutation.mutate(
+      {
+        orderId: selectedOrderId,
+        request: {
+          status: OrderStatus.CANCELLED,
+          note: cancelReason,
+        },
+      },
+      {
+        onSuccess: () => {
+          toast.success("Đơn hàng đã được hủy");
+          setIsCancelDialogOpen(false);
+          setSelectedOrderId(null);
+          setCancelReason("");
+        },
+        onError: (error) => {
+          toast.error(
+            error instanceof Error ? error.message : "Không thể hủy đơn hàng",
+          );
+        },
+      },
+    );
+  };
+
+  // Handler for opening ship dialog
+  const handleOpenShipDialog = (orderId: number) => {
+    setSelectedOrderId(orderId);
+    setShipNote("");
+    setIsShipDialogOpen(true);
+  };
+
+  // Handler for shipping order (CONFIRMED -> SHIPPED)
+  const handleShipOrder = () => {
+    if (!selectedOrderId) {
+      toast.error("Không tìm thấy đơn hàng");
+      return;
+    }
+
+    updateStatusMutation.mutate(
+      {
+        orderId: selectedOrderId,
+        request: {
+          status: OrderStatus.SHIPPED,
+          note: shipNote || undefined,
+        },
+      },
+      {
+        onSuccess: () => {
+          toast.success("Đơn hàng đã được gửi đi");
+          setIsShipDialogOpen(false);
+          setSelectedOrderId(null);
+          setShipNote("");
+        },
+        onError: (error) => {
+          toast.error(
+            error instanceof Error ? error.message : "Không thể gửi đơn hàng",
+          );
+        },
+      },
+    );
+  };
+
+  // Handler for opening complete dialog
+  const handleOpenCompleteDialog = (orderId: number) => {
+    setSelectedOrderId(orderId);
+    setCompleteNote("");
+    setIsCompleteDialogOpen(true);
+  };
+
+  // Handler for completing order (SHIPPED -> COMPLETED)
+  const handleCompleteOrder = () => {
+    if (!selectedOrderId) {
+      toast.error("Không tìm thấy đơn hàng");
+      return;
+    }
+
+    updateStatusMutation.mutate(
+      {
+        orderId: selectedOrderId,
+        request: {
+          status: OrderStatus.COMPLETED,
+          note: completeNote || undefined,
+        },
+      },
+      {
+        onSuccess: () => {
+          toast.success("Đơn hàng đã hoàn thành");
+          setIsCompleteDialogOpen(false);
+          setSelectedOrderId(null);
+          setCompleteNote("");
+        },
+        onError: (error) => {
+          toast.error(
+            error instanceof Error
+              ? error.message
+              : "Không thể hoàn thành đơn hàng",
+          );
+        },
+      },
+    );
+  };
+
+  // Debounce search term
+  const debouncedSearchTerm = useDebounce(searchTerm, 500);
+
+  // Build search params
+  const searchParams = useMemo<OrderSearchParams>(() => {
+    return {
+      search: debouncedSearchTerm || undefined,
+      status:
+        statusFilter && statusFilter !== "all"
+          ? (statusFilter as OrderStatus)
+          : undefined,
+      createdFrom: startDate
+        ? Math.floor(startDate.getTime() / 1000)
+        : undefined,
+      createdTo: endDate ? Math.floor(endDate.getTime() / 1000) : undefined,
+      minTotalAmount: minPrice ? parseFloat(minPrice) : undefined,
+      maxTotalAmount: maxPrice ? parseFloat(maxPrice) : undefined,
+      pageIndex: currentPage,
+      pageSize: pageSize,
+    };
+  }, [
+    debouncedSearchTerm,
+    statusFilter,
+    startDate,
+    endDate,
+    minPrice,
+    maxPrice,
+    currentPage,
+    pageSize,
+  ]);
+
+  // Fetch orders
+  const { data: ordersData, isLoading } = useGetAllOrders(searchParams);
+
+  // Calculate stats from fetched data
+  const stats = useMemo(() => {
+    if (!ordersData?.data) {
+      return {
+        totalOrders: 0,
+        pendingOrders: 0,
+        processingOrders: 0,
+        completedOrders: 0,
+        cancelledOrders: 0,
+        totalRevenue: 0,
+      };
+    }
+
+    const orders = ordersData.data;
+    const countByStatus = orders.reduce(
+      (acc, order) => {
+        acc[order.status] = (acc[order.status] || 0) + 1;
+        return acc;
+      },
+      {} as Record<string, number>,
+    );
+
+    return {
+      totalOrders: ordersData.totalItems || 0,
+      pendingOrders: countByStatus[OrderStatus.CREATED] || 0,
+      processingOrders:
+        countByStatus[OrderStatus.CONFIRMED] ||
+        countByStatus[OrderStatus.SHIPPED] ||
+        0,
+      completedOrders: countByStatus[OrderStatus.COMPLETED] || 0,
+      cancelledOrders: countByStatus[OrderStatus.CANCELLED] || 0,
+      totalRevenue: orders.reduce(
+        (sum, order) => sum + (order.totalAmount || 0),
+        0,
+      ),
+    };
+  }, [ordersData]);
+
+  // const getPaymentStatusColor = (status: string) => {
+  //   switch (status) {
+  //     case "paid":
+  //       return "bg-green-100 text-green-800";
+  //     case "pending":
+  //       return "bg-yellow-100 text-yellow-800";
+  //     case "refunded":
+  //       return "bg-gray-100 text-gray-800";
+  //     default:
+  //       return "bg-gray-100 text-gray-800";
+  //   }
+  // };
+
+  // const getPaymentStatusText = (status: string) => {
+  //   switch (status) {
+  //     case "paid":
+  //       return "Đã thanh toán";
+  //     case "pending":
+  //       return "Chờ thanh toán";
+  //     case "refunded":
+  //       return "Đã hoàn tiền";
+  //     default:
+  //       return "Không xác định";
+  //   }
+  // };
 
   return (
     <div className="flex flex-col gap-6 p-6">
@@ -260,23 +407,6 @@ export default function OrdersPage() {
             <span className="hidden sm:inline">Xuất báo cáo</span>
             <span className="sm:hidden">Báo cáo</span>
           </Button>
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button size="sm">
-                <Plus className="h-4 w-4 mr-2" />
-                <span className="hidden sm:inline">Tạo đơn hàng</span>
-                <span className="sm:hidden">Tạo</span>
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Tạo đơn hàng mới</DialogTitle>
-                <DialogDescription>
-                  Form tạo đơn hàng sẽ được implement sau
-                </DialogDescription>
-              </DialogHeader>
-            </DialogContent>
-          </Dialog>
         </div>
       </div>
 
@@ -291,7 +421,7 @@ export default function OrdersPage() {
           </CardHeader>
           <CardContent>
             <div className="text-xl sm:text-2xl font-bold">
-              {mockOrderStats.totalOrders}
+              {isLoading ? "-" : stats.totalOrders}
             </div>
           </CardContent>
         </Card>
@@ -299,13 +429,13 @@ export default function OrdersPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">
-              Chờ xử lý
+              Chờ xác nhận
             </CardTitle>
             <AlertCircle className="h-4 w-4 text-yellow-600" />
           </CardHeader>
           <CardContent>
             <div className="text-xl sm:text-2xl font-bold text-yellow-600">
-              {mockOrderStats.pendingOrders}
+              {isLoading ? "-" : stats.pendingOrders}
             </div>
           </CardContent>
         </Card>
@@ -319,7 +449,7 @@ export default function OrdersPage() {
           </CardHeader>
           <CardContent>
             <div className="text-xl sm:text-2xl font-bold text-blue-600">
-              {mockOrderStats.processingOrders}
+              {isLoading ? "-" : stats.processingOrders}
             </div>
           </CardContent>
         </Card>
@@ -333,7 +463,7 @@ export default function OrdersPage() {
           </CardHeader>
           <CardContent>
             <div className="text-xl sm:text-2xl font-bold text-green-600">
-              {mockOrderStats.completedOrders}
+              {isLoading ? "-" : stats.completedOrders}
             </div>
           </CardContent>
         </Card>
@@ -347,7 +477,7 @@ export default function OrdersPage() {
           </CardHeader>
           <CardContent>
             <div className="text-xl sm:text-2xl font-bold text-red-600">
-              {mockOrderStats.cancelledOrders}
+              {isLoading ? "-" : stats.cancelledOrders}
             </div>
           </CardContent>
         </Card>
@@ -361,7 +491,7 @@ export default function OrdersPage() {
           </CardHeader>
           <CardContent>
             <div className="text-sm sm:text-lg font-bold text-green-600">
-              {formatCurrency(mockOrderStats.totalRevenue)}
+              {isLoading ? "-" : formatCurrency(stats.totalRevenue)}
             </div>
           </CardContent>
         </Card>
@@ -370,21 +500,25 @@ export default function OrdersPage() {
       {/* Search and Filters */}
       <Card>
         <CardHeader>
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <CardTitle>Danh sách đơn hàng</CardTitle>
-              <CardDescription>
-                Quản lý và theo dõi trạng thái đơn hàng
-              </CardDescription>
+          <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <CardTitle>Danh sách đơn hàng</CardTitle>
+                <CardDescription>
+                  Quản lý và theo dõi trạng thái đơn hàng
+                </CardDescription>
+              </div>
             </div>
+
+            {/* Filters Row 1 */}
             <div className="flex flex-col sm:flex-row gap-3">
-              <div className="relative flex-1 sm:flex-none border border-gray-300 rounded-lg">
+              <div className="relative flex-1 border border-gray-300 rounded-lg">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
                   placeholder="Tìm theo mã đơn, tên KH..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 w-full sm:w-80"
+                  className="pl-10 w-full"
                 />
               </div>
               <Select value={statusFilter} onValueChange={setStatusFilter}>
@@ -393,156 +527,564 @@ export default function OrdersPage() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Tất cả</SelectItem>
-                  <SelectItem value="pending">Chờ xử lý</SelectItem>
-                  <SelectItem value="processing">Đang xử lý</SelectItem>
-                  <SelectItem value="completed">Hoàn thành</SelectItem>
-                  <SelectItem value="cancelled">Đã hủy</SelectItem>
+                  {Object.values(OrderStatus).map((o) => (
+                    <SelectItem key={o} value={o}>
+                      {getOrderStatusText(o)}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
+            </div>
+
+            {/* Filters Row 2 - Date and Price Range */}
+            <div className="flex flex-col sm:flex-row gap-3">
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className="justify-start border border-gray-300 flex-1 sm:flex-none"
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {startDate
+                      ? startDate.toLocaleDateString("vi-VN")
+                      : "Từ ngày"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={startDate}
+                    onSelect={setStartDate}
+                    disabled={(date: Date) =>
+                      endDate ? date > endDate : false
+                    }
+                  />
+                </PopoverContent>
+              </Popover>
+
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className="justify-start border border-gray-300 flex-1 sm:flex-none"
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {endDate ? endDate.toLocaleDateString("vi-VN") : "Đến ngày"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={endDate}
+                    onSelect={setEndDate}
+                    disabled={(date: Date) =>
+                      startDate ? date < startDate : false
+                    }
+                  />
+                </PopoverContent>
+              </Popover>
+
+              <div className="relative flex-1 sm:flex-none">
+                <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  type="number"
+                  placeholder="Từ giá"
+                  value={minPrice}
+                  onChange={(e) => setMinPrice(e.target.value)}
+                  className="pl-10 w-full"
+                />
+              </div>
+
+              <div className="relative flex-1 sm:flex-none">
+                <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  type="number"
+                  placeholder="Đến giá"
+                  value={maxPrice}
+                  onChange={(e) => setMaxPrice(e.target.value)}
+                  className="pl-10 w-full"
+                />
+              </div>
+
+              {/* Clear Filters Button */}
+              {(startDate || endDate || minPrice || maxPrice) && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    setStartDate(undefined);
+                    setEndDate(undefined);
+                    setMinPrice("");
+                    setMaxPrice("");
+                  }}
+                  className="border border-gray-300"
+                >
+                  <X className="h-4 w-4 mr-1" />
+                  Xóa bộ lọc
+                </Button>
+              )}
             </div>
           </div>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {filteredOrders.map((order) => (
-              <div
-                key={order.id}
-                className="flex flex-col lg:flex-row lg:items-center lg:justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors gap-4"
-              >
-                <div className="flex items-start gap-4 flex-1">
-                  <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                    <Package className="h-6 w-6" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex flex-wrap items-center gap-2 mb-2">
-                      <h3 className="font-bold text-base sm:text-lg">
-                        {order.id}
-                      </h3>
-                      <Badge
-                        className={getStatusColor(order.status)}
-                        variant="secondary"
-                      >
+            {isLoading && (
+              <div className="flex items-center justify-center py-8">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              </div>
+            )}
+
+            {!isLoading && !ordersData && (
+              <div className="text-center py-8">
+                <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
+                <h3 className="text-lg font-medium mb-2">Lỗi tải dữ liệu</h3>
+                <p className="text-muted-foreground">
+                  Không thể tải danh sách đơn hàng. Vui lòng thử lại.
+                </p>
+              </div>
+            )}
+
+            {!isLoading &&
+              ordersData?.data &&
+              ordersData.data.length > 0 &&
+              ordersData.data.map((order) => (
+                <div
+                  key={order.id}
+                  className="flex flex-col lg:flex-row lg:items-center lg:justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors gap-4"
+                >
+                  <div className="flex items-start gap-4 flex-1">
+                    <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                      <Package className="h-6 w-6" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex flex-wrap items-center gap-2 mb-2">
+                        <h3 className="font-bold text-base sm:text-lg">
+                          {order.orderNumber}
+                        </h3>
+                        <Badge
+                          className={getOrderStatusColor(order.status)}
+                          variant="secondary"
+                        >
+                          <div className="flex items-center gap-1">
+                            {(() => {
+                              const Icon = getOrderStatusLabel(
+                                order.status,
+                              ).icon;
+                              return <Icon className="h-4 w-4" />;
+                            })()}
+                            <span className="hidden sm:inline">
+                              {getOrderStatusText(order.status)}
+                            </span>
+                          </div>
+                        </Badge>
+                      </div>
+
+                      <div className="space-y-1 sm:space-y-0 sm:flex sm:items-center sm:gap-4 text-xs sm:text-sm text-muted-foreground mb-2">
                         <div className="flex items-center gap-1">
-                          {getStatusIcon(order.status)}
-                          <span className="hidden sm:inline">
-                            {getStatusText(order.status)}
+                          <User className="h-3 w-3 flex-shrink-0" />
+                          <span className="truncate">{order.customerName}</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <span>
+                            {formatDate(
+                              order.createdAt,
+                              DATE_FORMATS.DATETIME_24H,
+                            )}
                           </span>
                         </div>
-                      </Badge>
-                      <Badge
-                        className={getPaymentStatusColor(order.paymentStatus)}
-                        variant="secondary"
-                      >
-                        <span className="hidden sm:inline">
-                          {getPaymentStatusText(order.paymentStatus)}
-                        </span>
-                        <span className="sm:hidden">
-                          {order.paymentStatus === "paid"
-                            ? "Đã thanh toán"
-                            : order.paymentStatus === "pending"
-                              ? "Chờ thanh toán"
-                              : "Hoàn tiền"}
-                        </span>
-                      </Badge>
-                    </div>
-
-                    <div className="space-y-1 sm:space-y-0 sm:flex sm:items-center sm:gap-4 text-xs sm:text-sm text-muted-foreground mb-2">
-                      <div className="flex items-center gap-1">
-                        <User className="h-3 w-3 flex-shrink-0" />
-                        <span className="truncate">{order.customerName}</span>
                       </div>
-                      <div className="flex items-center gap-1">
-                        <Calendar className="h-3 w-3 flex-shrink-0" />
-                        <span>{order.orderDate}</span>
-                      </div>
-                      {order.deliveryDate && (
-                        <div className="flex items-center gap-1">
-                          <Package className="h-3 w-3 flex-shrink-0" />
-                          <span>Giao: {order.deliveryDate}</span>
-                        </div>
-                      )}
-                    </div>
 
-                    <div className="flex items-start gap-2 text-xs sm:text-sm mb-2">
-                      <Fish className="h-3 w-3 text-muted-foreground flex-shrink-0 mt-0.5" />
-                      <div className="flex-1">
-                        <span className="text-muted-foreground">
-                          {order.items.length} sản phẩm:
-                        </span>
-                        <div className="font-medium line-clamp-2">
-                          {order.items
-                            .map((item) => `${item.name} (${item.quantity})`)
-                            .join(", ")}
+                      <div className="flex items-start gap-2 text-xs sm:text-sm mb-2">
+                        <Fish className="h-3 w-3 text-muted-foreground flex-shrink-0 mt-0.5" />
+                        <div className="flex-1">
+                          <span className="text-muted-foreground">
+                            {order?.orderDetails?.length || 0} sản phẩm:
+                          </span>
+                          <div className="font-medium line-clamp-2">
+                            {order?.orderDetails
+                              ?.map(
+                                (item) =>
+                                  `${item.koiFish?.rfid || item.packetFish?.name} (${item.quantity})`,
+                              )
+                              .join(", ")}
+                          </div>
                         </div>
                       </div>
                     </div>
+                  </div>
 
-                    {order.notes && (
-                      <div className="text-xs text-muted-foreground italic line-clamp-2">
-                        Ghi chú: {order.notes}
+                  <div className="flex items-center justify-between lg:justify-end gap-4">
+                    <div className="text-left lg:text-right">
+                      <div className="space-y-1 mb-2 text-xs sm:text-sm">
+                        <div className="flex justify-between gap-4">
+                          <span className="text-muted-foreground">
+                            Tạm tính:
+                          </span>
+                          <span className="font-medium">
+                            {formatCurrency(order.subtotal)}
+                          </span>
+                        </div>
+                        <div className="flex justify-between gap-4">
+                          <span className="text-muted-foreground">
+                            Vận chuyển:
+                          </span>
+                          <span className="font-medium">
+                            {formatCurrency(order.shippingFee)}
+                          </span>
+                        </div>
                       </div>
-                    )}
+                      <p className="font-bold text-base sm:text-lg">
+                        {formatCurrency(order.totalAmount)}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {order.orderDetails.reduce(
+                          (sum, item) => sum + item.quantity,
+                          0,
+                        )}{" "}
+                        sản phẩm
+                      </p>
+                    </div>
+
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          className="h-8 w-8 p-0 flex-shrink-0"
+                        >
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuLabel>Hành động</DropdownMenuLabel>
+                        <DropdownMenuItem asChild>
+                          <Link href={`/sale/orders/${order.id}`}>
+                            <Eye className="mr-2 h-4 w-4" />
+                            Xem chi tiết
+                          </Link>
+                        </DropdownMenuItem>
+
+                        {/* Show action buttons based on status */}
+                        {canUpdateOrder(order.status) && (
+                          <>
+                            <DropdownMenuSeparator />
+                            {getAvailableActions(order.status).canConfirm && (
+                              <>
+                                <DropdownMenuItem
+                                  onClick={() =>
+                                    handleOpenConfirmDialog(order.id)
+                                  }
+                                  className="text-green-600"
+                                >
+                                  <CheckCircle className="mr-2 h-4 w-4" />
+                                  Xác nhận đơn
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                  onClick={() =>
+                                    handleOpenCancelDialog(order.id)
+                                  }
+                                  className="text-red-600"
+                                >
+                                  <XCircle className="mr-2 h-4 w-4" />
+                                  Hủy đơn hàng
+                                </DropdownMenuItem>
+                              </>
+                            )}
+                            {getAvailableActions(order.status).canShip && (
+                              <DropdownMenuItem
+                                onClick={() => handleOpenShipDialog(order.id)}
+                                className="text-blue-600"
+                              >
+                                <Truck className="mr-2 h-4 w-4" />
+                                Gửi đơn hàng
+                              </DropdownMenuItem>
+                            )}
+                            {getAvailableActions(order.status).canComplete && (
+                              <DropdownMenuItem
+                                onClick={() =>
+                                  handleOpenCompleteDialog(order.id)
+                                }
+                                className="text-emerald-600"
+                              >
+                                <CheckCircle className="mr-2 h-4 w-4" />
+                                Hoàn thành đơn
+                              </DropdownMenuItem>
+                            )}
+                          </>
+                        )}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
                 </div>
+              ))}
 
-                <div className="flex items-center justify-between lg:justify-end gap-4">
-                  <div className="text-left lg:text-right">
-                    <p className="font-bold text-base sm:text-lg">
-                      {formatCurrency(order.totalAmount)}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      {order.items.reduce(
-                        (sum, item) => sum + item.quantity,
-                        0,
-                      )}{" "}
-                      sản phẩm
-                    </p>
-                  </div>
-
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        className="h-8 w-8 p-0 flex-shrink-0"
-                      >
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuLabel>Hành động</DropdownMenuLabel>
-                      <DropdownMenuItem>
-                        <Eye className="mr-2 h-4 w-4" />
-                        Xem chi tiết
-                      </DropdownMenuItem>
-                      <DropdownMenuItem>
-                        <Edit className="mr-2 h-4 w-4" />
-                        Cập nhật trạng thái
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem className="text-red-600">
-                        <Trash2 className="mr-2 h-4 w-4" />
-                        Hủy đơn hàng
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+            {!isLoading &&
+              (!ordersData?.data || ordersData.data.length === 0) && (
+                <div className="text-center py-8">
+                  <ShoppingCart className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                  <h3 className="text-lg font-medium mb-2">
+                    Không tìm thấy đơn hàng
+                  </h3>
+                  <p className="text-muted-foreground">
+                    Thử thay đổi từ khóa tìm kiếm hoặc bộ lọc
+                  </p>
                 </div>
-              </div>
-            ))}
+              )}
           </div>
 
-          {filteredOrders.length === 0 && (
-            <div className="text-center py-8">
-              <ShoppingCart className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-medium mb-2">
-                Không tìm thấy đơn hàng
-              </h3>
-              <p className="text-muted-foreground">
-                Thử thay đổi từ khóa tìm kiếm hoặc bộ lọc
-              </p>
+          {/* Pagination */}
+          {!isLoading && ordersData && ordersData.data.length > 0 && (
+            <div className="mt-6">
+              <PaginationSection
+                currentPage={currentPage}
+                setCurrentPage={setCurrentPage}
+                totalPages={ordersData.totalPages || 1}
+                totalItems={ordersData.totalItems || 0}
+                postsPerPage={pageSize}
+                setPageSize={(size) => {
+                  setPageSize(size);
+                  setCurrentPage(1);
+                }}
+                hasNextPage={ordersData.hasNextPage}
+                hasPreviousPage={ordersData.hasPreviousPage}
+              />
             </div>
           )}
         </CardContent>
       </Card>
+
+      {/* Confirm Order Dialog */}
+      <Dialog open={isConfirmDialogOpen} onOpenChange={setIsConfirmDialogOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Xác nhận đơn hàng</DialogTitle>
+            <DialogDescription>
+              Xác nhận đơn hàng và chuyển sang trạng thái &quot;Đã xác
+              nhận&quot;
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+              <p className="text-sm text-blue-900">
+                Sau khi xác nhận, đơn hàng sẽ chuyển sang trạng thái &quot;Đã
+                xác nhận&quot; và sẵn sàng để giao hàng.
+              </p>
+            </div>
+
+            <div>
+              <label className="text-sm font-medium mb-2 block">
+                Ghi chú (tùy chọn)
+              </label>
+              <Textarea
+                placeholder="Thêm ghi chú khi xác nhận đơn hàng..."
+                value={confirmNote}
+                onChange={(e) => setConfirmNote(e.target.value)}
+                rows={3}
+              />
+            </div>
+          </div>
+
+          <div className="flex justify-end gap-3">
+            <Button
+              variant="outline"
+              onClick={() => setIsConfirmDialogOpen(false)}
+            >
+              Hủy
+            </Button>
+            <Button
+              onClick={handleConfirmOrder}
+              disabled={updateStatusMutation.isPending}
+              className="bg-green-600 hover:bg-green-700"
+            >
+              {updateStatusMutation.isPending ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Đang xác nhận...
+                </>
+              ) : (
+                "Xác nhận đơn hàng"
+              )}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Cancel Order Dialog */}
+      <Dialog open={isCancelDialogOpen} onOpenChange={setIsCancelDialogOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Hủy đơn hàng</DialogTitle>
+            <DialogDescription>
+              Hủy đơn hàng và chuyển sang trạng thái &quot;Đã hủy&quot;
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+              <p className="text-sm text-red-900">
+                ⚠️ Sau khi hủy, không thể hoàn tác. Vui lòng chắc chắn trước khi
+                tiếp tục.
+              </p>
+            </div>
+
+            <div>
+              <label className="text-sm font-medium mb-2 block text-red-600">
+                Lý do hủy đơn *
+              </label>
+              <Textarea
+                placeholder="Nhập lý do hủy đơn hàng (bắt buộc)..."
+                value={cancelReason}
+                onChange={(e) => setCancelReason(e.target.value)}
+                rows={4}
+                className="border-red-300 focus:border-red-500"
+              />
+              {!cancelReason.trim() && (
+                <p className="text-xs text-red-600 mt-1">
+                  Lý do hủy là bắt buộc
+                </p>
+              )}
+            </div>
+          </div>
+
+          <div className="flex justify-end gap-3">
+            <Button
+              variant="outline"
+              onClick={() => setIsCancelDialogOpen(false)}
+            >
+              Không hủy
+            </Button>
+            <Button
+              onClick={handleCancelOrder}
+              disabled={updateStatusMutation.isPending || !cancelReason.trim()}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              {updateStatusMutation.isPending ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Đang hủy...
+                </>
+              ) : (
+                "Xác nhận hủy đơn"
+              )}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Ship Order Dialog */}
+      <Dialog open={isShipDialogOpen} onOpenChange={setIsShipDialogOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Gửi đơn hàng</DialogTitle>
+            <DialogDescription>
+              Chuyển đơn hàng sang trạng thái &quot;Đang giao&quot;
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+              <p className="text-sm text-blue-900">
+                Sau khi gửi, đơn hàng sẽ chuyển sang trạng thái &quot;Đang
+                giao&quot; và có thể được hoàn thành sau khi giao hàng.
+              </p>
+            </div>
+
+            <div>
+              <label className="text-sm font-medium mb-2 block">
+                Ghi chú (tùy chọn)
+              </label>
+              <Textarea
+                placeholder="Thêm ghi chú khi gửi đơn hàng..."
+                value={shipNote}
+                onChange={(e) => setShipNote(e.target.value)}
+                rows={3}
+              />
+            </div>
+          </div>
+
+          <div className="flex justify-end gap-3">
+            <Button
+              variant="outline"
+              onClick={() => setIsShipDialogOpen(false)}
+            >
+              Hủy
+            </Button>
+            <Button
+              onClick={handleShipOrder}
+              disabled={updateStatusMutation.isPending}
+              className="bg-blue-600 hover:bg-blue-700"
+            >
+              {updateStatusMutation.isPending ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Đang gửi...
+                </>
+              ) : (
+                "Gửi đơn hàng"
+              )}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Complete Order Dialog */}
+      <Dialog
+        open={isCompleteDialogOpen}
+        onOpenChange={setIsCompleteDialogOpen}
+      >
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Hoàn thành đơn hàng</DialogTitle>
+            <DialogDescription>
+              Xác nhận rằng đơn hàng đã được giao thành công
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+              <p className="text-sm text-green-900">
+                Sau khi hoàn thành, đơn hàng sẽ chuyển sang trạng thái
+                &quot;Hoàn thành&quot; và khách hàng có thể đánh giá sản phẩm.
+              </p>
+            </div>
+
+            <div>
+              <label className="text-sm font-medium mb-2 block">
+                Ghi chú (tùy chọn)
+              </label>
+              <Textarea
+                placeholder="Thêm ghi chú khi hoàn thành đơn hàng..."
+                value={completeNote}
+                onChange={(e) => setCompleteNote(e.target.value)}
+                rows={3}
+              />
+            </div>
+          </div>
+
+          <div className="flex justify-end gap-3">
+            <Button
+              variant="outline"
+              onClick={() => setIsCompleteDialogOpen(false)}
+            >
+              Hủy
+            </Button>
+            <Button
+              onClick={handleCompleteOrder}
+              disabled={updateStatusMutation.isPending}
+              className="bg-green-600 hover:bg-green-700"
+            >
+              {updateStatusMutation.isPending ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Đang hoàn thành...
+                </>
+              ) : (
+                "Hoàn thành đơn hàng"
+              )}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

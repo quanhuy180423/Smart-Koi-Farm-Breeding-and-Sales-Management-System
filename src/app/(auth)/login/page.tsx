@@ -7,7 +7,6 @@ import * as z from "zod";
 import Link from "next/link";
 import Image from "next/image";
 import { Eye, EyeOff } from "lucide-react";
-// search params are handled by the login hook; not needed here
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -35,7 +34,7 @@ export default function SignInPage() {
   const [showPassword, setShowPassword] = useState(false);
   const { login, isLoading } = useLogin();
 
-  const { loginWithGoogle: googleLogin } = useGoogleLogin();
+  const { mutate: googleLogin } = useGoogleLogin();
 
   const {
     register,
@@ -46,7 +45,6 @@ export default function SignInPage() {
   });
 
   const onSubmit = (data: LoginForm) => {
-    // Call the login hook; it handles toasts, token persistence and redirect
     login({
       userNameOrEmail: data.userNameOrEmail,
       password: data.password,

@@ -38,7 +38,7 @@ export default function ForgotPasswordPage() {
     resolver: zodResolver(forgotPasswordSchema),
   });
 
-  const { forgotPassword, isLoading: isMutating } = useForgotPassword();
+  const { mutate: forgotPassword, isPending: isMutating } = useForgotPassword();
 
   const onSubmit = (data: ForgotPasswordForm) => {
     // Use the hook's mutation; it shows toasts on success/error

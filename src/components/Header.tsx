@@ -2,31 +2,38 @@
 
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { CartSheet } from "@/components/cart-sheet";
-import { Menu, X, User } from "lucide-react";
+import { CartSheet } from "@/components/cart/cart-sheet";
+import { Menu, X, User, LogOut, ChevronDown } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import toast from "react-hot-toast";
+import { useFishSchool } from "@/lib/context/FishSchoolContext";
 import Image from "next/image";
 import logo from "@/assets/images/Logo_ZenKoi.png";
 import { Separator } from "./ui/separator";
 import { useAuthStore } from "@/store/auth-store";
-// router not needed here; using window.location for navigation to avoid typing issues
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+} from "./ui/dropdown-menu";
+import { useGetVarieties } from "@/hooks/useVariety";
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isCartOpen, setIsCartOpen] = useState(false);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
 
   const { isAuthenticated, user } = useAuthStore();
   const router = useRouter();
+  const { isEnabled, toggleFishSchool } = useFishSchool();
 
-  // Close menu when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as Node;
 
-      // Don't close if clicking on the menu button or menu content
       if (
         (mobileMenuRef.current && mobileMenuRef.current.contains(target)) ||
         (menuButtonRef.current && menuButtonRef.current.contains(target))
@@ -45,6 +52,20 @@ export function Header() {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [isMenuOpen]);
+
+  const { data: koiVarieties } = useGetVarieties({
+    pageIndex: 1,
+    pageSize: 50,
+  });
+
+  const handleSelectVariety = (value: number | null) => {
+    setIsMenuOpen(false);
+    if (value) {
+      router.push(`/catalog?variety=${value}`);
+    } else {
+      router.push(`/catalog`);
+    }
+  };
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur-md supports-[backdrop-filter]:bg-background/80 shadow-sm">
@@ -81,11 +102,40 @@ export function Header() {
               <span className="relative z-10">Trang chủ</span>
               <div className="absolute inset-0 bg-primary/10 rounded-lg opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 transition-all duration-200"></div>
             </Link>
+
+            <div className="px-4">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-between text-sm font-medium text-foreground hover:text-primary hover:bg-primary/5 rounded-lg"
+                  >
+                    Danh mục <ChevronDown className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-44">
+                  <DropdownMenuItem
+                    key={0}
+                    onClick={() => handleSelectVariety(null)}
+                  >
+                    Tất cả
+                  </DropdownMenuItem>
+                  {koiVarieties?.data.map((koi) => (
+                    <DropdownMenuItem
+                      key={koi.id}
+                      onClick={() => handleSelectVariety(koi.id)}
+                    >
+                      {koi.varietyName}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
             <Link
-              href="/catalog"
+              href="/packet-fish"
               className="px-4 py-2 text-md font-medium text-foreground/80 hover:text-primary hover:bg-primary/5 rounded-lg transition-all duration-200 relative group"
             >
-              <span className="relative z-10">Danh mục</span>
+              <span className="relative z-10">Gói cá</span>
               <div className="absolute inset-0 bg-primary/10 rounded-lg opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 transition-all duration-200"></div>
             </Link>
             <Link
@@ -108,40 +158,64 @@ export function Header() {
           <div className="flex items-center space-x-3">
             {/* Cart */}
             <div className="hidden sm:block">
-              <CartSheet />
+              <CartSheet isOpen={isCartOpen} onOpenChange={setIsCartOpen} />
             </div>
 
             {/* Auth actions - Desktop only */}
             <div className="hidden sm:block">
               {isAuthenticated ? (
                 <div className="flex items-center gap-3">
-                  <Button
-                    onClick={() => {
-                      router.push("/profile");
-                    }}
-                    className="bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-primary-foreground font-medium px-4 py-2.5 h-auto transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-primary/25 relative overflow-hidden group rounded-xl cursor-pointer"
-                  >
-                    <span className="relative z-10 flex items-center gap-2">
-                      <User className="w-4 h-4" />
-                      <span className="hover:underline cursor-pointer">
-                        {user?.name || "Tài khoản"}
-                      </span>
-                    </span>
-                  </Button>
-                  <Button
-                    variant="outline"
-                    onClick={async () => {
-                      const ok = await useAuthStore.getState().logout();
-                      if (ok) {
-                        toast.success("Đăng xuất thành công");
-                        router.push("/login");
-                      } else {
-                        toast.error("Đăng xuất thất bại");
-                      }
-                    }}
-                  >
-                    Đăng xuất
-                  </Button>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button className="bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-primary-foreground font-medium px-4 py-2.5 h-auto transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-primary/25 relative overflow-hidden group rounded-xl cursor-pointer">
+                        <span className="relative z-10 flex items-center gap-2">
+                          <User className="w-4 h-4" />
+                          <span className="hover:underline cursor-pointer">
+                            {user?.name || "Tài khoản"}
+                          </span>
+                          <ChevronDown className="w-4 h-4" />
+                        </span>
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-56">
+                      <DropdownMenuItem onClick={() => router.push("/profile")}>
+                        <User className="mr-2 h-4 w-4" />
+                        <span>Thông tin cá nhân</span>
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem asChild>
+                        <div
+                          className="flex items-center gap-2 cursor-pointer px-2 py-1.5 hover:bg-accent/10 rounded transition-colors"
+                          onClick={toggleFishSchool}
+                        >
+                          <div className="flex items-center justify-center w-4 h-4">
+                            <span>🐠</span>
+                          </div>
+                          <span>Hiệu ứng cá</span>
+                          <div className="ml-auto">
+                            <div
+                              className={`w-8 h-5 rounded-full flex items-center relative transition-colors ${isEnabled ? "bg-primary/40" : "bg-muted/40"}`}
+                            >
+                              <div
+                                className={`w-4 h-4 rounded-full absolute transition-all ${isEnabled ? "bg-primary left-3.5" : "bg-muted left-0.5"}`}
+                              ></div>
+                            </div>
+                          </div>
+                        </div>
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem
+                        onClick={async () => {
+                          await useAuthStore.getState().logout();
+                          router.push("/login");
+                        }}
+                        className="text-red-500"
+                      >
+                        <LogOut className="mr-2 h-4 w-4" />
+                        <span>Đăng xuất</span>
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
               ) : (
                 <Link href="/login">
@@ -158,7 +232,7 @@ export function Header() {
 
             {/* Mobile Cart (visible on small screens) */}
             <div className="sm:hidden">
-              <CartSheet />
+              <CartSheet isOpen={isCartOpen} onOpenChange={setIsCartOpen} />
             </div>
 
             {/* Mobile Menu Button */}
@@ -201,6 +275,13 @@ export function Header() {
                   Danh mục
                 </Link>
                 <Link
+                  href="/packet-fish"
+                  className="px-4 py-3 text-sm font-medium text-foreground hover:text-primary hover:bg-primary/5 rounded-lg transition-all duration-200 flex items-center gap-3"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Gói cá
+                </Link>
+                <Link
                   href="/about"
                   className="px-4 py-3 text-sm font-medium text-foreground hover:text-primary hover:bg-primary/5 rounded-lg transition-all duration-200 flex items-center gap-3"
                   onClick={() => setIsMenuOpen(false)}
@@ -239,17 +320,12 @@ export function Header() {
                       variant="outline"
                       className="w-full justify-center"
                       onClick={async () => {
-                        const ok = await useAuthStore.getState().logout();
+                        await useAuthStore.getState().logout();
                         setIsMenuOpen(false);
-                        if (ok) {
-                          toast.success("Đăng xuất thành công");
-                          router.push("/login");
-                        } else {
-                          toast.error("Đăng xuất thất bại");
-                        }
+                        router.push("/login");
                       }}
                     >
-                      Đăng xuất
+                      <LogOut />
                     </Button>
                   </>
                 ) : (

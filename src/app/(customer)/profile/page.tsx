@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,27 +17,30 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { User, MapPin, Calendar, Camera, Save, Edit, Plus } from "lucide-react";
+import { User, Calendar, Camera, Save, Edit, Loader2 } from "lucide-react";
 import { formatCurrency } from "@/lib/utils/numbers/formatCurrency";
 import CustomerLayout from "@/components/customer/CustomerLayout";
-
-type Address = {
-  id: number;
-  name: string;
-  address: string;
-  ward: string;
-  city: string;
-  isDefault: boolean;
-};
+import { useChangePassword } from "@/hooks/useAuth";
 
 export default function ProfilePage() {
   const [isEditing, setIsEditing] = useState(false);
+  const [passwordForm, setPasswordForm] = useState({
+    oldPassword: "",
+    newPassword: "",
+    confirmedNewPassword: "",
+  });
+
+  const handlePasswordFormReset = useCallback(() => {
+    setPasswordForm({
+      oldPassword: "",
+      newPassword: "",
+      confirmedNewPassword: "",
+    });
+  }, []);
+
+  const { mutate: changePassword, isPending: isChangingPassword } =
+    useChangePassword(handlePasswordFormReset);
+
   const [profileData, setProfileData] = useState({
     fullName: "Nguyễn Văn An",
     email: "nguyenvanan@email.com",
@@ -52,120 +55,39 @@ export default function ProfilePage() {
     avatar: "/user-avatar.jpg",
   });
 
-  const [addresses, setAddresses] = useState([
-    {
-      id: 1,
-      name: "Nhà riêng",
-      address: "123 Đường ABC",
-      ward: "Phường 1",
-      city: "TP. Hồ Chí Minh",
-      isDefault: true,
-    },
-    {
-      id: 2,
-      name: "Công ty",
-      address: "789 Đường XYZ",
-      ward: "Phường 2",
-      city: "TP. Hồ Chí Minh",
-      isDefault: false,
-    },
-    {
-      id: 3,
-      name: "Nhà bố mẹ",
-      address: "456 Đường DEF",
-      ward: "Phường 5",
-      city: "TP. Hồ Chí Minh",
-      isDefault: false,
-    },
-  ]);
-
-  const [isAddressDialogOpen, setIsAddressDialogOpen] = useState(false);
-  const [editingAddress, setEditingAddress] = useState<Address | null>(null);
-  const [addressForm, setAddressForm] = useState({
-    name: "",
-    address: "",
-    ward: "",
-    city: "hcm",
-  });
-
   const handleInputChange = (field: string, value: string) => {
     setProfileData((prev) => ({ ...prev, [field]: value }));
   };
 
   const handleSave = () => {
     // Here you would typically save to backend
-    console.log("Profile saved:", profileData);
     setIsEditing(false);
   };
 
-  const handleSetDefault = (addressId: number) => {
-    setAddresses((prev) =>
-      prev.map((addr) => ({
-        ...addr,
-        isDefault: addr.id === addressId,
-      })),
-    );
+  const handlePasswordChange = (field: string, value: string) => {
+    setPasswordForm((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleDeleteAddress = (addressId: number) => {
-    setAddresses((prev) => prev.filter((addr) => addr.id !== addressId));
-  };
-
-  const handleEditAddress = (addressId: number) => {
-    const address = addresses.find((addr) => addr.id === addressId);
-    if (address) {
-      setEditingAddress(address);
-      setAddressForm({
-        name: address.name,
-        address: address.address,
-        ward: address.ward,
-        city: address.city === "TP. Hồ Chí Minh" ? "hcm" : address.city,
-      });
-      setIsAddressDialogOpen(true);
+  const handleChangePassword = () => {
+    // Validate form
+    if (
+      !passwordForm.oldPassword ||
+      !passwordForm.newPassword ||
+      !passwordForm.confirmedNewPassword
+    ) {
+      return;
     }
-  };
 
-  const handleAddNewAddress = () => {
-    setEditingAddress(null);
-    setAddressForm({
-      name: "",
-      address: "",
-      ward: "",
-      city: "hcm",
+    if (passwordForm.newPassword !== passwordForm.confirmedNewPassword) {
+      return;
+    }
+
+    // Call API - form sẽ được reset tự động khi success
+    changePassword({
+      oldPassword: passwordForm.oldPassword,
+      newPassword: passwordForm.newPassword,
+      confirmedNewPassword: passwordForm.confirmedNewPassword,
     });
-    setIsAddressDialogOpen(true);
-  };
-
-  const handleSaveAddress = () => {
-    const cityName =
-      addressForm.city === "hcm" ? "TP. Hồ Chí Minh" : addressForm.city;
-
-    if (editingAddress) {
-      // Update existing address
-      setAddresses((prev) =>
-        prev.map((addr) =>
-          addr.id === editingAddress.id
-            ? { ...addr, ...addressForm, city: cityName }
-            : addr,
-        ),
-      );
-    } else {
-      // Add new address
-      const newAddress = {
-        id: Math.max(...addresses.map((a) => a.id)) + 1,
-        ...addressForm,
-        city: cityName,
-        isDefault: addresses.length === 0, // First address is default
-      };
-      setAddresses((prev) => [...prev, newAddress]);
-    }
-
-    setIsAddressDialogOpen(false);
-    setEditingAddress(null);
-  };
-
-  const handleAddressFormChange = (field: string, value: string) => {
-    setAddressForm((prev) => ({ ...prev, [field]: value }));
   };
 
   const customerStats = {
@@ -188,9 +110,8 @@ export default function ProfilePage() {
         </div>
 
         <Tabs defaultValue="profile" className="space-y-3">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="profile">Thông tin</TabsTrigger>
-            <TabsTrigger value="address">Địa chỉ</TabsTrigger>
             <TabsTrigger value="security">Bảo mật</TabsTrigger>
           </TabsList>
 
@@ -413,210 +334,6 @@ export default function ProfilePage() {
             </div>
           </TabsContent>
 
-          {/* Address Tab */}
-          <TabsContent value="address">
-            <div className="space-y-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="text-lg font-semibold">Địa chỉ giao hàng</h3>
-                  <p className="text-sm text-muted-foreground">
-                    Quản lý các địa chỉ giao hàng của bạn
-                  </p>
-                </div>
-                <Button onClick={handleAddNewAddress}>
-                  <Plus className="mr-2 h-4 w-4" />
-                  Thêm địa chỉ mới
-                </Button>
-              </div>
-
-              {/* Address Cards Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {addresses.map((address) => (
-                  <Card
-                    key={address.id}
-                    className={`relative ${address.isDefault ? "border-primary/50 bg-primary/5" : ""}`}
-                  >
-                    {address.isDefault && (
-                      <div className="absolute top-3 right-3">
-                        <Badge variant="default" className="text-xs">
-                          Mặc định
-                        </Badge>
-                      </div>
-                    )}
-                    <CardContent className="p-4">
-                      <div className="space-y-3">
-                        <div className="flex items-start gap-2">
-                          <MapPin
-                            className={`h-4 w-4 mt-1 flex-shrink-0 ${address.isDefault ? "text-primary" : "text-muted-foreground"}`}
-                          />
-                          <div className="min-w-0">
-                            <p className="font-medium">{address.name}</p>
-                            <p className="text-sm text-muted-foreground">
-                              {address.address}, {address.ward}
-                            </p>
-                            <p className="text-sm text-muted-foreground">
-                              {address.city}
-                            </p>
-                          </div>
-                        </div>
-                        <div className="flex gap-2 pt-2">
-                          {address.isDefault ? (
-                            <>
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                className="flex-1"
-                                onClick={() => handleEditAddress(address.id)}
-                              >
-                                Chỉnh sửa
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => handleDeleteAddress(address.id)}
-                              >
-                                Xóa
-                              </Button>
-                            </>
-                          ) : (
-                            <>
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                className="flex-1"
-                                onClick={() => handleSetDefault(address.id)}
-                              >
-                                Đặt mặc định
-                              </Button>
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => handleEditAddress(address.id)}
-                              >
-                                Sửa
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => handleDeleteAddress(address.id)}
-                              >
-                                Xóa
-                              </Button>
-                            </>
-                          )}
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-
-              {/* Address Dialog */}
-              <Dialog
-                open={isAddressDialogOpen}
-                onOpenChange={setIsAddressDialogOpen}
-              >
-                <DialogContent className="sm:max-w-[500px]">
-                  <DialogHeader>
-                    <DialogTitle>
-                      {editingAddress
-                        ? "Chỉnh sửa địa chỉ"
-                        : "Thêm địa chỉ mới"}
-                    </DialogTitle>
-                  </DialogHeader>
-                  <div className="space-y-4 py-4">
-                    <div>
-                      <Label htmlFor="addressName" className="mb-2">
-                        Tên địa chỉ
-                      </Label>
-                      <Input
-                        id="addressName"
-                        value={addressForm.name}
-                        onChange={(e) =>
-                          handleAddressFormChange("name", e.target.value)
-                        }
-                        placeholder="VD: Nhà riêng, Công ty, ..."
-                        className="border-2 border-border hover:border-primary/50 focus:border-primary transition-colors"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="addressStreet" className="mb-2">
-                        Địa chỉ cụ thể
-                      </Label>
-                      <Input
-                        id="addressStreet"
-                        value={addressForm.address}
-                        onChange={(e) =>
-                          handleAddressFormChange("address", e.target.value)
-                        }
-                        placeholder="VD: 123 Đường ABC"
-                        className="border-2 border-border hover:border-primary/50 focus:border-primary transition-colors"
-                      />
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <Label htmlFor="addressWard" className="mb-2">
-                          Phường/Xã
-                        </Label>
-                        <Input
-                          id="addressWard"
-                          value={addressForm.ward}
-                          onChange={(e) =>
-                            handleAddressFormChange("ward", e.target.value)
-                          }
-                          placeholder="VD: Phường 1"
-                          className="border-2 border-border hover:border-primary/50 focus:border-primary transition-colors"
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="addressCity" className="mb-2">
-                          Tỉnh/Thành phố
-                        </Label>
-                        <Select
-                          value={addressForm.city}
-                          onValueChange={(value) =>
-                            handleAddressFormChange("city", value)
-                          }
-                        >
-                          <SelectTrigger className="w-full border-2 border-border hover:border-primary/50 focus:border-primary transition-colors">
-                            <SelectValue placeholder="Chọn tỉnh/thành" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="hanoi">Hà Nội</SelectItem>
-                            <SelectItem value="hcm">TP. Hồ Chí Minh</SelectItem>
-                            <SelectItem value="danang">Đà Nẵng</SelectItem>
-                            <SelectItem value="haiphong">Hải Phòng</SelectItem>
-                            <SelectItem value="cantho">Cần Thơ</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
-                    <div className="flex gap-3 pt-4">
-                      <Button
-                        onClick={handleSaveAddress}
-                        className="flex-1"
-                        disabled={
-                          !addressForm.name ||
-                          !addressForm.address ||
-                          !addressForm.ward
-                        }
-                      >
-                        <Save className="mr-2 h-4 w-4" />
-                        {editingAddress ? "Cập nhật" : "Thêm mới"}
-                      </Button>
-                      <Button
-                        variant="outline"
-                        onClick={() => setIsAddressDialogOpen(false)}
-                      >
-                        Hủy
-                      </Button>
-                    </div>
-                  </div>
-                </DialogContent>
-              </Dialog>
-            </div>
-          </TabsContent>
-
           {/* Security Tab */}
           <TabsContent value="security">
             <Card>
@@ -633,6 +350,11 @@ export default function ProfilePage() {
                       id="currentPassword"
                       type="password"
                       placeholder="Nhập mật khẩu hiện tại"
+                      value={passwordForm.oldPassword}
+                      onChange={(e) =>
+                        handlePasswordChange("oldPassword", e.target.value)
+                      }
+                      disabled={isChangingPassword}
                       className="border-2 border-border hover:border-primary/50 focus:border-primary transition-colors"
                     />
                   </div>
@@ -644,6 +366,11 @@ export default function ProfilePage() {
                       id="newPassword"
                       type="password"
                       placeholder="Nhập mật khẩu mới"
+                      value={passwordForm.newPassword}
+                      onChange={(e) =>
+                        handlePasswordChange("newPassword", e.target.value)
+                      }
+                      disabled={isChangingPassword}
                       className="border-2 border-border hover:border-primary/50 focus:border-primary transition-colors"
                     />
                   </div>
@@ -655,14 +382,49 @@ export default function ProfilePage() {
                       id="confirmPassword"
                       type="password"
                       placeholder="Xác nhận mật khẩu mới"
+                      value={passwordForm.confirmedNewPassword}
+                      onChange={(e) =>
+                        handlePasswordChange(
+                          "confirmedNewPassword",
+                          e.target.value,
+                        )
+                      }
+                      disabled={isChangingPassword}
                       className="border-2 border-border hover:border-primary/50 focus:border-primary transition-colors"
                     />
                   </div>
                 </div>
-                <Button>
-                  <Save className="mr-2 h-4 w-4" />
-                  Đổi mật khẩu
+                <Button
+                  onClick={handleChangePassword}
+                  disabled={
+                    isChangingPassword ||
+                    !passwordForm.oldPassword ||
+                    !passwordForm.newPassword ||
+                    !passwordForm.confirmedNewPassword ||
+                    passwordForm.newPassword !==
+                      passwordForm.confirmedNewPassword
+                  }
+                >
+                  {isChangingPassword ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Đang xử lý...
+                    </>
+                  ) : (
+                    <>
+                      <Save className="mr-2 h-4 w-4" />
+                      Đổi mật khẩu
+                    </>
+                  )}
                 </Button>
+                {passwordForm.newPassword &&
+                  passwordForm.confirmedNewPassword &&
+                  passwordForm.newPassword !==
+                    passwordForm.confirmedNewPassword && (
+                    <p className="text-sm text-red-500">
+                      Mật khẩu mới không khớp với xác nhận
+                    </p>
+                  )}
               </CardContent>
             </Card>
           </TabsContent>
