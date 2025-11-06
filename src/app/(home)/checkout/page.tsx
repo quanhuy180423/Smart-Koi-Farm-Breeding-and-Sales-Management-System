@@ -341,8 +341,8 @@ export default function CheckoutPage() {
     try {
       // Map cart items to shipping fee request format
       const itemsForShippingFee = items.map((item) => ({
-        koiFishId: item.koiFishId || 0,
-        packetFishId: item.packetFishId || 0,
+        koiFishId: item.koiFishId || null,
+        packetFishId: item.packetFishId || null,
         quantity: item.quantity,
       }));
 

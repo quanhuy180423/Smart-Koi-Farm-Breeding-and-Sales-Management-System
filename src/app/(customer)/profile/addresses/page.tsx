@@ -138,77 +138,59 @@ export default function AddressesPage() {
 
         {/* Addresses List */}
         {!isLoading && addresses && addresses.length > 0 && (
-          <div className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {addresses.map((address) => (
               <Card
                 key={address.id}
-                className={`transition-all ${
+                className={`transition-all flex flex-col h-full ${
                   address.isDefault
                     ? "border-2 border-primary bg-primary/5"
                     : "hover:shadow-md"
                 }`}
               >
-                <CardHeader className="pb-3">
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
-                        <CardTitle className="text-lg">
+                <CardHeader className="pb-2">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1 flex-wrap">
+                        <CardTitle className="text-sm">
                           {address.customerName}
                         </CardTitle>
                         {address.isDefault && (
-                          <Badge className="bg-primary">Mặc định</Badge>
+                          <Badge className="bg-primary text-xs flex-shrink-0">
+                            Mặc định
+                          </Badge>
                         )}
                       </div>
-                      <p className="text-sm text-muted-foreground">
-                        {address.fullAddress}
-                      </p>
                     </div>
                   </div>
                 </CardHeader>
 
-                <CardContent className="space-y-4">
-                  {/* Address Details Grid */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {/* Thành phố */}
-                    <div className="p-3 bg-muted/30 rounded-lg">
-                      <p className="text-xs text-muted-foreground mb-1">
-                        Thành phố
-                      </p>
-                      <p className="font-medium">{address.city}</p>
-                    </div>
-
-                    {/* Quận/Huyện */}
-                    <div className="p-3 bg-muted/30 rounded-lg">
-                      <p className="text-xs text-muted-foreground mb-1">
-                        Quận/Huyện
-                      </p>
-                      <p className="font-medium">{address.district}</p>
-                    </div>
-
-                    {/* Phường/Xã */}
-                    <div className="p-3 bg-muted/30 rounded-lg">
-                      <p className="text-xs text-muted-foreground mb-1">
-                        Phường/Xã
-                      </p>
-                      <p className="font-medium">{address.ward}</p>
-                    </div>
-
-                    {/* Điện thoại */}
-                    <div className="p-3 bg-muted/30 rounded-lg">
-                      <p className="text-xs text-muted-foreground mb-1 flex items-center gap-1">
-                        <Phone className="h-3 w-3" />
-                        Điện thoại
-                      </p>
-                      <p className="font-medium">{address.recipientPhone}</p>
-                    </div>
+                <CardContent className="space-y-2 flex-grow flex flex-col">
+                  {/* Full Address */}
+                  <div>
+                    <p className="text-xs text-muted-foreground mb-1">
+                      Địa chỉ
+                    </p>
+                    <p className="text-sm font-medium line-clamp-2">
+                      {address.fullAddress}
+                    </p>
                   </div>
 
-                  <Separator />
+                  {/* Phone */}
+                  <div>
+                    <p className="text-xs text-muted-foreground mb-1 flex items-center gap-1">
+                      <Phone className="h-3 w-3 flex-shrink-0" />
+                      Điện thoại
+                    </p>
+                    <p className="text-sm font-medium">
+                      {address.recipientPhone}
+                    </p>
+                  </div>
 
-                  {/* Metadata */}
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-xs text-muted-foreground">
-                    <div className="flex items-center gap-2">
-                      <Calendar className="h-3 w-3" />
+                  {/* Dates */}
+                  <div className="space-y-0.5 text-xs text-muted-foreground">
+                    <div className="flex items-center gap-1">
+                      <Calendar className="h-3 w-3 flex-shrink-0" />
                       <span>
                         Tạo:{" "}
                         {formatDate(
@@ -218,8 +200,8 @@ export default function AddressesPage() {
                       </span>
                     </div>
                     {address.updatedAt && (
-                      <div className="flex items-center gap-2">
-                        <Calendar className="h-3 w-3" />
+                      <div className="flex items-center gap-1">
+                        <Calendar className="h-3 w-3 flex-shrink-0" />
                         <span>
                           Cập nhật:{" "}
                           {formatDate(
@@ -231,13 +213,17 @@ export default function AddressesPage() {
                     )}
                   </div>
 
+                  <Separator className="my-2" />
+
                   {/* Actions */}
-                  <div className="flex flex-col sm:flex-row gap-2 pt-2">
+                  <div className="flex gap-1 pt-1 mt-auto">
                     {!address.isDefault && (
                       <Button
                         variant="outline"
                         size="sm"
+                        className="text-xs flex-1 px-1 h-8 whitespace-nowrap"
                         onClick={() => handleSetDefault(address.id)}
+                        title="Đặt làm địa chỉ mặc định"
                         disabled={
                           isSettingDefault &&
                           selectedAddressForDefault === address.id
@@ -246,46 +232,53 @@ export default function AddressesPage() {
                         {isSettingDefault &&
                         selectedAddressForDefault === address.id ? (
                           <>
-                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                            Đang đặt...
+                            <Loader2 className="h-3 w-3 animate-spin" />
                           </>
                         ) : (
                           <>
-                            <Star className="h-4 w-4 mr-2" />
-                            Mặc định
+                            <Star className="h-3 w-3" />
                           </>
                         )}
                       </Button>
                     )}
                     {address.isDefault && (
-                      <div className="flex items-center justify-center px-3 py-1 bg-primary/10 text-primary rounded-lg font-medium text-xs">
-                        <Star className="h-3 w-3 mr-1 fill-current" />
-                        Mặc định
+                      <div
+                        className="flex items-center justify-center px-1 py-1 bg-primary/10 text-primary rounded text-xs font-medium flex-1 h-8"
+                        title="Đây là địa chỉ mặc định"
+                      >
+                        <Star className="h-3 w-3 fill-current" />
                       </div>
                     )}
-                    <Link href={`/profile/addresses/${address.id}`}>
-                      <Button variant="outline" size="sm">
-                        <Edit className="h-4 w-4 mr-2" />
-                        Sửa
+                    <Link
+                      href={`/profile/addresses/${address.id}`}
+                      className="flex-1"
+                      title="Chỉnh sửa địa chỉ"
+                    >
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="w-full text-xs h-8 px-1 whitespace-nowrap"
+                      >
+                        <Edit className="h-3 w-3" />
                       </Button>
                     </Link>
                     <Button
                       variant="outline"
                       size="sm"
+                      className="text-xs flex-1 px-1 h-8 whitespace-nowrap"
                       onClick={() => handleDeleteClick(address.id)}
+                      title="Xóa địa chỉ"
                       disabled={
                         isDeleting && selectedAddressForDelete === address.id
                       }
                     >
                       {isDeleting && selectedAddressForDelete === address.id ? (
                         <>
-                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                          Đang xóa...
+                          <Loader2 className="h-3 w-3 animate-spin" />
                         </>
                       ) : (
                         <>
-                          <Trash2 className="h-4 w-4 mr-2" />
-                          Xóa
+                          <Trash2 className="h-3 w-3" />
                         </>
                       )}
                     </Button>
