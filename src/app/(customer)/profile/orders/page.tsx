@@ -254,11 +254,34 @@ export default function OrdersPage() {
 
         <Separator />
 
-        <div className="flex justify-between items-center p-4 bg-primary/5 rounded-lg">
-          <span className="font-bold text-base md:text-lg">Tổng cộng:</span>
-          <span className="font-bold text-lg md:text-xl text-primary">
-            {formatCurrency(specificOrder.totalAmount)}
-          </span>
+        <div className="space-y-2">
+          <div className="flex justify-between items-center text-sm">
+            <span className="text-muted-foreground">Tạm tính:</span>
+            <span className="font-medium">
+              {formatCurrency(specificOrder.subtotal)}
+            </span>
+          </div>
+          <div className="flex justify-between items-center text-sm">
+            <span className="text-muted-foreground">Phí vận chuyển:</span>
+            <span className="font-medium">
+              {formatCurrency(specificOrder.shippingFee)}
+            </span>
+          </div>
+          {specificOrder.discountAmount > 0 && (
+            <div className="flex justify-between items-center text-sm">
+              <span className="text-muted-foreground">Khuyến mãi:</span>
+              <span className="font-medium text-green-600">
+                -{formatCurrency(specificOrder.discountAmount)}
+              </span>
+            </div>
+          )}
+          <Separator />
+          <div className="flex justify-between items-center p-3 bg-primary/5 rounded-lg">
+            <span className="font-bold text-base md:text-lg">Tổng cộng:</span>
+            <span className="font-bold text-lg md:text-xl text-primary">
+              {formatCurrency(specificOrder.totalAmount)}
+            </span>
+          </div>
         </div>
       </div>
     );

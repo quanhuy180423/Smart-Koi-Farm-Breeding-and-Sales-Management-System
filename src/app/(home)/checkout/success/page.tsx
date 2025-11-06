@@ -7,6 +7,7 @@ import { useGetOrderById } from "@/hooks/useOrder";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
 import {
   CheckCircle,
   Package,
@@ -112,9 +113,32 @@ export default function CheckoutSuccessPage() {
                     </div>
                   </div>
 
-                  <div className="border-t pt-4">
+                  <div className="border-t pt-4 space-y-3">
+                    <div className="flex justify-between items-center text-sm">
+                      <p className="text-muted-foreground">Tạm tính:</p>
+                      <p className="font-medium">
+                        {formatCurrency(order.subtotal)}
+                      </p>
+                    </div>
+                    <div className="flex justify-between items-center text-sm">
+                      <p className="text-muted-foreground">Phí vận chuyển:</p>
+                      <p className="font-medium">
+                        {formatCurrency(order.shippingFee)}
+                      </p>
+                    </div>
+                    {order.discountAmount > 0 && (
+                      <div className="flex justify-between items-center text-sm">
+                        <p className="text-muted-foreground">Khuyến mãi:</p>
+                        <p className="font-medium text-green-600">
+                          -{formatCurrency(order.discountAmount)}
+                        </p>
+                      </div>
+                    )}
+                    <Separator className="my-2" />
                     <div className="flex justify-between items-center">
-                      <p className="text-muted-foreground">Tổng tiền:</p>
+                      <p className="text-muted-foreground font-medium">
+                        Tổng tiền:
+                      </p>
                       <p className="text-2xl font-bold text-primary">
                         {formatCurrency(order.totalAmount)}
                       </p>
