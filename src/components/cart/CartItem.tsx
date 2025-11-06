@@ -41,12 +41,17 @@ export function CartItem({ item }: CartItemProps) {
       return;
     }
 
+    // Chỉ gửi request nếu quantity thực sự thay đổi
+    if (debouncedQuantity === item.quantity) {
+      return;
+    }
+
     if (debouncedQuantity <= 0) {
       deleteItem(item.id);
     } else {
       updateItem({ id: item.id, item: { quantity: debouncedQuantity } });
     }
-  }, [debouncedQuantity, deleteItem, item.id, updateItem]);
+  }, [debouncedQuantity, deleteItem, item.id, item.quantity, updateItem]);
 
   const isMutating = isUpdating || isDeleting;
 

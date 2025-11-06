@@ -20,6 +20,8 @@ export function useGetCart() {
     queryFn: () => cartService.getCart(),
     enabled: isAuthenticated,
     select: (data: BaseResponse<CartResponse>): CartResponse => data.result,
+    staleTime: 30 * 1000, // 30 giây - tránh refetch tự động
+    gcTime: 5 * 60 * 1000, // 5 phút - cache data
     retry: (failureCount, error: unknown) => {
       if (
         error &&

@@ -33,6 +33,7 @@ import {
   Loader2,
   MapPin,
   Plus,
+  Info,
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -46,10 +47,7 @@ import {
 } from "@/hooks/useCustomerAddress";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useCalculateShippingFee } from "@/hooks/useShippingFee";
-import {
-  ShippingFeeCalculateResponse,
-  ShippingBox,
-} from "@/lib/api/services/fetchShippingFee";
+import { ShippingFeeCalculateResponse } from "@/lib/api/services/fetchShippingFee";
 import {
   MapContainer,
   TileLayer,
@@ -63,6 +61,7 @@ import "leaflet/dist/leaflet.css";
 import { PaymentMethod } from "@/lib/api/services/fetchOrderPayment";
 import { formatCurrency } from "@/lib/utils/numbers/formatCurrency";
 import { getFishSizeLabel } from "@/lib/utils/enum";
+import { ShippingFeeDetailDialog } from "@/components/checkout/ShippingFeeDetailDialog";
 
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -183,6 +182,7 @@ export default function CheckoutPage() {
   });
   const [shippingFeeData, setShippingFeeData] =
     useState<ShippingFeeCalculateResponse | null>(null);
+  const [showShippingFeeDialog, setShowShippingFeeDialog] = useState(false);
 
   const debouncedQuickAddMapSearch = useDebounce(quickAddMapSearch, 1500);
 
@@ -745,85 +745,6 @@ export default function CheckoutPage() {
               {/* Step 2: Payment */}
               {step === 2 && (
                 <>
-                  {/* Shipping Fee Details */}
-                  {shippingFeeData && (
-                    <Card className="shadow-sm border-0 bg-blue-50/50 border-blue-200">
-                      <CardHeader className="pb-3">
-                        <CardTitle className="flex items-center gap-2 text-base">
-                          <div className="w-2 h-2 rounded-full bg-blue-600"></div>
-                          Chi tiết phí vận chuyển
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent className="space-y-3">
-                        <div className="space-y-2 text-sm">
-                          {shippingFeeData.boxes &&
-                            shippingFeeData.boxes.length > 0 && (
-                              <div>
-                                <p className="font-medium text-foreground mb-2">
-                                  Thông tin thùng:
-                                </p>
-                                <div className="space-y-2">
-                                  {shippingFeeData.boxes.map(
-                                    (box: ShippingBox, index: number) => (
-                                      <div
-                                        key={index}
-                                        className="p-2 bg-white rounded border border-blue-100"
-                                      >
-                                        <div className="flex justify-between items-start">
-                                          <div>
-                                            <p className="font-medium">
-                                              {box.boxName}
-                                            </p>
-                                            <p className="text-xs text-muted-foreground">
-                                              Số lượng: {box.quantity}
-                                            </p>
-                                          </div>
-                                          <div className="text-right">
-                                            <p className="font-medium">
-                                              {formatPrice(box.subtotal)}
-                                            </p>
-                                            <p className="text-xs text-muted-foreground">
-                                              {formatPrice(box.feePerBox)}/thùng
-                                            </p>
-                                          </div>
-                                        </div>
-                                      </div>
-                                    ),
-                                  )}
-                                </div>
-                              </div>
-                            )}
-                          <div className="pt-2 space-y-1 border-t border-blue-100">
-                            <div className="flex justify-between">
-                              <span>Phí theo thùng:</span>
-                              <span>{formatPrice(shippingFeeData.boxFee)}</span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span>
-                                Phí theo khoảng cách (
-                                {shippingFeeData.distanceKm} km):
-                              </span>
-                              <span>
-                                {formatPrice(shippingFeeData.distanceFee)}
-                              </span>
-                            </div>
-                            <div className="flex justify-between font-bold pt-1 text-primary">
-                              <span>Tổng phí vận chuyển:</span>
-                              <span>
-                                {formatPrice(shippingFeeData.totalShippingFee)}
-                              </span>
-                            </div>
-                          </div>
-                          {shippingFeeData.notes && (
-                            <p className="text-xs italic text-muted-foreground pt-2">
-                              Ghi chú: {shippingFeeData.notes}
-                            </p>
-                          )}
-                        </div>
-                      </CardContent>
-                    </Card>
-                  )}
-
                   <Card className="shadow-sm border-0 bg-card/50 backdrop-blur-sm">
                     <CardHeader className="pb-4">
                       <CardTitle className="flex items-center gap-2">
@@ -1076,43 +997,35 @@ export default function CheckoutPage() {
                         {formatPrice(getTotalPrice())}
                       </span>
                     </div>
-                    <div className="flex justify-between text-sm">
-                      <div className="flex flex-col">
+                    <div className="flex justify-between text-sm items-center">
+                      <div className="flex items-center gap-1.5">
                         <span className="text-muted-foreground">
                           Phí vận chuyển
                         </span>
                         {shippingFeeData && (
-                          <span className="text-xs text-muted-foreground">
-                            {shippingFeeData.distanceKm > 0 &&
-                              `${shippingFeeData.distanceKm} km`}
-                            {shippingFeeData.distanceKm > 0 &&
-                              shippingFeeData.boxes.length > 0 &&
-                              " • "}
-                            {shippingFeeData.boxes.length > 0 &&
-                              `${shippingFeeData.boxes.reduce((sum: number, box: ShippingBox) => sum + box.quantity, 0)} thùng`}
-                          </span>
+                          <button
+                            type="button"
+                            onClick={() => setShowShippingFeeDialog(true)}
+                            className="inline-flex items-center justify-center w-4 h-4 rounded-full hover:bg-muted/50 transition-colors text-muted-foreground hover:text-foreground"
+                            aria-label="Chi tiết phí vận chuyển"
+                          >
+                            <Info className="h-3.5 w-3.5" />
+                          </button>
                         )}
                       </div>
                       <div className="text-right">
                         {shippingFeeData ? (
-                          <div className="flex flex-col items-end">
-                            <span
-                              className={`font-medium ${
-                                shippingFeeData.totalShippingFee === 0
-                                  ? "text-green-600"
-                                  : ""
-                              }`}
-                            >
-                              {shippingFeeData.totalShippingFee === 0
-                                ? "Miễn phí"
-                                : formatPrice(shippingFeeData.totalShippingFee)}
-                            </span>
-                            {shippingFeeData.notes && (
-                              <span className="text-xs text-muted-foreground">
-                                {shippingFeeData.notes}
-                              </span>
-                            )}
-                          </div>
+                          <span
+                            className={`font-medium ${
+                              shippingFeeData.totalShippingFee === 0
+                                ? "text-green-600"
+                                : ""
+                            }`}
+                          >
+                            {shippingFeeData.totalShippingFee === 0
+                              ? "Miễn phí"
+                              : formatPrice(shippingFeeData.totalShippingFee)}
+                          </span>
                         ) : (
                           <span className="text-muted-foreground text-sm">
                             Chưa tính
@@ -1165,6 +1078,13 @@ export default function CheckoutPage() {
           </div>
         </div>
       </div>
+
+      {/* Shipping Fee Detail Dialog */}
+      <ShippingFeeDetailDialog
+        open={showShippingFeeDialog}
+        onOpenChange={setShowShippingFeeDialog}
+        shippingFeeData={shippingFeeData}
+      />
 
       {/* Quick Add Address Modal */}
       <Dialog

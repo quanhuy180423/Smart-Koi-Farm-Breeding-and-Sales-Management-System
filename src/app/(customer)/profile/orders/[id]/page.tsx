@@ -242,26 +242,20 @@ export default function OrderDetailPage() {
           <CardContent>
             <div className="space-y-3">
               <div className="flex justify-between items-center">
-                <span className="text-muted-foreground">Tổng tiền hàng:</span>
+                <span className="text-muted-foreground">Tạm tính:</span>
                 <span className="font-medium">
-                  {formatCurrency(
-                    order.totalAmount +
-                      order.shippingFee +
-                      order.discountAmount,
-                  )}
+                  {formatCurrency(order.subtotal)}
                 </span>
               </div>
-              {order.shippingFee > 0 && (
-                <div className="flex justify-between items-center">
-                  <span className="text-muted-foreground">Phí vận chuyển:</span>
-                  <span className="font-medium">
-                    {formatCurrency(order.shippingFee)}
-                  </span>
-                </div>
-              )}
+              <div className="flex justify-between items-center">
+                <span className="text-muted-foreground">Phí vận chuyển:</span>
+                <span className="font-medium">
+                  {formatCurrency(order.shippingFee)}
+                </span>
+              </div>
               {order.discountAmount > 0 && (
                 <div className="flex justify-between items-center text-green-600">
-                  <span className="text-muted-foreground">Giảm giá:</span>
+                  <span className="text-muted-foreground">Khuyến mãi:</span>
                   <span className="font-medium">
                     -{formatCurrency(order.discountAmount)}
                   </span>

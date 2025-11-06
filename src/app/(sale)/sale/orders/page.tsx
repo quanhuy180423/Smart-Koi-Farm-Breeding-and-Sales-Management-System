@@ -715,6 +715,24 @@ export default function OrdersPage() {
 
                   <div className="flex items-center justify-between lg:justify-end gap-4">
                     <div className="text-left lg:text-right">
+                      <div className="space-y-1 mb-2 text-xs sm:text-sm">
+                        <div className="flex justify-between gap-4">
+                          <span className="text-muted-foreground">
+                            Tạm tính:
+                          </span>
+                          <span className="font-medium">
+                            {formatCurrency(order.subtotal)}
+                          </span>
+                        </div>
+                        <div className="flex justify-between gap-4">
+                          <span className="text-muted-foreground">
+                            Vận chuyển:
+                          </span>
+                          <span className="font-medium">
+                            {formatCurrency(order.shippingFee)}
+                          </span>
+                        </div>
+                      </div>
                       <p className="font-bold text-base sm:text-lg">
                         {formatCurrency(order.totalAmount)}
                       </p>
