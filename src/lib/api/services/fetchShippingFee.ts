@@ -3,8 +3,8 @@ import apiService, { BaseResponse } from "../apiClient";
 const baseUrl = "/api/ShippingFee";
 
 export interface ShippingFeeItem {
-  koiFishId?: number;
-  packetFishId?: number;
+  koiFishId?: number | null;
+  packetFishId?: number | null;
   quantity: number;
 }
 
