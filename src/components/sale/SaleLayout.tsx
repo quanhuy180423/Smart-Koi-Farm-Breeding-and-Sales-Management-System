@@ -18,6 +18,7 @@ import SaleSidebar from "./SaleSidebar";
 import { NotificationDropdown } from "./NotificationDropdown";
 import { useAuthStore } from "@/store/auth-store";
 import { useRouter } from "next/navigation";
+import { useFishSchool } from "@/lib/context/FishSchoolContext";
 
 interface SaleLayoutProps {
   children: React.ReactNode;
@@ -26,6 +27,7 @@ interface SaleLayoutProps {
 export function SaleLayout({ children }: SaleLayoutProps) {
   const router = useRouter();
   const { user } = useAuthStore();
+  const { isEnabled, toggleFishSchool } = useFishSchool();
 
   return (
     <div className="min-h-screen bg-background">
@@ -103,6 +105,27 @@ export function SaleLayout({ children }: SaleLayoutProps) {
                     <Settings className="mr-2 h-4 w-4 group-hover:text-white" />
                     Cài đặt
                   </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <div
+                    className="flex items-center gap-2 cursor-pointer px-2 py-1.5 hover:bg-accent/10 rounded transition-colors"
+                    onClick={toggleFishSchool}
+                  >
+                    <div className="flex items-center justify-center w-4 h-4">
+                      <span>🐠</span>
+                    </div>
+                    <span>Hiệu ứng cá</span>
+                    <div className="ml-auto">
+                      <div
+                        className={`w-8 h-5 rounded-full flex items-center relative transition-colors ${isEnabled ? "bg-primary/40" : "bg-muted/40"}`}
+                      >
+                        <div
+                          className={`w-4 h-4 rounded-full absolute transition-all ${isEnabled ? "bg-primary left-3.5" : "bg-muted left-0.5"}`}
+                        ></div>
+                      </div>
+                    </div>
+                  </div>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem

@@ -6,6 +6,7 @@ import { CartSheet } from "@/components/cart/cart-sheet";
 import { Menu, X, User, LogOut, ChevronDown } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
+import { useFishSchool } from "@/lib/context/FishSchoolContext";
 import Image from "next/image";
 import logo from "@/assets/images/Logo_ZenKoi.png";
 import { Separator } from "./ui/separator";
@@ -15,6 +16,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from "./ui/dropdown-menu";
 import { useGetVarieties } from "@/hooks/useVariety";
 
@@ -26,6 +28,7 @@ export function Header() {
 
   const { isAuthenticated, user } = useAuthStore();
   const router = useRouter();
+  const { isEnabled, toggleFishSchool } = useFishSchool();
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -162,30 +165,57 @@ export function Header() {
             <div className="hidden sm:block">
               {isAuthenticated ? (
                 <div className="flex items-center gap-3">
-                  <Button
-                    onClick={() => {
-                      router.push("/profile");
-                    }}
-                    className="bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-primary-foreground font-medium px-4 py-2.5 h-auto transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-primary/25 relative overflow-hidden group rounded-xl cursor-pointer"
-                  >
-                    <span className="relative z-10 flex items-center gap-2">
-                      <User className="w-4 h-4" />
-                      <span className="hover:underline cursor-pointer">
-                        {user?.name || "Tài khoản"}
-                      </span>
-                    </span>
-                  </Button>
-                  <Button
-                    variant="outline"
-                    className="text-red-500 hover:bg-red-500 hover:text-white"
-                    onClick={async () => {
-                      await useAuthStore.getState().logout();
-                      router.push("/login");
-                    }}
-                    title="Đăng xuất"
-                  >
-                    <LogOut />
-                  </Button>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button className="bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-primary-foreground font-medium px-4 py-2.5 h-auto transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-primary/25 relative overflow-hidden group rounded-xl cursor-pointer">
+                        <span className="relative z-10 flex items-center gap-2">
+                          <User className="w-4 h-4" />
+                          <span className="hover:underline cursor-pointer">
+                            {user?.name || "Tài khoản"}
+                          </span>
+                          <ChevronDown className="w-4 h-4" />
+                        </span>
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-56">
+                      <DropdownMenuItem onClick={() => router.push("/profile")}>
+                        <User className="mr-2 h-4 w-4" />
+                        <span>Thông tin cá nhân</span>
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem asChild>
+                        <div
+                          className="flex items-center gap-2 cursor-pointer px-2 py-1.5 hover:bg-accent/10 rounded transition-colors"
+                          onClick={toggleFishSchool}
+                        >
+                          <div className="flex items-center justify-center w-4 h-4">
+                            <span>🐠</span>
+                          </div>
+                          <span>Hiệu ứng cá</span>
+                          <div className="ml-auto">
+                            <div
+                              className={`w-8 h-5 rounded-full flex items-center relative transition-colors ${isEnabled ? "bg-primary/40" : "bg-muted/40"}`}
+                            >
+                              <div
+                                className={`w-4 h-4 rounded-full absolute transition-all ${isEnabled ? "bg-primary left-3.5" : "bg-muted left-0.5"}`}
+                              ></div>
+                            </div>
+                          </div>
+                        </div>
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem
+                        onClick={async () => {
+                          await useAuthStore.getState().logout();
+                          router.push("/login");
+                        }}
+                        className="text-red-500"
+                      >
+                        <LogOut className="mr-2 h-4 w-4" />
+                        <span>Đăng xuất</span>
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
               ) : (
                 <Link href="/login">
