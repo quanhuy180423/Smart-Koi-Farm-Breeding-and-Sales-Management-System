@@ -332,7 +332,6 @@ export default function CheckoutPage() {
   };
 
   const handleCalculateShippingAndContinue = async () => {
-    console.log("=== Starting shipping fee calculation ===");
     if (!selectedAddressId) {
       toast.error("Vui lòng chọn địa chỉ giao hàng");
       return;
@@ -346,23 +345,12 @@ export default function CheckoutPage() {
         quantity: item.quantity,
       }));
 
-      console.log("Items for shipping fee:", itemsForShippingFee);
-      console.log("Selected address ID:", selectedAddressId);
-
-      console.log("Calling calculateShippingFee mutation...");
       const result = await calculateShippingFee({
         items: itemsForShippingFee,
         customerAddressId: selectedAddressId,
       });
 
-      console.log("=== [Checkout] Got result from mutation ===");
-      console.log("Response data:", result);
-      console.log("Type of result:", typeof result);
-      console.log("result.isSuccess:", result?.isSuccess);
-      console.log("result.result:", result?.result);
-
       if (result?.isSuccess && result?.result) {
-        console.log("Setting shipping fee data and moving to step 2...");
         setShippingFeeData(result.result);
         toast.success("Tính phí vận chuyển thành công");
         setStep(2);

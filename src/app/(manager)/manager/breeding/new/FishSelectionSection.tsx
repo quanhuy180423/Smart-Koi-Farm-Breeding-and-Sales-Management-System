@@ -31,6 +31,8 @@ import { useGetBreedingRecommend } from "@/hooks/useBreedingProcess";
 import * as z from "zod";
 import { getFishSizeLabel, getGenderLabel } from "@/lib/utils/enum";
 import { FishDetailDialog } from "./FishDetailDialog";
+import { KoiFishFilterBar } from "./KoiFishFilterBar";
+import { FishSize, HealthStatus } from "@/lib/api/services/fetchKoiFish";
 
 const recommendSchema = z.object({
   targetVariety: z.string().min(1, { message: "Giống mong muốn là bắt buộc." }),
@@ -100,6 +102,14 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
   const [pageIndexFemale, setPageIndexFemale] = useState(1);
   const pageSize = 6;
 
+  // Father fish filters
+  const [fatherSearchInput, setFatherSearchInput] = useState("");
+  const [fatherSearch, setFatherSearch] = useState("");
+
+  // Mother fish filters
+  const [motherSearchInput, setMotherSearchInput] = useState("");
+  const [motherSearch, setMotherSearch] = useState("");
+
   const { data: fatherRecommend, isFetching: isFatherFetching } =
     useGetKoiFishById(selectedPairToFetch?.fatherId);
   const { data: motherRecommend, isFetching: isMotherFetching } =
@@ -129,6 +139,8 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
     pageIndex: pageIndexMale,
     pageSize,
     gender: Gender.MALE,
+    search: fatherSearch,
+    health: HealthStatus.HEALTHY,
   });
   const {
     data: motherKoiResponse,
@@ -139,11 +151,41 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
     pageIndex: pageIndexFemale,
     pageSize,
     gender: Gender.FEMALE,
+    search: motherSearch,
+    health: HealthStatus.HEALTHY,
   });
+
+  // Debounce father search
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setFatherSearch(fatherSearchInput);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [fatherSearchInput]);
+
+  // Debounce mother search
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setMotherSearch(motherSearchInput);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [motherSearchInput]);
+
+  // Reset pagination when filters change
+  useEffect(() => {
+    setPageIndexMale(1);
+    refetchMale();
+  }, [fatherSearch, refetchMale]);
 
   useEffect(() => {
     refetchMale();
   }, [pageIndexMale, refetchMale]);
+
+  useEffect(() => {
+    setPageIndexFemale(1);
+    refetchFemale();
+  }, [motherSearch, refetchFemale]);
+
   useEffect(() => {
     refetchFemale();
   }, [pageIndexFemale, refetchFemale]);
@@ -354,6 +396,10 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
                   Chọn Cá Bố
                 </DialogTitle>
               </DialogHeader>
+              <KoiFishFilterBar
+                search={fatherSearchInput}
+                onSearchChange={setFatherSearchInput}
+              />
               {isFatherLoading ? (
                 <div className="flex items-center justify-center py-10 text-gray-500">
                   <Loader2 className="w-5 h-5 mr-2 animate-spin" />
@@ -455,6 +501,10 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
                   Chọn Cá Mẹ
                 </DialogTitle>
               </DialogHeader>
+              <KoiFishFilterBar
+                search={motherSearchInput}
+                onSearchChange={setMotherSearchInput}
+              />
               {isMotherLoading ? (
                 <div className="flex items-center justify-center py-10 text-gray-500">
                   <Loader2 className="w-5 h-5 mr-2 animate-spin" />
