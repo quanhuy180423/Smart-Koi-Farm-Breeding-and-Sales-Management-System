@@ -7,8 +7,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { Search, Loader2, Repeat } from "lucide-react";
+import { Search, Loader2 } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -33,28 +32,6 @@ interface TaskSelectionPopupProps {
   onOpenChange: (open: boolean) => void;
   onSelect: (task: TaskTemplateResponse) => void;
 }
-
-const getRecurrenceBadge = (isRecurring: boolean) => {
-  if (isRecurring) {
-    return (
-      <Badge
-        variant="outline"
-        className="bg-blue-50 text-blue-700 border-blue-200 flex items-center gap-1 w-fit"
-      >
-        <Repeat className="h-3 w-3" />
-        Lặp lại
-      </Badge>
-    );
-  }
-  return (
-    <Badge
-      variant="outline"
-      className="bg-gray-100 text-gray-700 border-gray-200"
-    >
-      Một lần
-    </Badge>
-  );
-};
 
 export default function TaskSelectionPopup({
   isOpen,
@@ -129,23 +106,19 @@ export default function TaskSelectionPopup({
                 <Table className="w-full">
                   <TableHeader>
                     <TableRow>
-                      <TableHead className="w-8 text-center px-2">
+                      <TableHead className="w-12 text-center px-2">
                         STT
                       </TableHead>
-                      <TableHead className="px-3 py-3">Tên công việc</TableHead>
-                      <TableHead className="px-3 py-3 hidden sm:table-cell">
+                      <TableHead className="px-3 py-3 min-w-[200px]">
+                        Tên công việc
+                      </TableHead>
+                      <TableHead className="px-3 py-3 hidden sm:table-cell min-w-[250px]">
                         Mô tả
                       </TableHead>
-                      <TableHead className="px-3 py-3 hidden lg:table-cell">
-                        Quy tắc lặp
-                      </TableHead>
-                      <TableHead className="w-20 text-center px-2">
+                      <TableHead className="w-24 text-center px-2">
                         Thời lượng
                       </TableHead>
-                      <TableHead className="w-24 text-center px-2">
-                        Loại
-                      </TableHead>
-                      <TableHead className="w-28 text-center px-2">
+                      <TableHead className="w-32 text-center px-2">
                         Thao tác
                       </TableHead>
                     </TableRow>
@@ -154,13 +127,13 @@ export default function TaskSelectionPopup({
                     {taskTemplates.length > 0 ? (
                       taskTemplates.map((task, index) => (
                         <TableRow key={task.id} className="hover:bg-muted/50">
-                          <TableCell className="text-center font-medium text-xs px-2 py-3">
+                          <TableCell className="w-12 text-center font-medium text-xs px-2 py-3">
                             {index +
                               1 +
                               (searchParams.pageIndex - 1) *
                                 searchParams.pageSize}
                           </TableCell>
-                          <TableCell className="px-3 py-3">
+                          <TableCell className="px-3 py-3 min-w-[200px]">
                             <div className="flex flex-col gap-1">
                               <p className="font-medium text-sm">
                                 {task.taskName}
@@ -173,29 +146,18 @@ export default function TaskSelectionPopup({
                               </p>
                             </div>
                           </TableCell>
-                          <TableCell className="px-3 py-3 hidden sm:table-cell">
+                          <TableCell className="px-3 py-3 hidden sm:table-cell min-w-[250px]">
                             <div
-                              className="text-sm max-w-xs truncate"
+                              className="text-sm truncate"
                               title={task.description}
                             >
                               {task.description}
                             </div>
                           </TableCell>
-                          <TableCell className="px-3 py-3 hidden lg:table-cell">
-                            <div
-                              className="text-sm max-w-xs truncate"
-                              title={task.recurrenceRule || undefined}
-                            >
-                              {task.recurrenceRule || "-"}
-                            </div>
-                          </TableCell>
-                          <TableCell className="text-center text-sm px-2 py-3 whitespace-nowrap">
+                          <TableCell className="w-24 text-center text-sm px-2 py-3 whitespace-nowrap">
                             {task.defaultDuration}m
                           </TableCell>
-                          <TableCell className="text-center px-2 py-3">
-                            {getRecurrenceBadge(task.isRecurring)}
-                          </TableCell>
-                          <TableCell className="px-2 py-3">
+                          <TableCell className="w-32 px-2 py-3">
                             <div className="flex items-center justify-center">
                               <Button
                                 size="sm"

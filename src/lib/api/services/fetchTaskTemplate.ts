@@ -10,8 +10,7 @@ export interface TaskTemplateResponse {
   taskName: string;
   description: string;
   defaultDuration: number;
-  isRecurring: boolean;
-  recurrenceRule: string;
+  notesTask: string | null;
   isDeleted: boolean;
   createdAt: string;
   updatedAt: string | null;
@@ -21,13 +20,11 @@ export interface TaskTemplateRequest {
   taskName: string;
   description: string;
   defaultDuration: number;
-  isRecurring: boolean;
-  recurrenceRule: string;
+  notesTask: string | null;
 }
 
 export interface TaskTemplatePagedRequest extends PagingRequest {
   search?: string;
-  isRecurring?: boolean;
   isDeleted?: boolean;
 }
 

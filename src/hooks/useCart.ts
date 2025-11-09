@@ -5,7 +5,7 @@ import {
   CartItemUpdateRequest,
   CartResponse,
   cartService,
-  ConverCartToOrderRequest,
+  ConvertCartToOrderRequest,
 } from "./../lib/api/services/fetchCart";
 import { ApiError, BaseResponse } from "@/lib/api/apiClient";
 import { useAuthStore } from "@/store/auth-store";
@@ -108,7 +108,7 @@ export function useConverCartToOrder() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (request: Partial<ConverCartToOrderRequest>) =>
+    mutationFn: (request: Partial<ConvertCartToOrderRequest>) =>
       cartService.converCartToOrder(request),
     onSuccess: (data: BaseResponse<OrderRespponse>) => {
       if (data.isSuccess) {

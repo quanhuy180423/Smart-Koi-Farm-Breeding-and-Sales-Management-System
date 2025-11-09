@@ -11,7 +11,6 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Plus, Search, Edit, Eye, Trash2, Repeat, Loader2 } from "lucide-react";
 import {
@@ -44,6 +43,7 @@ import {
   useGetWeeklyScheduleTemplates,
   useDeleteWeeklyScheduleTemplate,
 } from "@/hooks/useWeeklyScheduleTemplate";
+import { useGetWorkSchedules } from "@/hooks/useWorkSchedule";
 import {
   PaginationSection,
   PAGE_SIZE_OPTIONS_DEFAULT,
@@ -53,14 +53,15 @@ import DeleteTaskTemplateConfirmDialog from "./DeleteTaskTemplateConfirmDialog";
 import DeleteWeeklyScheduleConfirmDialog from "./DeleteWeeklyScheduleConfirmDialog";
 import TaskTemplateDetailModal from "./TaskTemplateDetailModal";
 import WeeklyScheduleCalendarView from "./WeeklyScheduleCalendarView";
+import WeeklyWorkScheduleView from "./WeeklyWorkScheduleView";
+import GenerateWorkScheduleModal from "./GenerateWorkScheduleModal";
 import toast from "react-hot-toast";
 
 interface TaskTemplateForm {
   taskName: string;
   description: string;
   defaultDuration: number;
-  isRecurring: boolean;
-  recurrenceRule: string;
+  notesTask: string | null;
 }
 
 export default function ScheduleManagement() {
@@ -71,6 +72,7 @@ export default function ScheduleManagement() {
   });
   const [searchTerm, setSearchTerm] = useState<string>("");
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
+  const [currentDate, setCurrentDate] = useState<Date>(new Date());
 
   const [searchParams, setSearchParams] = useState<TaskTemplatePagedRequest>({
     pageIndex: 1,
@@ -79,12 +81,31 @@ export default function ScheduleManagement() {
     isDeleted: false,
   });
 
+  // Calculate week boundaries for work schedule
+  const getWeekBoundaries = (date: Date) => {
+    const weekStart = new Date(date);
+    const day = weekStart.getDay();
+    const diff = weekStart.getDate() - day + (day === 0 ? -6 : 1);
+    weekStart.setDate(diff);
+
+    const weekEnd = new Date(weekStart);
+    weekEnd.setDate(weekEnd.getDate() + 6);
+
+    return {
+      from: weekStart.toISOString().split("T")[0],
+      to: weekEnd.toISOString().split("T")[0],
+    };
+  };
+
+  const weekBoundaries = getWeekBoundaries(currentDate);
+
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
   const [isDeleteWeeklyConfirmOpen, setIsDeleteWeeklyConfirmOpen] =
     useState(false);
+  const [isGenerateModalOpen, setIsGenerateModalOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<TaskTemplateResponse | null>(
     null,
   );
@@ -102,9 +123,9 @@ export default function ScheduleManagement() {
     taskName: "",
     description: "",
     defaultDuration: 30,
-    isRecurring: true,
-    recurrenceRule: "",
+    notesTask: null,
   });
+  const [selectedPondId, setSelectedPondId] = useState<number | null>(null);
 
   // Update search params when debounced search term changes
   useEffect(() => {
@@ -119,6 +140,12 @@ export default function ScheduleManagement() {
   const { data: pagedResponse, isLoading } = useGetTaskTemplates(searchParams);
   const { data: weeklyTemplates = [], isLoading: isWeeklyLoading } =
     useGetWeeklyScheduleTemplates();
+  const { data: workSchedules = [], isLoading: isWorkSchedulesLoading } =
+    useGetWorkSchedules({
+      scheduledDateFrom: weekBoundaries.from,
+      scheduledDateTo: weekBoundaries.to,
+      pondId: selectedPondId || undefined,
+    });
 
   const createMutation = useCreateTaskTemplate();
   const updateMutation = useUpdateTaskTemplate();
@@ -166,11 +193,6 @@ export default function ScheduleManagement() {
       return;
     }
 
-    if (newTask.isRecurring && !newTask.recurrenceRule.trim()) {
-      toast.error("Vui lòng nhập quy tắc lặp lại");
-      return;
-    }
-
     createMutation.mutate(newTask, {
       onSuccess: () => {
         setIsAddModalOpen(false);
@@ -178,8 +200,7 @@ export default function ScheduleManagement() {
           taskName: "",
           description: "",
           defaultDuration: 30,
-          isRecurring: true,
-          recurrenceRule: "",
+          notesTask: null,
         });
       },
     });
@@ -203,11 +224,6 @@ export default function ScheduleManagement() {
       return;
     }
 
-    if (editingTask.isRecurring && !editingTask.recurrenceRule.trim()) {
-      toast.error("Vui lòng nhập quy tắc lặp lại");
-      return;
-    }
-
     updateMutation.mutate(
       {
         id: editingTask.id,
@@ -215,8 +231,7 @@ export default function ScheduleManagement() {
           taskName: editingTask.taskName,
           description: editingTask.description,
           defaultDuration: editingTask.defaultDuration,
-          isRecurring: editingTask.isRecurring,
-          recurrenceRule: editingTask.recurrenceRule,
+          notesTask: editingTask.notesTask,
         },
       },
       {
@@ -245,18 +260,6 @@ export default function ScheduleManagement() {
         },
       });
     }
-  };
-
-  const getRecurrenceBadge = (recurrence: boolean) => {
-    if (recurrence) {
-      return (
-        <Badge variant="default" className="bg-blue-100 text-blue-800">
-          <Repeat className="h-3 w-3 mr-1" />
-          Lặp lại
-        </Badge>
-      );
-    }
-    return <Badge variant="secondary">Một lần</Badge>;
   };
 
   return (
@@ -289,39 +292,9 @@ export default function ScheduleManagement() {
             }}
           >
             <TabsList className="grid grid-cols-3 gap-3 bg-transparent p-0 h-auto w-full">
-              <TabsTrigger
-                value="tasks"
-                className={`py-3 rounded-md font-medium transition-all ${activeTab === "tasks" ? "bg-blue-500 text-white shadow-md" : "bg-white text-gray-700 hover:bg-blue-50 border border-gray-300"}`}
-                style={
-                  activeTab === "tasks"
-                    ? { background: "#3B82F6", color: "white" }
-                    : {}
-                }
-              >
-                Công việc
-              </TabsTrigger>
-              <TabsTrigger
-                value="template"
-                className={`py-3 rounded-md font-medium transition-all ${activeTab === "template" ? "bg-green-500 text-white shadow-md" : "bg-white text-gray-700 hover:bg-green-50 border border-gray-300"}`}
-                style={
-                  activeTab === "template"
-                    ? { background: "#10B981", color: "white" }
-                    : {}
-                }
-              >
-                Mẫu lịch trong tuần
-              </TabsTrigger>
-              <TabsTrigger
-                value="assignment"
-                className={`py-3 rounded-md font-medium transition-all ${activeTab === "assignment" ? "bg-purple-500 text-white shadow-md" : "bg-white text-gray-700 hover:bg-purple-50 border border-gray-300"}`}
-                style={
-                  activeTab === "assignment"
-                    ? { background: "#A855F7", color: "white" }
-                    : {}
-                }
-              >
-                Phân công
-              </TabsTrigger>
+              <TabsTrigger value="tasks">Công việc</TabsTrigger>
+              <TabsTrigger value="template">Mẫu lịch trong tuần</TabsTrigger>
+              <TabsTrigger value="assignment">Phân công</TabsTrigger>
             </TabsList>
 
             {/* Tab: Công việc */}
@@ -355,25 +328,19 @@ export default function ScheduleManagement() {
                     <Table className="w-full">
                       <TableHeader>
                         <TableRow>
-                          <TableHead className="w-8 text-center px-2">
+                          <TableHead className="w-12 text-center px-2">
                             STT
                           </TableHead>
-                          <TableHead className="px-3 py-3">
+                          <TableHead className="px-3 py-3 min-w-[200px]">
                             Tên công việc
                           </TableHead>
-                          <TableHead className="px-3 py-3 hidden sm:table-cell">
+                          <TableHead className="px-3 py-3 hidden sm:table-cell min-w-[250px]">
                             Mô tả
                           </TableHead>
-                          <TableHead className="px-3 py-3 hidden lg:table-cell">
-                            Quy tắc lặp
-                          </TableHead>
-                          <TableHead className="w-20 text-center px-2">
+                          <TableHead className="w-24 text-center px-2">
                             Thời lượng
                           </TableHead>
-                          <TableHead className="w-24 text-center px-2">
-                            Loại
-                          </TableHead>
-                          <TableHead className="w-28 text-center px-2">
+                          <TableHead className="w-32 text-center px-2">
                             Thao tác
                           </TableHead>
                         </TableRow>
@@ -385,13 +352,13 @@ export default function ScheduleManagement() {
                               key={task.id}
                               className="hover:bg-muted/50"
                             >
-                              <TableCell className="text-center font-medium text-xs px-2 py-3">
+                              <TableCell className="w-12 text-center font-medium text-xs px-2 py-3">
                                 {index +
                                   1 +
                                   (searchParams.pageIndex - 1) *
                                     searchParams.pageSize}
                               </TableCell>
-                              <TableCell className="px-3 py-3">
+                              <TableCell className="px-3 py-3 min-w-[200px]">
                                 <div className="flex flex-col gap-1">
                                   <p className="font-medium text-sm">
                                     {task.taskName}
@@ -404,29 +371,18 @@ export default function ScheduleManagement() {
                                   </p>
                                 </div>
                               </TableCell>
-                              <TableCell className="px-3 py-3 hidden sm:table-cell">
+                              <TableCell className="px-3 py-3 hidden sm:table-cell min-w-[250px]">
                                 <div
-                                  className="text-sm max-w-xs truncate"
+                                  className="text-sm truncate"
                                   title={task.description}
                                 >
                                   {task.description}
                                 </div>
                               </TableCell>
-                              <TableCell className="px-3 py-3 hidden lg:table-cell">
-                                <div
-                                  className="text-sm max-w-xs truncate"
-                                  title={task.recurrenceRule || undefined}
-                                >
-                                  {task.recurrenceRule || "-"}
-                                </div>
+                              <TableCell className="w-24 text-center text-sm px-2 py-3 whitespace-nowrap">
+                                {task.defaultDuration} phút
                               </TableCell>
-                              <TableCell className="text-center text-sm px-2 py-3 whitespace-nowrap">
-                                {task.defaultDuration}m
-                              </TableCell>
-                              <TableCell className="text-center px-2 py-3">
-                                {getRecurrenceBadge(task.isRecurring)}
-                              </TableCell>
-                              <TableCell className="px-2 py-3">
+                              <TableCell className="w-32 px-2 py-3">
                                 <div className="flex items-center justify-center gap-1">
                                   <Button
                                     variant="ghost"
@@ -511,15 +467,24 @@ export default function ScheduleManagement() {
             </TabsContent>
 
             {/* Tab: Phân công */}
-            <TabsContent value="assignment" className="mt-6">
-              <div className="flex items-center justify-center py-12 text-muted-foreground">
-                <div className="text-center">
-                  <p className="text-lg font-medium">Phân công</p>
-                  <p className="text-sm">
-                    Tính năng này sẽ được phát triển sớm
-                  </p>
-                </div>
+            <TabsContent value="assignment" className="mt-6 space-y-4">
+              <div className="flex justify-end">
+                <Button
+                  onClick={() => setIsGenerateModalOpen(true)}
+                  className="bg-indigo-500 hover:bg-indigo-600"
+                >
+                  <Repeat className="h-4 w-4 mr-2" />
+                  Tạo lịch từ mẫu
+                </Button>
               </div>
+              <WeeklyWorkScheduleView
+                workSchedules={workSchedules}
+                isLoading={isWorkSchedulesLoading}
+                currentDate={currentDate}
+                onDateChange={setCurrentDate}
+                selectedPondId={selectedPondId}
+                onPondChange={setSelectedPondId}
+              />
             </TabsContent>
           </Tabs>
         </CardContent>
@@ -584,59 +549,25 @@ export default function ScheduleManagement() {
                   className="border-2 border-gray-300 focus:border-blue-500"
                 />
               </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="isRecurring" className="text-sm font-medium">
-                  Loại công việc
-                </Label>
-                <div className="flex items-center space-x-4 pt-2">
-                  <label className="flex items-center space-x-2 cursor-pointer">
-                    <input
-                      type="radio"
-                      name="recurring"
-                      checked={newTask.isRecurring}
-                      onChange={() =>
-                        setNewTask({ ...newTask, isRecurring: true })
-                      }
-                      className="w-4 h-4"
-                    />
-                    <span className="text-sm">Lặp lại</span>
-                  </label>
-                  <label className="flex items-center space-x-2 cursor-pointer">
-                    <input
-                      type="radio"
-                      name="recurring"
-                      checked={!newTask.isRecurring}
-                      onChange={() =>
-                        setNewTask({ ...newTask, isRecurring: false })
-                      }
-                      className="w-4 h-4"
-                    />
-                    <span className="text-sm">Một lần</span>
-                  </label>
-                </div>
-              </div>
             </div>
 
-            {newTask.isRecurring && (
-              <div className="space-y-2">
-                <Label htmlFor="recurrenceRule" className="text-sm font-medium">
-                  Quy tắc lặp lại (Optional)
-                </Label>
-                <Input
-                  id="recurrenceRule"
-                  placeholder="VD: Hằng ngày lúc 9h..."
-                  value={newTask.recurrenceRule}
-                  onChange={(e) =>
-                    setNewTask({
-                      ...newTask,
-                      recurrenceRule: e.target.value,
-                    })
-                  }
-                  className="border-2 border-gray-300 focus:border-blue-500"
-                />
-              </div>
-            )}
+            <div className="space-y-2">
+              <Label htmlFor="notesTask" className="text-sm font-medium">
+                Ghi chú
+              </Label>
+              <Textarea
+                id="notesTask"
+                placeholder="Ghi chú thêm về công việc..."
+                value={newTask.notesTask || ""}
+                onChange={(e) =>
+                  setNewTask({
+                    ...newTask,
+                    notesTask: e.target.value || null,
+                  })
+                }
+                className="border-2 border-gray-300 focus:border-blue-500 min-h-[80px]"
+              />
+            </div>
 
             <div className="flex justify-end gap-3 pt-4 border-t">
               <Button
@@ -737,74 +668,25 @@ export default function ScheduleManagement() {
                     className="border-2 border-gray-300 focus:border-blue-500"
                   />
                 </div>
-
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="edit-isRecurring"
-                    className="text-sm font-medium"
-                  >
-                    Loại công việc
-                  </Label>
-                  <div className="flex items-center space-x-4 pt-2">
-                    <label className="flex items-center space-x-2 cursor-pointer">
-                      <input
-                        type="radio"
-                        name="edit-recurring"
-                        checked={editingTask.isRecurring}
-                        onChange={() =>
-                          setEditingTask({
-                            ...editingTask,
-                            isRecurring: true,
-                          })
-                        }
-                        className="w-4 h-4"
-                      />
-                      <span className="text-sm">Lặp lại</span>
-                    </label>
-                    <label className="flex items-center space-x-2 cursor-pointer">
-                      <input
-                        type="radio"
-                        name="edit-recurring"
-                        checked={!editingTask.isRecurring}
-                        onChange={() =>
-                          setEditingTask({
-                            ...editingTask,
-                            isRecurring: false,
-                          })
-                        }
-                        className="w-4 h-4"
-                      />
-                      <span className="text-sm">Một lần</span>
-                    </label>
-                  </div>
-                </div>
               </div>
 
-              {editingTask.isRecurring && (
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="edit-recurrenceRule"
-                    className="text-sm font-medium"
-                  >
-                    Quy tắc lặp lại (Optional)
-                  </Label>
-                  <Input
-                    id="edit-recurrenceRule"
-                    placeholder="VD: Hằng ngày lúc 9h..."
-                    value={editingTask.recurrenceRule}
-                    onChange={(e) =>
-                      setEditingTask({
-                        ...editingTask,
-                        recurrenceRule: e.target.value,
-                      })
-                    }
-                    className="border-2 border-gray-300 focus:border-blue-500"
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    Sử dụng định dạng iCal (FREQ=DAILY, FREQ=WEEKLY, v.v.)
-                  </p>
-                </div>
-              )}
+              <div className="space-y-2">
+                <Label htmlFor="edit-notesTask" className="text-sm font-medium">
+                  Ghi chú
+                </Label>
+                <Textarea
+                  id="edit-notesTask"
+                  placeholder="Ghi chú thêm về công việc..."
+                  value={editingTask.notesTask || ""}
+                  onChange={(e) =>
+                    setEditingTask({
+                      ...editingTask,
+                      notesTask: e.target.value || null,
+                    })
+                  }
+                  className="border-2 border-gray-300 focus:border-blue-500 min-h-[80px]"
+                />
+              </div>
 
               <div className="flex justify-end gap-3 pt-4 border-t">
                 <Button
@@ -858,6 +740,14 @@ export default function ScheduleManagement() {
         templateName={weeklyScheduleToDelete?.name || null}
         onConfirm={handleConfirmDeleteWeeklySchedule}
         isPending={deleteWeeklyMutation.isPending}
+      />
+
+      {/* Generate Work Schedule Modal */}
+      <GenerateWorkScheduleModal
+        isOpen={isGenerateModalOpen}
+        onOpenChange={setIsGenerateModalOpen}
+        templates={weeklyTemplates}
+        isLoadingTemplates={isWeeklyLoading}
       />
     </div>
   );

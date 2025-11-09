@@ -2,8 +2,10 @@ import { BaseResponse } from "@/lib/api/apiClient";
 import {
   WeeklyScheduleTemplate,
   WeeklyScheduleTemplateRequest,
+  GenerateWorkScheduleRequest,
 } from "@/lib/api/services/fetchWeeklyScheduleTemplate";
 import weeklyScheduleTemplateService from "@/lib/api/services/fetchWeeklyScheduleTemplate";
+import { WorkSchedule } from "@/lib/api/services/fetchWorkSchedule";
 import { useAuthStore } from "@/store/auth-store";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ApiError } from "next/dist/server/api-utils";
@@ -140,6 +142,27 @@ export function useDeleteWeeklyScheduleTemplate() {
     },
     onError: (error: ApiError) => {
       toast.error(error.message || "Có lỗi xảy ra khi xóa mẫu lịch");
+    },
+  });
+}
+
+/**
+ * Hook to generate work schedules from a template
+ */
+export function useGenerateWorkSchedules() {
+  const queryClient = useQueryClient();
+
+  return useMutation<WorkSchedule[], ApiError, GenerateWorkScheduleRequest>({
+    mutationFn: (request: GenerateWorkScheduleRequest) =>
+      weeklyScheduleTemplateService
+        .generateWorkSchedules(request)
+        .then((res) => res.result || []),
+    onSuccess: (data) => {
+      toast.success(`${data.length} công việc được tạo thành công`);
+      queryClient.invalidateQueries({ queryKey: ["work-schedules"] });
+    },
+    onError: (error) => {
+      toast.error(error?.message || "Có lỗi xảy ra khi tạo công việc");
     },
   });
 }

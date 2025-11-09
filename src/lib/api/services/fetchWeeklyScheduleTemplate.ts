@@ -1,4 +1,6 @@
 import apiService, { BaseResponse } from "../apiClient";
+import { TaskTemplateResponse } from "./fetchTaskTemplate";
+import { WorkSchedule } from "./fetchWorkSchedule";
 
 export enum DayOfWeekEnum {
   Sunday = "Sunday",
@@ -10,22 +12,10 @@ export enum DayOfWeekEnum {
   Saturday = "Saturday",
 }
 
-export interface TaskTemplateInfo {
-  id: number;
-  taskName: string;
-  description: string;
-  defaultDuration: number;
-  isRecurring: boolean;
-  recurrenceRule: string;
-  isDeleted: boolean;
-  createdAt: string;
-  updatedAt: string | null;
-}
-
 export interface TemplateItem {
   id: number;
   taskTemplateId: number;
-  taskTemplate: TaskTemplateInfo;
+  taskTemplate: TaskTemplateResponse;
   dayOfWeek: string;
   startTime: string;
   endTime: string;
@@ -52,6 +42,11 @@ export interface WeeklyScheduleTemplateRequest {
   name: string;
   description: string;
   templateItems: TemplateItemRequest[];
+}
+
+export interface GenerateWorkScheduleRequest {
+  weeklyScheduleTemplateId: number;
+  startDate: string;
 }
 
 const baseUrl = "/api/WeeklyScheduleTemplate";
@@ -102,6 +97,16 @@ export const weeklyScheduleTemplateService = {
     const response = await apiService.delete<BaseResponse<string>>(
       `${baseUrl}/${id}`,
     );
+    return response.data;
+  },
+
+  generateWorkSchedules: async (
+    request: GenerateWorkScheduleRequest,
+  ): Promise<BaseResponse<WorkSchedule[]>> => {
+    const response = await apiService.post<
+      BaseResponse<WorkSchedule[]>,
+      GenerateWorkScheduleRequest
+    >(`${baseUrl}/generate`, request);
     return response.data;
   },
 };

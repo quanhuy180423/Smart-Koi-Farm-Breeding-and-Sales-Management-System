@@ -11,6 +11,7 @@ import {
 } from "@/lib/api/services/fetchKoiFish";
 import { PondStatus } from "@/lib/api/services/fetchPond";
 import { OrderStatus } from "@/lib/api/services/fetchOrder";
+import { WorkScheduleStatusEnum } from "@/lib/api/services/fetchWorkSchedule";
 import { CheckCircle, Clock, AlertCircle, XCircle } from "lucide-react";
 
 // Giao diện chung cho các nhãn
@@ -128,6 +129,29 @@ const pondStatusMeta: Record<PondStatus, Label> = {
   },
 };
 
+const workScheduleStatusMeta: Record<WorkScheduleStatusEnum, Label> = {
+  [WorkScheduleStatusEnum.Pending]: {
+    label: "Chờ xử lý",
+    colorClass: "bg-yellow-100 text-yellow-800",
+  },
+  [WorkScheduleStatusEnum.InProgress]: {
+    label: "Đang thực hiện",
+    colorClass: "bg-blue-100 text-blue-800",
+  },
+  [WorkScheduleStatusEnum.Completed]: {
+    label: "Hoàn thành",
+    colorClass: "bg-green-100 text-green-800",
+  },
+  [WorkScheduleStatusEnum.Incomplete]: {
+    label: "Chưa hoàn thành",
+    colorClass: "bg-orange-100 text-orange-800",
+  },
+  [WorkScheduleStatusEnum.Cancelled]: {
+    label: "Hủy",
+    colorClass: "bg-red-100 text-red-800",
+  },
+};
+
 const DEFAULT_LABEL: Label = {
   label: "Không xác định",
   colorClass: "bg-gray-100 text-gray-700",
@@ -183,6 +207,34 @@ export function getBreedingStatusLabel(status?: BreedingStatus): Label {
 
 export function getPondStatusLabel(status?: PondStatus): Label {
   return getLabelForEnum(status, pondStatusMeta);
+}
+
+export function getWorkScheduleStatusLabel(
+  status?: WorkScheduleStatusEnum,
+): Label {
+  return getLabelForEnum(status, workScheduleStatusMeta);
+}
+
+/**
+ * Get work schedule status color class
+ * @param status The work schedule status
+ * @returns Tailwind CSS color classes
+ */
+export function getWorkScheduleStatusColor(
+  status?: WorkScheduleStatusEnum,
+): string {
+  return getWorkScheduleStatusLabel(status).colorClass;
+}
+
+/**
+ * Get work schedule status text label
+ * @param status The work schedule status
+ * @returns Status label text in Vietnamese
+ */
+export function getWorkScheduleStatusText(
+  status?: WorkScheduleStatusEnum,
+): string {
+  return getWorkScheduleStatusLabel(status).label;
 }
 
 // --- ORDER STATUS METADATA ---

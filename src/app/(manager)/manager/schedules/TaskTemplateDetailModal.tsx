@@ -5,8 +5,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
-import { Repeat, CheckCircle } from "lucide-react";
 import { TaskTemplateResponse } from "@/lib/api/services/fetchTaskTemplate";
 
 interface TaskTemplateDetailModalProps {
@@ -52,24 +50,11 @@ const TaskTemplateDetailModal = ({
 
               <div>
                 <Label className="text-sm font-medium text-gray-600">
-                  Loại công việc
+                  Ghi chú
                 </Label>
-                <div className="mt-1">
-                  {selectedTask.isRecurring ? (
-                    <Badge
-                      variant="default"
-                      className="bg-blue-100 text-blue-800"
-                    >
-                      <Repeat className="h-3 w-3 mr-1" />
-                      Lặp lại
-                    </Badge>
-                  ) : (
-                    <Badge variant="secondary">
-                      <CheckCircle className="h-3 w-3 mr-1" />
-                      Một lần
-                    </Badge>
-                  )}
-                </div>
+                <p className="text-base text-gray-800 mt-1 whitespace-pre-wrap">
+                  {selectedTask.notesTask || "Không có ghi chú"}
+                </p>
               </div>
             </div>
 
@@ -85,18 +70,6 @@ const TaskTemplateDetailModal = ({
               </div>
             </div>
           </div>
-
-          {/* Full width recurrence rule section */}
-          {selectedTask.isRecurring && selectedTask.recurrenceRule && (
-            <div className="border-t pt-4">
-              <Label className="text-sm font-medium text-gray-600">
-                Quy tắc lặp lại
-              </Label>
-              <p className="text-base text-gray-800 mt-1">
-                {selectedTask.recurrenceRule}
-              </p>
-            </div>
-          )}
 
           {/* Metadata section */}
           <div className="border-t pt-4 text-xs text-gray-500 space-y-1">

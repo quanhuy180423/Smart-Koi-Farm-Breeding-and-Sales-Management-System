@@ -5,7 +5,7 @@ import breedingProcessService, {
   BreedingProcessCreateRequest,
   BreedingProcessResponse,
   BreedingProcessSearchParams,
-  BreeedingRecommendRequest,
+  BreedingRecommendRequest,
   AnalyzePairRequest,
 } from "@/lib/api/services/fetchBreedingProcess";
 import { useAuthStore } from "@/store/auth-store";
@@ -128,7 +128,7 @@ export function useCancelBreeding() {
 
 export function useGetBreedingRecommend() {
   return useMutation({
-    mutationFn: (request: Partial<BreeedingRecommendRequest>) =>
+    mutationFn: (request: Partial<BreedingRecommendRequest>) =>
       breedingProcessService.getRecommends(request),
     onError: (error: ApiError) => {
       toast.error(error.error?.result || "Có lỗi xảy ra khi lấy thông tin");
