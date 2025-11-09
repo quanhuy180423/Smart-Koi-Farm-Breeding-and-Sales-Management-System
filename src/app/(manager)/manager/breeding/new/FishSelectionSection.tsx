@@ -8,6 +8,7 @@ import { Heart, Plus, X, Ruler, Calendar, Loader2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -395,6 +396,9 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
                 <DialogTitle className="text-center text-xl">
                   Chọn Cá Bố
                 </DialogTitle>
+                <DialogDescription className="text-center">
+                  Chọn cá bố để tạo cặp sinh sản
+                </DialogDescription>
               </DialogHeader>
               <KoiFishFilterBar
                 search={fatherSearchInput}
@@ -500,6 +504,9 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
                 <DialogTitle className="text-center text-xl">
                   Chọn Cá Mẹ
                 </DialogTitle>
+                <DialogDescription className="text-center">
+                  Chọn cá mẹ để tạo cặp sinh sản
+                </DialogDescription>
               </DialogHeader>
               <KoiFishFilterBar
                 search={motherSearchInput}

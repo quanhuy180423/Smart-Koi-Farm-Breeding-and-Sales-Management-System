@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogFooter,
@@ -38,6 +39,7 @@ const EditVarietyModal = ({
         <DialogTitle className="text-xl font-semibold text-gray-800">
           Chỉnh sửa Giống Cá: {editingVariety?.varietyName}
         </DialogTitle>
+        <DialogDescription>Cập nhật thông tin giống cá</DialogDescription>
       </DialogHeader>
       {editingVariety && (
         <div className="space-y-6">

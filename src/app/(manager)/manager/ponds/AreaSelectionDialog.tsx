@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -82,6 +83,9 @@ const AreaSelectionDialog = ({
       <DialogContent className="!max-w-4xl">
         <DialogHeader>
           <DialogTitle>Chọn Khu vực</DialogTitle>
+          <DialogDescription>
+            Chọn khu vực phù hợp để gán cho hồ cá
+          </DialogDescription>
         </DialogHeader>
         <div className="space-y-4">
           <Input

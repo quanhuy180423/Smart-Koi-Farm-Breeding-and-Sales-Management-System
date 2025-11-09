@@ -21,6 +21,9 @@ export interface PondResponse {
   pondName: string;
   location: string;
   pondStatus: PondStatus;
+  maxFishCount: number | null;
+  currentCount: number | null;
+  currentCapacity: number | null;
   capacityLiters: number;
   depthMeters: number;
   lengthMeters: number;

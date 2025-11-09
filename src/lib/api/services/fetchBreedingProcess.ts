@@ -87,7 +87,7 @@ export interface BreedingParentHistoryResponse {
   highQualifiedRate: number;
 }
 
-export interface BreeedingRecommendRequest {
+export interface BreedingRecommendRequest {
   targetVariety: string;
   priority: string;
   desiredPattern: string;
@@ -144,7 +144,7 @@ export interface BreedingDetailResponse {
   classificationStage: ClassificationStageResponse;
 }
 
-export interface BreeedingRecommendResponse {
+export interface BreedingRecommendResponse {
   recommendedPairs: RecommendedPair[];
 }
 
@@ -201,11 +201,11 @@ export const breedingProcessService = {
     return response.data;
   },
   getRecommends: async (
-    request: Partial<BreeedingRecommendRequest>,
-  ): Promise<BaseResponse<BreeedingRecommendResponse>> => {
+    request: Partial<BreedingRecommendRequest>,
+  ): Promise<BaseResponse<BreedingRecommendResponse>> => {
     const response = await apiService.post<
-      BaseResponse<BreeedingRecommendResponse>,
-      Partial<BreeedingRecommendRequest>
+      BaseResponse<BreedingRecommendResponse>,
+      Partial<BreedingRecommendRequest>
     >(`${baseUrl}/recommend`, request);
     return response.data;
   },

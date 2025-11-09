@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { InputNumber } from "@/components/ui/input-number";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select,
@@ -566,13 +567,12 @@ export default function OrdersPage() {
                   <div className="flex gap-3 mt-3">
                     <div className="flex-1">
                       <p className="text-xs text-muted-foreground mb-1">Min</p>
-                      <Input
-                        type="number"
+                      <InputNumber
                         value={priceRange[0]}
-                        onChange={(e) => {
-                          const value = parseInt(e.target.value) || 0;
+                        onChange={(value) => {
+                          const validValue = value || 0;
                           setPriceRange([
-                            Math.min(value, priceRange[1]),
+                            Math.min(validValue, priceRange[1]),
                             priceRange[1],
                           ]);
                         }}
@@ -581,14 +581,13 @@ export default function OrdersPage() {
                     </div>
                     <div className="flex-1">
                       <p className="text-xs text-muted-foreground mb-1">Max</p>
-                      <Input
-                        type="number"
+                      <InputNumber
                         value={priceRange[1]}
-                        onChange={(e) => {
-                          const value = parseInt(e.target.value) || 100000000;
+                        onChange={(value) => {
+                          const validValue = value || 100000000;
                           setPriceRange([
                             priceRange[0],
-                            Math.max(value, priceRange[0]),
+                            Math.max(validValue, priceRange[0]),
                           ]);
                         }}
                         className="rounded-lg border-border text-xs"

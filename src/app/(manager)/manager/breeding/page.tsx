@@ -50,6 +50,7 @@ import {
 } from "@/lib/utils/enum";
 import { BreedingDetailDialog } from "./BreedingDetailDialog";
 import { Input } from "@/components/ui/input";
+import { InputNumber } from "@/components/ui/input-number";
 import { useDebounce } from "@/hooks/useDebounce";
 import { Label } from "@/components/ui/label";
 import {
@@ -539,32 +540,34 @@ export default function BreedingManagement() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="maleId">ID Cá Đực</Label>
-                <Input
-                  id="maleId"
-                  type="number"
+                <InputNumber
+                  value={maleKoiIdInput ? Number(maleKoiIdInput) : undefined}
+                  onChange={(value) =>
+                    setMaleKoiIdInput(value ? String(value) : "")
+                  }
                   placeholder="ID cá đực..."
-                  value={maleKoiIdInput}
-                  onChange={(e) => setMaleKoiIdInput(e.target.value)}
                 />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="femaleId">ID Cá Cái</Label>
-                <Input
-                  id="femaleId"
-                  type="number"
+                <InputNumber
+                  value={
+                    femaleKoiIdInput ? Number(femaleKoiIdInput) : undefined
+                  }
+                  onChange={(value) =>
+                    setFemaleKoiIdInput(value ? String(value) : "")
+                  }
                   placeholder="ID cá cái..."
-                  value={femaleKoiIdInput}
-                  onChange={(e) => setFemaleKoiIdInput(e.target.value)}
                 />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="pondId">ID Hồ</Label>
-                <Input
-                  id="pondId"
-                  type="number"
+                <InputNumber
+                  value={pondIdInput ? Number(pondIdInput) : undefined}
+                  onChange={(value) =>
+                    setPondIdInput(value ? String(value) : "")
+                  }
                   placeholder="ID hồ..."
-                  value={pondIdInput}
-                  onChange={(e) => setPondIdInput(e.target.value)}
                 />
               </div>
 
@@ -609,22 +612,30 @@ export default function BreedingManagement() {
               </p>
               <div className="space-y-2 col-span-2 md:col-span-1">
                 <Label htmlFor="minFish">Tối thiểu</Label>
-                <Input
-                  id="minFish"
-                  type="number"
+                <InputNumber
+                  value={
+                    minFishQualifiedInput
+                      ? Number(minFishQualifiedInput)
+                      : undefined
+                  }
+                  onChange={(value) =>
+                    setMinFishQualifiedInput(value ? String(value) : "")
+                  }
                   placeholder="Cá đạt chuẩn min"
-                  value={minFishQualifiedInput}
-                  onChange={(e) => setMinFishQualifiedInput(e.target.value)}
                 />
               </div>
               <div className="space-y-2 col-span-2 md:col-span-1">
                 <Label htmlFor="maxFish">Tối đa</Label>
-                <Input
-                  id="maxFish"
-                  type="number"
+                <InputNumber
+                  value={
+                    maxFishQualifiedInput
+                      ? Number(maxFishQualifiedInput)
+                      : undefined
+                  }
+                  onChange={(value) =>
+                    setMaxFishQualifiedInput(value ? String(value) : "")
+                  }
                   placeholder="Cá đạt chuẩn max"
-                  value={maxFishQualifiedInput}
-                  onChange={(e) => setMaxFishQualifiedInput(e.target.value)}
                 />
               </div>
 
@@ -633,22 +644,30 @@ export default function BreedingManagement() {
               </p>
               <div className="space-y-2 col-span-2 md:col-span-1">
                 <Label htmlFor="minPackage">Tối thiểu</Label>
-                <Input
-                  id="minPackage"
-                  type="number"
+                <InputNumber
+                  value={
+                    minTotalPackageInput
+                      ? Number(minTotalPackageInput)
+                      : undefined
+                  }
+                  onChange={(value) =>
+                    setMinTotalPackageInput(value ? String(value) : "")
+                  }
                   placeholder="Gói min"
-                  value={minTotalPackageInput}
-                  onChange={(e) => setMinTotalPackageInput(e.target.value)}
                 />
               </div>
               <div className="space-y-2 col-span-2 md:col-span-1">
                 <Label htmlFor="maxPackage">Tối đa</Label>
-                <Input
-                  id="maxPackage"
-                  type="number"
+                <InputNumber
+                  value={
+                    maxTotalPackageInput
+                      ? Number(maxTotalPackageInput)
+                      : undefined
+                  }
+                  onChange={(value) =>
+                    setMaxTotalPackageInput(value ? String(value) : "")
+                  }
                   placeholder="Gói max"
-                  value={maxTotalPackageInput}
-                  onChange={(e) => setMaxTotalPackageInput(e.target.value)}
                 />
               </div>
             </div>

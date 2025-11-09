@@ -13,6 +13,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { InputNumber } from "@/components/ui/input-number";
 import {
   Select,
   SelectContent,
@@ -586,22 +587,20 @@ export default function OrdersPage() {
 
               <div className="relative flex-1 sm:flex-none">
                 <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  type="number"
+                <InputNumber
+                  value={minPrice ? Number(minPrice) : undefined}
+                  onChange={(value) => setMinPrice(value ? String(value) : "")}
                   placeholder="Từ giá"
-                  value={minPrice}
-                  onChange={(e) => setMinPrice(e.target.value)}
                   className="pl-10 w-full"
                 />
               </div>
 
               <div className="relative flex-1 sm:flex-none">
                 <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  type="number"
+                <InputNumber
+                  value={maxPrice ? Number(maxPrice) : undefined}
+                  onChange={(value) => setMaxPrice(value ? String(value) : "")}
                   placeholder="Đến giá"
-                  value={maxPrice}
-                  onChange={(e) => setMaxPrice(e.target.value)}
                   className="pl-10 w-full"
                 />
               </div>

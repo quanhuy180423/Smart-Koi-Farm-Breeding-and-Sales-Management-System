@@ -7,6 +7,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { InputNumber } from "@/components/ui/input-number";
 import {
   ShoppingCart,
   Package,
@@ -237,14 +238,13 @@ export default function PacketFishDetailPage() {
                       >
                         −
                       </Button>
-                      <input
-                        type="number"
+                      <InputNumber
                         value={quantity}
-                        onChange={(e) =>
-                          setQuantity(Math.max(1, Number(e.target.value)))
+                        onChange={(value) =>
+                          setQuantity(Math.max(1, value || 1))
                         }
+                        min={1}
                         className="w-12 text-center border rounded-md"
-                        min="1"
                       />
                       <Button
                         variant="outline"
