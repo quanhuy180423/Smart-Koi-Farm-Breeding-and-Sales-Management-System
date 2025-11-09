@@ -7,23 +7,34 @@ import apiService, {
 
 const baseUrl = "/api/PondType";
 
+export enum PondTypeEnum {
+  Paring = "Paring",
+  EggBatch = "EggBatch",
+  FryFish = "FryFish",
+  Classification = "Classification",
+  MarketPond = "MarketPond",
+  BroodStock = "BroodStock",
+}
+
 export interface PondTypeResponse {
   id: number;
   typeName: string;
+  type: PondTypeEnum;
   description: string;
-  recommendedCapacity: number;
+  recommendedQuantity: number;
 }
 
 export interface PondTypeSearchParams extends PagingRequest {
   search?: string;
-  minRecommendedCapacity?: number;
-  maxRecommendedCapacity?: number;
+  minRecommendedQuantity?: number;
+  maxRecommendedQuantity?: number;
 }
 
 export interface PondTypeRequest {
   typeName: string;
+  type: PondTypeEnum;
   description: string;
-  recommendedCapacity: number;
+  recommendedQuantity: number;
 }
 
 export const pondTypeService = {

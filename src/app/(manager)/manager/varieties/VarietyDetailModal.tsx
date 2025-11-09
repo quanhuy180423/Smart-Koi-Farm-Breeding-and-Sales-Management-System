@@ -2,6 +2,7 @@ import * as React from "react";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -25,6 +26,7 @@ const VarietyDetailModal = ({
         <DialogTitle className="text-xl font-semibold text-gray-800">
           Chi tiết Giống Cá: {selectedVariety?.varietyName}
         </DialogTitle>
+        <DialogDescription>Thông tin chi tiết về giống cá</DialogDescription>
       </DialogHeader>
       {selectedVariety && (
         <div className="space-y-6">

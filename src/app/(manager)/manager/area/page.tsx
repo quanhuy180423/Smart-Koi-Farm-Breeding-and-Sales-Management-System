@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { InputNumber } from "@/components/ui/input-number";
 import { Plus, Search, Edit, Trash2, Eye, Loader2, Filter } from "lucide-react";
 import {
   Table,
@@ -370,23 +371,25 @@ export default function AreaManagement() {
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="minArea">Diện tích tối thiểu (m²)</Label>
-              <Input
-                id="minArea"
-                type="number"
+              <InputNumber
+                value={minAreaInput ? Number(minAreaInput) : undefined}
+                onChange={(value) =>
+                  setMinAreaInput(value ? String(value) : "")
+                }
                 placeholder="Ví dụ: 50"
-                value={minAreaInput}
-                onChange={(e) => setMinAreaInput(e.target.value)}
+                allowDecimal={true}
                 className="border-2 border-gray-300"
               />
             </div>
             <div className="space-y-2">
               <Label htmlFor="maxArea">Diện tích tối đa (m²)</Label>
-              <Input
-                id="maxArea"
-                type="number"
+              <InputNumber
+                value={maxAreaInput ? Number(maxAreaInput) : undefined}
+                onChange={(value) =>
+                  setMaxAreaInput(value ? String(value) : "")
+                }
                 placeholder="Ví dụ: 200"
-                value={maxAreaInput}
-                onChange={(e) => setMaxAreaInput(e.target.value)}
+                allowDecimal={true}
                 className="border-2 border-gray-300"
               />
             </div>
@@ -404,6 +407,9 @@ export default function AreaManagement() {
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>Thêm khu vực mới</DialogTitle>
+            <DialogDescription>
+              Thêm thông tin chi tiết cho khu vực mới
+            </DialogDescription>
           </DialogHeader>
           <div className="space-y-6">
             <div className="grid grid-cols-2 gap-4">
@@ -420,14 +426,20 @@ export default function AreaManagement() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="totalAreaSQM">Diện tích (m²) *</Label>
-                <Input
-                  id="totalAreaSQM"
-                  placeholder="Nhập diện tích"
-                  type="number"
-                  value={newArea.totalAreaSQM}
-                  onChange={(e) =>
-                    setNewArea({ ...newArea, totalAreaSQM: e.target.value })
+                <InputNumber
+                  value={
+                    newArea.totalAreaSQM
+                      ? Number(newArea.totalAreaSQM)
+                      : undefined
                   }
+                  onChange={(value) =>
+                    setNewArea({
+                      ...newArea,
+                      totalAreaSQM: value ? String(value) : "",
+                    })
+                  }
+                  placeholder="Nhập diện tích"
+                  allowDecimal={true}
                 />
               </div>
             </div>
@@ -462,6 +474,9 @@ export default function AreaManagement() {
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>Chỉnh sửa khu vực</DialogTitle>
+            <DialogDescription>
+              Cập nhật thông tin chi tiết của khu vực
+            </DialogDescription>
           </DialogHeader>
           {editingArea && (
             <div className="space-y-6">
@@ -481,16 +496,15 @@ export default function AreaManagement() {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="editTotalArea">Diện tích (m²) *</Label>
-                  <Input
-                    id="editTotalArea"
-                    type="number"
+                  <InputNumber
                     value={editingArea.totalAreaSQM}
-                    onChange={(e) =>
+                    onChange={(value) =>
                       setEditingArea({
                         ...editingArea,
-                        totalAreaSQM: parseFloat(e.target.value),
+                        totalAreaSQM: value || 0,
                       })
                     }
+                    allowDecimal={true}
                   />
                 </div>
               </div>

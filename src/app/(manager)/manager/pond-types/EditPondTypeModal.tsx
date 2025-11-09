@@ -2,16 +2,29 @@ import * as React from "react";
 import { Edit, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { InputNumber } from "@/components/ui/input-number";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { PondTypeResponse } from "@/lib/api/services/fetchPondType";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  PondTypeResponse,
+  PondTypeEnum,
+} from "@/lib/api/services/fetchPondType";
+import { getPondTypeLabel } from "@/lib/utils/enum/formatEnum";
 
 interface EditPondTypeModalProps {
   isOpen: boolean;
@@ -38,6 +51,9 @@ const EditPondTypeModal = ({
         <DialogTitle className="text-xl font-semibold text-gray-800">
           Chỉnh sửa Loại Hồ: {editingPondType?.typeName}
         </DialogTitle>
+        <DialogDescription>
+          Cập nhật thông tin chi tiết về loại hồ
+        </DialogDescription>
       </DialogHeader>
       {editingPondType && (
         <div className="space-y-6">
@@ -63,24 +79,50 @@ const EditPondTypeModal = ({
             </div>
             <div className="space-y-2">
               <Label
-                htmlFor="editCapacity"
+                htmlFor="editType"
                 className="text-sm font-medium text-gray-700"
               >
-                Sức chứa khuyến nghị (Lít) *
+                Loại Hồ *
               </Label>
-              <Input
-                id="editCapacity"
-                type="number"
-                value={editingPondType.recommendedCapacity}
-                onChange={(e) =>
+              <Select
+                value={editingPondType.type}
+                onValueChange={(value) =>
                   setEditingPondType({
                     ...editingPondType,
-                    recommendedCapacity: parseFloat(e.target.value) || 0,
+                    type: value as PondTypeEnum,
                   })
                 }
-                className="border-2 border-gray-300 focus:border-blue-500"
-              />
+              >
+                <SelectTrigger className="border-2 border-gray-300 focus:border-blue-500">
+                  <SelectValue placeholder="Chọn loại hồ" />
+                </SelectTrigger>
+                <SelectContent>
+                  {Object.values(PondTypeEnum).map((typeEnum) => (
+                    <SelectItem key={typeEnum} value={typeEnum}>
+                      {getPondTypeLabel(typeEnum as PondTypeEnum).label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
+          </div>
+          <div className="space-y-2">
+            <Label
+              htmlFor="editQuantity"
+              className="text-sm font-medium text-gray-700"
+            >
+              Sức chứa khuyến nghị (Số lượng cá) *
+            </Label>
+            <InputNumber
+              value={editingPondType.recommendedQuantity}
+              onChange={(value) =>
+                setEditingPondType({
+                  ...editingPondType,
+                  recommendedQuantity: value || 0,
+                })
+              }
+              className="border-2 border-gray-300 focus:border-blue-500"
+            />
           </div>
           <div className="space-y-2">
             <Label
@@ -111,7 +153,9 @@ const EditPondTypeModal = ({
             </Button>
             <Button
               onClick={handleUpdatePondType}
-              disabled={isPending || !editingPondType.typeName}
+              disabled={
+                isPending || !editingPondType.typeName || !editingPondType.type
+              }
             >
               {isPending ? (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />

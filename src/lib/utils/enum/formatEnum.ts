@@ -11,7 +11,17 @@ import {
 } from "@/lib/api/services/fetchKoiFish";
 import { PondStatus } from "@/lib/api/services/fetchPond";
 import { OrderStatus } from "@/lib/api/services/fetchOrder";
-import { CheckCircle, Clock, AlertCircle, XCircle } from "lucide-react";
+import { WorkScheduleStatusEnum } from "@/lib/api/services/fetchWorkSchedule";
+import { PondTypeEnum } from "@/lib/api/services/fetchPondType";
+import {
+  CheckCircle,
+  Clock,
+  AlertCircle,
+  XCircle,
+  Droplets,
+  Wrench,
+  Activity,
+} from "lucide-react";
 
 // Giao diện chung cho các nhãn
 export interface Label {
@@ -113,18 +123,75 @@ const breedingStatusMeta: Record<BreedingStatus, Label> = {
   },
 };
 
-const pondStatusMeta: Record<PondStatus, Label> = {
+interface PondStatusLabel extends Label {
+  icon: React.ComponentType<{ className?: string }>;
+}
+
+const pondStatusMeta: Record<PondStatus, PondStatusLabel> = {
   [PondStatus.ACTIVE]: {
     label: "Hoạt Động",
     colorClass: "bg-green-100 text-green-800",
+    icon: Activity,
   },
   [PondStatus.EMPTY]: {
     label: "Trống",
-    colorClass: "bg-gray-200 text-gray-800",
+    colorClass: "bg-gray-100 text-gray-700",
+    icon: Droplets,
   },
   [PondStatus.MAINTENANCE]: {
     label: "Bảo Trì",
     colorClass: "bg-yellow-100 text-yellow-800",
+    icon: Wrench,
+  },
+};
+
+const workScheduleStatusMeta: Record<WorkScheduleStatusEnum, Label> = {
+  [WorkScheduleStatusEnum.Pending]: {
+    label: "Chờ xử lý",
+    colorClass: "bg-yellow-100 text-yellow-800",
+  },
+  [WorkScheduleStatusEnum.InProgress]: {
+    label: "Đang thực hiện",
+    colorClass: "bg-blue-100 text-blue-800",
+  },
+  [WorkScheduleStatusEnum.Completed]: {
+    label: "Hoàn thành",
+    colorClass: "bg-green-100 text-green-800",
+  },
+  [WorkScheduleStatusEnum.Incomplete]: {
+    label: "Chưa hoàn thành",
+    colorClass: "bg-orange-100 text-orange-800",
+  },
+  [WorkScheduleStatusEnum.Cancelled]: {
+    label: "Hủy",
+    colorClass: "bg-red-100 text-red-800",
+  },
+};
+
+const pondTypeMeta: Record<PondTypeEnum, Label> = {
+  [PondTypeEnum.Paring]: {
+    label: "Ghép Cặp",
+    colorClass: "bg-indigo-100 text-indigo-800",
+  },
+  [PondTypeEnum.EggBatch]: {
+    label: "Ấp Trứng",
+    colorClass: "bg-cyan-100 text-cyan-800",
+  },
+  [PondTypeEnum.FryFish]: {
+    label: "Cá Con",
+    colorClass: "bg-teal-100 text-teal-800",
+  },
+  [PondTypeEnum.Classification]: {
+    label: "Tuyển Chọn",
+    colorClass: "bg-purple-100 text-purple-800",
+  },
+  [PondTypeEnum.MarketPond]: {
+    label: "Ao Thương Mại",
+    colorClass: "bg-pink-100 text-pink-800",
+  },
+  [PondTypeEnum.BroodStock]: {
+    label: "Cơ Sở Giống",
+    colorClass: "bg-emerald-100 text-emerald-800",
   },
 };
 
@@ -181,8 +248,47 @@ export function getBreedingStatusLabel(status?: BreedingStatus): Label {
   return getLabelForEnum(status, breedingStatusMeta);
 }
 
-export function getPondStatusLabel(status?: PondStatus): Label {
-  return getLabelForEnum(status, pondStatusMeta);
+export function getPondStatusLabel(status?: PondStatus): PondStatusLabel {
+  if (!status || !pondStatusMeta[status]) {
+    return {
+      label: "Không xác định",
+      colorClass: "bg-gray-100 text-gray-700",
+      icon: AlertCircle,
+    };
+  }
+  return pondStatusMeta[status];
+}
+
+export function getWorkScheduleStatusLabel(
+  status?: WorkScheduleStatusEnum,
+): Label {
+  return getLabelForEnum(status, workScheduleStatusMeta);
+}
+
+export function getPondTypeLabel(type?: PondTypeEnum): Label {
+  return getLabelForEnum(type, pondTypeMeta);
+}
+
+/**
+ * Get work schedule status color class
+ * @param status The work schedule status
+ * @returns Tailwind CSS color classes
+ */
+export function getWorkScheduleStatusColor(
+  status?: WorkScheduleStatusEnum,
+): string {
+  return getWorkScheduleStatusLabel(status).colorClass;
+}
+
+/**
+ * Get work schedule status text label
+ * @param status The work schedule status
+ * @returns Status label text in Vietnamese
+ */
+export function getWorkScheduleStatusText(
+  status?: WorkScheduleStatusEnum,
+): string {
+  return getWorkScheduleStatusLabel(status).label;
 }
 
 // --- ORDER STATUS METADATA ---

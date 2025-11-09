@@ -2,7 +2,13 @@
 
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 
 interface KoiImageViewerProps {
@@ -40,11 +46,12 @@ export function KoiImageViewer({
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl max-h-[90vh] flex flex-col p-0 border-0">
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b bg-white z-10">
+        <DialogHeader className="flex items-center justify-between p-4 border-b bg-white z-10">
           <div>
             <DialogTitle className="text-lg">
               {rfid} - Ảnh số {selectedImageIdx + 1} / {images.length}
             </DialogTitle>
+            <DialogDescription>Xem chi tiết hình ảnh cá</DialogDescription>
           </div>
           <Button
             variant="ghost"
@@ -53,7 +60,7 @@ export function KoiImageViewer({
           >
             <X className="h-4 w-4" />
           </Button>
-        </div>
+        </DialogHeader>
 
         {/* Image Container */}
         <div className="flex-1 w-full h-auto flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 p-4">

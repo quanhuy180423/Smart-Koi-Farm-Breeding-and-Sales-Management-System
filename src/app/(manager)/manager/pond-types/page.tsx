@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { InputNumber } from "@/components/ui/input-number";
 import {
   Table,
   TableBody,
@@ -24,6 +25,7 @@ import {
   PondTypeResponse,
   PondTypeSearchParams,
   PondTypeRequest,
+  PondTypeEnum,
 } from "@/lib/api/services/fetchPondType";
 import {
   useGetPondTypes,
@@ -49,11 +51,13 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
+import { getPondTypeLabel } from "@/lib/utils/enum/formatEnum";
 
 export interface PondTypeFormState {
   typeName: string;
+  type: PondTypeEnum | "";
   description: string;
-  recommendedCapacity: string;
+  recommendedQuantity: string;
 }
 
 export default function PondTypeManagement() {
@@ -73,15 +77,15 @@ export default function PondTypeManagement() {
     useState<PondTypeResponse | null>(null);
 
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
-  const [minCapacityInput, setMinCapacityInput] = useState<string>("");
-  const [maxCapacityInput, setMaxCapacityInput] = useState<string>("");
+  const [minQuantityInput, setMinQuantityInput] = useState<string>("");
+  const [maxQuantityInput, setMaxQuantityInput] = useState<string>("");
 
   const [searchParams, setSearchParams] = useState<PondTypeSearchParams>({
     pageIndex: 1,
     pageSize: PAGE_SIZE_OPTIONS_DEFAULT[0],
     search: "",
-    minRecommendedCapacity: undefined,
-    maxRecommendedCapacity: undefined,
+    minRecommendedQuantity: undefined,
+    maxRecommendedQuantity: undefined,
   });
 
   useEffect(() => {
@@ -104,8 +108,9 @@ export default function PondTypeManagement() {
 
   const [newPondType, setNewPondType] = useState<PondTypeFormState>({
     typeName: "",
+    type: "",
     description: "",
-    recommendedCapacity: "",
+    recommendedQuantity: "",
   });
 
   const handleSetCurrentPage = (page: number) => {
@@ -124,22 +129,28 @@ export default function PondTypeManagement() {
   const handleOpenAddModal = () => {
     setNewPondType({
       typeName: "",
+      type: "",
       description: "",
-      recommendedCapacity: "",
+      recommendedQuantity: "",
     });
     setIsAddModalOpen(true);
   };
 
   const handleAddPondType = () => {
-    if (!newPondType.typeName || !newPondType.recommendedCapacity) {
-      console.error("Vui lòng điền đầy đủ Tên loại hồ và Sức chứa.");
+    if (
+      !newPondType.typeName ||
+      !newPondType.type ||
+      !newPondType.recommendedQuantity
+    ) {
+      console.error("Vui lòng điền đầy đủ Tên loại hồ, Loại hồ, và Sức chứa.");
       return;
     }
 
     const payload: PondTypeRequest = {
       typeName: newPondType.typeName,
+      type: newPondType.type as PondTypeEnum,
       description: newPondType.description,
-      recommendedCapacity: parseFloat(newPondType.recommendedCapacity),
+      recommendedQuantity: parseFloat(newPondType.recommendedQuantity),
     };
 
     addPondTypeMutation.mutate(payload, {
@@ -159,8 +170,9 @@ export default function PondTypeManagement() {
 
     const payload: PondTypeRequest = {
       typeName: editingPondType.typeName,
+      type: editingPondType.type,
       description: editingPondType.description,
-      recommendedCapacity: editingPondType.recommendedCapacity,
+      recommendedQuantity: editingPondType.recommendedQuantity,
     };
 
     updatePondTypeMutation.mutate(
@@ -194,30 +206,26 @@ export default function PondTypeManagement() {
   };
 
   const handleApplyFilters = () => {
-    const minCapacityLiters = minCapacityInput
-      ? Number(minCapacityInput)
-      : undefined;
-    const maxCapacityLiters = maxCapacityInput
-      ? Number(maxCapacityInput)
-      : undefined;
+    const minQuantity = minQuantityInput ? Number(minQuantityInput) : undefined;
+    const maxQuantity = maxQuantityInput ? Number(maxQuantityInput) : undefined;
 
     setSearchParams((prev) => ({
       ...prev,
-      minRecommendedCapacity: minCapacityLiters,
-      maxRecommendedCapacity: maxCapacityLiters,
+      minRecommendedQuantity: minQuantity,
+      maxRecommendedQuantity: maxQuantity,
       pageIndex: 1,
     }));
     setIsFilterModalOpen(false);
   };
 
   const handleResetFilters = () => {
-    setMinCapacityInput("");
-    setMaxCapacityInput("");
+    setMinQuantityInput("");
+    setMaxQuantityInput("");
 
     setSearchParams((prev) => ({
       ...prev,
-      minRecommendedCapacity: undefined,
-      maxRecommendedCapacity: undefined,
+      minRecommendedQuantity: undefined,
+      maxRecommendedQuantity: undefined,
       pageIndex: 1,
     }));
     setIsFilterModalOpen(false);
@@ -301,10 +309,13 @@ export default function PondTypeManagement() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="w-[5%]">STT</TableHead>
-                    <TableHead className="w-[20%]">Tên Loại Hồ</TableHead>
-                    <TableHead className="w-[20%]">Sức chứa (Lít)</TableHead>
-                    <TableHead className="w-[35%]">Mô tả</TableHead>
+                    <TableHead className="w-[4%]">STT</TableHead>
+                    <TableHead className="w-[18%]">Tên Loại Hồ</TableHead>
+                    <TableHead className="w-[15%]">Loại Hồ</TableHead>
+                    <TableHead className="w-[15%]">
+                      Sức chứa (Số lượng)
+                    </TableHead>
+                    <TableHead className="w-[28%]">Mô tả</TableHead>
                     <TableHead className="w-[20%] text-center">
                       Thao tác
                     </TableHead>
@@ -313,32 +324,37 @@ export default function PondTypeManagement() {
                 <TableBody>
                   {pondTypes.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={5} className="h-24 text-center">
+                      <TableCell colSpan={6} className="h-24 text-center">
                         Không tìm thấy loại hồ nào.
                       </TableCell>
                     </TableRow>
                   ) : (
-                    pondTypes.map((type, index) => (
-                      <TableRow key={type.id}>
+                    pondTypes.map((pondType, index) => (
+                      <TableRow key={pondType.id}>
                         <TableCell className="font-medium">
                           {index +
                             1 +
                             (searchParams.pageIndex - 1) *
                               searchParams.pageSize}
                         </TableCell>
-                        <TableCell>{type.typeName}</TableCell>
+                        <TableCell>{pondType.typeName}</TableCell>
                         <TableCell>
-                          {type.recommendedCapacity.toLocaleString()}
+                          <span
+                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getPondTypeLabel(pondType.type).colorClass}`}
+                          >
+                            {getPondTypeLabel(pondType.type).label}
+                          </span>
                         </TableCell>
+                        <TableCell>{pondType.recommendedQuantity}</TableCell>
                         <TableCell className="truncate">
-                          {type.description || "N/A"}
+                          {pondType.description || "N/A"}
                         </TableCell>
                         <TableCell className="text-center">
                           <div className="flex items-center justify-center gap-2">
                             <Button
                               variant="ghost"
                               size="icon"
-                              onClick={() => handleViewDetails(type)}
+                              onClick={() => handleViewDetails(pondType)}
                               title="Chi tiết"
                             >
                               <Eye className="h-4 w-4" />
@@ -346,7 +362,7 @@ export default function PondTypeManagement() {
                             <Button
                               variant="ghost"
                               size="icon"
-                              onClick={() => handleEditPondType(type)}
+                              onClick={() => handleEditPondType(pondType)}
                               title="Chỉnh sửa"
                             >
                               <Edit className="h-4 w-4" />
@@ -355,7 +371,7 @@ export default function PondTypeManagement() {
                               variant="ghost"
                               size="icon"
                               className="text-red-600 hover:text-red-800"
-                              onClick={() => handleDeletePondType(type)}
+                              onClick={() => handleDeletePondType(pondType)}
                               title="Xóa"
                               disabled={deletePondTypeMutation.isPending}
                             >
@@ -395,14 +411,14 @@ export default function PondTypeManagement() {
         onOpenChange={(open) => {
           setIsFilterModalOpen(open);
           if (!open) {
-            setMinCapacityInput(
-              searchParams.minRecommendedCapacity !== undefined
-                ? String(searchParams.minRecommendedCapacity)
+            setMinQuantityInput(
+              searchParams.minRecommendedQuantity !== undefined
+                ? String(searchParams.minRecommendedQuantity)
                 : "",
             );
-            setMaxCapacityInput(
-              searchParams.maxRecommendedCapacity !== undefined
-                ? String(searchParams.maxRecommendedCapacity)
+            setMaxQuantityInput(
+              searchParams.maxRecommendedQuantity !== undefined
+                ? String(searchParams.maxRecommendedQuantity)
                 : "",
             );
           }
@@ -418,26 +434,30 @@ export default function PondTypeManagement() {
           <div className="space-y-6">
             <div className="grid grid-cols-2 gap-4">
               <p className="text-sm font-semibold col-span-full mb-[-8px] text-muted-foreground">
-                Lọc theo Sức chứa đề xuất (Lít)
+                Lọc theo Sức chứa đề xuất (Số lượng)
               </p>
               <div className="space-y-2 col-span-1">
-                <Label htmlFor="minCapacity">Tối thiểu</Label>
-                <Input
-                  id="minCapacity"
-                  type="number"
+                <Label htmlFor="minQuantity">Tối thiểu</Label>
+                <InputNumber
+                  value={
+                    minQuantityInput ? Number(minQuantityInput) : undefined
+                  }
+                  onChange={(value) =>
+                    setMinQuantityInput(value ? String(value) : "")
+                  }
                   placeholder="Sức chứa min"
-                  value={minCapacityInput}
-                  onChange={(e) => setMinCapacityInput(e.target.value)}
                 />
               </div>
               <div className="space-y-2 col-span-1">
-                <Label htmlFor="maxCapacity">Tối đa</Label>
-                <Input
-                  id="maxCapacity"
-                  type="number"
+                <Label htmlFor="maxQuantity">Tối đa</Label>
+                <InputNumber
+                  value={
+                    maxQuantityInput ? Number(maxQuantityInput) : undefined
+                  }
+                  onChange={(value) =>
+                    setMaxQuantityInput(value ? String(value) : "")
+                  }
                   placeholder="Sức chứa max"
-                  value={maxCapacityInput}
-                  onChange={(e) => setMaxCapacityInput(e.target.value)}
                 />
               </div>
             </div>

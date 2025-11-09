@@ -1,6 +1,7 @@
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -8,6 +9,7 @@ import {
 import { PondFormState } from "./page";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { InputNumber } from "@/components/ui/input-number";
 import { Button } from "@/components/ui/button";
 import { ChevronRight, Loader2, Plus } from "lucide-react";
 
@@ -42,6 +44,9 @@ const AddPondModal = ({
         <DialogTitle className="text-xl font-semibold text-gray-800">
           Thêm hồ cá mới
         </DialogTitle>
+        <DialogDescription>
+          Nhập thông tin chi tiết về hồ cá mới
+        </DialogDescription>
       </DialogHeader>
       <div className="space-y-6">
         <div className="grid grid-cols-2 gap-4">
@@ -126,15 +131,18 @@ const AddPondModal = ({
             >
               Dài (m)
             </Label>
-            <Input
-              id="length"
-              placeholder="Dài (m)"
-              type="number"
-              step="0.1"
-              value={newPond.lengthMeters}
-              onChange={(e) =>
-                setNewPond({ ...newPond, lengthMeters: e.target.value })
+            <InputNumber
+              value={
+                newPond.lengthMeters ? Number(newPond.lengthMeters) : undefined
               }
+              onChange={(value) =>
+                setNewPond({
+                  ...newPond,
+                  lengthMeters: value ? String(value) : "",
+                })
+              }
+              placeholder="Dài (m)"
+              allowDecimal={true}
               className="border-2 border-gray-300 focus:border-blue-500"
             />
           </div>
@@ -145,15 +153,18 @@ const AddPondModal = ({
             >
               Rộng (m)
             </Label>
-            <Input
-              id="width"
-              placeholder="Rộng (m)"
-              type="number"
-              step="0.1"
-              value={newPond.widthMeters}
-              onChange={(e) =>
-                setNewPond({ ...newPond, widthMeters: e.target.value })
+            <InputNumber
+              value={
+                newPond.widthMeters ? Number(newPond.widthMeters) : undefined
               }
+              onChange={(value) =>
+                setNewPond({
+                  ...newPond,
+                  widthMeters: value ? String(value) : "",
+                })
+              }
+              placeholder="Rộng (m)"
+              allowDecimal={true}
               className="border-2 border-gray-300 focus:border-blue-500"
             />
           </div>
@@ -164,15 +175,18 @@ const AddPondModal = ({
             >
               Sâu (m)
             </Label>
-            <Input
-              id="depth"
-              placeholder="Độ sâu (m)"
-              type="number"
-              step="0.1"
-              value={newPond.depthMeters}
-              onChange={(e) =>
-                setNewPond({ ...newPond, depthMeters: e.target.value })
+            <InputNumber
+              value={
+                newPond.depthMeters ? Number(newPond.depthMeters) : undefined
               }
+              onChange={(value) =>
+                setNewPond({
+                  ...newPond,
+                  depthMeters: value ? String(value) : "",
+                })
+              }
+              placeholder="Độ sâu (m)"
+              allowDecimal={true}
               className="border-2 border-gray-300 focus:border-blue-500"
             />
           </div>
@@ -183,14 +197,20 @@ const AddPondModal = ({
             >
               Sức chứa (Lít)
             </Label>
-            <Input
-              id="capacity"
-              placeholder="Sức chứa (Lít)"
-              type="number"
-              value={newPond.capacityLiters}
-              onChange={(e) =>
-                setNewPond({ ...newPond, capacityLiters: e.target.value })
+            <InputNumber
+              value={
+                newPond.capacityLiters
+                  ? Number(newPond.capacityLiters)
+                  : undefined
               }
+              onChange={(value) =>
+                setNewPond({
+                  ...newPond,
+                  capacityLiters: value ? String(value) : "",
+                })
+              }
+              placeholder="Sức chứa (Lít)"
+              allowDecimal={true}
               className="border-2 border-gray-300 focus:border-blue-500"
             />
           </div>

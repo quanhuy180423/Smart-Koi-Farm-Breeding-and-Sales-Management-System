@@ -3,12 +3,14 @@ import { PondFormState } from "./page";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { InputNumber } from "@/components/ui/input-number";
 import { Button } from "@/components/ui/button";
 import { ChevronRight, Edit, Loader2 } from "lucide-react";
 import {
@@ -52,6 +54,9 @@ const EditPondModal = ({
         <DialogTitle className="text-xl font-semibold text-gray-800">
           Chỉnh sửa thông tin hồ: {editingPond?.pondName}
         </DialogTitle>
+        <DialogDescription>
+          Cập nhật thông tin chi tiết về hồ cá
+        </DialogDescription>
       </DialogHeader>
       {editingPond && (
         <div className="space-y-6">
@@ -139,18 +144,20 @@ const EditPondModal = ({
               >
                 Dài (m)
               </Label>
-              <Input
-                id="edit-length"
-                placeholder="Dài (m)"
-                type="number"
-                step="0.1"
-                value={editPondForm.lengthMeters}
-                onChange={(e) =>
+              <InputNumber
+                value={
+                  editPondForm.lengthMeters
+                    ? Number(editPondForm.lengthMeters)
+                    : undefined
+                }
+                onChange={(value) =>
                   setEditPondForm({
                     ...editPondForm,
-                    lengthMeters: e.target.value,
+                    lengthMeters: value ? String(value) : "",
                   })
                 }
+                placeholder="Dài (m)"
+                allowDecimal={true}
                 className="border-2 border-gray-300 focus:border-blue-500"
               />
             </div>
@@ -161,18 +168,20 @@ const EditPondModal = ({
               >
                 Rộng (m)
               </Label>
-              <Input
-                id="edit-width"
-                placeholder="Rộng (m)"
-                type="number"
-                step="0.1"
-                value={editPondForm.widthMeters}
-                onChange={(e) =>
+              <InputNumber
+                value={
+                  editPondForm.widthMeters
+                    ? Number(editPondForm.widthMeters)
+                    : undefined
+                }
+                onChange={(value) =>
                   setEditPondForm({
                     ...editPondForm,
-                    widthMeters: e.target.value,
+                    widthMeters: value ? String(value) : "",
                   })
                 }
+                placeholder="Rộng (m)"
+                allowDecimal={true}
                 className="border-2 border-gray-300 focus:border-blue-500"
               />
             </div>
@@ -183,18 +192,20 @@ const EditPondModal = ({
               >
                 Sâu (m)
               </Label>
-              <Input
-                id="edit-depth"
-                placeholder="Độ sâu (m)"
-                type="number"
-                step="0.1"
-                value={editPondForm.depthMeters}
-                onChange={(e) =>
+              <InputNumber
+                value={
+                  editPondForm.depthMeters
+                    ? Number(editPondForm.depthMeters)
+                    : undefined
+                }
+                onChange={(value) =>
                   setEditPondForm({
                     ...editPondForm,
-                    depthMeters: e.target.value,
+                    depthMeters: value ? String(value) : "",
                   })
                 }
+                placeholder="Độ sâu (m)"
+                allowDecimal={true}
                 className="border-2 border-gray-300 focus:border-blue-500"
               />
             </div>
@@ -205,17 +216,20 @@ const EditPondModal = ({
               >
                 Sức chứa (Lít)
               </Label>
-              <Input
-                id="edit-capacity"
-                placeholder="Sức chứa (Lít)"
-                type="number"
-                value={editPondForm.capacityLiters}
-                onChange={(e) =>
+              <InputNumber
+                value={
+                  editPondForm.capacityLiters
+                    ? Number(editPondForm.capacityLiters)
+                    : undefined
+                }
+                onChange={(value) =>
                   setEditPondForm({
                     ...editPondForm,
-                    capacityLiters: e.target.value,
+                    capacityLiters: value ? String(value) : "",
                   })
                 }
+                placeholder="Sức chứa (Lít)"
+                allowDecimal={true}
                 className="border-2 border-gray-300 focus:border-blue-500"
               />
             </div>

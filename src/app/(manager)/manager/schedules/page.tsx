@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   Card,
   CardContent,
@@ -10,18 +11,9 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import {
-  Plus,
-  Search,
-  Calendar,
-  Edit,
-  Trash2,
-  Eye,
-  Clock,
-  Users,
-  CheckCircle,
-} from "lucide-react";
+import { InputNumber } from "@/components/ui/input-number";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Plus, Search, Edit, Eye, Trash2, Repeat, Loader2 } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -31,13 +23,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
   Dialog,
   DialogContent,
   DialogHeader,
@@ -45,243 +30,238 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { formatDate } from "@/lib/utils/dates";
+import {
+  TaskTemplateResponse,
+  TaskTemplatePagedRequest,
+} from "@/lib/api/services/fetchTaskTemplate";
+import {
+  useGetTaskTemplates,
+  useCreateTaskTemplate,
+  useUpdateTaskTemplate,
+  useDeleteTaskTemplate,
+} from "@/hooks/useTaskTemplate";
+import {
+  useGetWeeklyScheduleTemplates,
+  useDeleteWeeklyScheduleTemplate,
+} from "@/hooks/useWeeklyScheduleTemplate";
+import { useGetWorkSchedules } from "@/hooks/useWorkSchedule";
+import {
+  PaginationSection,
+  PAGE_SIZE_OPTIONS_DEFAULT,
+} from "@/components/common/PaginationSection";
+import { useDebounce } from "@/hooks/useDebounce";
+import DeleteTaskTemplateConfirmDialog from "./DeleteTaskTemplateConfirmDialog";
+import DeleteWeeklyScheduleConfirmDialog from "./DeleteWeeklyScheduleConfirmDialog";
+import TaskTemplateDetailModal from "./TaskTemplateDetailModal";
+import WeeklyScheduleCalendarView from "./WeeklyScheduleCalendarView";
+import WeeklyWorkScheduleView from "./WeeklyWorkScheduleView";
+import GenerateWorkScheduleModal from "./GenerateWorkScheduleModal";
+import toast from "react-hot-toast";
 
-interface Schedule {
-  id: string;
-  employeeName: string;
-  employeeId: string;
-  role: string;
-  task: string;
-  date: string;
-  startTime: string;
-  endTime: string;
-  status: ScheduleStatus;
-  priority: SchedulePriority;
-  notes: string;
+interface TaskTemplateForm {
+  taskName: string;
+  description: string;
+  defaultDuration: number;
+  notesTask: string | null;
 }
-
-interface NewScheduleForm {
-  employeeName: string;
-  employeeId: string;
-  role: string;
-  task: string;
-  date: string;
-  startTime: string;
-  endTime: string;
-  priority: string;
-  notes: string;
-}
-
-type ScheduleStatus = "completed" | "in-progress" | "not-started" | "overdue";
-type SchedulePriority = "high" | "medium" | "low";
-
-const scheduleData: Schedule[] = [
-  {
-    id: "SCH001",
-    employeeName: "Nguyễn Văn An",
-    employeeId: "EMP001",
-    role: "Nhân viên chăm sóc",
-    task: "Cho cá ăn hồ A1-A3",
-    date: "2024-03-20",
-    startTime: "06:00",
-    endTime: "08:00",
-    status: "completed",
-    priority: "high",
-    notes: "Đã cho ăn đủ liều và kiểm tra sức khỏe cá",
-  },
-  {
-    id: "SCH002",
-    employeeName: "Trần Thị Bình",
-    employeeId: "EMP002",
-    role: "Nhân viên kỹ thuật",
-    task: "Vệ sinh hồ B1",
-    date: "2024-03-20",
-    startTime: "08:30",
-    endTime: "11:30",
-    status: "in-progress",
-    priority: "medium",
-    notes: "Thay nước và vệ sinh thiết bị lọc",
-  },
-  {
-    id: "SCH003",
-    employeeName: "Lê Văn Cường",
-    employeeId: "EMP003",
-    role: "Nhân viên chăm sóc",
-    task: "Kiểm tra chất lượng nước tất cả hồ",
-    date: "2024-03-20",
-    startTime: "14:00",
-    endTime: "16:00",
-    status: "not-started",
-    priority: "high",
-    notes: "Đo pH, oxy, nhiệt độ và ghi chép báo cáo",
-  },
-  {
-    id: "SCH004",
-    employeeName: "Phạm Thị Dung",
-    employeeId: "EMP004",
-    role: "Nhân viên y tế",
-    task: "Kiểm tra sức khỏe cá hồ C1",
-    date: "2024-03-21",
-    startTime: "07:00",
-    endTime: "09:00",
-    status: "not-started",
-    priority: "high",
-    notes: "Phát hiện dấu hiệu bệnh và điều trị kịp thời",
-  },
-  {
-    id: "SCH005",
-    employeeName: "Hoàng Văn Em",
-    employeeId: "EMP005",
-    role: "Nhân viên bảo trì",
-    task: "Bảo trì máy lọc hồ A2",
-    date: "2024-03-21",
-    startTime: "13:00",
-    endTime: "15:30",
-    status: "not-started",
-    priority: "medium",
-    notes: "Vệ sinh và thay thế phụ tung máy lọc",
-  },
-];
-
-const getStatusBadge = (status: string) => {
-  switch (status) {
-    case "completed":
-      return (
-        <Badge
-          variant="default"
-          className="bg-green-100 text-green-800 text-sm"
-        >
-          Hoàn thành
-        </Badge>
-      );
-    case "in-progress":
-      return (
-        <Badge variant="default" className="bg-blue-100 text-blue-800 text-sm">
-          Đang làm
-        </Badge>
-      );
-    case "not-started":
-      return (
-        <Badge variant="secondary" className="text-sm">
-          Chưa bắt đầu
-        </Badge>
-      );
-    case "overdue":
-      return (
-        <Badge variant="destructive" className="text-sm">
-          Trễ
-        </Badge>
-      );
-    default:
-      return (
-        <Badge variant="outline" className="text-sm">
-          {status}
-        </Badge>
-      );
-  }
-};
-
-const getPriorityBadge = (priority: string) => {
-  switch (priority) {
-    case "high":
-      return (
-        <Badge variant="destructive" className="text-sm">
-          Cao
-        </Badge>
-      );
-    case "medium":
-      return (
-        <Badge
-          variant="default"
-          className="bg-yellow-100 text-yellow-800 text-sm"
-        >
-          Trung bình
-        </Badge>
-      );
-    case "low":
-      return (
-        <Badge variant="secondary" className="text-sm">
-          Thấp
-        </Badge>
-      );
-    default:
-      return (
-        <Badge variant="outline" className="text-sm">
-          {priority}
-        </Badge>
-      );
-  }
-};
 
 export default function ScheduleManagement() {
+  const router = useRouter();
+  const searchParamsObj = useSearchParams();
+  const [activeTab, setActiveTab] = useState<string>(() => {
+    return searchParamsObj.get("tab") || "tasks";
+  });
   const [searchTerm, setSearchTerm] = useState<string>("");
-  const [statusFilter, setStatusFilter] = useState<string>("all");
-  const [dateFilter, setDateFilter] = useState<string>("all");
-  const [selectedSchedule, setSelectedSchedule] = useState<Schedule | null>(
-    null,
-  );
-  const [isDetailModalOpen, setIsDetailModalOpen] = useState<boolean>(false);
-  const [isAddModalOpen, setIsAddModalOpen] = useState<boolean>(false);
-  const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false);
-  const [editingSchedule, setEditingSchedule] = useState<Schedule | null>(null);
-  const [newSchedule, setNewSchedule] = useState<NewScheduleForm>({
-    employeeName: "",
-    employeeId: "",
-    role: "",
-    task: "",
-    date: "",
-    startTime: "",
-    endTime: "",
-    priority: "",
-    notes: "",
+  const debouncedSearchTerm = useDebounce(searchTerm, 500);
+  const [currentDate, setCurrentDate] = useState<Date>(new Date());
+
+  const [searchParams, setSearchParams] = useState<TaskTemplatePagedRequest>({
+    pageIndex: 1,
+    pageSize: PAGE_SIZE_OPTIONS_DEFAULT[0],
+    search: "",
+    isDeleted: false,
   });
 
-  const filteredSchedules = scheduleData.filter((schedule) => {
-    const matchesSearch =
-      schedule.employeeName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      schedule.task.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      schedule.employeeId.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus =
-      statusFilter === "all" || schedule.status === statusFilter;
-    const matchesDate = dateFilter === "all" || schedule.date === dateFilter;
-    return matchesSearch && matchesStatus && matchesDate;
-  });
+  // Calculate week boundaries for work schedule
+  const getWeekBoundaries = (date: Date) => {
+    const weekStart = new Date(date);
+    const day = weekStart.getDay();
+    const diff = weekStart.getDate() - day + (day === 0 ? -6 : 1);
+    weekStart.setDate(diff);
 
-  const handleViewDetails = (schedule: Schedule) => {
-    setSelectedSchedule(schedule);
-    setIsDetailModalOpen(true);
+    const weekEnd = new Date(weekStart);
+    weekEnd.setDate(weekEnd.getDate() + 6);
+
+    return {
+      from: weekStart.toISOString().split("T")[0],
+      to: weekEnd.toISOString().split("T")[0],
+    };
   };
 
-  const handleAddSchedule = () => {
-    setIsAddModalOpen(false);
-    setNewSchedule({
-      employeeName: "",
-      employeeId: "",
-      role: "",
-      task: "",
-      date: "",
-      startTime: "",
-      endTime: "",
-      priority: "",
-      notes: "",
+  const weekBoundaries = getWeekBoundaries(currentDate);
+
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
+  const [isDeleteWeeklyConfirmOpen, setIsDeleteWeeklyConfirmOpen] =
+    useState(false);
+  const [isGenerateModalOpen, setIsGenerateModalOpen] = useState(false);
+  const [editingTask, setEditingTask] = useState<TaskTemplateResponse | null>(
+    null,
+  );
+  const [selectedTask, setSelectedTask] = useState<TaskTemplateResponse | null>(
+    null,
+  );
+  const [taskToDelete, setTaskToDelete] = useState<TaskTemplateResponse | null>(
+    null,
+  );
+  const [weeklyScheduleToDelete, setWeeklyScheduleToDelete] = useState<{
+    id: number;
+    name: string;
+  } | null>(null);
+  const [newTask, setNewTask] = useState<TaskTemplateForm>({
+    taskName: "",
+    description: "",
+    defaultDuration: 30,
+    notesTask: null,
+  });
+  const [selectedPondId, setSelectedPondId] = useState<number | null>(null);
+
+  // Update search params when debounced search term changes
+  useEffect(() => {
+    setSearchParams((prev) => ({
+      ...prev,
+      search: debouncedSearchTerm,
+      pageIndex: 1,
+    }));
+  }, [debouncedSearchTerm]);
+
+  // API Queries and Mutations
+  const { data: pagedResponse, isLoading } = useGetTaskTemplates(searchParams);
+  const { data: weeklyTemplates = [], isLoading: isWeeklyLoading } =
+    useGetWeeklyScheduleTemplates();
+  const { data: workSchedules = [], isLoading: isWorkSchedulesLoading } =
+    useGetWorkSchedules({
+      scheduledDateFrom: weekBoundaries.from,
+      scheduledDateTo: weekBoundaries.to,
+      pondId: selectedPondId || undefined,
+    });
+
+  const createMutation = useCreateTaskTemplate();
+  const updateMutation = useUpdateTaskTemplate();
+  const deleteMutation = useDeleteTaskTemplate();
+  const deleteWeeklyMutation = useDeleteWeeklyScheduleTemplate();
+
+  const taskTemplates = pagedResponse?.data || [];
+  const totalPages = pagedResponse?.totalPages || 0;
+  const totalItems = pagedResponse?.totalItems || 0;
+  const isSaving =
+    createMutation.isPending ||
+    updateMutation.isPending ||
+    deleteMutation.isPending;
+
+  const handleSetCurrentPage = (page: number) => {
+    setSearchParams((prev) => ({ ...prev, pageIndex: page }));
+  };
+
+  const handleSetPageSize = (size: number) => {
+    setSearchParams((prev) => ({ ...prev, pageSize: size, pageIndex: 1 }));
+  };
+
+  const handleDeleteWeeklySchedule = (id: number, name: string) => {
+    setWeeklyScheduleToDelete({ id, name });
+    setIsDeleteWeeklyConfirmOpen(true);
+  };
+
+  const handleConfirmDeleteWeeklySchedule = () => {
+    if (weeklyScheduleToDelete) {
+      deleteWeeklyMutation.mutate(weeklyScheduleToDelete.id, {
+        onSuccess: () => {
+          setIsDeleteWeeklyConfirmOpen(false);
+          setWeeklyScheduleToDelete(null);
+        },
+        onError: () => {
+          setIsDeleteWeeklyConfirmOpen(false);
+        },
+      });
+    }
+  };
+
+  const handleAddTask = () => {
+    if (!newTask.taskName.trim() || !newTask.description.trim()) {
+      toast.error("Vui lòng điền đầy đủ thông tin");
+      return;
+    }
+
+    createMutation.mutate(newTask, {
+      onSuccess: () => {
+        setIsAddModalOpen(false);
+        setNewTask({
+          taskName: "",
+          description: "",
+          defaultDuration: 30,
+          notesTask: null,
+        });
+      },
     });
   };
 
-  const handleEditSchedule = (schedule: Schedule) => {
-    setEditingSchedule(schedule);
+  const handleViewDetails = (task: TaskTemplateResponse) => {
+    setSelectedTask(task);
+    setIsDetailModalOpen(true);
+  };
+
+  const handleEditTask = (task: TaskTemplateResponse) => {
+    setEditingTask(task);
     setIsEditModalOpen(true);
   };
 
-  const handleUpdateSchedule = () => {
-    setIsEditModalOpen(false);
-    setEditingSchedule(null);
+  const handleUpdateTask = () => {
+    if (!editingTask) return;
+
+    if (!editingTask.taskName.trim() || !editingTask.description.trim()) {
+      toast.error("Vui lòng điền đầy đủ thông tin");
+      return;
+    }
+
+    updateMutation.mutate(
+      {
+        id: editingTask.id,
+        data: {
+          taskName: editingTask.taskName,
+          description: editingTask.description,
+          defaultDuration: editingTask.defaultDuration,
+          notesTask: editingTask.notesTask,
+        },
+      },
+      {
+        onSuccess: () => {
+          setIsEditModalOpen(false);
+          setEditingTask(null);
+        },
+      },
+    );
   };
 
-  const today = new Date().toISOString().split("T")[0];
-  const tomorrow = new Date();
-  tomorrow.setDate(tomorrow.getDate() + 1);
-  const tomorrowStr = tomorrow.toISOString().split("T")[0];
+  const handleDeleteTask = (task: TaskTemplateResponse) => {
+    setTaskToDelete(task);
+    setIsDeleteConfirmOpen(true);
+  };
+
+  const handleConfirmDelete = () => {
+    if (taskToDelete) {
+      deleteMutation.mutate(taskToDelete.id, {
+        onSuccess: () => {
+          setIsDeleteConfirmOpen(false);
+          setTaskToDelete(null);
+        },
+        onError: () => {
+          setIsDeleteConfirmOpen(false);
+        },
+      });
+    }
+  };
 
   return (
     <div className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8 max-w-full overflow-hidden">
@@ -291,721 +271,481 @@ export default function ScheduleManagement() {
             Quản lý lịch làm việc
           </h1>
           <p className="text-muted-foreground">
-            Phân công và theo dõi lịch làm việc của nhân viên
+            Quản lý công việc, mẫu lịch và phân công nhân viên
           </p>
         </div>
-        <Button onClick={() => setIsAddModalOpen(true)}>
-          <Plus className="mr-2 h-4 w-4" />
-          Tạo lịch làm việc
-        </Button>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Tổng công việc
-            </CardTitle>
-            <Calendar className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{scheduleData.length}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Hoàn thành</CardTitle>
-            <CheckCircle className="h-4 w-4 text-green-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {scheduleData.filter((s) => s.status === "completed").length}
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Đang thực hiện
-            </CardTitle>
-            <Clock className="h-4 w-4 text-blue-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {scheduleData.filter((s) => s.status === "in-progress").length}
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Nhân viên</CardTitle>
-            <Users className="h-4 w-4 text-purple-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {new Set(scheduleData.map((s) => s.employeeId)).size}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Schedule Table */}
+      {/* Tabs */}
       <Card>
         <CardHeader>
-          <CardTitle>Lịch làm việc nhân viên</CardTitle>
+          <CardTitle>Lịch làm việc</CardTitle>
           <CardDescription>
-            Theo dõi và quản lý công việc được phân công cho nhân viên
+            Quản lý các khía cạnh khác nhau của lịch làm việc trang trại
           </CardDescription>
         </CardHeader>
         <CardContent className="p-4">
-          <div className="border rounded-lg p-3 mb-4 bg-muted/10">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
-              {/* Search */}
-              <div className="relative md:col-span-2">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-3 w-3 text-muted-foreground" />
-                <Input
-                  placeholder="Tìm kiếm theo tên NV hoặc công việc..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="border-2 border-gray-400 pl-9 h-8 text-sm"
-                />
+          <Tabs
+            value={activeTab}
+            onValueChange={(tab) => {
+              setActiveTab(tab);
+              router.push(`/manager/schedules?tab=${tab}`);
+            }}
+          >
+            <TabsList className="grid grid-cols-3 gap-3 bg-transparent p-0 h-auto w-full">
+              <TabsTrigger value="tasks">Công việc</TabsTrigger>
+              <TabsTrigger value="template">Mẫu lịch trong tuần</TabsTrigger>
+              <TabsTrigger value="assignment">Phân công</TabsTrigger>
+            </TabsList>
+
+            {/* Tab: Công việc */}
+            <TabsContent value="tasks" className="mt-6 space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="flex-1">
+                  <div className="relative w-full pr-2">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      placeholder="Tìm kiếm công việc..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="border-2 border-gray-400 pl-10"
+                    />
+                  </div>
+                </div>
+                <Button onClick={() => setIsAddModalOpen(true)}>
+                  <Plus className="mr-2 h-4 w-4" />
+                  Tạo công việc
+                </Button>
               </div>
 
-              {/* Status Filter */}
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="border-2 w-full border-gray-400 h-8 text-sm">
-                  <SelectValue placeholder="Lọc theo trạng thái" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Tất cả trạng thái</SelectItem>
-                  <SelectItem value="completed">Hoàn thành</SelectItem>
-                  <SelectItem value="in-progress">Đang thực hiện</SelectItem>
-                  <SelectItem value="not-started">Chưa bắt đầu</SelectItem>
-                  <SelectItem value="overdue">Trễ</SelectItem>
-                </SelectContent>
-              </Select>
+              {/* Tasks Table */}
+              <div className="border rounded-lg overflow-hidden">
+                {isLoading ? (
+                  <div className="flex items-center justify-center py-12">
+                    <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                  </div>
+                ) : (
+                  <div className="w-full overflow-x-auto">
+                    <Table className="w-full">
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead className="w-12 text-center px-2">
+                            STT
+                          </TableHead>
+                          <TableHead className="px-3 py-3 min-w-[200px]">
+                            Tên công việc
+                          </TableHead>
+                          <TableHead className="px-3 py-3 hidden sm:table-cell min-w-[250px]">
+                            Mô tả
+                          </TableHead>
+                          <TableHead className="w-24 text-center px-2">
+                            Thời lượng
+                          </TableHead>
+                          <TableHead className="w-32 text-center px-2">
+                            Thao tác
+                          </TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {taskTemplates.length > 0 ? (
+                          taskTemplates.map((task, index) => (
+                            <TableRow
+                              key={task.id}
+                              className="hover:bg-muted/50"
+                            >
+                              <TableCell className="w-12 text-center font-medium text-xs px-2 py-3">
+                                {index +
+                                  1 +
+                                  (searchParams.pageIndex - 1) *
+                                    searchParams.pageSize}
+                              </TableCell>
+                              <TableCell className="px-3 py-3 min-w-[200px]">
+                                <div className="flex flex-col gap-1">
+                                  <p className="font-medium text-sm">
+                                    {task.taskName}
+                                  </p>
+                                  <p
+                                    className="text-xs text-muted-foreground sm:hidden truncate"
+                                    title={task.description}
+                                  >
+                                    {task.description}
+                                  </p>
+                                </div>
+                              </TableCell>
+                              <TableCell className="px-3 py-3 hidden sm:table-cell min-w-[250px]">
+                                <div
+                                  className="text-sm truncate"
+                                  title={task.description}
+                                >
+                                  {task.description}
+                                </div>
+                              </TableCell>
+                              <TableCell className="w-24 text-center text-sm px-2 py-3 whitespace-nowrap">
+                                {task.defaultDuration} phút
+                              </TableCell>
+                              <TableCell className="w-32 px-2 py-3">
+                                <div className="flex items-center justify-center gap-1">
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => handleViewDetails(task)}
+                                    className="h-8 w-8 p-0"
+                                    title="Chi tiết"
+                                  >
+                                    <Eye className="h-4 w-4" />
+                                  </Button>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => handleEditTask(task)}
+                                    disabled={isSaving}
+                                    className="h-8 w-8 p-0"
+                                    title="Chỉnh sửa"
+                                  >
+                                    <Edit className="h-4 w-4" />
+                                  </Button>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => handleDeleteTask(task)}
+                                    disabled={isSaving}
+                                    className="text-red-600 h-8 w-8 p-0 hover:bg-red-50"
+                                    title="Xóa"
+                                  >
+                                    <Trash2 className="h-4 w-4" />
+                                  </Button>
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          ))
+                        ) : (
+                          <TableRow>
+                            <TableCell
+                              colSpan={7}
+                              className="text-center text-muted-foreground py-8"
+                            >
+                              Không có công việc nào
+                            </TableCell>
+                          </TableRow>
+                        )}
+                      </TableBody>
+                    </Table>
+                  </div>
+                )}
+              </div>
 
-              {/* Date Filter */}
-              <Select value={dateFilter} onValueChange={setDateFilter}>
-                <SelectTrigger className="border-2 w-full border-gray-400 h-8 text-sm">
-                  <SelectValue placeholder="Lọc theo ngày" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Tất cả ngày</SelectItem>
-                  <SelectItem value={today}>Hôm nay</SelectItem>
-                  <SelectItem value={tomorrowStr}>Ngày mai</SelectItem>
-                  <SelectItem value="2024-03-20">20/03/2024</SelectItem>
-                  <SelectItem value="2024-03-21">21/03/2024</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
+              {/* Pagination */}
+              {totalItems > 0 && (
+                <PaginationSection
+                  totalItems={totalItems}
+                  postsPerPage={searchParams.pageSize}
+                  currentPage={searchParams.pageIndex}
+                  setCurrentPage={handleSetCurrentPage}
+                  totalPages={totalPages}
+                  setPageSize={handleSetPageSize}
+                  hasNextPage={pagedResponse?.hasNextPage}
+                  hasPreviousPage={pagedResponse?.hasPreviousPage}
+                />
+              )}
+            </TabsContent>
 
-          <div className="w-full">
-            <Table className="table-fixed w-full">
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-10 text-center">STT</TableHead>
-                  <TableHead className="w-28">Nhân viên</TableHead>
-                  <TableHead className="w-40">Công việc</TableHead>
-                  <TableHead className="w-20">Ngày</TableHead>
-                  <TableHead className="w-24">Thời gian</TableHead>
-                  <TableHead className="w-16">Ưu tiên</TableHead>
-                  <TableHead className="w-20">Trạng thái</TableHead>
-                  <TableHead className="w-20">Thao tác</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredSchedules.map((schedule, index) => (
-                  <TableRow key={schedule.id}>
-                    <TableCell className="font-medium text-sm p-2 text-center">
-                      {index + 1}
-                    </TableCell>
-                    <TableCell className="p-2">
-                      <div className="font-medium text-sm truncate">
-                        {schedule.employeeName}
-                      </div>
-                    </TableCell>
-                    <TableCell className="p-2">
-                      <div className="truncate text-sm" title={schedule.task}>
-                        {schedule.task}
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-sm p-2">
-                      {formatDate(schedule.date, "dd/MM/yyyy")}
-                    </TableCell>
-                    <TableCell className="text-sm p-2 whitespace-nowrap">
-                      {schedule.startTime} - {schedule.endTime}
-                    </TableCell>
-                    <TableCell className="p-2">
-                      {getPriorityBadge(schedule.priority)}
-                    </TableCell>
-                    <TableCell className="p-2">
-                      {getStatusBadge(schedule.status)}
-                    </TableCell>
-                    <TableCell className="p-2">
-                      <div className="flex items-center gap-1">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleViewDetails(schedule)}
-                          className="h-7 w-7 p-0"
-                        >
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleEditSchedule(schedule)}
-                          className="h-7 w-7 p-0"
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="text-red-600 h-7 w-7 p-0"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
+            {/* Tab: Mẫu lịch trong tuần */}
+            <TabsContent value="template" className="mt-6 space-y-4">
+              <div className="flex items-center justify-between">
+                <h2 className="text-lg font-semibold text-gray-800">
+                  Danh sách mẫu lịch
+                </h2>
+                <Button onClick={() => router.push("/manager/schedules/new")}>
+                  <Plus className="mr-2 h-4 w-4" />
+                  Tạo mẫu lịch
+                </Button>
+              </div>
+              <WeeklyScheduleCalendarView
+                templates={weeklyTemplates}
+                isLoading={isWeeklyLoading}
+                onDelete={handleDeleteWeeklySchedule}
+              />
+            </TabsContent>
+
+            {/* Tab: Phân công */}
+            <TabsContent value="assignment" className="mt-6 space-y-4">
+              <div className="flex justify-end">
+                <Button
+                  onClick={() => setIsGenerateModalOpen(true)}
+                  className="bg-indigo-500 hover:bg-indigo-600"
+                >
+                  <Repeat className="h-4 w-4 mr-2" />
+                  Tạo lịch từ mẫu
+                </Button>
+              </div>
+              <WeeklyWorkScheduleView
+                workSchedules={workSchedules}
+                isLoading={isWorkSchedulesLoading}
+                currentDate={currentDate}
+                onDateChange={setCurrentDate}
+                selectedPondId={selectedPondId}
+                onPondChange={setSelectedPondId}
+              />
+            </TabsContent>
+          </Tabs>
         </CardContent>
       </Card>
 
-      {/* View Details Modal */}
-      <Dialog open={isDetailModalOpen} onOpenChange={setIsDetailModalOpen}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="text-xl font-semibold text-gray-800">
-              Chi tiết lịch làm việc
-            </DialogTitle>
-          </DialogHeader>
-          {selectedSchedule && (
-            <div className="space-y-6">
-              <div className="grid grid-cols-2 gap-6">
-                <div className="space-y-4">
-                  <div>
-                    <Label className="text-sm font-medium text-gray-600">
-                      Nhân viên
-                    </Label>
-                    <p className="text-base font-semibold text-gray-800">
-                      {selectedSchedule.employeeName}
-                    </p>
-                    <p className="text-sm text-gray-500">
-                      {selectedSchedule.employeeId}
-                    </p>
-                  </div>
-                  <div>
-                    <Label className="text-sm font-medium text-gray-600">
-                      Chức vụ
-                    </Label>
-                    <p className="text-base text-gray-800">
-                      {selectedSchedule.role}
-                    </p>
-                  </div>
-                  <div>
-                    <Label className="text-sm font-medium text-gray-600">
-                      Công việc
-                    </Label>
-                    <p className="text-base text-gray-800">
-                      {selectedSchedule.task}
-                    </p>
-                  </div>
-                </div>
-                <div className="space-y-4">
-                  <div>
-                    <Label className="text-sm font-medium text-gray-600">
-                      Ngày thực hiện
-                    </Label>
-                    <p className="text-base text-gray-800">
-                      {formatDate(selectedSchedule.date, "dd/MM/yyyy")}
-                    </p>
-                  </div>
-                  <div>
-                    <Label className="text-sm font-medium text-gray-600">
-                      Thời gian
-                    </Label>
-                    <p className="text-base text-gray-800">
-                      {selectedSchedule.startTime} - {selectedSchedule.endTime}
-                    </p>
-                  </div>
-                  <div>
-                    <Label className="text-sm font-medium text-gray-600">
-                      Độ ưu tiên
-                    </Label>
-                    <div className="mt-1">
-                      {getPriorityBadge(selectedSchedule.priority)}
-                    </div>
-                  </div>
-                  <div>
-                    <Label className="text-sm font-medium text-gray-600">
-                      Trạng thái
-                    </Label>
-                    <div className="mt-1">
-                      {getStatusBadge(selectedSchedule.status)}
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div>
-                <Label className="text-sm font-medium text-gray-600">
-                  Ghi chú
-                </Label>
-                <p className="text-base text-gray-800 mt-1">
-                  {selectedSchedule.notes}
-                </p>
-              </div>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
-
-      {/* Add New Schedule Modal */}
+      {/* Add Task Modal */}
       <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="text-xl font-semibold text-gray-800">
-              Tạo lịch làm việc mới
+            <DialogTitle className="text-xl font-semibold">
+              Tạo công việc mới
             </DialogTitle>
           </DialogHeader>
-          <div className="space-y-6">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label
-                  htmlFor="employeeName"
-                  className="text-sm font-medium text-gray-700"
-                >
-                  Tên nhân viên *
-                </Label>
-                <Input
-                  id="employeeName"
-                  placeholder="Nhập tên nhân viên..."
-                  value={newSchedule.employeeName}
-                  onChange={(e) =>
-                    setNewSchedule({
-                      ...newSchedule,
-                      employeeName: e.target.value,
-                    })
-                  }
-                  className="border-2 border-gray-300 focus:border-blue-500"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label
-                  htmlFor="employeeId"
-                  className="text-sm font-medium text-gray-700"
-                >
-                  Mã nhân viên *
-                </Label>
-                <Input
-                  id="employeeId"
-                  placeholder="VD: EMP001"
-                  value={newSchedule.employeeId}
-                  onChange={(e) =>
-                    setNewSchedule({
-                      ...newSchedule,
-                      employeeId: e.target.value,
-                    })
-                  }
-                  className="border-2 border-gray-300 focus:border-blue-500"
-                />
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label
-                  htmlFor="role"
-                  className="text-sm font-medium text-gray-700"
-                >
-                  Chức vụ *
-                </Label>
-                <Input
-                  id="role"
-                  placeholder="VD: Nhân viên chăm sóc"
-                  value={newSchedule.role}
-                  onChange={(e) =>
-                    setNewSchedule({ ...newSchedule, role: e.target.value })
-                  }
-                  className="border-2 border-gray-300 focus:border-blue-500"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label
-                  htmlFor="priority"
-                  className="text-sm font-medium text-gray-700"
-                >
-                  Độ ưu tiên *
-                </Label>
-                <Select
-                  value={newSchedule.priority}
-                  onValueChange={(value) =>
-                    setNewSchedule({ ...newSchedule, priority: value })
-                  }
-                >
-                  <SelectTrigger className="border-2 border-gray-300 focus:border-blue-500 w-full">
-                    <SelectValue placeholder="Chọn độ ưu tiên" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="high">Cao</SelectItem>
-                    <SelectItem value="medium">Trung bình</SelectItem>
-                    <SelectItem value="low">Thấp</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
+          <div className="space-y-4">
             <div className="space-y-2">
-              <Label
-                htmlFor="task"
-                className="text-sm font-medium text-gray-700"
-              >
-                Công việc *
+              <Label htmlFor="taskName" className="text-sm font-medium">
+                Tên công việc *
               </Label>
               <Input
-                id="task"
-                placeholder="Mô tả công việc cần thực hiện..."
-                value={newSchedule.task}
+                id="taskName"
+                placeholder="VD: Cho cá ăn buổi sáng"
+                value={newTask.taskName}
                 onChange={(e) =>
-                  setNewSchedule({ ...newSchedule, task: e.target.value })
+                  setNewTask({ ...newTask, taskName: e.target.value })
                 }
                 className="border-2 border-gray-300 focus:border-blue-500"
               />
             </div>
-            <div className="grid grid-cols-3 gap-4">
-              <div className="space-y-2">
-                <Label
-                  htmlFor="date"
-                  className="text-sm font-medium text-gray-700"
-                >
-                  Ngày *
-                </Label>
-                <Input
-                  id="date"
-                  type="date"
-                  value={newSchedule.date}
-                  onChange={(e) =>
-                    setNewSchedule({ ...newSchedule, date: e.target.value })
-                  }
-                  className="border-2 border-gray-300 focus:border-blue-500"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label
-                  htmlFor="startTime"
-                  className="text-sm font-medium text-gray-700"
-                >
-                  Giờ bắt đầu *
-                </Label>
-                <Input
-                  id="startTime"
-                  type="time"
-                  value={newSchedule.startTime}
-                  onChange={(e) =>
-                    setNewSchedule({
-                      ...newSchedule,
-                      startTime: e.target.value,
-                    })
-                  }
-                  className="border-2 border-gray-300 focus:border-blue-500"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label
-                  htmlFor="endTime"
-                  className="text-sm font-medium text-gray-700"
-                >
-                  Giờ kết thúc *
-                </Label>
-                <Input
-                  id="endTime"
-                  type="time"
-                  value={newSchedule.endTime}
-                  onChange={(e) =>
-                    setNewSchedule({ ...newSchedule, endTime: e.target.value })
-                  }
-                  className="border-2 border-gray-300 focus:border-blue-500"
-                />
-              </div>
-            </div>
+
             <div className="space-y-2">
-              <Label
-                htmlFor="notes"
-                className="text-sm font-medium text-gray-700"
-              >
-                Ghi chú
+              <Label htmlFor="description" className="text-sm font-medium">
+                Mô tả *
               </Label>
               <Textarea
-                id="notes"
-                placeholder="Ghi chú thêm về công việc..."
-                value={newSchedule.notes}
+                id="description"
+                placeholder="Mô tả chi tiết công việc..."
+                value={newTask.description}
                 onChange={(e) =>
-                  setNewSchedule({ ...newSchedule, notes: e.target.value })
+                  setNewTask({ ...newTask, description: e.target.value })
                 }
                 className="border-2 border-gray-300 focus:border-blue-500 min-h-[100px]"
               />
             </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="duration" className="text-sm font-medium">
+                  Thời lượng mặc định (phút) *
+                </Label>
+                <InputNumber
+                  value={newTask.defaultDuration}
+                  onChange={(value) =>
+                    setNewTask({
+                      ...newTask,
+                      defaultDuration: value || 30,
+                    })
+                  }
+                  min={1}
+                  placeholder="30"
+                  className="border-2 border-gray-300 focus:border-blue-500"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="notesTask" className="text-sm font-medium">
+                Ghi chú
+              </Label>
+              <Textarea
+                id="notesTask"
+                placeholder="Ghi chú thêm về công việc..."
+                value={newTask.notesTask || ""}
+                onChange={(e) =>
+                  setNewTask({
+                    ...newTask,
+                    notesTask: e.target.value || null,
+                  })
+                }
+                className="border-2 border-gray-300 focus:border-blue-500 min-h-[80px]"
+              />
+            </div>
+
             <div className="flex justify-end gap-3 pt-4 border-t">
               <Button
                 variant="outline"
                 onClick={() => setIsAddModalOpen(false)}
+                disabled={isSaving}
                 className="px-6"
               >
                 Hủy
               </Button>
-              <Button onClick={handleAddSchedule}>Tạo lịch</Button>
+              <Button
+                onClick={handleAddTask}
+                disabled={isSaving}
+                className="px-6"
+              >
+                {isSaving ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Đang tạo...
+                  </>
+                ) : (
+                  "Tạo công việc"
+                )}
+              </Button>
             </div>
           </div>
         </DialogContent>
       </Dialog>
 
-      {/* Edit Schedule Modal */}
+      {/* Edit Task Modal */}
       <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="text-xl font-semibold text-gray-800">
-              Chỉnh sửa lịch làm việc
+            <DialogTitle className="text-xl font-semibold">
+              Chỉnh sửa công việc
             </DialogTitle>
           </DialogHeader>
-          {editingSchedule && (
-            <div className="space-y-2">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="edit-employeeName"
-                    className="text-sm font-medium text-gray-700"
-                  >
-                    Tên nhân viên *
-                  </Label>
-                  <Input
-                    id="edit-employeeName"
-                    placeholder="Nhập tên nhân viên..."
-                    value={editingSchedule.employeeName}
-                    onChange={(e) =>
-                      setEditingSchedule({
-                        ...editingSchedule,
-                        employeeName: e.target.value,
-                      })
-                    }
-                    className="border-2 border-gray-300 focus:border-blue-500"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="edit-employeeId"
-                    className="text-sm font-medium text-gray-700"
-                  >
-                    Mã nhân viên *
-                  </Label>
-                  <Input
-                    id="edit-employeeId"
-                    placeholder="VD: EMP001"
-                    value={editingSchedule.employeeId}
-                    onChange={(e) =>
-                      setEditingSchedule({
-                        ...editingSchedule,
-                        employeeId: e.target.value,
-                      })
-                    }
-                    className="border-2 border-gray-300 focus:border-blue-500"
-                  />
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="edit-role"
-                    className="text-sm font-medium text-gray-700"
-                  >
-                    Chức vụ *
-                  </Label>
-                  <Input
-                    id="edit-role"
-                    placeholder="VD: Nhân viên chăm sóc"
-                    value={editingSchedule.role}
-                    onChange={(e) =>
-                      setEditingSchedule({
-                        ...editingSchedule,
-                        role: e.target.value,
-                      })
-                    }
-                    className="border-2 border-gray-300 focus:border-blue-500"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="edit-priority"
-                    className="text-sm font-medium text-gray-700"
-                  >
-                    Độ ưu tiên *
-                  </Label>
-                  <Select
-                    value={editingSchedule.priority}
-                    onValueChange={(value: SchedulePriority) =>
-                      setEditingSchedule({
-                        ...editingSchedule,
-                        priority: value,
-                      })
-                    }
-                  >
-                    <SelectTrigger className="border-2 border-gray-300 focus:border-blue-500 w-full">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="high">Cao</SelectItem>
-                      <SelectItem value="medium">Trung bình</SelectItem>
-                      <SelectItem value="low">Thấp</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
+          {editingTask && (
+            <div className="space-y-4">
               <div className="space-y-2">
-                <Label
-                  htmlFor="edit-task"
-                  className="text-sm font-medium text-gray-700"
-                >
-                  Công việc *
+                <Label htmlFor="edit-taskName" className="text-sm font-medium">
+                  Tên công việc *
                 </Label>
                 <Input
-                  id="edit-task"
-                  placeholder="Mô tả công việc cần thực hiện..."
-                  value={editingSchedule.task}
+                  id="edit-taskName"
+                  placeholder="VD: Cho cá ăn buổi sáng"
+                  value={editingTask.taskName}
                   onChange={(e) =>
-                    setEditingSchedule({
-                      ...editingSchedule,
-                      task: e.target.value,
+                    setEditingTask({
+                      ...editingTask,
+                      taskName: e.target.value,
                     })
                   }
                   className="border-2 border-gray-300 focus:border-blue-500"
                 />
               </div>
-              <div className="grid grid-cols-3 gap-4">
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="edit-date"
-                    className="text-sm font-medium text-gray-700"
-                  >
-                    Ngày *
-                  </Label>
-                  <Input
-                    id="edit-date"
-                    type="date"
-                    value={editingSchedule.date}
-                    onChange={(e) =>
-                      setEditingSchedule({
-                        ...editingSchedule,
-                        date: e.target.value,
-                      })
-                    }
-                    className="border-2 border-gray-300 focus:border-blue-500"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="edit-startTime"
-                    className="text-sm font-medium text-gray-700"
-                  >
-                    Giờ bắt đầu *
-                  </Label>
-                  <Input
-                    id="edit-startTime"
-                    type="time"
-                    value={editingSchedule.startTime}
-                    onChange={(e) =>
-                      setEditingSchedule({
-                        ...editingSchedule,
-                        startTime: e.target.value,
-                      })
-                    }
-                    className="border-2 border-gray-300 focus:border-blue-500"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="edit-endTime"
-                    className="text-sm font-medium text-gray-700"
-                  >
-                    Giờ kết thúc *
-                  </Label>
-                  <Input
-                    id="edit-endTime"
-                    type="time"
-                    value={editingSchedule.endTime}
-                    onChange={(e) =>
-                      setEditingSchedule({
-                        ...editingSchedule,
-                        endTime: e.target.value,
-                      })
-                    }
-                    className="border-2 border-gray-300 focus:border-blue-500"
-                  />
-                </div>
-              </div>
+
               <div className="space-y-2">
                 <Label
-                  htmlFor="edit-status"
-                  className="text-sm font-medium text-gray-700"
+                  htmlFor="edit-description"
+                  className="text-sm font-medium"
                 >
-                  Trạng thái
-                </Label>
-                <Select
-                  value={editingSchedule.status}
-                  onValueChange={(value: ScheduleStatus) =>
-                    setEditingSchedule({ ...editingSchedule, status: value })
-                  }
-                >
-                  <SelectTrigger className="border-2 border-gray-300 focus:border-blue-500">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="not-started">Chưa bắt đầu</SelectItem>
-                    <SelectItem value="in-progress">Đang thực hiện</SelectItem>
-                    <SelectItem value="completed">Hoàn thành</SelectItem>
-                    <SelectItem value="overdue">Trễ</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label
-                  htmlFor="edit-notes"
-                  className="text-sm font-medium text-gray-700"
-                >
-                  Ghi chú
+                  Mô tả *
                 </Label>
                 <Textarea
-                  id="edit-notes"
-                  placeholder="Ghi chú thêm về công việc..."
-                  value={editingSchedule.notes}
+                  id="edit-description"
+                  placeholder="Mô tả chi tiết công việc..."
+                  value={editingTask.description}
                   onChange={(e) =>
-                    setEditingSchedule({
-                      ...editingSchedule,
-                      notes: e.target.value,
+                    setEditingTask({
+                      ...editingTask,
+                      description: e.target.value,
                     })
                   }
                   className="border-2 border-gray-300 focus:border-blue-500 min-h-[100px]"
                 />
               </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label
+                    htmlFor="edit-duration"
+                    className="text-sm font-medium"
+                  >
+                    Thời lượng mặc định (phút) *
+                  </Label>
+                  <InputNumber
+                    value={editingTask.defaultDuration}
+                    onChange={(value) =>
+                      setEditingTask({
+                        ...editingTask,
+                        defaultDuration: value || 30,
+                      })
+                    }
+                    min={1}
+                    className="border-2 border-gray-300 focus:border-blue-500"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="edit-notesTask" className="text-sm font-medium">
+                  Ghi chú
+                </Label>
+                <Textarea
+                  id="edit-notesTask"
+                  placeholder="Ghi chú thêm về công việc..."
+                  value={editingTask.notesTask || ""}
+                  onChange={(e) =>
+                    setEditingTask({
+                      ...editingTask,
+                      notesTask: e.target.value || null,
+                    })
+                  }
+                  className="border-2 border-gray-300 focus:border-blue-500 min-h-[80px]"
+                />
+              </div>
+
               <div className="flex justify-end gap-3 pt-4 border-t">
                 <Button
                   variant="outline"
                   onClick={() => setIsEditModalOpen(false)}
+                  disabled={isSaving}
                   className="px-6"
                 >
                   Hủy
                 </Button>
-                <Button onClick={handleUpdateSchedule} className="px-6">
-                  Cập nhật
+                <Button
+                  onClick={handleUpdateTask}
+                  disabled={isSaving}
+                  className="px-6"
+                >
+                  {isSaving ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Đang cập nhật...
+                    </>
+                  ) : (
+                    "Cập nhật"
+                  )}
                 </Button>
               </div>
             </div>
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Detail Modal - View Task Information */}
+      <TaskTemplateDetailModal
+        isOpen={isDetailModalOpen}
+        onOpenChange={setIsDetailModalOpen}
+        selectedTask={selectedTask}
+      />
+
+      {/* Delete Task Confirmation Dialog */}
+      <DeleteTaskTemplateConfirmDialog
+        isOpen={isDeleteConfirmOpen}
+        onOpenChange={setIsDeleteConfirmOpen}
+        taskTemplateToDelete={taskToDelete}
+        onConfirm={handleConfirmDelete}
+        isPending={deleteMutation.isPending}
+      />
+
+      {/* Delete Weekly Schedule Confirmation Dialog */}
+      <DeleteWeeklyScheduleConfirmDialog
+        isOpen={isDeleteWeeklyConfirmOpen}
+        onOpenChange={setIsDeleteWeeklyConfirmOpen}
+        templateName={weeklyScheduleToDelete?.name || null}
+        onConfirm={handleConfirmDeleteWeeklySchedule}
+        isPending={deleteWeeklyMutation.isPending}
+      />
+
+      {/* Generate Work Schedule Modal */}
+      <GenerateWorkScheduleModal
+        isOpen={isGenerateModalOpen}
+        onOpenChange={setIsGenerateModalOpen}
+        templates={weeklyTemplates}
+        isLoadingTemplates={isWeeklyLoading}
+      />
     </div>
   );
 }

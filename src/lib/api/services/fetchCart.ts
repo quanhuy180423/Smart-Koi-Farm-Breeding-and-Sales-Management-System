@@ -15,7 +15,7 @@ export interface CartItemUpdateRequest {
   quantity: number;
 }
 
-export interface ConverCartToOrderRequest {
+export interface ConvertCartToOrderRequest {
   customerAddressId?: number;
   shippingFee?: number;
   promotionId?: number;
@@ -77,11 +77,11 @@ export const cartService = {
     return response.data;
   },
   converCartToOrder: async (
-    request: Partial<ConverCartToOrderRequest>,
+    request: Partial<ConvertCartToOrderRequest>,
   ): Promise<BaseResponse<OrderRespponse>> => {
     const response = await apiService.post<
       BaseResponse<OrderRespponse>,
-      Partial<ConverCartToOrderRequest>
+      Partial<ConvertCartToOrderRequest>
     >(`${baseUrl}/convert-to-order`, request);
     return response.data;
   },
