@@ -1,6 +1,7 @@
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -24,6 +25,7 @@ const TaskTemplateDetailModal = ({
         <DialogTitle className="text-xl font-semibold text-gray-800">
           Chi tiết công việc: {selectedTask?.taskName}
         </DialogTitle>
+        <DialogDescription>Thông tin chi tiết về công việc</DialogDescription>
       </DialogHeader>
       {selectedTask && (
         <div className="space-y-6">

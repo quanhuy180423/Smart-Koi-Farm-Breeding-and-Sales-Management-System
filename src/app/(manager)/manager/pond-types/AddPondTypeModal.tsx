@@ -2,16 +2,27 @@ import * as React from "react";
 import { Plus, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { InputNumber } from "@/components/ui/input-number";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { PondTypeFormState } from "./page";
+import { PondTypeEnum } from "@/lib/api/services/fetchPondType";
+import { getPondTypeLabel } from "@/lib/utils/enum/formatEnum";
 
 interface AddPondTypeModalProps {
   isOpen: boolean;
@@ -36,6 +47,9 @@ const AddPondTypeModal = ({
         <DialogTitle className="text-xl font-semibold text-gray-800">
           Thêm Loại Hồ mới
         </DialogTitle>
+        <DialogDescription>
+          Nhập thông tin chi tiết về loại hồ mới
+        </DialogDescription>
       </DialogHeader>
       <div className="space-y-6">
         <div className="grid grid-cols-2 gap-4">
@@ -48,7 +62,7 @@ const AddPondTypeModal = ({
             </Label>
             <Input
               id="typeName"
-              placeholder="Ví dụ: Hồ nước ngọt, Hồ thủy sinh..."
+              placeholder="Ví dụ: Ao sinh sản, Show Pond..."
               value={newPondType.typeName}
               onChange={(e) =>
                 setNewPondType({ ...newPondType, typeName: e.target.value })
@@ -57,26 +71,53 @@ const AddPondTypeModal = ({
             />
           </div>
           <div className="space-y-2">
-            <Label
-              htmlFor="recommendedCapacity"
-              className="text-sm font-medium text-gray-700"
-            >
-              Sức chứa khuyến nghị (Lít) *
+            <Label htmlFor="type" className="text-sm font-medium text-gray-700">
+              Loại Hồ *
             </Label>
-            <Input
-              id="recommendedCapacity"
-              placeholder="Nhập số lít khuyến nghị"
-              type="number"
-              value={newPondType.recommendedCapacity}
-              onChange={(e) =>
+            <Select
+              value={newPondType.type}
+              onValueChange={(value) =>
                 setNewPondType({
                   ...newPondType,
-                  recommendedCapacity: e.target.value,
+                  type: value as PondTypeEnum,
                 })
               }
-              className="border-2 border-gray-300 focus:border-blue-500"
-            />
+            >
+              <SelectTrigger className="border-2 border-gray-300 focus:border-blue-500">
+                <SelectValue placeholder="Chọn loại hồ" />
+              </SelectTrigger>
+              <SelectContent>
+                {Object.values(PondTypeEnum).map((typeEnum) => (
+                  <SelectItem key={typeEnum} value={typeEnum}>
+                    {getPondTypeLabel(typeEnum as PondTypeEnum).label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
+        </div>
+        <div className="space-y-2">
+          <Label
+            htmlFor="recommendedQuantity"
+            className="text-sm font-medium text-gray-700"
+          >
+            Sức chứa khuyến nghị (Số lượng cá) *
+          </Label>
+          <InputNumber
+            value={
+              newPondType.recommendedQuantity
+                ? Number(newPondType.recommendedQuantity)
+                : undefined
+            }
+            onChange={(value) =>
+              setNewPondType({
+                ...newPondType,
+                recommendedQuantity: value ? String(value) : "",
+              })
+            }
+            placeholder="Nhập số lượng cá khuyến nghị"
+            className="border-2 border-gray-300 focus:border-blue-500"
+          />
         </div>
         <div className="space-y-2">
           <Label
@@ -108,7 +149,8 @@ const AddPondTypeModal = ({
             disabled={
               isPending ||
               !newPondType.typeName ||
-              !newPondType.recommendedCapacity
+              !newPondType.type ||
+              !newPondType.recommendedQuantity
             }
           >
             {isPending ? (

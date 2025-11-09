@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { InputNumber } from "@/components/ui/input-number";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Plus, Search, Edit, Eye, Trash2, Repeat, Loader2 } from "lucide-react";
 import {
@@ -534,18 +535,16 @@ export default function ScheduleManagement() {
                 <Label htmlFor="duration" className="text-sm font-medium">
                   Thời lượng mặc định (phút) *
                 </Label>
-                <Input
-                  id="duration"
-                  type="number"
-                  min="1"
-                  placeholder="30"
+                <InputNumber
                   value={newTask.defaultDuration}
-                  onChange={(e) =>
+                  onChange={(value) =>
                     setNewTask({
                       ...newTask,
-                      defaultDuration: parseInt(e.target.value) || 30,
+                      defaultDuration: value || 30,
                     })
                   }
+                  min={1}
+                  placeholder="30"
                   className="border-2 border-gray-300 focus:border-blue-500"
                 />
               </div>
@@ -654,17 +653,15 @@ export default function ScheduleManagement() {
                   >
                     Thời lượng mặc định (phút) *
                   </Label>
-                  <Input
-                    id="edit-duration"
-                    type="number"
-                    min="1"
+                  <InputNumber
                     value={editingTask.defaultDuration}
-                    onChange={(e) =>
+                    onChange={(value) =>
                       setEditingTask({
                         ...editingTask,
-                        defaultDuration: parseInt(e.target.value) || 30,
+                        defaultDuration: value || 30,
                       })
                     }
+                    min={1}
                     className="border-2 border-gray-300 focus:border-blue-500"
                   />
                 </div>

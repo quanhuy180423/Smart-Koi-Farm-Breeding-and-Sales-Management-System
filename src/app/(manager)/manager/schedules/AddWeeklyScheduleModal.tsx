@@ -2,6 +2,7 @@ import { useState } from "react";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -140,6 +141,9 @@ export default function AddWeeklyScheduleModal({
             <DialogTitle className="text-xl font-semibold">
               Tạo mẫu lịch trong tuần
             </DialogTitle>
+            <DialogDescription>
+              Tạo mẫu lịch làm việc lặp lại hàng tuần
+            </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-6">

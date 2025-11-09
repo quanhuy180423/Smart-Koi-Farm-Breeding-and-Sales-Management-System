@@ -18,6 +18,7 @@ import {
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -341,6 +342,9 @@ export default function WeeklyWorkScheduleView({
         <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle>Chọn hồ để lọc</DialogTitle>
+            <DialogDescription>
+              Chọn hồ để lọc danh sách công việc
+            </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4">

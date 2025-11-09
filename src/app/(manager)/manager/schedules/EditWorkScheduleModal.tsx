@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -244,6 +245,9 @@ export default function EditWorkScheduleModal({
                     ? selectedTaskForEditing.taskName
                     : workSchedule.taskTemplateName}
                 </DialogTitle>
+                <DialogDescription>
+                  Chi tiết và quản lý công việc đã lên lịch
+                </DialogDescription>
                 <div className="mt-2 flex items-center gap-2">
                   <Badge
                     variant="outline"
@@ -499,6 +503,9 @@ export default function EditWorkScheduleModal({
         <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Chọn nhân viên</DialogTitle>
+            <DialogDescription>
+              Chọn nhân viên để gán cho công việc
+            </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             {/* Search Input */}

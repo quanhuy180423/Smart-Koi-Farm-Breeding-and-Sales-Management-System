@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -83,6 +84,9 @@ const PondTypeSelectionDialog = ({
       <DialogContent className="!max-w-6xl">
         <DialogHeader>
           <DialogTitle>Chọn Loại Hồ</DialogTitle>
+          <DialogDescription>
+            Chọn loại hồ phù hợp cho hồ cá của bạn
+          </DialogDescription>
         </DialogHeader>
         <div className="space-y-4">
           <Input
@@ -105,7 +109,7 @@ const PondTypeSelectionDialog = ({
                     <TableHead className="w-[5%]">#</TableHead>
                     <TableHead className="w-[20%]">Tên Loại Hồ</TableHead>
                     <TableHead className="w-[20%]">
-                      Sức Chứa Khuyến Nghị
+                      Sức Chứa Khuyến Nghị (Số lượng)
                     </TableHead>
                     <TableHead className="w-[55%]">Mô tả</TableHead>
                   </TableRow>
@@ -142,9 +146,7 @@ const PondTypeSelectionDialog = ({
                         <TableCell className="font-medium">
                           {type.typeName}
                         </TableCell>
-                        <TableCell>
-                          {type.recommendedCapacity.toLocaleString()} Lít
-                        </TableCell>
+                        <TableCell>{type.recommendedQuantity}</TableCell>
                         <TableCell className="truncate text-sm text-gray-500">
                           {type.description || "N/A"}
                         </TableCell>

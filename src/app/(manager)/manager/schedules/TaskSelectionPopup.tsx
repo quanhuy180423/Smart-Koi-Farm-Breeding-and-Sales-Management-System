@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -81,6 +82,7 @@ export default function TaskSelectionPopup({
           <DialogTitle className="text-xl font-semibold">
             Chọn công việc
           </DialogTitle>
+          <DialogDescription>Chọn công việc từ danh sách mẫu</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4">

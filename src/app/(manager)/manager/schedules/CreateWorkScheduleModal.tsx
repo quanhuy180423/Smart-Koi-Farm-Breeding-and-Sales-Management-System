@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -163,9 +164,9 @@ export default function CreateWorkScheduleModal({
             <DialogTitle className="text-2xl font-bold text-gray-800">
               Tạo công việc mới
             </DialogTitle>
-            <p className="text-sm text-gray-500 mt-2">
+            <DialogDescription>
               Ngày: {new Date(scheduledDate).toLocaleDateString("vi-VN")}
-            </p>
+            </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-6 py-4">
@@ -358,6 +359,9 @@ export default function CreateWorkScheduleModal({
         <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Chọn nhân viên</DialogTitle>
+            <DialogDescription>
+              Chọn nhân viên để gán cho công việc
+            </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             {/* Search Input */}
@@ -476,6 +480,7 @@ export default function CreateWorkScheduleModal({
         <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Chọn hồ</DialogTitle>
+            <DialogDescription>Chọn hồ để gán cho công việc</DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             {/* Search Input */}

@@ -3,6 +3,7 @@
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -38,6 +39,9 @@ export default function WorkScheduleDetailModal({
               <DialogTitle className="text-2xl font-bold text-gray-800">
                 {workSchedule.taskTemplateName}
               </DialogTitle>
+              <DialogDescription>
+                Thông tin chi tiết công việc
+              </DialogDescription>
               <div className="mt-2">
                 <Badge
                   variant="outline"

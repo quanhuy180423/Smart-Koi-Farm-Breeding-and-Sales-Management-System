@@ -2,6 +2,7 @@ import { PondResponse } from "@/lib/api/services/fetchPond";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -26,6 +27,7 @@ const PondDetailModal = ({
         <DialogTitle className="text-xl font-semibold text-gray-800">
           Chi tiết hồ cá: {selectedPond?.pondName}
         </DialogTitle>
+        <DialogDescription>Thông tin chi tiết về hồ cá</DialogDescription>
       </DialogHeader>
       {selectedPond && (
         <div className="space-y-6">
@@ -78,7 +80,7 @@ const PondDetailModal = ({
                   Sức chứa (Lít)
                 </Label>
                 <p className="text-base text-gray-800">
-                  {selectedPond.capacityLiters.toLocaleString()} Lít
+                  {selectedPond.capacityLiters} Lít
                 </p>
               </div>
               <div>

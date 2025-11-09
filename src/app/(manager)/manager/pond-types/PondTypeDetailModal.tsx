@@ -2,11 +2,13 @@ import * as React from "react";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { PondTypeResponse } from "@/lib/api/services/fetchPondType";
+import { getPondTypeLabel } from "@/lib/utils/enum/formatEnum";
 
 interface PondTypeDetailModalProps {
   isOpen: boolean;
@@ -25,6 +27,7 @@ const PondTypeDetailModal = ({
         <DialogTitle className="text-xl font-semibold text-gray-800">
           Chi tiết Loại Hồ: {selectedPondType?.typeName}
         </DialogTitle>
+        <DialogDescription>Thông tin chi tiết về loại hồ</DialogDescription>
       </DialogHeader>
       {selectedPondType && (
         <div className="space-y-6">
@@ -40,10 +43,22 @@ const PondTypeDetailModal = ({
               </div>
               <div>
                 <Label className="text-sm font-medium text-gray-600">
-                  Sức chứa khuyến nghị
+                  Loại Hồ
+                </Label>
+                <div className="mt-2">
+                  <span
+                    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getPondTypeLabel(selectedPondType.type).colorClass}`}
+                  >
+                    {getPondTypeLabel(selectedPondType.type).label}
+                  </span>
+                </div>
+              </div>
+              <div>
+                <Label className="text-sm font-medium text-gray-600">
+                  Sức chứa khuyến nghị (Số lượng cá)
                 </Label>
                 <p className="text-base text-gray-800">
-                  {selectedPondType.recommendedCapacity.toLocaleString()} Lít
+                  {selectedPondType.recommendedQuantity}
                 </p>
               </div>
             </div>

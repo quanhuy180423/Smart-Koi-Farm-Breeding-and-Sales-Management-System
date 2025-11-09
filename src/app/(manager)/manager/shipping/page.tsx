@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { InputNumber } from "@/components/ui/input-number";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -592,13 +593,19 @@ export default function ShippingManagement() {
                           >
                             Số lượng cá tối đa
                           </Label>
-                          <Input
-                            id="maxKoiCount"
-                            name="maxKoiCount"
-                            type="number"
+                          <InputNumber
+                            value={
+                              boxFormData.maxKoiCount
+                                ? Number(boxFormData.maxKoiCount)
+                                : undefined
+                            }
+                            onChange={(value) =>
+                              setBoxFormData((prev) => ({
+                                ...prev,
+                                maxKoiCount: value || null,
+                              }))
+                            }
                             placeholder="VD: 5"
-                            value={boxFormData.maxKoiCount || ""}
-                            onChange={handleBoxFormChange}
                             disabled={isCreatingBox}
                             className="border-gray-300 focus:border-teal-500"
                           />
@@ -610,13 +617,19 @@ export default function ShippingManagement() {
                           >
                             Kích thước cá tối đa (Inch)
                           </Label>
-                          <Input
-                            id="maxKoiSizeInch"
-                            name="maxKoiSizeInch"
-                            type="number"
+                          <InputNumber
+                            value={
+                              boxFormData.maxKoiSizeInch
+                                ? Number(boxFormData.maxKoiSizeInch)
+                                : undefined
+                            }
+                            onChange={(value) =>
+                              setBoxFormData((prev) => ({
+                                ...prev,
+                                maxKoiSizeInch: value || null,
+                              }))
+                            }
                             placeholder="VD: 6"
-                            value={boxFormData.maxKoiSizeInch || ""}
-                            onChange={handleBoxFormChange}
                             disabled={isCreatingBox}
                             className="border-gray-300 focus:border-teal-500"
                           />
@@ -629,13 +642,15 @@ export default function ShippingManagement() {
                             Phí vận chuyển (VNĐ){" "}
                             <span className="text-red-500">*</span>
                           </Label>
-                          <Input
-                            id="fee"
-                            name="fee"
-                            type="number"
-                            placeholder="VD: 250000"
+                          <InputNumber
                             value={boxFormData.fee}
-                            onChange={handleBoxFormChange}
+                            onChange={(value) =>
+                              setBoxFormData((prev) => ({
+                                ...prev,
+                                fee: value || 0,
+                              }))
+                            }
+                            placeholder="VD: 250000"
                             disabled={isCreatingBox}
                             className="border-gray-300 focus:border-teal-500"
                           />
@@ -648,13 +663,15 @@ export default function ShippingManagement() {
                             Sức chứa cân nặng (Lb){" "}
                             <span className="text-red-500">*</span>
                           </Label>
-                          <Input
-                            id="weightCapacityLb"
-                            name="weightCapacityLb"
-                            type="number"
-                            placeholder="VD: 15"
+                          <InputNumber
                             value={boxFormData.weightCapacityLb}
-                            onChange={handleBoxFormChange}
+                            onChange={(value) =>
+                              setBoxFormData((prev) => ({
+                                ...prev,
+                                weightCapacityLb: value || 0,
+                              }))
+                            }
+                            placeholder="VD: 15"
                             disabled={isCreatingBox}
                             className="border-gray-300 focus:border-teal-500"
                           />
@@ -1008,13 +1025,19 @@ export default function ShippingManagement() {
                   <Label htmlFor="maxCount" className="text-sm font-medium">
                     Số lượng cá tối đa
                   </Label>
-                  <Input
-                    id="maxCount"
-                    name="maxCount"
-                    type="number"
+                  <InputNumber
+                    value={
+                      ruleFormData.maxCount
+                        ? Number(ruleFormData.maxCount)
+                        : undefined
+                    }
+                    onChange={(value) =>
+                      setRuleFormData((prev) => ({
+                        ...prev,
+                        maxCount: value || null,
+                      }))
+                    }
                     placeholder="VD: 5"
-                    value={ruleFormData.maxCount || ""}
-                    onChange={handleRuleFormChange}
                     disabled={isCreatingRule || isUpdatingRule}
                     className="border-gray-300 focus:border-teal-500"
                   />
@@ -1028,13 +1051,19 @@ export default function ShippingManagement() {
                     >
                       Chiều dài tối thiểu (cm)
                     </Label>
-                    <Input
-                      id="minLengthCm"
-                      name="minLengthCm"
-                      type="number"
+                    <InputNumber
+                      value={
+                        ruleFormData.minLengthCm
+                          ? Number(ruleFormData.minLengthCm)
+                          : undefined
+                      }
+                      onChange={(value) =>
+                        setRuleFormData((prev) => ({
+                          ...prev,
+                          minLengthCm: value || null,
+                        }))
+                      }
                       placeholder="VD: 10"
-                      value={ruleFormData.minLengthCm || ""}
-                      onChange={handleRuleFormChange}
                       disabled={isCreatingRule || isUpdatingRule}
                       className="border-gray-300 focus:border-teal-500"
                     />
@@ -1046,13 +1075,19 @@ export default function ShippingManagement() {
                     >
                       Chiều dài tối đa (cm)
                     </Label>
-                    <Input
-                      id="maxLengthCm"
-                      name="maxLengthCm"
-                      type="number"
+                    <InputNumber
+                      value={
+                        ruleFormData.maxLengthCm
+                          ? Number(ruleFormData.maxLengthCm)
+                          : undefined
+                      }
+                      onChange={(value) =>
+                        setRuleFormData((prev) => ({
+                          ...prev,
+                          maxLengthCm: value || null,
+                        }))
+                      }
                       placeholder="VD: 50"
-                      value={ruleFormData.maxLengthCm || ""}
-                      onChange={handleRuleFormChange}
                       disabled={isCreatingRule || isUpdatingRule}
                       className="border-gray-300 focus:border-teal-500"
                     />
@@ -1063,13 +1098,19 @@ export default function ShippingManagement() {
                   <Label htmlFor="maxWeightLb" className="text-sm font-medium">
                     Cân nặng tối đa (Lb)
                   </Label>
-                  <Input
-                    id="maxWeightLb"
-                    name="maxWeightLb"
-                    type="number"
+                  <InputNumber
+                    value={
+                      ruleFormData.maxWeightLb
+                        ? Number(ruleFormData.maxWeightLb)
+                        : undefined
+                    }
+                    onChange={(value) =>
+                      setRuleFormData((prev) => ({
+                        ...prev,
+                        maxWeightLb: value || null,
+                      }))
+                    }
                     placeholder="VD: 10"
-                    value={ruleFormData.maxWeightLb || ""}
-                    onChange={handleRuleFormChange}
                     disabled={isCreatingRule || isUpdatingRule}
                     className="border-gray-300 focus:border-teal-500"
                   />
@@ -1079,13 +1120,15 @@ export default function ShippingManagement() {
                   <Label htmlFor="priority" className="text-sm font-medium">
                     Ưu tiên (Priority)
                   </Label>
-                  <Input
-                    id="priority"
-                    name="priority"
-                    type="number"
-                    placeholder="VD: 1"
+                  <InputNumber
                     value={ruleFormData.priority}
-                    onChange={handleRuleFormChange}
+                    onChange={(value) =>
+                      setRuleFormData((prev) => ({
+                        ...prev,
+                        priority: value || 0,
+                      }))
+                    }
+                    placeholder="VD: 1"
                     disabled={isCreatingRule || isUpdatingRule}
                     className="border-gray-300 focus:border-teal-500"
                   />
@@ -1243,13 +1286,15 @@ export default function ShippingManagement() {
                               >
                                 Từ (km)
                               </Label>
-                              <Input
-                                id="minDistanceKm"
-                                name="minDistanceKm"
-                                type="number"
-                                placeholder="0"
+                              <InputNumber
                                 value={distanceFormData.minDistanceKm}
-                                onChange={handleDistanceFormChange}
+                                onChange={(value) =>
+                                  setDistanceFormData((prev) => ({
+                                    ...prev,
+                                    minDistanceKm: value || 0,
+                                  }))
+                                }
+                                placeholder="0"
                                 disabled={
                                   isCreatingDistance || isUpdatingDistance
                                 }
@@ -1263,13 +1308,15 @@ export default function ShippingManagement() {
                               >
                                 Đến (km)
                               </Label>
-                              <Input
-                                id="maxDistanceKm"
-                                name="maxDistanceKm"
-                                type="number"
-                                placeholder="2000"
+                              <InputNumber
                                 value={distanceFormData.maxDistanceKm}
-                                onChange={handleDistanceFormChange}
+                                onChange={(value) =>
+                                  setDistanceFormData((prev) => ({
+                                    ...prev,
+                                    maxDistanceKm: value || 0,
+                                  }))
+                                }
+                                placeholder="2000"
                                 disabled={
                                   isCreatingDistance || isUpdatingDistance
                                 }
@@ -1289,13 +1336,15 @@ export default function ShippingManagement() {
                             Giá mỗi km (VNĐ){" "}
                             <span className="text-red-500">*</span>
                           </Label>
-                          <Input
-                            id="pricePerKm"
-                            name="pricePerKm"
-                            type="number"
-                            placeholder="VD: 2000"
+                          <InputNumber
                             value={distanceFormData.pricePerKm}
-                            onChange={handleDistanceFormChange}
+                            onChange={(value) =>
+                              setDistanceFormData((prev) => ({
+                                ...prev,
+                                pricePerKm: value || 0,
+                              }))
+                            }
+                            placeholder="VD: 2000"
                             disabled={isCreatingDistance || isUpdatingDistance}
                             className="border-gray-300 focus:border-teal-500"
                           />
@@ -1308,13 +1357,15 @@ export default function ShippingManagement() {
                             Phí cơ sở (VNĐ){" "}
                             <span className="text-red-500">*</span>
                           </Label>
-                          <Input
-                            id="baseFee"
-                            name="baseFee"
-                            type="number"
-                            placeholder="VD: 30000"
+                          <InputNumber
                             value={distanceFormData.baseFee}
-                            onChange={handleDistanceFormChange}
+                            onChange={(value) =>
+                              setDistanceFormData((prev) => ({
+                                ...prev,
+                                baseFee: value || 0,
+                              }))
+                            }
+                            placeholder="VD: 30000"
                             disabled={isCreatingDistance || isUpdatingDistance}
                             className="border-gray-300 focus:border-teal-500"
                           />

@@ -12,6 +12,8 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { InputNumber } from "@/components/ui/input-number";
+import { Badge } from "@/components/ui/badge";
 import {
   Table,
   TableBody,
@@ -581,20 +583,30 @@ export default function PondManagement() {
                           {getAreaNameById(pond.areaId) || "N/A"}
                         </TableCell>
                         <TableCell>
-                          {pond.lengthMeters}m × {pond.widthMeters}m (
-                          {pond.depthMeters}m sâu)
+                          {pond.lengthMeters || "N/A"}m ×{" "}
+                          {pond.widthMeters || "N/A"}m (
+                          {pond.depthMeters || "N/A"}m sâu)
                         </TableCell>
                         <TableCell>
-                          {pond.capacityLiters.toLocaleString()} Lít
+                          {pond.capacityLiters ? pond.capacityLiters : "N/A"}{" "}
+                          Lít
                         </TableCell>
                         <TableCell>
-                          <span
-                            className={
-                              getPondStatusLabel(pond.pondStatus).colorClass
-                            }
-                          >
-                            {getPondStatusLabel(pond.pondStatus).label}
-                          </span>
+                          {(() => {
+                            const statusInfo = getPondStatusLabel(
+                              pond.pondStatus,
+                            );
+                            const IconComponent = statusInfo.icon;
+                            return (
+                              <Badge
+                                variant="secondary"
+                                className={`${statusInfo.colorClass} flex items-center gap-1 w-fit`}
+                              >
+                                <IconComponent className="h-3.5 w-3.5" />
+                                <span>{statusInfo.label}</span>
+                              </Badge>
+                            );
+                          })()}
                         </TableCell>
                         <TableCell>
                           {formatDate(pond.createdAt, "dd/MM/yyyy")}
@@ -685,23 +697,23 @@ export default function PondManagement() {
 
               <div className="space-y-2 col-span-2 md:col-span-1">
                 <Label htmlFor="areaId">ID Khu vực</Label>
-                <Input
-                  id="areaId"
-                  type="number"
+                <InputNumber
+                  value={areaIdInput ? Number(areaIdInput) : undefined}
+                  onChange={(value) =>
+                    setAreaIdInput(value ? String(value) : "")
+                  }
                   placeholder="ID Khu vực"
-                  value={areaIdInput}
-                  onChange={(e) => setAreaIdInput(e.target.value)}
                 />
               </div>
 
               <div className="space-y-2 col-span-2 md:col-span-1">
                 <Label htmlFor="pondTypeId">ID Loại Hồ</Label>
-                <Input
-                  id="pondTypeId"
-                  type="number"
+                <InputNumber
+                  value={pondTypeIdInput ? Number(pondTypeIdInput) : undefined}
+                  onChange={(value) =>
+                    setPondTypeIdInput(value ? String(value) : "")
+                  }
                   placeholder="ID Loại Hồ"
-                  value={pondTypeIdInput}
-                  onChange={(e) => setPondTypeIdInput(e.target.value)}
                 />
               </div>
             </div>
@@ -712,22 +724,26 @@ export default function PondManagement() {
               </p>
               <div className="space-y-2 col-span-2 md:col-span-1">
                 <Label htmlFor="minCapacity">Tối thiểu</Label>
-                <Input
-                  id="minCapacity"
-                  type="number"
+                <InputNumber
+                  value={
+                    minCapacityInput ? Number(minCapacityInput) : undefined
+                  }
+                  onChange={(value) =>
+                    setMinCapacityInput(value ? String(value) : "")
+                  }
                   placeholder="Sức chứa min"
-                  value={minCapacityInput}
-                  onChange={(e) => setMinCapacityInput(e.target.value)}
                 />
               </div>
               <div className="space-y-2 col-span-2 md:col-span-1">
                 <Label htmlFor="maxCapacity">Tối đa</Label>
-                <Input
-                  id="maxCapacity"
-                  type="number"
+                <InputNumber
+                  value={
+                    maxCapacityInput ? Number(maxCapacityInput) : undefined
+                  }
+                  onChange={(value) =>
+                    setMaxCapacityInput(value ? String(value) : "")
+                  }
                   placeholder="Sức chứa max"
-                  value={maxCapacityInput}
-                  onChange={(e) => setMaxCapacityInput(e.target.value)}
                 />
               </div>
 
@@ -736,24 +752,22 @@ export default function PondManagement() {
               </p>
               <div className="space-y-2 col-span-2 md:col-span-1">
                 <Label htmlFor="minDepth">Tối thiểu</Label>
-                <Input
-                  id="minDepth"
-                  type="number"
-                  step="0.1"
+                <InputNumber
+                  value={minDepthInput ? Number(minDepthInput) : undefined}
+                  onChange={(value) =>
+                    setMinDepthInput(value ? String(value) : "")
+                  }
                   placeholder="Độ sâu min"
-                  value={minDepthInput}
-                  onChange={(e) => setMinDepthInput(e.target.value)}
                 />
               </div>
               <div className="space-y-2 col-span-2 md:col-span-1">
                 <Label htmlFor="maxDepth">Tối đa</Label>
-                <Input
-                  id="maxDepth"
-                  type="number"
-                  step="0.1"
+                <InputNumber
+                  value={maxDepthInput ? Number(maxDepthInput) : undefined}
+                  onChange={(value) =>
+                    setMaxDepthInput(value ? String(value) : "")
+                  }
                   placeholder="Độ sâu max"
-                  value={maxDepthInput}
-                  onChange={(e) => setMaxDepthInput(e.target.value)}
                 />
               </div>
             </div>

@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogFooter,
@@ -36,6 +37,9 @@ const AddVarietyModal = ({
         <DialogTitle className="text-xl font-semibold text-gray-800">
           Thêm Giống Cá mới
         </DialogTitle>
+        <DialogDescription>
+          Nhập thông tin chi tiết về giống cá mới
+        </DialogDescription>
       </DialogHeader>
       <div className="space-y-6">
         <div className="grid grid-cols-2 gap-4">

@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { InputNumber } from "@/components/ui/input-number";
 import { Badge } from "@/components/ui/badge";
 import {
   Search,
@@ -599,23 +600,23 @@ export default function KoiManagement() {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 border-t pt-4">
               <div className="space-y-2">
                 <Label htmlFor="varietyId">ID Giống</Label>
-                <Input
-                  id="varietyId"
-                  type="number"
+                <InputNumber
+                  value={varietyIdInput ? Number(varietyIdInput) : undefined}
+                  onChange={(value) =>
+                    setVarietyIdInput(value ? String(value) : "")
+                  }
                   placeholder="ID Giống..."
-                  value={varietyIdInput}
-                  onChange={(e) => setVarietyIdInput(e.target.value)}
                 />
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="pondId">ID Hồ</Label>
-                <Input
-                  id="pondId"
-                  type="number"
+                <InputNumber
+                  value={pondIdInput ? Number(pondIdInput) : undefined}
+                  onChange={(value) =>
+                    setPondIdInput(value ? String(value) : "")
+                  }
                   placeholder="ID Hồ..."
-                  value={pondIdInput}
-                  onChange={(e) => setPondIdInput(e.target.value)}
                 />
               </div>
 
@@ -628,22 +629,22 @@ export default function KoiManagement() {
               </p>
               <div className="space-y-2 col-span-1">
                 <Label htmlFor="minPrice">Giá tối thiểu</Label>
-                <Input
-                  id="minPrice"
-                  type="number"
+                <InputNumber
+                  value={minPriceInput ? Number(minPriceInput) : undefined}
+                  onChange={(value) =>
+                    setMinPriceInput(value ? String(value) : "")
+                  }
                   placeholder="Giá thấp nhất"
-                  value={minPriceInput}
-                  onChange={(e) => setMinPriceInput(e.target.value)}
                 />
               </div>
               <div className="space-y-2 col-span-1">
                 <Label htmlFor="maxPrice">Giá tối đa</Label>
-                <Input
-                  id="maxPrice"
-                  type="number"
+                <InputNumber
+                  value={maxPriceInput ? Number(maxPriceInput) : undefined}
+                  onChange={(value) =>
+                    setMaxPriceInput(value ? String(value) : "")
+                  }
                   placeholder="Giá cao nhất"
-                  value={maxPriceInput}
-                  onChange={(e) => setMaxPriceInput(e.target.value)}
                 />
               </div>
             </div>
