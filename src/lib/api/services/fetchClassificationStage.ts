@@ -12,7 +12,7 @@ export interface ClassificationStageResponse {
   highQualifiedCount: number;
   showQualifiedCount: number;
   pondQualifiedCount: number;
-  cullQualifiedCount: number;
+  cullQualifiedCount: number | null;
   startDate: string;
   endDate: string;
   classificationRecords: ClassificationRecordResponse[];

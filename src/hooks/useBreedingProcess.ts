@@ -141,7 +141,7 @@ export function useAnalyzePair() {
     mutationFn: (request: AnalyzePairRequest) =>
       breedingProcessService.analyzePair(request),
     onError: (error: ApiError) => {
-      toast.error(error.error?.result || "Có lỗi xảy ra khi phân tích cặp cá");
+      toast.error(error.message || "Có lỗi xảy ra khi phân tích cặp cá");
     },
   });
 }

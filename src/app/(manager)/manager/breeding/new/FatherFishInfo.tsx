@@ -69,8 +69,19 @@ export default function FatherFishInfo({ selectedFish }: FatherFishInfoProps) {
 
   const breedingHistoryData = [
     {
+      label: "Số lần sinh sản",
+      value: breedingParentHistory?.participationCount,
+    },
+    {
       label: "Số lần sinh sản thất bại",
       value: breedingParentHistory?.failCount,
+    },
+    {
+      label: "Tỷ lệ thụ tinh trung bình",
+      value:
+        breedingParentHistory?.fertilizationRate !== null
+          ? `${breedingParentHistory?.fertilizationRate.toFixed(2)}%`
+          : "Chưa có",
     },
     {
       label: "Tỷ lệ nở trung bình",
@@ -92,6 +103,17 @@ export default function FatherFishInfo({ selectedFish }: FatherFishInfoProps) {
         breedingParentHistory?.highQualifiedRate !== null
           ? `${breedingParentHistory?.highQualifiedRate.toFixed(2)}%`
           : "Chưa có",
+    },
+    {
+      label: "Tỷ lệ đột biến trung bình",
+      value:
+        breedingParentHistory?.averageMutationRate !== null
+          ? `${breedingParentHistory?.averageMutationRate.toFixed(2)}%`
+          : "Chưa có",
+    },
+    {
+      label: "Loại đột biến phổ biến",
+      value: breedingParentHistory?.commonMutationType || "Không có",
     },
   ];
 
@@ -248,7 +270,7 @@ export default function FatherFishInfo({ selectedFish }: FatherFishInfoProps) {
             </span>
             Dữ Liệu Lịch Sử Sinh Sản
           </h3>
-          <div className={`grid grid-cols-${breedingHistoryData.length} gap-4`}>
+          <div className={`grid grid-cols-4 gap-4`}>
             {breedingHistoryData.map((item, index) => (
               <Card
                 key={index}
