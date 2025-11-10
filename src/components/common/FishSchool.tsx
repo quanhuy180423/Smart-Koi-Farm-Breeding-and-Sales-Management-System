@@ -19,6 +19,15 @@ interface Fish {
   isFading?: boolean;
 }
 
+interface Bubble {
+  id: number;
+  x: number;
+  y: number;
+  radius: number;
+  life: number; // 0 to 1
+  maxLife: number;
+}
+
 // Koi pattern types
 const KoiPatterns = {
   kohaku: {
@@ -224,13 +233,19 @@ const FishSVG = ({
 function FishSchoolComponent() {
   const { isEnabled } = useFishSchool();
   const [fishes, setFishes] = useState<Fish[]>([]);
+  const [bubbles, setBubbles] = useState<Bubble[]>([]);
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const animationIdRef = useRef<number | undefined>(undefined);
   const timeRef = useRef(0);
   const initialFishCountRef = useRef(15);
   const nextFishIdRef = useRef(15);
+  const nextBubbleIdRef = useRef(0);
   const respawnTimerRef = useRef<NodeJS.Timeout | undefined>(undefined);
+  const bubbleCenterXRef = useRef(
+    typeof window !== "undefined" ? window.innerWidth / 2 : 0,
+  ); // Bubble cluster center
+  const bubbleClusterTimerRef = useRef(0); // Timer to change cluster location
 
   // Initialize fish
   useEffect(() => {
@@ -280,6 +295,67 @@ function FishSchoolComponent() {
 
     const animate = () => {
       timeRef.current += 0.016;
+
+      // Generate bubbles rising from bottom in clusters
+      setBubbles((prevBubbles) => {
+        const newBubbles: Bubble[] = [...prevBubbles];
+
+        // Change cluster location every 30 seconds (1800 frames)
+        bubbleClusterTimerRef.current++;
+        if (bubbleClusterTimerRef.current > 1800) {
+          bubbleClusterTimerRef.current = 0;
+          // Pick a new random location for bubble cluster
+          bubbleCenterXRef.current = Math.random() * dimensions.width;
+        }
+
+        // Create bubbles occasionally from a small area
+        if (Math.random() < 0.005) {
+          // 0.5% chance to spawn bubble each frame = 5-10 bubbles per 30s cluster
+          // Bubble spawns in a small cluster area (±70px from center)
+          const bubbleX =
+            bubbleCenterXRef.current + (Math.random() - 0.5) * 140;
+          // Clamp to screen width
+          const clampedX = Math.max(0, Math.min(bubbleX, dimensions.width));
+
+          const bubbleRadius = 1 + Math.random() * 4; // Varied sizes
+          newBubbles.push({
+            id: nextBubbleIdRef.current++,
+            x: clampedX,
+            y: dimensions.height + bubbleRadius, // Start at bottom
+            radius: bubbleRadius,
+            life: 1,
+            maxLife: 180 + Math.random() * 120, // Takes 3-5 seconds to rise high
+          });
+        }
+
+        // Generate bubbles from swimming fish (occasionally)
+        fishes.forEach((fish) => {
+          if (Math.random() < 0.005) {
+            // 0.5% chance per fish per frame = lâu lâu sinh bong bóp
+            const bubbleX = fish.x + (Math.random() - 0.5) * 40; // Bubble around fish
+            const bubbleY = fish.y + (Math.random() - 0.5) * 30;
+            const bubbleRadius = 0.8 + Math.random() * 2; // Smaller bubbles from fish
+
+            newBubbles.push({
+              id: nextBubbleIdRef.current++,
+              x: bubbleX,
+              y: bubbleY,
+              radius: bubbleRadius,
+              life: 1,
+              maxLife: 120 + Math.random() * 80, // Takes 2-3 seconds to rise
+            });
+          }
+        });
+
+        // Update bubble lifetimes and positions (float upward faster)
+        return newBubbles
+          .map((bubble) => ({
+            ...bubble,
+            life: bubble.life - 1 / bubble.maxLife,
+            y: bubble.y - 1.5, // Float upward 1.5 pixels per frame (more distance)
+          }))
+          .filter((bubble) => bubble.life > 0); // Remove dead bubbles
+      });
 
       setFishes((prevFishes) => {
         // Remove fading fish that have fully disappeared (after animation)
@@ -407,7 +483,7 @@ function FishSchoolComponent() {
         cancelAnimationFrame(animationIdRef.current);
       }
     };
-  }, [isEnabled, fishes.length, dimensions, mousePos]);
+  }, [isEnabled, fishes, dimensions, mousePos]);
 
   if (!isEnabled || fishes.length === 0) {
     return null;
@@ -424,6 +500,28 @@ function FishSchoolComponent() {
           pointerEvents: "none",
         }}
       />
+
+      {/* Bubbles rising from bottom */}
+      {bubbles.map((bubble) => (
+        <div
+          key={bubble.id}
+          style={{
+            position: "absolute",
+            left: bubble.x,
+            top: bubble.y,
+            width: bubble.radius * 2,
+            height: bubble.radius * 2,
+            borderRadius: "50%",
+            backgroundColor: `rgba(200, 240, 255, ${bubble.life * 0.3})`,
+            border: `1px solid rgba(150, 200, 255, ${bubble.life * 0.5})`,
+            boxShadow: `inset -1px -1px 3px rgba(255,255,255,${bubble.life * 0.6}), 0 0 4px rgba(100,180,255,${
+              bubble.life * 0.4
+            })`,
+            pointerEvents: "none",
+            zIndex: 1,
+          }}
+        />
+      ))}
 
       {/* Fish */}
       {fishes.map((fish) => (
