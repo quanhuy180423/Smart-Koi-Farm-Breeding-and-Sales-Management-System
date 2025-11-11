@@ -47,6 +47,7 @@ export function useAddBreedingProcess() {
     onSuccess: (data: BaseResponse<BreedingProcessResponse>) => {
       if (data.isSuccess) {
         queryClient.invalidateQueries({ queryKey: ["breeding-processes"] });
+        queryClient.invalidateQueries({ queryKey: ["ponds"] });
       }
       toast.success(data.message || "Tạo quy trình thành công");
       router.push("/manager/breeding");

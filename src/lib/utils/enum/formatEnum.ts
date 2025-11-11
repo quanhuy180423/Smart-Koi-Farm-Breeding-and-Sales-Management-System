@@ -321,11 +321,6 @@ export interface OrderStatusLabel extends Label {
 }
 
 const orderStatusMeta: Record<OrderStatus, OrderStatusLabel> = {
-  [OrderStatus.CREATED]: {
-    label: "Được tạo",
-    colorClass: "bg-yellow-100 text-yellow-800",
-    icon: AlertCircle,
-  },
   [OrderStatus.CONFIRMED]: {
     label: "Đã xác nhận",
     colorClass: "bg-blue-100 text-blue-800",
@@ -430,11 +425,6 @@ export function getOrderStatusTimeline(
 }> {
   const timeline = [
     {
-      status: OrderStatus.CREATED,
-      text: "Chờ xác nhận",
-      active: false,
-    },
-    {
       status: OrderStatus.CONFIRMED,
       text: "Đã xác nhận",
       active: false,
@@ -453,17 +443,14 @@ export function getOrderStatusTimeline(
 
   let activeIndex = -1;
   switch (currentStatus) {
-    case OrderStatus.CREATED:
+    case OrderStatus.CONFIRMED:
       activeIndex = 0;
       break;
-    case OrderStatus.CONFIRMED:
+    case OrderStatus.SHIPPED:
       activeIndex = 1;
       break;
-    case OrderStatus.SHIPPED:
-      activeIndex = 2;
-      break;
     case OrderStatus.COMPLETED:
-      activeIndex = 3;
+      activeIndex = 2;
       break;
   }
 

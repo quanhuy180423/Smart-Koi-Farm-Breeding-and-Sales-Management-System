@@ -23,7 +23,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import Image from "next/image";
-import { Gender, KoiFishResponse } from "@/lib/api/services/fetchKoiFish";
+import {
+  Gender,
+  KoiFishResponse,
+  MutationType,
+} from "@/lib/api/services/fetchKoiFish";
 import { useGetKoiFishById, useGetKoiFishes } from "@/hooks/useKoiFish";
 import toast from "react-hot-toast";
 import getAge from "@/lib/utils/dates/age";
@@ -34,13 +38,26 @@ import { getFishSizeLabel, getGenderLabel } from "@/lib/utils/enum";
 import { FishDetailDialog } from "./FishDetailDialog";
 import { KoiFishFilterBar } from "./KoiFishFilterBar";
 import { HealthStatus } from "@/lib/api/services/fetchKoiFish";
+import { useGetVarieties } from "@/hooks/useVariety";
+import { Zap, Target, TrendingUp } from "lucide-react";
 
 const recommendSchema = z.object({
   targetVariety: z.string().min(1, { message: "Giống mong muốn là bắt buộc." }),
   priority: z.string().min(1, { message: "Mục tiêu ưu tiên là bắt buộc." }),
-  desiredPattern: z
+  desiredMutationType: z
     .string()
-    .min(1, { message: "Yêu cầu hoa văn là bắt buộc." }),
+    .min(1, { message: "Loại đột biến là bắt buộc." })
+    .transform((val) => val as MutationType),
+  desiredMutationRate: z
+    .string()
+    .min(0, { message: "Tỷ lệ đột biến là bắt buộc." })
+    .transform(Number)
+    .pipe(
+      z
+        .number()
+        .min(0, "Tỷ lệ phải lớn hơn hoặc bằng 0")
+        .max(100, "Tỷ lệ không được quá 100"),
+    ),
   minHatchRate: z
     .string()
     .min(1, { message: "Tỷ lệ nở là bắt buộc." })
@@ -86,8 +103,10 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
 
   const [targetVariety, setTargetVariety] = useState("");
   const [priority, setPriority] = useState("");
-  const [desiredPattern, setDesiredPattern] = useState("");
-  // const [desiredBodyShape, setDesiredBodyShape] = useState("");
+  const [desiredMutationType, setDesiredMutationType] = useState<MutationType>(
+    MutationType.NONE,
+  );
+  const [desiredMutationRate, setDesiredMutationRate] = useState("");
   const [minHatchRate, setMinHatchRate] = useState("");
   const [minSurvivalRate, setMinSurvivalRate] = useState("");
   const [minHighQualifiedRate, setMinHighQualifiedRate] = useState("");
@@ -130,6 +149,11 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
       }
     }
   }, [recommendData]);
+
+  const { data: varietiesData } = useGetVarieties({
+    pageIndex: 1,
+    pageSize: 100,
+  });
 
   const {
     data: fatherKoiResponse,
@@ -210,7 +234,8 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
     const formData = {
       targetVariety,
       priority,
-      desiredPattern,
+      desiredMutationType,
+      desiredMutationRate,
       minHatchRate,
       minSurvivalRate,
       minHighQualifiedRate,
@@ -315,17 +340,23 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
           )}
         </button>
 
-        <div className="mt-4 text-center max-w-[140px]">
+        <div className="mt-4 text-center w-full">
           {selected ? (
             <>
-              <h3 className="font-semibold text-sm mb-1">{selected.rfid}</h3>
-              <p className="text-xs text-muted-foreground">
+              <h3 className="font-semibold text-sm mb-1 truncate">
+                {selected.rfid}
+              </h3>
+              <p className="text-xs text-muted-foreground mb-2">
                 {type === "father" ? "Cá Bố" : "Cá Mẹ"}
               </p>
-              <div className="flex items-center justify-center gap-2 mt-1 text-xs text-muted-foreground">
-                <span>{getFishSizeLabel(selected.size)}</span>
-                <span>•</span>
-                <span>{getAge(selected.birthDate)} tuổi</span>
+              <div className="flex items-center justify-center gap-1 text-xs text-muted-foreground whitespace-nowrap overflow-hidden">
+                <span className="truncate">
+                  {getFishSizeLabel(selected.size)}
+                </span>
+                <span className="flex-shrink-0">•</span>
+                <span className="flex-shrink-0">
+                  {getAge(selected.birthDate)} tuổi
+                </span>
               </div>
             </>
           ) : (
@@ -443,15 +474,15 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
                           <p className="text-sm font-medium text-blue-600 mb-2">
                             {fish?.variety?.varietyName || ""}
                           </p>
-                          <div className="grid grid-cols-2 gap-2 text-sm">
+                          <div className="grid grid-cols-[2fr_1fr] gap-3 text-sm">
                             <div className="flex items-center gap-2">
-                              <Ruler className="h-4 w-4 text-blue-500" />
+                              <Ruler className="h-4 w-4 text-blue-500 flex-shrink-0" />
                               <span className="text-gray-700">
                                 {getFishSizeLabel(fish.size)}
                               </span>
                             </div>
                             <div className="flex items-center gap-2">
-                              <Calendar className="h-4 w-4 text-green-500" />
+                              <Calendar className="h-4 w-4 text-green-500 flex-shrink-0" />
                               <span className="text-gray-700">
                                 {getAge(fish.birthDate)} tuổi
                               </span>
@@ -538,7 +569,9 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
                             className="w-full h-52 object-cover"
                           />
                           <div className="absolute top-2 right-2">
-                            <Badge className="bg-pink-500">{fish.gender}</Badge>
+                            <Badge className="bg-pink-500">
+                              {getGenderLabel(fish.gender).label}
+                            </Badge>
                           </div>
                         </div>
 
@@ -549,15 +582,15 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
                           <p className="text-sm font-medium text-blue-600 mb-2">
                             {fish?.variety?.varietyName || ""}
                           </p>
-                          <div className="grid grid-cols-2 gap-2 text-sm">
+                          <div className="grid grid-cols-[2fr_1fr] gap-3 text-sm">
                             <div className="flex items-center gap-2">
-                              <Ruler className="h-4 w-4 text-blue-500" />
+                              <Ruler className="h-4 w-4 text-blue-500 flex-shrink-0" />
                               <span className="text-gray-700">
                                 {getFishSizeLabel(fish.size)}
                               </span>
                             </div>
                             <div className="flex items-center gap-2">
-                              <Calendar className="h-4 w-4 text-green-500" />
+                              <Calendar className="h-4 w-4 text-green-500 flex-shrink-0" />
                               <span className="text-gray-700">
                                 {getAge(fish.birthDate)} tuổi
                               </span>
@@ -612,10 +645,16 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
           )}
         </TabsContent>
 
-        <TabsContent value="criteria" className="space-y-6 mt-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {/* Cột 1 */}
-            <div className="space-y-4">
+        <TabsContent value="criteria" className="space-y-8 mt-6">
+          {/* Phần 1: Tiêu chí cơ bản */}
+          <div>
+            <div className="flex items-center gap-2 mb-4">
+              <Target className="w-5 h-5 text-blue-600" />
+              <h3 className="text-lg font-semibold text-gray-800">
+                Tiêu chí cơ bản
+              </h3>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-blue-50 p-6 rounded-lg border border-blue-100">
               <div>
                 <Label
                   htmlFor="target-variety"
@@ -623,13 +662,18 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
                 >
                   Giống mong muốn <span className="text-red-500">*</span>
                 </Label>
-                <Input
-                  id="target-variety"
-                  placeholder="Nhập tên giống, VD: Kohaku"
-                  value={targetVariety}
-                  onChange={(e) => setTargetVariety(e.target.value)}
-                  className="mt-1 border border-gray-300 w-full"
-                />
+                <Select value={targetVariety} onValueChange={setTargetVariety}>
+                  <SelectTrigger className="mt-1 border border-gray-300 w-full">
+                    <SelectValue placeholder="Chọn giống..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {varietiesData?.data?.map((variety) => (
+                      <SelectItem key={variety.id} value={variety.varietyName}>
+                        {variety.varietyName}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
               <div>
                 <Label
@@ -649,14 +693,84 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
                 </Select>
               </div>
             </div>
-            {/* Cột 2 */}
-            <div className="space-y-4">
+          </div>
+
+          {/* Phần 2: Tiêu chí đột biến */}
+          <div>
+            <div className="flex items-center gap-2 mb-4">
+              <Zap className="w-5 h-5 text-amber-600" />
+              <h3 className="text-lg font-semibold text-gray-800">
+                Tiêu chí đột biến
+              </h3>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-amber-50 p-6 rounded-lg border border-amber-100">
+              <div>
+                <Label
+                  htmlFor="desired-mutation-type"
+                  className="text-sm font-medium text-gray-700"
+                >
+                  Loại đột biến mong muốn{" "}
+                  <span className="text-red-500">*</span>
+                </Label>
+                <Select
+                  value={desiredMutationType}
+                  onValueChange={(value) =>
+                    setDesiredMutationType(value as MutationType)
+                  }
+                >
+                  <SelectTrigger className="mt-1 border border-gray-300 w-full">
+                    <SelectValue placeholder="Chọn loại đột biến..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value={MutationType.NONE}>Không có</SelectItem>
+                    <SelectItem value={MutationType.DOITSU}>Doitsu</SelectItem>
+                    <SelectItem value={MutationType.GIN_RIN}>
+                      Gin Rin
+                    </SelectItem>
+                    <SelectItem value={MutationType.HIRENAGA}>
+                      Hirenaga
+                    </SelectItem>
+                    <SelectItem value={MutationType.METALLIC}>
+                      Metallic
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label
+                  htmlFor="desired-mutation-rate"
+                  className="text-sm font-medium text-gray-700"
+                >
+                  Tỷ lệ đột biến tối thiểu (%){" "}
+                  <span className="text-red-500">*</span>
+                </Label>
+                <Input
+                  id="desired-mutation-rate"
+                  placeholder="VD: 50"
+                  value={desiredMutationRate}
+                  onChange={(e) => setDesiredMutationRate(e.target.value)}
+                  onInput={handleNumericInput}
+                  className="mt-1 border border-gray-300 w-full"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Phần 3: Tiêu chí chất lượng */}
+          <div>
+            <div className="flex items-center gap-2 mb-4">
+              <TrendingUp className="w-5 h-5 text-green-600" />
+              <h3 className="text-lg font-semibold text-gray-800">
+                Tiêu chí chất lượng
+              </h3>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 bg-green-50 p-6 rounded-lg border border-green-100">
               <div>
                 <Label
                   htmlFor="min-hatch-rate"
                   className="text-sm font-medium text-gray-700"
                 >
-                  Tỷ lệ nở mong muốn (%) <span className="text-red-500">*</span>
+                  Tỷ lệ nở tối thiểu (%) <span className="text-red-500">*</span>
                 </Label>
                 <Input
                   id="min-hatch-rate"
@@ -672,7 +786,7 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
                   htmlFor="min-survival-rate"
                   className="text-sm font-medium text-gray-700"
                 >
-                  Tỷ lệ sống mong muốn (%){" "}
+                  Tỷ lệ sống tối thiểu (%){" "}
                   <span className="text-red-500">*</span>
                 </Label>
                 <Input
@@ -684,15 +798,12 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
                   className="mt-1 border border-gray-300 w-full"
                 />
               </div>
-            </div>
-            {/* Cột 3 */}
-            <div className="space-y-4">
               <div>
                 <Label
                   htmlFor="min-high-qualified-rate"
                   className="text-sm font-medium text-gray-700"
                 >
-                  Tỷ lệ cá chất lượng cao (%){" "}
+                  Cá chất lượng cao tối thiểu (%){" "}
                   <span className="text-red-500">*</span>
                 </Label>
                 <Input
@@ -701,21 +812,6 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
                   value={minHighQualifiedRate}
                   onChange={(e) => setMinHighQualifiedRate(e.target.value)}
                   onInput={handleNumericInput}
-                  className="mt-1 border border-gray-300 w-full"
-                />
-              </div>
-              <div>
-                <Label
-                  htmlFor="desired-pattern"
-                  className="text-sm font-medium text-gray-700"
-                >
-                  Yêu cầu về hoa văn <span className="text-red-500">*</span>
-                </Label>
-                <Input
-                  id="desired-pattern"
-                  placeholder="Nhập yêu cầu, VD: Hoa văn độc đáo"
-                  value={desiredPattern}
-                  onChange={(e) => setDesiredPattern(e.target.value)}
                   className="mt-1 border border-gray-300 w-full"
                 />
               </div>

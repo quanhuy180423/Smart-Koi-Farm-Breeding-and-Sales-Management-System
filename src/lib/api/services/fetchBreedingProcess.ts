@@ -4,7 +4,7 @@ import apiService, {
   PagedResponse,
   PagingRequest,
 } from "../apiClient";
-import { KoiFishResponse } from "./fetchKoiFish";
+import { KoiFishResponse, MutationType } from "./fetchKoiFish";
 import { EggBatchResponse } from "./fetchEggBatch";
 import { FryFishResponse } from "./fetchFryFish";
 import { ClassificationStageResponse } from "./fetchClassificationStage";
@@ -103,8 +103,8 @@ export interface BreedingParentHistoryResponse {
 export interface BreedingRecommendRequest {
   targetVariety: string;
   priority: string;
-  desiredPattern: string;
-  desiredBodyShape: string;
+  desiredMutationType: MutationType;
+  desiredMutationRate: number;
   minHatchRate: number;
   minSurvivalRate: number;
   minHighQualifiedRate: number;
