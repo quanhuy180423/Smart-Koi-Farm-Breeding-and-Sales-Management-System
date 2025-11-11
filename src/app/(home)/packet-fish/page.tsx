@@ -16,7 +16,6 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
 } from "@/components/ui/select";
 import {
   Sheet,
@@ -83,7 +82,11 @@ const FilterPanel = ({
           }
         >
           <SelectTrigger className="w-full h-11 border-2 border-[#0A3D62]/20 hover:border-[#0A3D62]/40 focus:border-[#0A3D62] focus:ring-2 focus:ring-[#0A3D62]/20 transition-all duration-200 bg-white/80 backdrop-blur-sm rounded-xl">
-            <SelectValue placeholder="Chọn kích thước..." />
+            <span className="flex items-center gap-2">
+              {filters.selectedSize === "Tất cả"
+                ? "Chọn kích thước..."
+                : getFishSizeLabel(filters.selectedSize)}
+            </span>
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="Tất cả">Tất cả</SelectItem>

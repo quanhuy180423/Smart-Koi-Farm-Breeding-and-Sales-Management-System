@@ -1,7 +1,8 @@
 "use client";
 
 import { useRouter, useParams } from "next/navigation";
-import { useGetOrderById } from "@/hooks/useOrder";
+import { useGetOrderById, useUpdateOrderStatus } from "@/hooks/useOrder";
+import { useCreatePayment } from "@/hooks/useOrderPayment";
 import { formatCurrency } from "@/lib/utils/numbers/formatCurrency";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -14,8 +15,12 @@ import {
   Calendar,
   CheckCircle,
   Clock,
+  CreditCard,
 } from "lucide-react";
+import { toast } from "sonner";
 import CustomerLayout from "@/components/customer/CustomerLayout";
+import { OrderStatus } from "@/lib/api/services/fetchOrder";
+import { PaymentMethod } from "@/lib/api/services/fetchOrderPayment";
 import {
   getOrderStatusColor,
   getOrderStatusText,
@@ -29,6 +34,44 @@ export default function OrderDetailPage() {
   const orderId = params?.id ? Number(params.id) : undefined;
 
   const { data: order, isLoading } = useGetOrderById(orderId);
+  const updateStatusMutation = useUpdateOrderStatus();
+  const paymentMutation = useCreatePayment();
+
+  const handlePayOrder = (orderId: number) => {
+    paymentMutation.mutate({
+      orderId,
+      method: PaymentMethod.VNPAY,
+    });
+  };
+
+  const handleCompleteOrder = () => {
+    if (!orderId) {
+      toast.error("Không tìm thấy đơn hàng");
+      return;
+    }
+
+    updateStatusMutation.mutate(
+      {
+        orderId,
+        request: {
+          status: OrderStatus.COMPLETED,
+          note: "đã nhận được hàng",
+        },
+      },
+      {
+        onSuccess: () => {
+          toast.success("Đơn hàng đã hoàn thành");
+        },
+        onError: (error) => {
+          toast.error(
+            error instanceof Error
+              ? error.message
+              : "Không thể hoàn thành đơn hàng",
+          );
+        },
+      },
+    );
+  };
 
   if (isLoading) {
     return (
@@ -287,6 +330,44 @@ export default function OrderDetailPage() {
             <ArrowLeft className="h-4 w-4 mr-2" />
             Quay lại danh sách
           </Button>
+          {order?.status === OrderStatus.PENDING_PAYMENT && (
+            <Button
+              onClick={() => handlePayOrder(order.id)}
+              disabled={paymentMutation.isPending}
+              className="flex-1 bg-blue-600 hover:bg-blue-700"
+            >
+              {paymentMutation.isPending ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Đang xử lý...
+                </>
+              ) : (
+                <>
+                  <CreditCard className="h-4 w-4 mr-2" />
+                  Thanh toán
+                </>
+              )}
+            </Button>
+          )}
+          {order?.status === OrderStatus.SHIPPED && (
+            <Button
+              onClick={handleCompleteOrder}
+              disabled={updateStatusMutation.isPending}
+              className="flex-1 bg-green-600 hover:bg-green-700"
+            >
+              {updateStatusMutation.isPending ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Đang xác nhận...
+                </>
+              ) : (
+                <>
+                  <CheckCircle className="h-4 w-4 mr-2" />
+                  Xác nhận đã nhận hàng
+                </>
+              )}
+            </Button>
+          )}
           <Button className="flex-1">
             <Package className="h-4 w-4 mr-2" />
             Liên hệ hỗ trợ

@@ -367,7 +367,7 @@ export default function OrdersPage() {
                   <OrderDetailsModal orderId={order.id} />
                 </DialogContent>
               </Dialog>
-              {order.status === OrderStatus.CREATED && (
+              {order.status === OrderStatus.PENDING_PAYMENT && (
                 <Button
                   size="sm"
                   className="w-full md:w-auto bg-blue-600 hover:bg-blue-700"

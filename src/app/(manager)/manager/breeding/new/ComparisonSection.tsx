@@ -405,104 +405,104 @@ export default function ComparisonSection({
           Tóm tắt phân tích
         </h3>
 
-        {analysisData && (
-          <Card className="bg-gradient-to-br from-blue-50 to-cyan-50 border-blue-200 shadow-sm hover:shadow-md transition-shadow">
-            <CardContent className="px-6">
-              <div className="flex items-start gap-4">
-                <div className="bg-blue-200 text-blue-800 rounded-full w-10 h-10 flex items-center justify-center text-lg font-bold flex-shrink-0 shadow-md">
-                  📋
-                </div>
-                <div className="flex-1">
-                  <p className="text-sm leading-relaxed text-gray-800 font-medium">
-                    {analysisData.summary}
-                  </p>
-                </div>
+        <Card className="bg-gradient-to-br from-blue-50 to-cyan-50 border-blue-200 shadow-sm hover:shadow-md transition-shadow">
+          <CardContent className="px-6">
+            <div className="flex items-start gap-4">
+              <div className="bg-blue-200 text-blue-800 rounded-full w-10 h-10 flex items-center justify-center text-lg font-bold flex-shrink-0 shadow-md">
+                📋
               </div>
-            </CardContent>
-          </Card>
-        )}
+              <div className="flex-1">
+                <p className="text-sm leading-relaxed text-gray-800 font-medium">
+                  {analysisData?.summary || "Chưa đủ thông tin để phân tích"}
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
-      <div className="mb-8">
-        <h3 className="text-lg font-bold text-gray-800 mb-6 flex items-center gap-2">
-          <div className="bg-red-100 text-red-800 rounded-full w-8 h-8 flex items-center justify-center">
-            <AlertTriangle className="w-4 h-4" />
-          </div>
-          Đánh giá rủi ro và khuyến nghị
-        </h3>
+      {riskAssessmentList.length > 0 && (
+        <div className="mb-8">
+          <h3 className="text-lg font-bold text-gray-800 mb-6 flex items-center gap-2">
+            <div className="bg-red-100 text-red-800 rounded-full w-8 h-8 flex items-center justify-center">
+              <AlertTriangle className="w-4 h-4" />
+            </div>
+            Đánh giá rủi ro và khuyến nghị
+          </h3>
 
-        <div className="grid gap-4">
-          {riskAssessmentList.map((assessment, index) => (
-            <Card
-              key={index}
-              className={`${assessment.bgColor} ${assessment.borderColor} border-l-4 shadow-sm hover:shadow-lg transition-all duration-300 hover:scale-[1.02] cursor-pointer`}
-            >
-              <CardContent className="px-5">
-                <div className="flex items-start gap-4">
-                  <div
-                    className={`rounded-full w-10 h-10 flex items-center justify-center text-lg font-bold flex-shrink-0 ${
-                      assessment.bgColor.includes("green")
-                        ? "bg-green-200 text-green-800 shadow-green-100 shadow-md"
-                        : assessment.bgColor.includes("yellow")
-                          ? "bg-yellow-200 text-yellow-800 shadow-yellow-100 shadow-md"
-                          : "bg-red-200 text-red-800 shadow-red-100 shadow-md"
-                    }`}
-                  >
-                    {assessment.bgColor.includes("green")
-                      ? "✓"
-                      : assessment.bgColor.includes("yellow")
-                        ? "!"
-                        : "⚠"}
-                  </div>
-                  <div className="flex-1">
+          <div className="grid gap-4">
+            {riskAssessmentList.map((assessment, index) => (
+              <Card
+                key={index}
+                className={`${assessment.bgColor} ${assessment.borderColor} border-l-4 shadow-sm hover:shadow-lg transition-all duration-300 hover:scale-[1.02] cursor-pointer`}
+              >
+                <CardContent className="px-5">
+                  <div className="flex items-start gap-4">
                     <div
-                      className={`text-sm leading-relaxed ${assessment.textColor} font-medium mb-2`}
+                      className={`rounded-full w-10 h-10 flex items-center justify-center text-lg font-bold flex-shrink-0 ${
+                        assessment.bgColor.includes("green")
+                          ? "bg-green-200 text-green-800 shadow-green-100 shadow-md"
+                          : assessment.bgColor.includes("yellow")
+                            ? "bg-yellow-200 text-yellow-800 shadow-yellow-100 shadow-md"
+                            : "bg-red-200 text-red-800 shadow-red-100 shadow-md"
+                      }`}
                     >
-                      {assessment.message}
+                      {assessment.bgColor.includes("green")
+                        ? "✓"
+                        : assessment.bgColor.includes("yellow")
+                          ? "!"
+                          : "⚠"}
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex-1">
                       <div
-                        className={`h-1.5 rounded-full flex-1 ${
-                          assessment.bgColor.includes("green")
-                            ? "bg-green-100"
-                            : assessment.bgColor.includes("yellow")
-                              ? "bg-yellow-100"
-                              : "bg-red-100"
-                        }`}
+                        className={`text-sm leading-relaxed ${assessment.textColor} font-medium mb-2`}
                       >
-                        <div
-                          className="h-1.5 rounded-full transition-all duration-500"
-                          style={{
-                            width: `${Math.min(assessment.percent ?? 0, 100)}%`,
-                            backgroundColor: assessment.bgColor.includes(
-                              "green",
-                            )
-                              ? "#22c55e"
-                              : assessment.bgColor.includes("yellow")
-                                ? "#eab308"
-                                : "#ef4444",
-                          }}
-                        ></div>
+                        {assessment.message}
                       </div>
-                      <span
-                        className={`text-xs font-bold ${
-                          assessment.bgColor.includes("green")
-                            ? "text-green-700"
-                            : assessment.bgColor.includes("yellow")
-                              ? "text-yellow-700"
-                              : "text-red-700"
-                        }`}
-                      >
-                        {assessment.label}
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <div
+                          className={`h-1.5 rounded-full flex-1 ${
+                            assessment.bgColor.includes("green")
+                              ? "bg-green-100"
+                              : assessment.bgColor.includes("yellow")
+                                ? "bg-yellow-100"
+                                : "bg-red-100"
+                          }`}
+                        >
+                          <div
+                            className="h-1.5 rounded-full transition-all duration-500"
+                            style={{
+                              width: `${Math.min(assessment.percent ?? 0, 100)}%`,
+                              backgroundColor: assessment.bgColor.includes(
+                                "green",
+                              )
+                                ? "#22c55e"
+                                : assessment.bgColor.includes("yellow")
+                                  ? "#eab308"
+                                  : "#ef4444",
+                            }}
+                          ></div>
+                        </div>
+                        <span
+                          className={`text-xs font-bold ${
+                            assessment.bgColor.includes("green")
+                              ? "text-green-700"
+                              : assessment.bgColor.includes("yellow")
+                                ? "text-yellow-700"
+                                : "text-red-700"
+                          }`}
+                        >
+                          {assessment.label}
+                        </span>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+                </CardContent>
+              </Card>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       <div>
         <h3 className="text-lg font-bold text-gray-800 mb-6 flex items-center gap-2">

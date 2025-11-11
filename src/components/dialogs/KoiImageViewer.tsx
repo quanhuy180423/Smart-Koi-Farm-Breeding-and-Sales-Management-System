@@ -44,9 +44,9 @@ export function KoiImageViewer({
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[90vh] flex flex-col p-0 border-0">
+      <DialogContent className="max-w-4xl max-h-[90vh] flex flex-col p-0 border-0 rounded-2xl">
         {/* Header */}
-        <DialogHeader className="flex items-center justify-between p-4 border-b bg-white z-10">
+        <DialogHeader className="flex flex-row items-start justify-between p-4 border-b bg-white z-10 rounded-t-2xl">
           <div>
             <DialogTitle className="text-lg">
               {rfid} - Ảnh số {selectedImageIdx + 1} / {images.length}
@@ -57,13 +57,16 @@ export function KoiImageViewer({
             variant="ghost"
             size="icon"
             onClick={() => onOpenChange(false)}
+            className="shrink-0 -mt-2"
           >
             <X className="h-4 w-4" />
           </Button>
         </DialogHeader>
 
         {/* Image Container */}
-        <div className="flex-1 w-full h-auto flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 p-4">
+        <div
+          className={`flex-1 w-full h-auto flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 p-4 ${images.length === 1 ? "rounded-b-2xl" : ""}`}
+        >
           <Image
             src={images[selectedImageIdx]}
             alt={`${rfid} - Ảnh ${selectedImageIdx + 1}`}
@@ -78,7 +81,7 @@ export function KoiImageViewer({
 
         {/* Navigation Footer */}
         {images.length > 1 && (
-          <div className="flex items-center justify-between gap-4 p-4 border-t bg-gray-50">
+          <div className="flex items-center justify-between gap-4 p-4 border-t bg-gray-50 rounded-b-2xl">
             <Button
               variant="outline"
               size="icon"

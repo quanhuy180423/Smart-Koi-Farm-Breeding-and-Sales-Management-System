@@ -218,14 +218,36 @@ function getLabelForEnum<T extends string>(
   return meta[value];
 }
 
-export function getFishSizeLabel(size?: FishSize): string {
-  if (!size) return "Không xác định";
+/**
+ * Format FishSize enum to human-readable string
+ * @param size FishSize enum value
+ * @returns Formatted string (e.g., "10 - 20cm", "< 10cm", "> 50cm")
+ */
+export function formatFishSizeEnum(size: FishSize): string {
   return (
-    size
+    String(size)
       .replace(/^Under(\d+)cm$/, "< $1cm")
       .replace(/^Over(\d+)cm$/, "> $1cm")
-      .replace(/^From(\d+)To(\d+)cm$/, "$1 - $2cm") || size
+      .replace(/^From(\d+)To(\d+)cm$/, "$1 - $2cm") || String(size)
   );
+}
+
+/**
+ * Get fish size label - handles both FishSize enum and pre-formatted strings
+ * @param size FishSize enum or pre-formatted string
+ * @returns Formatted fish size label
+ */
+export function getFishSizeLabel(size?: FishSize | string): string {
+  if (!size) return "Không xác định";
+
+  // Check if it matches FishSize enum pattern (From/Under/Over format)
+  const enumFormatRegex = /^(From\d+To\d+cm|Under\d+cm|Over\d+cm)$/;
+  if (enumFormatRegex.test(String(size))) {
+    return formatFishSizeEnum(size as FishSize);
+  }
+
+  // Otherwise, assume it's already a formatted string, return as-is
+  return String(size);
 }
 
 export function getHealthStatusLabel(status?: HealthStatus): Label {
@@ -299,11 +321,6 @@ export interface OrderStatusLabel extends Label {
 }
 
 const orderStatusMeta: Record<OrderStatus, OrderStatusLabel> = {
-  [OrderStatus.CREATED]: {
-    label: "Được tạo",
-    colorClass: "bg-yellow-100 text-yellow-800",
-    icon: AlertCircle,
-  },
   [OrderStatus.CONFIRMED]: {
     label: "Đã xác nhận",
     colorClass: "bg-blue-100 text-blue-800",
@@ -408,11 +425,6 @@ export function getOrderStatusTimeline(
 }> {
   const timeline = [
     {
-      status: OrderStatus.CREATED,
-      text: "Chờ xác nhận",
-      active: false,
-    },
-    {
       status: OrderStatus.CONFIRMED,
       text: "Đã xác nhận",
       active: false,
@@ -431,17 +443,14 @@ export function getOrderStatusTimeline(
 
   let activeIndex = -1;
   switch (currentStatus) {
-    case OrderStatus.CREATED:
+    case OrderStatus.CONFIRMED:
       activeIndex = 0;
       break;
-    case OrderStatus.CONFIRMED:
+    case OrderStatus.SHIPPED:
       activeIndex = 1;
       break;
-    case OrderStatus.SHIPPED:
-      activeIndex = 2;
-      break;
     case OrderStatus.COMPLETED:
-      activeIndex = 3;
+      activeIndex = 2;
       break;
   }
 

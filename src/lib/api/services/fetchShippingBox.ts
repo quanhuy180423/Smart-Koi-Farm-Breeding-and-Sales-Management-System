@@ -81,6 +81,37 @@ export interface UpdateShippingBoxRuleRequest {
   isActive: boolean;
 }
 
+export interface KoiInput {
+  size: string;
+  quantity: number;
+}
+
+export interface KoiListItem {
+  sizeCm: number;
+  sizeInch: number;
+}
+
+export interface BoxCalculation {
+  boxId: number;
+  boxName: string;
+  quantity: number;
+  feePerBox: number;
+  subtotal: number;
+  koiList: KoiListItem[];
+}
+
+export interface ShippingCalculationResponse {
+  boxes: BoxCalculation[];
+  totalFee: number;
+  totalKoiCount: number;
+  warnings: string[];
+  suggestions: string[];
+}
+
+export interface CalculateShippingRequest {
+  koiInputs: KoiInput[];
+}
+
 export const shippingBoxService = {
   getAllShippingBoxes: async (): Promise<
     BaseResponse<ShippingBoxResponse[]>
@@ -163,6 +194,16 @@ export const shippingBoxService = {
     const response = await apiService.delete<BaseResponse<boolean>>(
       `${baseUrl}/rules/${ruleId}`,
     );
+    return response.data;
+  },
+
+  calculateShippingBox: async (
+    request: CalculateShippingRequest,
+  ): Promise<BaseResponse<ShippingCalculationResponse>> => {
+    const response = await apiService.post<
+      BaseResponse<ShippingCalculationResponse>,
+      CalculateShippingRequest
+    >(`${baseUrl}/calculate`, request);
     return response.data;
   },
 };
