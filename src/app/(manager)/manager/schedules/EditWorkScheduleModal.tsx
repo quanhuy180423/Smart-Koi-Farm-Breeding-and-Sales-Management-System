@@ -5,6 +5,7 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -20,10 +21,21 @@ import {
   Edit2,
   Plus,
   Trash2,
-  Search,
   Repeat2,
   AlertTriangle,
 } from "lucide-react";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  PaginationSection,
+  PAGE_SIZE_OPTIONS_DEFAULT,
+} from "@/components/common/PaginationSection";
 import {
   WorkSchedule,
   WorkScheduleStatusEnum,
@@ -36,7 +48,6 @@ import { formatTimeToHHMM } from "@/lib/utils/formatTime";
 import { Textarea } from "@/components/ui/textarea";
 import { useGetPonds } from "@/hooks/usePond";
 import { PondResponse, PondSearchParams } from "@/lib/api/services/fetchPond";
-import { useDebounce } from "@/hooks/useDebounce";
 import TaskSelectionPopup from "./TaskSelectionPopup";
 import { TaskTemplateResponse } from "@/lib/api/services/fetchTaskTemplate";
 import { getWorkScheduleStatusText } from "@/lib/utils/enum";
@@ -83,44 +94,32 @@ export default function EditWorkScheduleModal({
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
   const [selectedTaskForEditing, setSelectedTaskForEditing] =
     useState<TaskTemplateResponse | null>(null);
-  const [pondPageIndex, setPondPageIndex] = useState(1);
-  const [pondSearchTerm, setPondSearchTerm] = useState("");
-  const [staffPageIndex, setStaffPageIndex] = useState(1);
   const [staffSearchTerm, setStaffSearchTerm] = useState("");
-
-  const PONDS_PER_PAGE = 5;
-  const STAFF_PER_PAGE = 5;
-  const debouncedPondSearch = useDebounce(pondSearchTerm, 500);
-  const debouncedStaffSearch = useDebounce(staffSearchTerm, 500);
+  const [pondSearchTerm, setPondSearchTerm] = useState("");
+  const [staffSearchParams, setStaffSearchParams] = useState({
+    role: Roles.FarmStaff,
+    pageIndex: 1,
+    pageSize: PAGE_SIZE_OPTIONS_DEFAULT[0],
+    search: "",
+  });
+  const [pondSearchParams, setPondSearchParams] = useState({
+    pageIndex: 1,
+    pageSize: PAGE_SIZE_OPTIONS_DEFAULT[0],
+    search: "",
+  });
 
   const { mutate: updateWorkSchedule, isPending } = useUpdateWorkSchedule();
   const { mutate: deleteWorkSchedule, isPending: isDeleting } =
     useDeleteWorkSchedule();
 
   // Fetch ponds from API for selection modal with search
-  const { data: pondsData, isLoading: isLoadingPonds } = useGetPonds({
-    pageIndex: pondPageIndex,
-    pageSize: PONDS_PER_PAGE,
-    search: debouncedPondSearch || undefined,
-  } as PondSearchParams);
+  const { data: pondsData, isLoading: isLoadingPonds } = useGetPonds(
+    pondSearchParams as PondSearchParams,
+  );
 
   // Fetch staff from API for selection modal with search
-  const { data: staffData, isLoading: isLoadingStaff } = useGetUserByRole({
-    role: Roles.FarmStaff,
-    pageIndex: staffPageIndex,
-    pageSize: STAFF_PER_PAGE,
-    search: debouncedStaffSearch || undefined,
-  });
-
-  // Reset page when search changes
-  useEffect(() => {
-    setPondPageIndex(1);
-  }, [debouncedPondSearch]);
-
-  // Reset staff page when search changes
-  useEffect(() => {
-    setStaffPageIndex(1);
-  }, [debouncedStaffSearch]);
+  const { data: staffData, isLoading: isLoadingStaff } =
+    useGetUserByRole(staffSearchParams);
 
   // Sync state with workSchedule prop when it changes
   useEffect(() => {
@@ -389,27 +388,66 @@ export default function EditWorkScheduleModal({
                 )}
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                {workSchedule.staffAssignments.map((staff) => (
-                  <Card
-                    key={staff.staffId}
-                    className="bg-blue-50 border-blue-200"
-                  >
-                    <CardContent className="pt-4">
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="flex-1">
-                          <p className="font-medium text-gray-900">
-                            {staff.staffName}
-                          </p>
-                          {staff.completedAt && (
-                            <p className="text-xs text-green-600 font-medium mt-1">
-                              [Hoàn] Đã hoàn thành
+                {isEditing && canEdit ? (
+                  // Show selected staff IDs from the current selection state
+                  Array.from(selectedStaffIds).length > 0 ? (
+                    staffData?.datas
+                      ?.filter((staff: User) => selectedStaffIds.has(staff.id))
+                      .map((staff: User) => (
+                        <Card
+                          key={staff.id}
+                          className="bg-blue-50 border-blue-200"
+                        >
+                          <CardContent className="pt-4">
+                            <div className="flex items-start justify-between gap-3">
+                              <div className="flex-1">
+                                <p className="font-medium text-gray-900">
+                                  {staff.fullName}
+                                </p>
+                              </div>
+                              {canEdit && isEditing && (
+                                <button
+                                  type="button"
+                                  onClick={() => toggleStaffSelection(staff.id)}
+                                  className="text-red-600 hover:text-red-700 font-bold"
+                                  title="Xóa nhân viên"
+                                >
+                                  ✕
+                                </button>
+                              )}
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))
+                  ) : (
+                    <div className="col-span-2 text-center py-4 text-gray-500">
+                      Chưa chọn nhân viên nào
+                    </div>
+                  )
+                ) : (
+                  // Show saved staff assignments in view mode
+                  workSchedule.staffAssignments.map((staff) => (
+                    <Card
+                      key={staff.staffId}
+                      className="bg-blue-50 border-blue-200"
+                    >
+                      <CardContent className="pt-4">
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="flex-1">
+                            <p className="font-medium text-gray-900">
+                              {staff.staffName}
                             </p>
-                          )}
+                            {staff.completedAt && (
+                              <p className="text-xs text-green-600 font-medium mt-1">
+                                [Hoàn] Đã hoàn thành
+                              </p>
+                            )}
+                          </div>
                         </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
+                      </CardContent>
+                    </Card>
+                  ))
+                )}
               </div>
             </div>
 
@@ -432,23 +470,65 @@ export default function EditWorkScheduleModal({
                 )}
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                {workSchedule.pondAssignments.map((pond) => (
-                  <Card
-                    key={pond.pondId}
-                    className="bg-green-50 border-green-200"
-                  >
-                    <CardContent className="pt-4">
-                      <div className="flex items-start justify-between gap-3">
-                        <div>
-                          <Droplets className="h-5 w-5 text-green-600 mb-2" />
-                          <p className="font-medium text-gray-900">
-                            {pond.pondName}
-                          </p>
+                {isEditing && canEdit ? (
+                  // Show selected pond IDs from the current selection state
+                  Array.from(selectedPondIds).length > 0 ? (
+                    pondsData?.data
+                      ?.filter((pond: PondResponse) =>
+                        selectedPondIds.has(pond.id),
+                      )
+                      .map((pond: PondResponse) => (
+                        <Card
+                          key={pond.id}
+                          className="bg-green-50 border-green-200"
+                        >
+                          <CardContent className="pt-4">
+                            <div className="flex items-start justify-between gap-3">
+                              <div>
+                                <Droplets className="h-5 w-5 text-green-600 mb-2" />
+                                <p className="font-medium text-gray-900">
+                                  {pond.pondName}
+                                </p>
+                              </div>
+                              {canEdit && isEditing && (
+                                <button
+                                  type="button"
+                                  onClick={() => togglePondSelection(pond.id)}
+                                  className="text-red-600 hover:text-red-700 font-bold"
+                                  title="Xóa hồ"
+                                >
+                                  ✕
+                                </button>
+                              )}
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))
+                  ) : (
+                    <div className="col-span-2 text-center py-4 text-gray-500">
+                      Chưa chọn hồ nào
+                    </div>
+                  )
+                ) : (
+                  // Show saved pond assignments in view mode
+                  workSchedule.pondAssignments.map((pond) => (
+                    <Card
+                      key={pond.pondId}
+                      className="bg-green-50 border-green-200"
+                    >
+                      <CardContent className="pt-4">
+                        <div className="flex items-start justify-between gap-3">
+                          <div>
+                            <Droplets className="h-5 w-5 text-green-600 mb-2" />
+                            <p className="font-medium text-gray-900">
+                              {pond.pondName}
+                            </p>
+                          </div>
                         </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
+                      </CardContent>
+                    </Card>
+                  ))
+                )}
               </div>
             </div>
 
@@ -500,236 +580,261 @@ export default function EditWorkScheduleModal({
 
       {/* Staff Selection Modal */}
       <Dialog open={isStaffModalOpen} onOpenChange={setIsStaffModalOpen}>
-        <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
+        <DialogContent className="!max-w-4xl">
           <DialogHeader>
-            <DialogTitle>Chọn nhân viên</DialogTitle>
+            <DialogTitle>Chọn Nhân viên</DialogTitle>
             <DialogDescription>
               Chọn nhân viên để gán cho công việc
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
-            {/* Search Input */}
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Tìm kiếm theo tên..."
-                value={staffSearchTerm}
-                onChange={(e) => setStaffSearchTerm(e.target.value)}
-                className="border-2 border-gray-300 pl-10"
-              />
-            </div>
+            <Input
+              placeholder="Tìm kiếm nhân viên theo tên..."
+              value={staffSearchTerm}
+              onChange={(e) => {
+                setStaffSearchTerm(e.target.value);
+                setStaffSearchParams((prev) => ({
+                  ...prev,
+                  search: e.target.value,
+                  pageIndex: 1,
+                }));
+              }}
+              className="w-full"
+            />
 
-            {/* Staff List */}
-            <div className="space-y-2 max-h-64 overflow-y-auto">
-              {isLoadingStaff ? (
-                <div className="flex items-center justify-center py-8">
-                  <Loader2 className="h-6 w-6 animate-spin text-blue-600" />
-                </div>
-              ) : !staffData?.datas || staffData.datas.length === 0 ? (
-                <div className="flex items-center justify-center py-8 text-gray-500">
-                  <p className="text-sm">Không có nhân viên nào</p>
-                </div>
-              ) : (
-                staffData.datas.map((staff: User) => (
-                  <Card
-                    key={staff.id}
-                    className={`p-3 cursor-pointer transition-all ${
-                      selectedStaffIds.has(staff.id)
-                        ? "border-blue-500 bg-blue-50 ring-2 ring-blue-500"
-                        : "border-gray-200 hover:border-gray-300"
-                    }`}
-                    onClick={() => toggleStaffSelection(staff.id)}
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex-1">
-                        <span className="font-medium text-gray-900 block">
-                          {staff.fullName}
-                        </span>
-                        <span className="text-xs text-gray-500">
-                          {staff.email}
-                        </span>
-                      </div>
-                      <div
-                        className={`w-5 h-5 border-2 rounded flex items-center justify-center flex-shrink-0 ${
-                          selectedStaffIds.has(staff.id)
-                            ? "bg-blue-500 border-blue-500"
-                            : "border-gray-300"
-                        }`}
-                      >
-                        {selectedStaffIds.has(staff.id) && (
-                          <span className="text-white text-sm font-bold">
-                            ✓
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  </Card>
-                ))
-              )}
-            </div>
-
-            {/* Pagination Info */}
-            {staffData && staffData.totalPages > 0 && (
-              <div className="flex items-center justify-center text-xs text-gray-500 pt-2">
-                Trang {staffData.pageIndex} / {staffData.totalPages}
+            {isLoadingStaff ? (
+              <div className="flex items-center justify-center py-10 text-gray-500">
+                <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                Đang tải danh sách nhân viên...
               </div>
+            ) : (
+              <>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-[5%]">#</TableHead>
+                      <TableHead className="w-[30%]">Tên Nhân viên</TableHead>
+                      <TableHead className="w-[40%]">Email</TableHead>
+                      <TableHead className="w-[25%]">Số điện thoại</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {!staffData?.datas || staffData.datas.length === 0 ? (
+                      <TableRow>
+                        <TableCell
+                          colSpan={4}
+                          className="text-center text-gray-500 py-4"
+                        >
+                          Không tìm thấy nhân viên nào.
+                        </TableCell>
+                      </TableRow>
+                    ) : (
+                      staffData.datas.map((staff: User) => (
+                        <TableRow
+                          key={staff.id}
+                          onClick={() => toggleStaffSelection(staff.id)}
+                          className={
+                            selectedStaffIds.has(staff.id)
+                              ? "bg-blue-50/50 cursor-pointer"
+                              : "hover:bg-gray-50 cursor-pointer"
+                          }
+                        >
+                          <TableCell>
+                            <input
+                              type="checkbox"
+                              checked={selectedStaffIds.has(staff.id)}
+                              onChange={() => toggleStaffSelection(staff.id)}
+                              className="text-blue-600 focus:ring-blue-500"
+                            />
+                          </TableCell>
+                          <TableCell className="font-medium">
+                            {staff.fullName}
+                          </TableCell>
+                          <TableCell className="text-sm text-gray-500">
+                            {staff.email}
+                          </TableCell>
+                          <TableCell className="text-sm text-gray-500">
+                            {staff.email.substring(0, 3)}...
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    )}
+                  </TableBody>
+                </Table>
+
+                {staffData && staffData.totalItems > 0 && (
+                  <PaginationSection
+                    totalItems={staffData.totalItems}
+                    postsPerPage={staffSearchParams.pageSize}
+                    currentPage={staffSearchParams.pageIndex}
+                    setCurrentPage={(page) =>
+                      setStaffSearchParams((prev) => ({
+                        ...prev,
+                        pageIndex: page,
+                      }))
+                    }
+                    totalPages={staffData.totalPages}
+                    setPageSize={(size) =>
+                      setStaffSearchParams((prev) => ({
+                        ...prev,
+                        pageSize: size,
+                        pageIndex: 1,
+                      }))
+                    }
+                    hasNextPage={staffData.hasNextPage}
+                    hasPreviousPage={staffData.hasPreviousPage}
+                    pageSizeOptions={[5, 10, 20]}
+                  />
+                )}
+              </>
             )}
           </div>
 
-          {/* Pagination Controls */}
-          {staffData && staffData.totalPages > 1 && (
-            <div className="flex items-center justify-between gap-2 pt-2 border-t">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() =>
-                  setStaffPageIndex(Math.max(1, staffPageIndex - 1))
-                }
-                disabled={!staffData.hasPreviousPage || isLoadingStaff}
-              >
-                Trước
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() =>
-                  setStaffPageIndex(
-                    Math.min(staffData.totalPages, staffPageIndex + 1),
-                  )
-                }
-                disabled={!staffData.hasNextPage || isLoadingStaff}
-              >
-                Sau
-              </Button>
-            </div>
-          )}
-
-          <div className="flex justify-end gap-2 pt-4 border-t">
+          <DialogFooter>
             <Button
               variant="outline"
-              onClick={() => {
-                setIsStaffModalOpen(false);
-                setStaffPageIndex(1);
-                setStaffSearchTerm("");
-              }}
+              onClick={() => setIsStaffModalOpen(false)}
             >
-              Đóng
+              Hủy
             </Button>
-          </div>
+            <Button
+              onClick={() => setIsStaffModalOpen(false)}
+              disabled={selectedStaffIds.size === 0 || isLoadingStaff}
+            >
+              Chọn Nhân viên ({selectedStaffIds.size} người)
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
 
       {/* Pond Selection Modal */}
       <Dialog open={isPondModalOpen} onOpenChange={setIsPondModalOpen}>
-        <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
+        <DialogContent className="!max-w-4xl">
           <DialogHeader>
-            <DialogTitle>Chọn hồ</DialogTitle>
+            <DialogTitle>Chọn Hồ</DialogTitle>
+            <DialogDescription>Chọn hồ để gán cho công việc</DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
-            {/* Search Input */}
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Tìm kiếm theo tên hồ..."
-                value={pondSearchTerm}
-                onChange={(e) => setPondSearchTerm(e.target.value)}
-                className="border-2 border-gray-300 pl-10"
-              />
-            </div>
+            <Input
+              placeholder="Tìm kiếm hồ theo tên..."
+              value={pondSearchTerm}
+              onChange={(e) => {
+                setPondSearchTerm(e.target.value);
+                setPondSearchParams((prev) => ({
+                  ...prev,
+                  search: e.target.value,
+                  pageIndex: 1,
+                }));
+              }}
+              className="w-full"
+            />
 
-            {/* Pond List */}
-            <div className="space-y-2">
-              {isLoadingPonds ? (
-                <div className="flex items-center justify-center py-8">
-                  <Loader2 className="h-6 w-6 animate-spin text-green-600" />
-                </div>
-              ) : !pondsData?.data || pondsData.data.length === 0 ? (
-                <div className="flex items-center justify-center py-8 text-gray-500">
-                  <p className="text-sm">Không có hồ nào</p>
-                </div>
-              ) : (
-                pondsData.data.map((pond: PondResponse) => (
-                  <Card
-                    key={pond.id}
-                    className={`p-3 cursor-pointer transition-all ${
-                      selectedPondIds.has(pond.id)
-                        ? "border-green-500 bg-green-50 ring-2 ring-green-500"
-                        : "border-gray-200 hover:border-gray-300"
-                    }`}
-                    onClick={() => togglePondSelection(pond.id)}
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex-1">
-                        <span className="font-medium text-gray-900 block">
-                          {pond.pondName}
-                        </span>
-                        <span className="text-xs text-gray-500">
-                          {pond.location}
-                        </span>
-                      </div>
-                      <div
-                        className={`w-5 h-5 border-2 rounded flex items-center justify-center flex-shrink-0 ${
-                          selectedPondIds.has(pond.id)
-                            ? "bg-green-500 border-green-500"
-                            : "border-gray-300"
-                        }`}
-                      >
-                        {selectedPondIds.has(pond.id) && (
-                          <span className="text-white text-sm font-bold">
-                            ✓
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  </Card>
-                ))
-              )}
-            </div>
-
-            {/* Pagination Info and Controls */}
-            {pondsData && (
-              <div className="space-y-3 border-t pt-4">
-                <div className="text-sm text-gray-600 text-center">
-                  Trang {pondsData.pageIndex} / {pondsData.totalPages}
-                  {pondsData.totalItems > 0 && (
-                    <span> (Tổng: {pondsData.totalItems} hồ)</span>
-                  )}
-                </div>
-                <div className="flex gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setPondPageIndex(pondPageIndex - 1)}
-                    disabled={!pondsData.hasPreviousPage || isLoadingPonds}
-                    className="flex-1"
-                  >
-                    Trang trước
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setPondPageIndex(pondPageIndex + 1)}
-                    disabled={!pondsData.hasNextPage || isLoadingPonds}
-                    className="flex-1"
-                  >
-                    Trang sau
-                  </Button>
-                </div>
+            {isLoadingPonds ? (
+              <div className="flex items-center justify-center py-10 text-gray-500">
+                <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                Đang tải danh sách hồ...
               </div>
+            ) : (
+              <>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-[5%]">#</TableHead>
+                      <TableHead className="w-[30%]">Tên Hồ</TableHead>
+                      <TableHead className="w-[35%]">Vị trí</TableHead>
+                      <TableHead className="w-[30%]">Loại Hồ</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {!pondsData?.data || pondsData.data.length === 0 ? (
+                      <TableRow>
+                        <TableCell
+                          colSpan={4}
+                          className="text-center text-gray-500 py-4"
+                        >
+                          Không tìm thấy hồ nào.
+                        </TableCell>
+                      </TableRow>
+                    ) : (
+                      pondsData.data.map((pond: PondResponse) => (
+                        <TableRow
+                          key={pond.id}
+                          onClick={() => togglePondSelection(pond.id)}
+                          className={
+                            selectedPondIds.has(pond.id)
+                              ? "bg-green-50/50 cursor-pointer"
+                              : "hover:bg-gray-50 cursor-pointer"
+                          }
+                        >
+                          <TableCell>
+                            <input
+                              type="checkbox"
+                              checked={selectedPondIds.has(pond.id)}
+                              onChange={() => togglePondSelection(pond.id)}
+                              className="text-blue-600 focus:ring-blue-500"
+                            />
+                          </TableCell>
+                          <TableCell className="font-medium">
+                            {pond.pondName}
+                          </TableCell>
+                          <TableCell className="text-sm text-gray-500">
+                            {pond.location}
+                          </TableCell>
+                          <TableCell className="text-sm text-gray-500">
+                            {pond.pondTypeName || "N/A"}
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    )}
+                  </TableBody>
+                </Table>
+
+                {pondsData && pondsData.totalItems > 0 && (
+                  <PaginationSection
+                    totalItems={pondsData.totalItems}
+                    postsPerPage={pondSearchParams.pageSize}
+                    currentPage={pondSearchParams.pageIndex}
+                    setCurrentPage={(page) =>
+                      setPondSearchParams((prev) => ({
+                        ...prev,
+                        pageIndex: page,
+                      }))
+                    }
+                    totalPages={pondsData.totalPages}
+                    setPageSize={(size) =>
+                      setPondSearchParams((prev) => ({
+                        ...prev,
+                        pageSize: size,
+                        pageIndex: 1,
+                      }))
+                    }
+                    hasNextPage={pondsData.hasNextPage}
+                    hasPreviousPage={pondsData.hasPreviousPage}
+                    pageSizeOptions={[5, 10, 20]}
+                  />
+                )}
+              </>
             )}
           </div>
-          <div className="flex justify-end gap-2 pt-4 border-t">
+
+          <DialogFooter>
             <Button
               variant="outline"
               onClick={() => {
                 setIsPondModalOpen(false);
-                setPondPageIndex(1);
-                setPondSearchTerm("");
               }}
             >
-              Đóng
+              Hủy
             </Button>
-          </div>
+            <Button
+              onClick={() => {
+                setIsPondModalOpen(false);
+              }}
+              disabled={selectedPondIds.size === 0 || isLoadingPonds}
+            >
+              Chọn Hồ ({selectedPondIds.size} hồ)
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
 

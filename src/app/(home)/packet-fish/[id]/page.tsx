@@ -71,12 +71,12 @@ export default function PacketFishDetailPage() {
           Quay lại danh sách
         </Link>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:grid-rows-[1fr]">
           {/* Images and Videos Section */}
-          <div className="lg:col-span-2 space-y-6">
+          <div className="lg:col-span-2 space-y-6 flex flex-col">
             {/* Main Image */}
             {packet.images && packet.images.length > 0 && (
-              <Card>
+              <Card className="flex-shrink-0">
                 <CardContent className="p-4 space-y-4">
                   <div className="relative w-full h-96 bg-muted rounded-lg overflow-hidden">
                     <Image
@@ -118,7 +118,7 @@ export default function PacketFishDetailPage() {
 
             {/* Videos */}
             {packet.video && packet.video.length > 0 && (
-              <Card>
+              <Card className="flex-shrink-0">
                 <CardHeader>
                   <h3 className="font-semibold">Video</h3>
                 </CardHeader>
@@ -160,7 +160,7 @@ export default function PacketFishDetailPage() {
 
             {/* Description */}
             {packet.description && (
-              <Card>
+              <Card className="flex-shrink-0">
                 <CardHeader>
                   <h3 className="font-semibold">Mô tả</h3>
                 </CardHeader>
@@ -174,9 +174,9 @@ export default function PacketFishDetailPage() {
           </div>
 
           {/* Info Section */}
-          <div className="space-y-4">
+          <div className="space-y-4 lg:sticky lg:top-8 lg:h-fit">
             {/* Main Info */}
-            <Card>
+            <Card className="h-full">
               <CardContent className="p-6 space-y-4">
                 <div>
                   <h1 className="text-3xl font-bold">{packet.name}</h1>
