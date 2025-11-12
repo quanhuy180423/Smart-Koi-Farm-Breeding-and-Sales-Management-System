@@ -218,36 +218,37 @@ function getLabelForEnum<T extends string>(
   return meta[value];
 }
 
-/**
- * Format FishSize enum to human-readable string
- * @param size FishSize enum value
- * @returns Formatted string (e.g., "10 - 20cm", "< 10cm", "> 50cm")
- */
-export function formatFishSizeEnum(size: FishSize): string {
-  return (
-    String(size)
-      .replace(/^Under(\d+)cm$/, "< $1cm")
-      .replace(/^Over(\d+)cm$/, "> $1cm")
-      .replace(/^From(\d+)To(\d+)cm$/, "$1 - $2cm") || String(size)
-  );
-}
-
-/**
- * Get fish size label - handles both FishSize enum and pre-formatted strings
- * @param size FishSize enum or pre-formatted string
- * @returns Formatted fish size label
- */
 export function getFishSizeLabel(size?: FishSize | string): string {
   if (!size) return "Không xác định";
 
-  // Check if it matches FishSize enum pattern (From/Under/Over format)
-  const enumFormatRegex = /^(From\d+To\d+cm|Under\d+cm|Over\d+cm)$/;
-  if (enumFormatRegex.test(String(size))) {
-    return formatFishSizeEnum(size as FishSize);
+  const sizeStr = String(size);
+
+  // Handle Hirenaga variants: "From50_1To60cm_Hirenaga" -> "50.1 - 60cm (Hirenaga)"
+  if (sizeStr.includes("_Hirenaga")) {
+    return sizeStr
+      .replace(/^From(\d+)_(\d+)To(\d+)cm_Hirenaga$/, "$1.$2 - $3cm (Hirenaga)")
+      .replace(/^From(\d+)To(\d+)cm_Hirenaga$/, "$1 - $2cm (Hirenaga)");
   }
 
-  // Otherwise, assume it's already a formatted string, return as-is
-  return String(size);
+  // Handle regular ranges with decimal notation: "From25_1To30cm" -> "25.1 - 30cm"
+  if (sizeStr.includes("_")) {
+    return sizeStr.replace(/^From(\d+)_(\d+)To(\d+)cm$/, "$1.$2 - $3cm");
+  }
+
+  // Handle regular ranges: "From20To25cm" -> "20 - 25cm"
+  if (sizeStr.startsWith("From") && sizeStr.endsWith("cm")) {
+    return sizeStr.replace(/^From(\d+)To(\d+)cm$/, "$1 - $2cm");
+  }
+
+  // Handle "Over" format: "Over83_1cm" -> "> 83.1cm"
+  if (sizeStr.startsWith("Over")) {
+    return sizeStr
+      .replace(/^Over(\d+)_(\d+)cm$/, "> $1.$2cm")
+      .replace(/^Over(\d+)cm$/, "> $1cm");
+  }
+
+  // Fallback: return as-is
+  return sizeStr;
 }
 
 export function getHealthStatusLabel(status?: HealthStatus): Label {

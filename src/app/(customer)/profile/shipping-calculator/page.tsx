@@ -33,14 +33,20 @@ import { FishSize } from "@/lib/api/services/fetchKoiFish";
 import { getFishSizeLabel } from "@/lib/utils/enum/formatEnum";
 
 const KOI_SIZES = [
-  FishSize.UNDER_10CM,
-  FishSize.FROM_10_TO_20CM,
-  FishSize.FROM_21_TO_25CM,
-  FishSize.FROM_26_TO_30CM,
-  FishSize.FROM_31_TO_40CM,
-  FishSize.FROM_41_TO_45CM,
-  FishSize.FROM_46_TO_50CM,
-  FishSize.OVER_50CM,
+  FishSize.FROM_0_TO_19CM,
+  FishSize.FROM_20_TO_25CM,
+  FishSize.FROM_25_1_TO_30CM,
+  FishSize.FROM_30_1_TO_40CM,
+  FishSize.FROM_40_1_TO_44CM,
+  FishSize.FROM_44_1_TO_50CM,
+  FishSize.FROM_50_1_TO_55CM,
+  FishSize.FROM_50_1_TO_60CM_HIRENAGA,
+  FishSize.FROM_55_1_TO_60CM,
+  FishSize.FROM_60_1_TO_65CM,
+  FishSize.FROM_60_1_TO_65CM_HIRENAGA,
+  FishSize.FROM_65_1_TO_73CM,
+  FishSize.FROM_73_1_TO_83CM,
+  FishSize.OVER_83_1CM,
 ];
 
 interface SizeQuantityMap {
