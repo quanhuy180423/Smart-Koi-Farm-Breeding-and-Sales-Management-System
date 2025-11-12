@@ -264,7 +264,7 @@ export default function ScheduleManagement() {
   };
 
   return (
-    <div className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8 max-w-full overflow-hidden">
+    <div className="flex flex-1 flex-col gap-4 p-4 overflow-hidden">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">
@@ -329,19 +329,13 @@ export default function ScheduleManagement() {
                     <Table className="w-full">
                       <TableHeader>
                         <TableRow>
-                          <TableHead className="w-12 text-center px-2">
-                            STT
-                          </TableHead>
-                          <TableHead className="px-3 py-3 min-w-[200px]">
+                          <TableHead className="w-[10%]">STT</TableHead>
+                          <TableHead className="w-[20%]">
                             Tên công việc
                           </TableHead>
-                          <TableHead className="px-3 py-3 hidden sm:table-cell min-w-[250px]">
-                            Mô tả
-                          </TableHead>
-                          <TableHead className="w-24 text-center px-2">
-                            Thời lượng
-                          </TableHead>
-                          <TableHead className="w-32 text-center px-2">
+                          <TableHead className="w-[50%]">Mô tả</TableHead>
+                          <TableHead className="w-[10%]">Thời lượng</TableHead>
+                          <TableHead className="w-[10%] text-center">
                             Thao tác
                           </TableHead>
                         </TableRow>
@@ -353,13 +347,13 @@ export default function ScheduleManagement() {
                               key={task.id}
                               className="hover:bg-muted/50"
                             >
-                              <TableCell className="w-12 text-center font-medium text-xs px-2 py-3">
+                              <TableCell>
                                 {index +
                                   1 +
                                   (searchParams.pageIndex - 1) *
                                     searchParams.pageSize}
                               </TableCell>
-                              <TableCell className="px-3 py-3 min-w-[200px]">
+                              <TableCell>
                                 <div className="flex flex-col gap-1">
                                   <p className="font-medium text-sm">
                                     {task.taskName}
@@ -372,7 +366,7 @@ export default function ScheduleManagement() {
                                   </p>
                                 </div>
                               </TableCell>
-                              <TableCell className="px-3 py-3 hidden sm:table-cell min-w-[250px]">
+                              <TableCell>
                                 <div
                                   className="text-sm truncate"
                                   title={task.description}
@@ -380,10 +374,8 @@ export default function ScheduleManagement() {
                                   {task.description}
                                 </div>
                               </TableCell>
-                              <TableCell className="w-24 text-center text-sm px-2 py-3 whitespace-nowrap">
-                                {task.defaultDuration} phút
-                              </TableCell>
-                              <TableCell className="w-32 px-2 py-3">
+                              <TableCell>{task.defaultDuration} phút</TableCell>
+                              <TableCell>
                                 <div className="flex items-center justify-center gap-1">
                                   <Button
                                     variant="ghost"

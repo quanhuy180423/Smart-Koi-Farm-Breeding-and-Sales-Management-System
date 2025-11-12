@@ -9,15 +9,29 @@ import FatherFishInfo from "./FatherFishInfo";
 import MotherFishInfo from "./MotherFishInfo";
 import ComparisonSection from "./ComparisonSection";
 import { KoiFishResponse } from "@/lib/api/services/fetchKoiFish";
-import { ArrowLeft, ArrowRight, Check, Loader2, MapPin } from "lucide-react";
+import { ArrowLeft, Loader2, MapPin } from "lucide-react";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogFooter,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import { useGetPonds } from "@/hooks/usePond";
+import { Input } from "@/components/ui/input";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  PaginationSection,
+  PAGE_SIZE_OPTIONS_DEFAULT,
+} from "@/components/common/PaginationSection";
 
 import {
   PondResponse,
@@ -26,8 +40,6 @@ import {
 } from "@/lib/api/services/fetchPond";
 import { useAddBreedingProcess } from "@/hooks/useBreedingProcess";
 import { getPondStatusLabel } from "@/lib/utils/enum";
-
-const PAGE_SIZE = 3;
 
 interface PondSelectionListProps {
   selectedPondId: string | null;
@@ -38,106 +50,135 @@ function PondSelectionList({
   selectedPondId,
   onSelectPond,
 }: PondSelectionListProps) {
-  const [currentPage, setCurrentPage] = useState(1);
-  const request: PondSearchParams = {
-    pageIndex: currentPage,
-    pageSize: PAGE_SIZE,
+  const [searchTerm, setSearchTerm] = useState("");
+  const [pondSearchParams, setPondSearchParams] = useState<PondSearchParams>({
+    pageIndex: 1,
+    pageSize: PAGE_SIZE_OPTIONS_DEFAULT[0],
     status: PondStatus.EMPTY,
-  };
+    search: "",
+  });
 
-  const { data: pondsData, isFetching } = useGetPonds(request);
+  const { data: pondsData, isFetching } = useGetPonds(pondSearchParams);
   const ponds = pondsData?.data || [];
-  const totalPages = pondsData
-    ? Math.ceil(pondsData.totalItems / PAGE_SIZE)
-    : 0;
-
-  const handleNextPage = () => {
-    if (currentPage < totalPages) {
-      setCurrentPage(currentPage + 1);
-    }
-  };
-
-  const handlePrevPage = () => {
-    if (currentPage > 1) {
-      setCurrentPage(currentPage - 1);
-    }
-  };
 
   return (
     <div className="space-y-4">
-      <div className="max-h-60 overflow-y-auto space-y-2 pr-2">
-        {isFetching && ponds.length === 0 ? (
-          <div className="flex items-center justify-center py-10 text-gray-500">
-            <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-            Đang tải dữ liệu...
-          </div>
-        ) : ponds.length === 0 ? (
-          <div className="text-center text-sm text-gray-500 py-4">
-            Không tìm thấy hồ nào.
-          </div>
-        ) : (
-          ponds.map((pond: PondResponse) => {
-            const isSelected = selectedPondId === pond.id.toString();
-            const status = getPondStatusLabel(pond.pondStatus);
+      <Input
+        placeholder="Tìm kiếm hồ theo tên..."
+        value={searchTerm}
+        onChange={(e) => {
+          setSearchTerm(e.target.value);
+          setPondSearchParams((prev) => ({
+            ...prev,
+            search: e.target.value,
+            pageIndex: 1,
+          }));
+        }}
+        className="w-full"
+      />
 
-            return (
-              <div
-                key={pond.id}
-                className={`flex justify-between items-start p-3 rounded-lg border cursor-pointer transition-colors ${
-                  isSelected
-                    ? "border-blue-500 bg-blue-50 ring-2 ring-blue-500"
-                    : "border-gray-200 hover:bg-gray-50"
-                }`}
-                onClick={() => onSelectPond(pond.id.toString(), pond.pondName)}
-              >
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
-                    <p className="font-medium text-gray-800 truncate">
-                      {pond.pondName}
-                    </p>
-                    <span className={status.colorClass}>{status.label}</span>
-                  </div>
-                  <p className="text-sm text-gray-500">
-                    Loại: {pond.pondTypeName} | Kích thước: {pond.lengthMeters}m
-                    x {pond.widthMeters}m
-                  </p>
-                </div>
-                {isSelected && (
-                  <Check className="w-5 h-5 text-blue-600 flex-shrink-0 ml-2" />
-                )}
-              </div>
-            );
-          })
-        )}
-      </div>
-
-      {/* Phân trang */}
-      {totalPages > 1 && (
-        <div className="flex justify-between items-center pt-2 border-t mt-4">
-          <p className="text-sm text-gray-600">
-            Trang {currentPage} / {totalPages}
-          </p>
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handlePrevPage}
-              disabled={currentPage === 1 || isFetching}
-            >
-              <ArrowLeft className="w-4 h-4 mr-1" /> Trước
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleNextPage}
-              disabled={
-                currentPage === totalPages || isFetching || totalPages === 0
-              }
-            >
-              Tiếp <ArrowRight className="w-4 h-4 ml-1" />
-            </Button>
-          </div>
+      {isFetching && ponds.length === 0 ? (
+        <div className="flex items-center justify-center py-10 text-gray-500">
+          <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+          Đang tải dữ liệu...
         </div>
+      ) : (
+        <>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-[5%]">#</TableHead>
+                <TableHead className="w-[30%]">Tên Hồ</TableHead>
+                <TableHead className="w-[30%]">Vị trí</TableHead>
+                <TableHead className="w-[25%]">Loại Hồ</TableHead>
+                <TableHead className="w-[10%]">Trạng thái</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {ponds.length === 0 ? (
+                <TableRow>
+                  <TableCell
+                    colSpan={5}
+                    className="text-center text-gray-500 py-4"
+                  >
+                    Không tìm thấy hồ nào.
+                  </TableCell>
+                </TableRow>
+              ) : (
+                ponds.map((pond: PondResponse) => {
+                  const isSelected = selectedPondId === pond.id.toString();
+                  const status = getPondStatusLabel(pond.pondStatus);
+
+                  return (
+                    <TableRow
+                      key={pond.id}
+                      onClick={() =>
+                        onSelectPond(pond.id.toString(), pond.pondName)
+                      }
+                      className={
+                        isSelected
+                          ? "bg-green-50/50 cursor-pointer"
+                          : "hover:bg-gray-50 cursor-pointer"
+                      }
+                    >
+                      <TableCell>
+                        <input
+                          type="radio"
+                          checked={isSelected}
+                          onChange={() =>
+                            onSelectPond(pond.id.toString(), pond.pondName)
+                          }
+                          className="text-blue-600 focus:ring-blue-500"
+                        />
+                      </TableCell>
+                      <TableCell className="font-medium">
+                        {pond.pondName}
+                      </TableCell>
+                      <TableCell className="text-sm text-gray-500">
+                        {pond.location}
+                      </TableCell>
+                      <TableCell className="text-sm text-gray-500">
+                        {pond.pondTypeName || "N/A"}
+                      </TableCell>
+                      <TableCell>
+                        <span
+                          className={`text-xs px-2 py-1 rounded ${status.colorClass}`}
+                        >
+                          {status.label}
+                        </span>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })
+              )}
+            </TableBody>
+          </Table>
+
+          {pondsData && pondsData.totalItems > 0 && (
+            <PaginationSection
+              totalItems={pondsData.totalItems}
+              postsPerPage={pondSearchParams.pageSize}
+              currentPage={pondSearchParams.pageIndex}
+              setCurrentPage={(page) =>
+                setPondSearchParams((prev) => ({
+                  ...prev,
+                  pageIndex: page,
+                }))
+              }
+              totalPages={pondsData.totalPages}
+              setPageSize={(size) =>
+                setPondSearchParams((prev) => ({
+                  ...prev,
+                  pageSize: size,
+                  pageIndex: 1,
+                }))
+              }
+              hasNextPage={pondsData.hasNextPage}
+              hasPreviousPage={pondsData.hasPreviousPage}
+              pageSizeOptions={[5, 10, 20]}
+            />
+          )}
+        </>
       )}
     </div>
   );
@@ -292,9 +333,12 @@ export default function Main() {
       </main>
 
       <Dialog open={showPondModal} onOpenChange={setShowPondModal}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="!max-w-4xl">
           <DialogHeader>
-            <DialogTitle>Chọn hồ sinh sản</DialogTitle>
+            <DialogTitle>Chọn Hồ Sinh Sản</DialogTitle>
+            <DialogDescription>
+              Chọn hồ trống để làm hồ sinh sản cho cặp cá Koi
+            </DialogDescription>
           </DialogHeader>
 
           <PondSelectionList
@@ -302,7 +346,7 @@ export default function Main() {
             onSelectPond={handleSelectPond}
           />
 
-          <DialogFooter className="mt-4 flex justify-end gap-2">
+          <DialogFooter>
             <Button variant="outline" onClick={() => setShowPondModal(false)}>
               Hủy
             </Button>
@@ -310,7 +354,7 @@ export default function Main() {
               disabled={!selectedPond}
               onClick={handleConfirmPondSelection}
             >
-              Xác nhận
+              Chọn Hồ
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -12,13 +12,12 @@ import {
   Clock,
   Users,
   Droplets,
-  AlertCircle,
-  Search,
 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -32,8 +31,19 @@ import EditWorkScheduleModal from "./EditWorkScheduleModal";
 import CreateWorkScheduleModal from "./CreateWorkScheduleModal";
 import { useGetPonds } from "@/hooks/usePond";
 import { PondResponse, PondSearchParams } from "@/lib/api/services/fetchPond";
-import { useDebounce } from "@/hooks/useDebounce";
 import { Plus } from "lucide-react";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  PaginationSection,
+  PAGE_SIZE_OPTIONS_DEFAULT,
+} from "@/components/common/PaginationSection";
 
 interface WeeklyWorkScheduleViewProps {
   workSchedules: WorkSchedule[];
@@ -71,15 +81,14 @@ export default function WeeklyWorkScheduleView({
   const [isPondModalOpen, setIsPondModalOpen] = useState(false);
   const [selectedPond, setSelectedPond] = useState<PondResponse | null>(null);
   const [pondSearchTerm, setPondSearchTerm] = useState<string>("");
-  const debouncedPondSearch = useDebounce(pondSearchTerm, 500);
-  const [pondPageIndex, setPondPageIndex] = useState(1);
-  const [pondPageSize] = useState(5);
+  const [pondSearchParams, setPondSearchParams] = useState<PondSearchParams>({
+    pageIndex: 1,
+    pageSize: PAGE_SIZE_OPTIONS_DEFAULT[0],
+    search: "",
+  });
 
-  const { data: pondsResponse, isLoading: isLoadingPonds } = useGetPonds({
-    pageIndex: pondPageIndex,
-    pageSize: pondPageSize,
-    search: debouncedPondSearch,
-  } as PondSearchParams);
+  const { data: pondsResponse, isLoading: isLoadingPonds } =
+    useGetPonds(pondSearchParams);
 
   const handleViewDetails = (schedule: WorkSchedule) => {
     setSelectedSchedule(schedule);
@@ -339,110 +348,130 @@ export default function WeeklyWorkScheduleView({
 
       {/* Pond Selection Dialog */}
       <Dialog open={isPondModalOpen} onOpenChange={setIsPondModalOpen}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="!max-w-4xl">
           <DialogHeader>
-            <DialogTitle>Chọn hồ để lọc</DialogTitle>
+            <DialogTitle>Chọn Hồ để lọc</DialogTitle>
             <DialogDescription>
-              Chọn hồ để lọc danh sách công việc
+              Chọn hồ để lọc danh sách công việc theo hồ
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4">
-            {/* Search Input */}
-            <div className="flex items-center gap-2 px-1">
-              <Search className="h-4 w-4 text-gray-400 flex-shrink-0" />
-              <Input
-                placeholder="Tìm kiếm hồ..."
-                value={pondSearchTerm}
-                onChange={(e) => {
-                  setPondSearchTerm(e.target.value);
-                  setPondPageIndex(1);
-                }}
-                className="flex-1"
-              />
-            </div>
+            <Input
+              placeholder="Tìm kiếm hồ theo tên..."
+              value={pondSearchTerm}
+              onChange={(e) => {
+                setPondSearchTerm(e.target.value);
+                setPondSearchParams((prev) => ({
+                  ...prev,
+                  search: e.target.value,
+                  pageIndex: 1,
+                }));
+              }}
+              className="w-full"
+            />
 
-            {/* Pond List */}
-            <div className="space-y-3 max-h-64 overflow-y-auto">
-              {isLoadingPonds ? (
-                <div className="flex items-center justify-center py-8">
-                  <Loader2 className="h-5 w-5 animate-spin text-gray-400" />
-                </div>
-              ) : pondsResponse &&
-                pondsResponse.data &&
-                pondsResponse.data.length > 0 ? (
-                pondsResponse.data.map((pond) => (
-                  <Card
-                    key={pond.id}
-                    className={`p-3 cursor-pointer transition-all ${
-                      selectedPondId === pond.id
-                        ? "border-2 border-blue-500 bg-blue-50"
-                        : "border border-gray-200 hover:border-gray-300"
-                    }`}
-                    onClick={() => handlePondSelect(pond)}
-                  >
-                    <div className="flex items-center gap-2">
-                      <Droplets className="h-4 w-4 text-green-600" />
-                      <div className="flex-1">
-                        <p className="font-medium text-gray-900">
-                          {pond.pondName}
-                        </p>
-                        <p className="text-xs text-gray-500">{pond.location}</p>
-                      </div>
-                    </div>
-                  </Card>
-                ))
-              ) : (
-                <div className="flex items-center gap-2 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-                  <AlertCircle className="h-5 w-5 text-yellow-600" />
-                  <p className="text-sm text-yellow-800">Không có hồ nào</p>
-                </div>
-              )}
-            </div>
-
-            {/* Pagination Info */}
-            {pondsResponse && pondsResponse.totalPages > 0 && (
-              <div className="flex items-center justify-center text-xs text-gray-500 pt-2">
-                Trang {pondPageIndex} / {pondsResponse.totalPages}
+            {isLoadingPonds ? (
+              <div className="flex items-center justify-center py-10 text-gray-500">
+                <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                Đang tải danh sách hồ...
               </div>
+            ) : (
+              <>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-[5%]">#</TableHead>
+                      <TableHead className="w-[30%]">Tên Hồ</TableHead>
+                      <TableHead className="w-[35%]">Vị trí</TableHead>
+                      <TableHead className="w-[30%]">Loại Hồ</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {!pondsResponse?.data || pondsResponse.data.length === 0 ? (
+                      <TableRow>
+                        <TableCell
+                          colSpan={4}
+                          className="text-center text-gray-500 py-4"
+                        >
+                          Không tìm thấy hồ nào.
+                        </TableCell>
+                      </TableRow>
+                    ) : (
+                      pondsResponse.data.map((pond) => (
+                        <TableRow
+                          key={pond.id}
+                          onClick={() => handlePondSelect(pond)}
+                          className={
+                            selectedPondId === pond.id
+                              ? "bg-green-50/50 cursor-pointer"
+                              : "hover:bg-gray-50 cursor-pointer"
+                          }
+                        >
+                          <TableCell>
+                            <input
+                              type="radio"
+                              checked={selectedPondId === pond.id}
+                              onChange={() => handlePondSelect(pond)}
+                              className="text-blue-600 focus:ring-blue-500"
+                            />
+                          </TableCell>
+                          <TableCell className="font-medium">
+                            {pond.pondName}
+                          </TableCell>
+                          <TableCell className="text-sm text-gray-500">
+                            {pond.location}
+                          </TableCell>
+                          <TableCell className="text-sm text-gray-500">
+                            {pond.pondTypeName || "N/A"}
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    )}
+                  </TableBody>
+                </Table>
+
+                {pondsResponse && pondsResponse.totalItems > 0 && (
+                  <PaginationSection
+                    totalItems={pondsResponse.totalItems}
+                    postsPerPage={pondSearchParams.pageSize}
+                    currentPage={pondSearchParams.pageIndex}
+                    setCurrentPage={(page) =>
+                      setPondSearchParams((prev) => ({
+                        ...prev,
+                        pageIndex: page,
+                      }))
+                    }
+                    totalPages={pondsResponse.totalPages}
+                    setPageSize={(size) =>
+                      setPondSearchParams((prev) => ({
+                        ...prev,
+                        pageSize: size,
+                        pageIndex: 1,
+                      }))
+                    }
+                    hasNextPage={pondsResponse.hasNextPage}
+                    hasPreviousPage={pondsResponse.hasPreviousPage}
+                    pageSizeOptions={[5, 10, 20]}
+                  />
+                )}
+              </>
             )}
           </div>
 
-          {/* Pagination Controls */}
-          {pondsResponse && pondsResponse.totalPages > 1 && (
-            <div className="flex items-center justify-between gap-2 pt-2 border-t">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setPondPageIndex(Math.max(1, pondPageIndex - 1))}
-                disabled={pondPageIndex === 1 || isLoadingPonds}
-              >
-                <ChevronLeft className="h-4 w-4" />
-                Trước
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() =>
-                  setPondPageIndex(
-                    Math.min(pondsResponse.totalPages, pondPageIndex + 1),
-                  )
-                }
-                disabled={
-                  pondPageIndex === pondsResponse.totalPages || isLoadingPonds
-                }
-              >
-                Sau
-                <ChevronRight className="h-4 w-4" />
-              </Button>
-            </div>
-          )}
-
-          <div className="flex justify-end gap-2 pt-4 border-t">
+          <DialogFooter>
             <Button variant="outline" onClick={() => setIsPondModalOpen(false)}>
-              Đóng
+              Hủy
             </Button>
-          </div>
+            <Button
+              onClick={() => {
+                setIsPondModalOpen(false);
+              }}
+              disabled={!selectedPondId || isLoadingPonds}
+            >
+              Chọn Hồ
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>

@@ -295,6 +295,10 @@ export default function OrdersPage() {
   // Debounce search term
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
 
+  // Debounce price filters
+  const debouncedMinPrice = useDebounce(minPrice, 500);
+  const debouncedMaxPrice = useDebounce(maxPrice, 500);
+
   // Build search params
   const searchParams = useMemo<OrderSearchParams>(() => {
     return {
@@ -307,8 +311,12 @@ export default function OrdersPage() {
         ? Math.floor(startDate.getTime() / 1000)
         : undefined,
       createdTo: endDate ? Math.floor(endDate.getTime() / 1000) : undefined,
-      minTotalAmount: minPrice ? parseFloat(minPrice) : undefined,
-      maxTotalAmount: maxPrice ? parseFloat(maxPrice) : undefined,
+      minTotalAmount: debouncedMinPrice
+        ? parseFloat(debouncedMinPrice)
+        : undefined,
+      maxTotalAmount: debouncedMaxPrice
+        ? parseFloat(debouncedMaxPrice)
+        : undefined,
       pageIndex: currentPage,
       pageSize: pageSize,
     };
@@ -317,8 +325,8 @@ export default function OrdersPage() {
     statusFilter,
     startDate,
     endDate,
-    minPrice,
-    maxPrice,
+    debouncedMinPrice,
+    debouncedMaxPrice,
     currentPage,
     pageSize,
   ]);
