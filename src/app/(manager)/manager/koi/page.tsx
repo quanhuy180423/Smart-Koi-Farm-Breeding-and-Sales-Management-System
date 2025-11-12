@@ -37,7 +37,6 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
 } from "@/components/ui/select";
 import {
   Dialog,
@@ -61,7 +60,11 @@ import {
   PaginationSection,
 } from "@/components/common/PaginationSection";
 import getAge from "@/lib/utils/dates/age";
-import { getFishSizeLabel, getHealthStatusLabel } from "@/lib/utils/enum";
+import {
+  getFishSizeLabel,
+  getHealthStatusLabel,
+  getGenderLabel,
+} from "@/lib/utils/enum";
 import { useDebounce } from "@/hooks/useDebounce";
 import { Label } from "@/components/ui/label";
 import PedigreeModal from "./PedigreeModal";
@@ -530,7 +533,7 @@ export default function KoiManagement() {
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-6">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="healthStatus">Sức khỏe</Label>
                 <Select
@@ -538,7 +541,13 @@ export default function KoiManagement() {
                   onValueChange={setHealthFilterInput}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Chọn trạng thái" />
+                    <span className="flex items-center gap-2 w-full">
+                      {healthFilterInput === "all"
+                        ? "Chọn trạng thái"
+                        : getHealthStatusLabel(
+                            healthFilterInput as HealthStatus,
+                          ).label}
+                    </span>
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">Tất cả</SelectItem>
@@ -558,7 +567,11 @@ export default function KoiManagement() {
                   onValueChange={setGenderFilterInput}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Chọn giới tính" />
+                    <span className="flex items-center gap-2">
+                      {genderFilterInput === "all"
+                        ? "Chọn giới tính"
+                        : getGenderLabel(genderFilterInput as Gender).label}
+                    </span>
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">Tất cả</SelectItem>
@@ -573,7 +586,11 @@ export default function KoiManagement() {
                 <Label htmlFor="fishSize">Kích thước</Label>
                 <Select value={fishSizeInput} onValueChange={setFishSizeInput}>
                   <SelectTrigger>
-                    <SelectValue placeholder="Chọn kích thước" />
+                    <span className="flex items-center gap-2">
+                      {fishSizeInput === "all"
+                        ? "Chọn kích thước"
+                        : getFishSizeLabel(fishSizeInput)}
+                    </span>
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">Tất cả</SelectItem>

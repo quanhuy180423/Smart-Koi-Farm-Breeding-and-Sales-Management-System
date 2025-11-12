@@ -14,7 +14,6 @@ export enum EggBatchStatus {
 export interface EggBatchResponse {
   id: number;
   breedingProcessId: number;
-  pondId: number;
   quantity: number;
   fertilizationRate: number;
   status: EggBatchStatus;

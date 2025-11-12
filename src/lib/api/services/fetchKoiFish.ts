@@ -43,26 +43,38 @@ export enum FishSize {
   OVER_83_1CM = "Over83_1cm",
 }
 
+export enum MutationType {
+  NONE = "None",
+  DOITSU = "Doitsu",
+  GIN_RIN = "GinRin",
+  HIRENAGA = "Hirenaga",
+  METALLIC = "Metallic",
+}
+
 export interface KoiFishResponse {
   id: number;
   rfid: string;
-  size?: FishSize;
+  size?: string;
   type: KoiType;
   birthDate?: string;
   gender: Gender;
   healthStatus: HealthStatus;
+  patternType?: string;
+  saleStatus: SaleStatus;
   images: string[];
   videos: string[];
   sellingPrice?: number;
-  bodyShape: string;
   description: string;
-  createdAt: string;
-  updatedAt?: string;
   origin?: string;
+  bodyShape?: string;
+  isMutated: boolean;
+  mutationType: MutationType;
+  mutationRate: number;
+  createdAt: string;
+  updatedAt: string | null;
   pond: PondBasicResponse;
   variety: VarietyResponse;
-  breedingProcess: BreedingProcessBasicResponse;
-  saleStatus: SaleStatus;
+  breedingProcess: BreedingProcessBasicResponse | null;
 }
 
 export enum SaleStatus {
