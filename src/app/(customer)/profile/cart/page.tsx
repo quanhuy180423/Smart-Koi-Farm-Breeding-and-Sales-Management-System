@@ -7,9 +7,9 @@ import {
   ShoppingCart,
   ArrowLeft,
   Shield,
-  Truck,
   Clock,
   Loader2,
+  Calculator,
 } from "lucide-react";
 import Link from "next/link";
 import { formatCurrency } from "@/lib/utils/numbers/formatCurrency";
@@ -108,10 +108,6 @@ export default function CartPage() {
                       {formatCurrency(cart.totalPrice || 0)}
                     </span>
                   </div>
-                  <div className="flex justify-between text-sm md:text-base">
-                    <span>Phí vận chuyển</span>
-                    <span className="text-green-600 font-medium">Miễn phí</span>
-                  </div>
                   <Separator />
                   <div className="flex justify-between font-bold text-lg md:text-xl">
                     <span>Tổng cộng</span>
@@ -136,15 +132,22 @@ export default function CartPage() {
                     className="w-full bg-transparent"
                     size="lg"
                   >
+                    <Link href="/profile/shipping-calculator">
+                      <Calculator className="mr-2 h-4 w-4" />
+                      Tính thử giá hộp
+                    </Link>
+                  </Button>
+                  <Button
+                    asChild
+                    variant="outline"
+                    className="w-full bg-transparent"
+                    size="lg"
+                  >
                     <Link href="/catalog">Tiếp tục mua sắm</Link>
                   </Button>
                 </div>
 
                 <div className="text-xs md:text-sm text-muted-foreground space-y-2 pt-2 border-t">
-                  <div className="flex items-center gap-2">
-                    <Truck className="h-4 w-4 text-green-600 flex-shrink-0" />
-                    <span>Miễn phí vận chuyển toàn quốc</span>
-                  </div>
                   <div className="flex items-center gap-2">
                     <Shield className="h-4 w-4 text-blue-600 flex-shrink-0" />
                     <span>Bảo hành sức khỏe cá 30 ngày</span>

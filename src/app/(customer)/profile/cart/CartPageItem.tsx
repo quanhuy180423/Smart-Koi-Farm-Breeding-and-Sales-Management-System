@@ -18,6 +18,11 @@ import { Loader2, Minus, Plus, Trash2 } from "lucide-react";
 import Image from "next/image";
 import { useState, useEffect, useRef } from "react";
 import { useDebounce } from "@/hooks/useDebounce";
+import getAge from "@/lib/utils/dates/age";
+import {
+  getFishSizeLabel,
+  getHealthStatusLabel,
+} from "@/lib/utils/enum/formatEnum";
 
 interface CartPageItemProps {
   item: CartItemResponse;
@@ -26,7 +31,7 @@ interface CartPageItemProps {
 export function CartPageItem({ item }: CartPageItemProps) {
   const [localQuantity, setLocalQuantity] = useState(item.quantity);
   const debouncedQuantity = useDebounce(localQuantity, 1000);
-  const isInitialMount = useRef(true);
+  const lastSentQuantityRef = useRef(item.quantity);
 
   const handleUpdateErr = () => setLocalQuantity(item.quantity);
 
@@ -38,15 +43,28 @@ export function CartPageItem({ item }: CartPageItemProps) {
     deleteItem(item.id);
   };
 
+  // Sync localQuantity khi API update thành công (item.quantity từ server thay đổi)
   useEffect(() => {
-    if (isInitialMount.current) {
-      isInitialMount.current = false;
+    if (
+      lastSentQuantityRef.current !== item.quantity &&
+      !isUpdating &&
+      !isDeleting
+    ) {
+      setLocalQuantity(item.quantity);
+      lastSentQuantityRef.current = item.quantity;
+    }
+  }, [item.quantity, isUpdating, isDeleting]);
+
+  useEffect(() => {
+    // Chỉ gửi request nếu quantity thực sự thay đổi so với lần cuối gửi
+    if (debouncedQuantity === lastSentQuantityRef.current) {
       return;
     }
 
     if (debouncedQuantity <= 0) {
       deleteItem(item.id);
     } else {
+      lastSentQuantityRef.current = debouncedQuantity;
       updateItem({ id: item.id, item: { quantity: debouncedQuantity } });
     }
   }, [debouncedQuantity, deleteItem, item.id, updateItem]);
@@ -74,10 +92,54 @@ export function CartPageItem({ item }: CartPageItemProps) {
           </div>
           <div className="flex-1 min-w-0 space-y-3 sm:space-y-2">
             <div className="flex justify-between items-start">
-              <div className="flex-1 pr-2">
+              <div className="flex-1 pr-2 space-y-2">
                 <h3 className="font-semibold text-lg sm:text-base md:text-lg line-clamp-2">
                   {item?.koiFish?.rfid || item?.packetFish?.name || ""}
                 </h3>
+                {/* Variety */}
+                <p className="text-xs sm:text-sm text-muted-foreground">
+                  <span className="font-medium">Giống:</span>{" "}
+                  {item.koiFish?.variety?.varietyName ||
+                    item.packetFish?.varietyPacketFishes
+                      .map((v) => v.varietyName)
+                      .join(", ")}
+                </p>
+                {/* Koi Fish Info */}
+                {item.koiFish && (
+                  <div className="space-y-1">
+                    <div className="flex gap-4 text-xs sm:text-sm text-muted-foreground">
+                      <span>
+                        <span className="font-medium">Kích thước:</span>{" "}
+                        {getFishSizeLabel(item.koiFish.size)} cm
+                      </span>
+                      <span>
+                        <span className="font-medium">Tuổi:</span>{" "}
+                        {getAge(item.koiFish.birthDate)} tuổi
+                      </span>
+                    </div>
+                    <div className="flex gap-4 text-xs sm:text-sm text-muted-foreground">
+                      <span>
+                        <span className="font-medium">Sức khỏe:</span>{" "}
+                        {getHealthStatusLabel(item.koiFish.healthStatus).label}
+                      </span>
+                    </div>
+                  </div>
+                )}
+                {/* Packet Fish Info */}
+                {item.packetFish && (
+                  <div className="space-y-1">
+                    <div className="flex gap-4 text-xs sm:text-sm text-muted-foreground">
+                      <span>
+                        <span className="font-medium">Kích thước:</span>{" "}
+                        {getFishSizeLabel(item.packetFish.size)}
+                      </span>
+                      <span>
+                        <span className="font-medium">Tuổi:</span>{" "}
+                        {item.packetFish.ageMonths} tháng
+                      </span>
+                    </div>
+                  </div>
+                )}
               </div>
               <Dialog>
                 <DialogTrigger asChild>
@@ -120,40 +182,38 @@ export function CartPageItem({ item }: CartPageItemProps) {
                 </DialogContent>
               </Dialog>
             </div>
-            <div className="flex items-end justify-between sm:flex-row sm:items-center sm:justify-between gap-3">
-              {item.packetFishId != null ? (
-                <div className="flex items-center gap-2 sm:gap-3">
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    className="h-8 w-8 bg-transparent"
-                    onClick={() =>
-                      setLocalQuantity((prev) => Math.max(0, prev - 1))
-                    }
-                    disabled={isMutating || localQuantity <= 1}
-                  >
-                    <Minus className="h-3 w-3" />
-                  </Button>
-                  <span className="w-12 text-center font-medium bg-muted px-2 py-1 rounded text-sm">
-                    {isUpdating ? (
-                      <Loader2 className="h-3 w-3 mx-auto animate-spin" />
-                    ) : (
-                      localQuantity
-                    )}
-                  </span>
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    className="h-8 w-8 bg-transparent"
-                    onClick={() => setLocalQuantity((prev) => prev + 1)}
-                    disabled={isMutating}
-                  >
-                    <Plus className="h-3 w-3" />
-                  </Button>
-                </div>
-              ) : (
-                <div className="h-8"></div>
-              )}
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pt-2 border-t">
+              <div className="flex items-center gap-2 sm:gap-3">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="h-8 w-8 bg-transparent"
+                  onClick={() =>
+                    setLocalQuantity((prev) => Math.max(0, prev - 1))
+                  }
+                  disabled={
+                    isMutating || localQuantity <= 1 || item.koiFishId != null
+                  }
+                >
+                  <Minus className="h-3 w-3" />
+                </Button>
+                <span className="w-12 text-center font-medium bg-muted px-2 py-1 rounded text-sm">
+                  {isUpdating ? (
+                    <Loader2 className="h-3 w-3 mx-auto animate-spin" />
+                  ) : (
+                    localQuantity
+                  )}
+                </span>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="h-8 w-8 bg-transparent"
+                  onClick={() => setLocalQuantity((prev) => prev + 1)}
+                  disabled={isMutating || item.koiFishId != null}
+                >
+                  <Plus className="h-3 w-3" />
+                </Button>
+              </div>
               <div className="text-right">
                 <p className="font-bold text-lg sm:text-base md:text-lg text-primary">
                   {formatCurrency(item.itemTotalPrice || 0)}

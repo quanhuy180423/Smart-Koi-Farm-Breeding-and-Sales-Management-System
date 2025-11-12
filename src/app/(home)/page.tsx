@@ -21,6 +21,7 @@ import { Star, Zap, Shield, Award, ArrowRight, Play } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
+import { getFishSizeLabel } from "@/lib/utils/enum";
 
 export default function HomePage() {
   const [api, setApi] = useState<CarouselApi>();
@@ -274,7 +275,8 @@ export default function HomePage() {
                               {koi.name}
                             </CardTitle>
                             <CardDescription>
-                              Tuổi: {koi.age} • Kích thước: {koi.size}
+                              Tuổi: {koi.age} • Kích thước:{" "}
+                              {getFishSizeLabel(koi.size)}
                             </CardDescription>
                           </div>
                           <Badge

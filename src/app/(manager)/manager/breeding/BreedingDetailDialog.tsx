@@ -137,10 +137,12 @@ export const BreedingDetailDialog = ({
                 </p>
                 <p>
                   <b>Ngày kết thúc dự kiến:</b>{" "}
-                  {formatDate(
-                    breedingProcess.endDate,
-                    DATE_FORMATS.MEDIUM_DATE,
-                  ) || "Chưa xác định"}
+                  {breedingProcess.endDate
+                    ? formatDate(
+                        breedingProcess.endDate,
+                        DATE_FORMATS.MEDIUM_DATE,
+                      )
+                    : "Chưa xác định"}
                 </p>
               </CardContent>
             </Card>

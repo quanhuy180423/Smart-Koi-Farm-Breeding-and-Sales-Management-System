@@ -40,9 +40,9 @@ import { useDebounce } from "@/hooks/useDebounce";
 import TaskSelectionPopup from "./TaskSelectionPopup";
 import { TaskTemplateResponse } from "@/lib/api/services/fetchTaskTemplate";
 import { getWorkScheduleStatusText } from "@/lib/utils/enum";
-import { useGetStaffByRole } from "@/hooks/useUsers";
+import { useGetUserByRole } from "@/hooks/useUsers";
 import { Roles } from "@/lib/api/services/fetchAuth";
-import { StaffUser } from "@/lib/api/services/fetchUsers";
+import { User } from "@/lib/api/services/fetchUsers";
 
 interface EditWorkScheduleModalProps {
   isOpen: boolean;
@@ -105,7 +105,7 @@ export default function EditWorkScheduleModal({
   } as PondSearchParams);
 
   // Fetch staff from API for selection modal with search
-  const { data: staffData, isLoading: isLoadingStaff } = useGetStaffByRole({
+  const { data: staffData, isLoading: isLoadingStaff } = useGetUserByRole({
     role: Roles.FarmStaff,
     pageIndex: staffPageIndex,
     pageSize: STAFF_PER_PAGE,
@@ -530,7 +530,7 @@ export default function EditWorkScheduleModal({
                   <p className="text-sm">Không có nhân viên nào</p>
                 </div>
               ) : (
-                staffData.datas.map((staff: StaffUser) => (
+                staffData.datas.map((staff: User) => (
                   <Card
                     key={staff.id}
                     className={`p-3 cursor-pointer transition-all ${

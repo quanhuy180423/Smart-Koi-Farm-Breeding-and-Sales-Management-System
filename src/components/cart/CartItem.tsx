@@ -27,7 +27,7 @@ interface CartItemProps {
 export function CartItem({ item }: CartItemProps) {
   const [localQuantity, setLocalQuantity] = useState(item.quantity);
   const debouncedQuantity = useDebounce(localQuantity, 1000);
-  const isInitialMount = useRef(true);
+  const lastSentQuantityRef = useRef(item.quantity);
 
   const handleUpdateErr = () => setLocalQuantity(item.quantity);
 
@@ -35,23 +35,31 @@ export function CartItem({ item }: CartItemProps) {
     useUpdateItem(handleUpdateErr);
   const { mutate: deleteItem, isPending: isDeleting } = useDeleteItem();
 
+  // Sync localQuantity khi API update thành công (item.quantity từ server thay đổi)
   useEffect(() => {
-    if (isInitialMount.current) {
-      isInitialMount.current = false;
-      return;
+    if (
+      lastSentQuantityRef.current !== item.quantity &&
+      !isUpdating &&
+      !isDeleting
+    ) {
+      setLocalQuantity(item.quantity);
+      lastSentQuantityRef.current = item.quantity;
     }
+  }, [item.quantity, isUpdating, isDeleting]);
 
-    // Chỉ gửi request nếu quantity thực sự thay đổi
-    if (debouncedQuantity === item.quantity) {
+  useEffect(() => {
+    // Chỉ gửi request nếu quantity thực sự thay đổi so với lần cuối gửi
+    if (debouncedQuantity === lastSentQuantityRef.current) {
       return;
     }
 
     if (debouncedQuantity <= 0) {
       deleteItem(item.id);
     } else {
+      lastSentQuantityRef.current = debouncedQuantity;
       updateItem({ id: item.id, item: { quantity: debouncedQuantity } });
     }
-  }, [debouncedQuantity, deleteItem, item.id, item.quantity, updateItem]);
+  }, [debouncedQuantity, deleteItem, item.id, updateItem]);
 
   const isMutating = isUpdating || isDeleting;
 
@@ -142,35 +150,35 @@ export function CartItem({ item }: CartItemProps) {
           </DialogContent>
         </Dialog>
 
-        {item.packetFishId != null && (
-          <div className="flex items-center gap-1 mt-auto">
-            <Button
-              variant="outline"
-              size="icon"
-              className="h-7 w-7 bg-transparent"
-              onClick={() => setLocalQuantity((prev) => Math.max(0, prev - 1))}
-              disabled={isMutating || localQuantity <= 1}
-            >
-              <Minus className="h-4 w-4" />
-            </Button>
-            <span className="w-8 text-center text-sm font-medium">
-              {isUpdating ? (
-                <Loader2 className="h-4 w-4 mx-auto animate-spin" />
-              ) : (
-                localQuantity
-              )}
-            </span>
-            <Button
-              variant="outline"
-              size="icon"
-              className="h-7 w-7 bg-transparent"
-              onClick={() => setLocalQuantity((prev) => prev + 1)}
-              disabled={isMutating}
-            >
-              <Plus className="h-4 w-4" />
-            </Button>
-          </div>
-        )}
+        <div className="flex items-center gap-1 mt-auto">
+          <Button
+            variant="outline"
+            size="icon"
+            className="h-7 w-7 bg-transparent"
+            onClick={() => setLocalQuantity((prev) => Math.max(0, prev - 1))}
+            disabled={
+              isMutating || localQuantity <= 1 || item.koiFishId != null
+            }
+          >
+            <Minus className="h-4 w-4" />
+          </Button>
+          <span className="w-8 text-center text-sm font-medium">
+            {isUpdating ? (
+              <Loader2 className="h-4 w-4 mx-auto animate-spin" />
+            ) : (
+              localQuantity
+            )}
+          </span>
+          <Button
+            variant="outline"
+            size="icon"
+            className="h-7 w-7 bg-transparent"
+            onClick={() => setLocalQuantity((prev) => prev + 1)}
+            disabled={isMutating || item.koiFishId != null}
+          >
+            <Plus className="h-4 w-4" />
+          </Button>
+        </div>
       </div>
     </div>
   );

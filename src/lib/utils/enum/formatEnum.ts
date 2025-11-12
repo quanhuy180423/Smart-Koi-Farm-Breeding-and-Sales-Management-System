@@ -218,14 +218,37 @@ function getLabelForEnum<T extends string>(
   return meta[value];
 }
 
-export function getFishSizeLabel(size?: FishSize): string {
+export function getFishSizeLabel(size?: FishSize | string): string {
   if (!size) return "Không xác định";
-  return (
-    size
-      .replace(/^Under(\d+)cm$/, "< $1cm")
-      .replace(/^Over(\d+)cm$/, "> $1cm")
-      .replace(/^From(\d+)To(\d+)cm$/, "$1 - $2cm") || size
-  );
+
+  const sizeStr = String(size);
+
+  // Handle Hirenaga variants: "From50_1To60cm_Hirenaga" -> "50.1 - 60cm (Hirenaga)"
+  if (sizeStr.includes("_Hirenaga")) {
+    return sizeStr
+      .replace(/^From(\d+)_(\d+)To(\d+)cm_Hirenaga$/, "$1.$2 - $3cm (Hirenaga)")
+      .replace(/^From(\d+)To(\d+)cm_Hirenaga$/, "$1 - $2cm (Hirenaga)");
+  }
+
+  // Handle regular ranges with decimal notation: "From25_1To30cm" -> "25.1 - 30cm"
+  if (sizeStr.includes("_")) {
+    return sizeStr.replace(/^From(\d+)_(\d+)To(\d+)cm$/, "$1.$2 - $3cm");
+  }
+
+  // Handle regular ranges: "From20To25cm" -> "20 - 25cm"
+  if (sizeStr.startsWith("From") && sizeStr.endsWith("cm")) {
+    return sizeStr.replace(/^From(\d+)To(\d+)cm$/, "$1 - $2cm");
+  }
+
+  // Handle "Over" format: "Over83_1cm" -> "> 83.1cm"
+  if (sizeStr.startsWith("Over")) {
+    return sizeStr
+      .replace(/^Over(\d+)_(\d+)cm$/, "> $1.$2cm")
+      .replace(/^Over(\d+)cm$/, "> $1cm");
+  }
+
+  // Fallback: return as-is
+  return sizeStr;
 }
 
 export function getHealthStatusLabel(status?: HealthStatus): Label {
@@ -299,11 +322,6 @@ export interface OrderStatusLabel extends Label {
 }
 
 const orderStatusMeta: Record<OrderStatus, OrderStatusLabel> = {
-  [OrderStatus.CREATED]: {
-    label: "Được tạo",
-    colorClass: "bg-yellow-100 text-yellow-800",
-    icon: AlertCircle,
-  },
   [OrderStatus.CONFIRMED]: {
     label: "Đã xác nhận",
     colorClass: "bg-blue-100 text-blue-800",
@@ -408,11 +426,6 @@ export function getOrderStatusTimeline(
 }> {
   const timeline = [
     {
-      status: OrderStatus.CREATED,
-      text: "Chờ xác nhận",
-      active: false,
-    },
-    {
       status: OrderStatus.CONFIRMED,
       text: "Đã xác nhận",
       active: false,
@@ -431,17 +444,14 @@ export function getOrderStatusTimeline(
 
   let activeIndex = -1;
   switch (currentStatus) {
-    case OrderStatus.CREATED:
+    case OrderStatus.CONFIRMED:
       activeIndex = 0;
       break;
-    case OrderStatus.CONFIRMED:
+    case OrderStatus.SHIPPED:
       activeIndex = 1;
       break;
-    case OrderStatus.SHIPPED:
-      activeIndex = 2;
-      break;
     case OrderStatus.COMPLETED:
-      activeIndex = 3;
+      activeIndex = 2;
       break;
   }
 

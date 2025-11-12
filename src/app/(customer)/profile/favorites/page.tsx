@@ -8,6 +8,7 @@ import Image from "next/image";
 import Link from "next/link";
 import CustomerLayout from "@/components/customer/CustomerLayout";
 import formatCurrency from "@/lib/utils/numbers";
+import { getFishSizeLabel } from "@/lib/utils/enum";
 import { useCartStore } from "@/store/cart-store";
 
 // Mock data for favorite koi
@@ -153,7 +154,7 @@ export default function FavoritesPage() {
 
                   <div className="space-y-2 mb-4">
                     <div className="grid grid-cols-2 gap-2 text-sm text-muted-foreground">
-                      <span>Kích thước: {koi.size}</span>
+                      <span>Kích thước: {getFishSizeLabel(koi.size)}</span>
                       <span>Tuổi: {koi.age}</span>
                     </div>
                     <div className="grid grid-cols-2 gap-2 text-sm text-muted-foreground">
