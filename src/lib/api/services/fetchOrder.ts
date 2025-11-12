@@ -20,7 +20,6 @@ export interface OrderDetailResponse {
 }
 
 export enum OrderStatus {
-  CREATED = "Created",
   PENDING_PAYMENT = "PendingPayment",
   PAID = "Paid",
   CONFIRMED = "Confirmed",

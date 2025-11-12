@@ -47,6 +47,7 @@ export function useAddBreedingProcess() {
     onSuccess: (data: BaseResponse<BreedingProcessResponse>) => {
       if (data.isSuccess) {
         queryClient.invalidateQueries({ queryKey: ["breeding-processes"] });
+        queryClient.invalidateQueries({ queryKey: ["ponds"] });
       }
       toast.success(data.message || "Tạo quy trình thành công");
       router.push("/manager/breeding");
@@ -141,7 +142,7 @@ export function useAnalyzePair() {
     mutationFn: (request: AnalyzePairRequest) =>
       breedingProcessService.analyzePair(request),
     onError: (error: ApiError) => {
-      toast.error(error.error?.result || "Có lỗi xảy ra khi phân tích cặp cá");
+      toast.error(error.message || "Có lỗi xảy ra khi phân tích cặp cá");
     },
   });
 }

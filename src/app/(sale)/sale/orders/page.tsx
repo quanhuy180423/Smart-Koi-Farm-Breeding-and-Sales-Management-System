@@ -350,7 +350,7 @@ export default function OrdersPage() {
 
     return {
       totalOrders: ordersData.totalItems || 0,
-      pendingOrders: countByStatus[OrderStatus.CREATED] || 0,
+      pendingOrders: countByStatus[OrderStatus.PENDING_PAYMENT] || 0,
       processingOrders:
         countByStatus[OrderStatus.CONFIRMED] ||
         countByStatus[OrderStatus.SHIPPED] ||

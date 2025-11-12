@@ -4,7 +4,7 @@ import apiService, {
   PagedResponse,
   PagingRequest,
 } from "../apiClient";
-import { KoiFishResponse } from "./fetchKoiFish";
+import { KoiFishResponse, MutationType } from "./fetchKoiFish";
 import { EggBatchResponse } from "./fetchEggBatch";
 import { FryFishResponse } from "./fetchFryFish";
 import { ClassificationStageResponse } from "./fetchClassificationStage";
@@ -39,8 +39,12 @@ export interface BreedingProcessResponse {
   femaleKoiVariety: string;
   pondId: number;
   pondName: string;
+  hatchedTime: string | null;
   startDate: string;
-  endDate: string;
+  endDate: string | null;
+  totalEggs: number;
+  fertilizationRate: number;
+  survivalRate: number;
   status: BreedingStatus;
   result: BreedingResult;
   note: string;
@@ -62,6 +66,7 @@ export interface BreedingProcessCreateRequest {
 
 export interface BreedingProcessSearchParams extends PagingRequest {
   search?: string;
+  code?: string;
   maleKoiId?: number;
   femaleKoiId?: number;
   pondId?: number;
@@ -71,6 +76,12 @@ export interface BreedingProcessSearchParams extends PagingRequest {
   maxTotalFishQualified?: number;
   minTotalPackage?: number;
   maxTotalPackage?: number;
+  minTotalEggs?: number;
+  maxTotalEggs?: number;
+  minFertilizationRate?: number;
+  maxFertilizationRate?: number;
+  minCurrentSurvivalRate?: number;
+  maxCurrentSurvivalRate?: number;
   startDateFrom?: string;
   startDateTo?: string;
   endDateFrom?: string;
@@ -82,16 +93,18 @@ export interface BreedingParentHistoryResponse {
   participationCount: number;
   failCount: number;
   fertilizationRate: number;
+  averageMutationRate: number;
+  commonMutationType: string;
   hatchRate: number;
   survivalRate: number;
-  highQualifiedRate: number;
+  highQualifiedRate: number | null;
 }
 
 export interface BreedingRecommendRequest {
   targetVariety: string;
   priority: string;
-  desiredPattern: string;
-  desiredBodyShape: string;
+  desiredMutationType: MutationType;
+  desiredMutationRate: number;
   minHatchRate: number;
   minSurvivalRate: number;
   minHighQualifiedRate: number;

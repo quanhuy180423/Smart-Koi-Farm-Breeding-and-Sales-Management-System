@@ -1,6 +1,5 @@
 import apiService, { BaseResponse } from "../apiClient";
 import { FrySurvivalRecordResponse } from "./fetchFrySurvivalRecord";
-import { PondBasicResponse } from "./fetchPond";
 
 const baseUrl = "/api/FryFish";
 
@@ -18,7 +17,6 @@ export interface FryFishResponse {
   initialCount: number;
   status: FryFishStatus;
   currentSurvivalRate: number;
-  pond: PondBasicResponse;
   startDate: string;
   endDate: string;
   frySurvivalRecords: FrySurvivalRecordResponse[];

@@ -34,6 +34,7 @@ import {
 } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
+import { Switch } from "@/components/ui/switch";
 import formatCurrency from "@/lib/utils/numbers";
 import {
   useGetAllShippingBoxes,
@@ -1217,14 +1218,14 @@ export default function ShippingManagement() {
                     <Plus className="mr-2 h-4 w-4" />
                     Thêm khoảng cách mới
                   </Button>
-                  <DialogContent className="sm:max-w-[550px]">
-                    <DialogHeader>
-                      <div className="flex items-center gap-3">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/20">
+                  <DialogContent className="w-[95vw] max-w-[550px] max-h-[90vh] rounded-lg flex flex-col p-0">
+                    <DialogHeader className="flex-shrink-0 border-b bg-white rounded-t-lg px-4 sm:px-6 py-4 sm:py-5">
+                      <div className="flex items-center gap-2 sm:gap-3">
+                        <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-primary/20">
                           <Truck className="h-5 w-5 text-primary" />
                         </div>
-                        <div>
-                          <DialogTitle className="text-xl">
+                        <div className="min-w-0">
+                          <DialogTitle className="text-lg sm:text-xl break-words">
                             {editingDistance
                               ? "Chỉnh sửa khoảng cách vận chuyển"
                               : "Thêm khoảng cách vận chuyển mới"}
@@ -1237,29 +1238,34 @@ export default function ShippingManagement() {
                         </div>
                       </div>
                     </DialogHeader>
-                    <div className="space-y-6 py-4">
+                    <div className="flex-1 overflow-y-auto space-y-4 sm:space-y-6 py-3 sm:py-4 px-1 sm:px-4">
                       <div className="space-y-2">
-                        <Label htmlFor="name" className="text-sm font-medium">
+                        <Label
+                          htmlFor="name"
+                          className="text-xs sm:text-sm font-semibold text-gray-700"
+                        >
                           Tên khoảng cách{" "}
                           <span className="text-red-500">*</span>
                         </Label>
                         <Input
                           id="name"
                           name="name"
-                          placeholder="VD: Nội thành"
+                          placeholder="VD: Nội thành TP HCM"
                           value={distanceFormData.name}
                           onChange={handleDistanceFormChange}
                           disabled={isCreatingDistance || isUpdatingDistance}
-                          className="border-gray-300 focus:border-teal-500"
+                          className="border border-gray-300 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 h-9 sm:h-10 rounded-md text-sm"
                         />
                       </div>
 
-                      <div className="space-y-4">
-                        <Label className="text-sm font-medium">
-                          Khoảng cách (km){" "}
+                      <div className="border-t border-gray-200 my-4"></div>
+
+                      <div className="space-y-3 sm:space-y-4 bg-gradient-to-br from-blue-50 to-cyan-50 p-3 sm:p-5 rounded-lg border border-blue-100">
+                        <Label className="text-xs sm:text-sm font-semibold text-gray-700">
+                          Khoảng cách vận chuyển (km){" "}
                           <span className="text-red-500">*</span>
                         </Label>
-                        <div className="space-y-4">
+                        <div className="space-y-3">
                           <Slider
                             value={[
                               distanceFormData.minDistanceKm,
@@ -1278,11 +1284,11 @@ export default function ShippingManagement() {
                             disabled={isCreatingDistance || isUpdatingDistance}
                             className="w-full"
                           />
-                          <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2">
+                          <div className="grid grid-cols-2 gap-2 sm:gap-3">
+                            <div className="space-y-1">
                               <Label
                                 htmlFor="minDistanceKm"
-                                className="text-xs"
+                                className="text-xs font-semibold text-gray-600"
                               >
                                 Từ (km)
                               </Label>
@@ -1298,13 +1304,13 @@ export default function ShippingManagement() {
                                 disabled={
                                   isCreatingDistance || isUpdatingDistance
                                 }
-                                className="border-gray-300 focus:border-teal-500"
+                                className="border border-blue-200 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 bg-white h-8 sm:h-9 text-sm"
                               />
                             </div>
-                            <div className="space-y-2">
+                            <div className="space-y-1">
                               <Label
                                 htmlFor="maxDistanceKm"
-                                className="text-xs"
+                                className="text-xs font-semibold text-gray-600"
                               >
                                 Đến (km)
                               </Label>
@@ -1320,103 +1326,126 @@ export default function ShippingManagement() {
                                 disabled={
                                   isCreatingDistance || isUpdatingDistance
                                 }
-                                className="border-gray-300 focus:border-teal-500"
+                                className="border border-blue-200 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 bg-white h-8 sm:h-9 text-sm"
                               />
                             </div>
                           </div>
                         </div>
                       </div>
 
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-2">
+                      <div className="border-t border-gray-200 my-3 sm:my-4"></div>
+
+                      <div className="grid grid-cols-2 gap-2 sm:gap-4">
+                        <div className="space-y-2 min-w-0">
                           <Label
                             htmlFor="pricePerKm"
-                            className="text-sm font-medium"
+                            className="text-xs sm:text-sm font-semibold text-gray-700"
                           >
-                            Giá mỗi km (VNĐ){" "}
-                            <span className="text-red-500">*</span>
+                            Giá/km (VNĐ) <span className="text-red-500">*</span>
                           </Label>
-                          <InputNumber
-                            value={distanceFormData.pricePerKm}
-                            onChange={(value) =>
-                              setDistanceFormData((prev) => ({
-                                ...prev,
-                                pricePerKm: value || 0,
-                              }))
-                            }
-                            placeholder="VD: 2000"
-                            disabled={isCreatingDistance || isUpdatingDistance}
-                            className="border-gray-300 focus:border-teal-500"
-                          />
+                          <div className="relative">
+                            <InputNumber
+                              value={distanceFormData.pricePerKm}
+                              onChange={(value) =>
+                                setDistanceFormData((prev) => ({
+                                  ...prev,
+                                  pricePerKm: value || 0,
+                                }))
+                              }
+                              placeholder="VD: 2000"
+                              disabled={
+                                isCreatingDistance || isUpdatingDistance
+                              }
+                              className="border border-gray-300 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 h-8 sm:h-10 rounded-md pr-7 sm:pr-8 text-sm w-full"
+                            />
+                            <span className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 text-xs font-medium text-gray-500">
+                              ₫
+                            </span>
+                          </div>
                         </div>
-                        <div className="space-y-2">
+                        <div className="space-y-2 min-w-0">
                           <Label
                             htmlFor="baseFee"
-                            className="text-sm font-medium"
+                            className="text-xs sm:text-sm font-semibold text-gray-700"
                           >
                             Phí cơ sở (VNĐ){" "}
                             <span className="text-red-500">*</span>
                           </Label>
-                          <InputNumber
-                            value={distanceFormData.baseFee}
-                            onChange={(value) =>
-                              setDistanceFormData((prev) => ({
-                                ...prev,
-                                baseFee: value || 0,
-                              }))
-                            }
-                            placeholder="VD: 30000"
-                            disabled={isCreatingDistance || isUpdatingDistance}
-                            className="border-gray-300 focus:border-teal-500"
-                          />
+                          <div className="relative">
+                            <InputNumber
+                              value={distanceFormData.baseFee}
+                              onChange={(value) =>
+                                setDistanceFormData((prev) => ({
+                                  ...prev,
+                                  baseFee: value || 0,
+                                }))
+                              }
+                              placeholder="VD: 30000"
+                              disabled={
+                                isCreatingDistance || isUpdatingDistance
+                              }
+                              className="border border-gray-300 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 h-8 sm:h-10 rounded-md pr-7 sm:pr-8 text-sm w-full"
+                            />
+                            <span className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 text-xs font-medium text-gray-500">
+                              ₫
+                            </span>
+                          </div>
                         </div>
                       </div>
 
                       <div className="space-y-2">
                         <Label
                           htmlFor="description"
-                          className="text-sm font-medium"
+                          className="text-xs sm:text-sm font-semibold text-gray-700"
                         >
-                          Mô tả
+                          Mô tả (tùy chọn)
                         </Label>
                         <Input
                           id="description"
                           name="description"
-                          placeholder="VD: Giao hàng nội thành"
+                          placeholder="VD: Giao hàng nội thành TP HCM"
                           value={distanceFormData.description}
                           onChange={handleDistanceFormChange}
                           disabled={isCreatingDistance || isUpdatingDistance}
-                          className="border-gray-300 focus:border-teal-500"
+                          className="border border-gray-300 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 h-8 sm:h-10 rounded-md text-sm"
                         />
                       </div>
 
-                      <div className="flex items-center gap-2">
-                        <input
-                          type="checkbox"
-                          id="distanceIsActive"
-                          name="isActive"
+                      <div className="border-t border-gray-200 my-3 sm:my-4"></div>
+
+                      <div className="flex items-center justify-between bg-gradient-to-r from-amber-50 to-orange-50 p-3 sm:p-4 rounded-lg border border-amber-100 gap-2">
+                        <div className="flex flex-col gap-1 min-w-0">
+                          <Label className="text-xs sm:text-sm font-semibold text-gray-700 truncate">
+                            Kích hoạt khoảng cách
+                          </Label>
+                          <p className="text-xs text-gray-500">
+                            {distanceFormData.isActive
+                              ? "✓ Hoạt động"
+                              : "✗ Chưa kích"}
+                          </p>
+                        </div>
+                        <Switch
                           checked={distanceFormData.isActive}
-                          onChange={handleDistanceFormChange}
+                          onCheckedChange={(checked) =>
+                            setDistanceFormData((prev) => ({
+                              ...prev,
+                              isActive: checked,
+                            }))
+                          }
                           disabled={isCreatingDistance || isUpdatingDistance}
-                          className="h-4 w-4"
+                          className="flex-shrink-0"
                         />
-                        <Label
-                          htmlFor="distanceIsActive"
-                          className="text-sm font-medium"
-                        >
-                          Kích hoạt khoảng cách này
-                        </Label>
                       </div>
 
-                      <div className="rounded-lg bg-blue-50 p-4">
-                        <div className="flex items-start gap-3">
-                          <Info className="h-5 w-5 text-blue-600 mt-0.5" />
-                          <div className="text-sm text-blue-800">
+                      <div className="rounded-lg bg-blue-50 p-3 sm:p-4 border border-blue-100">
+                        <div className="flex items-start gap-2 sm:gap-3">
+                          <Info className="h-4 sm:h-5 w-4 sm:w-5 text-blue-600 mt-0.5 flex-shrink-0" />
+                          <div className="text-xs sm:text-sm text-blue-800 min-w-0">
                             <p className="font-medium mb-2">
                               Công thức tính phí:
                             </p>
-                            <p className="font-mono bg-white px-2 py-1 rounded text-xs">
-                              Tổng phí = Phí cố định + (Khoảng cách × Giá/km)
+                            <p className="font-mono bg-white px-2 py-1 rounded text-xs break-all">
+                              Tổng phí = Phí cố định + (Km × Giá/km)
                             </p>
                             <p className="mt-2 text-xs">
                               Ví dụ: Với{" "}
@@ -1439,34 +1468,45 @@ export default function ShippingManagement() {
                         </div>
                       </div>
                     </div>
-                    <div className="flex justify-end gap-3 pt-4 border-t">
+                    <div className="flex-shrink-0 border-t bg-white rounded-b-lg px-4 sm:px-6 py-3 sm:py-4 flex justify-end gap-2 sm:gap-3">
                       <Button
                         variant="outline"
                         onClick={handleCloseDistanceDialog}
                         disabled={isCreatingDistance || isUpdatingDistance}
+                        className="text-xs sm:text-sm h-8 sm:h-10 px-3 sm:px-4"
                       >
                         Hủy
                       </Button>
                       <Button
                         onClick={handleDistanceFormSubmit}
                         disabled={isCreatingDistance || isUpdatingDistance}
+                        className="text-xs sm:text-sm h-8 sm:h-10 px-3 sm:px-4"
                       >
                         {isCreatingDistance || isUpdatingDistance ? (
                           <>
-                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                            {editingDistance
-                              ? "Đang cập nhật..."
-                              : "Đang tạo..."}
+                            <Loader2 className="mr-1 sm:mr-2 h-3 sm:h-4 w-3 sm:w-4 animate-spin" />
+                            <span className="hidden sm:inline">
+                              {editingDistance
+                                ? "Đang cập nhật..."
+                                : "Đang tạo..."}
+                            </span>
+                            <span className="sm:hidden">
+                              {editingDistance ? "Cập nhật..." : "Tạo..."}
+                            </span>
                           </>
                         ) : editingDistance ? (
                           <>
-                            <Edit className="mr-2 h-4 w-4" />
-                            Cập nhật
+                            <Edit className="mr-1 sm:mr-2 h-3 sm:h-4 w-3 sm:w-4" />
+                            <span className="hidden sm:inline">Cập nhật</span>
+                            <span className="sm:hidden">Cập</span>
                           </>
                         ) : (
                           <>
-                            <Plus className="mr-2 h-4 w-4" />
-                            Thêm khoảng cách
+                            <Plus className="mr-1 sm:mr-2 h-3 sm:h-4 w-3 sm:w-4" />
+                            <span className="hidden sm:inline">
+                              Thêm khoảng cách
+                            </span>
+                            <span className="sm:hidden">Thêm</span>
                           </>
                         )}
                       </Button>
