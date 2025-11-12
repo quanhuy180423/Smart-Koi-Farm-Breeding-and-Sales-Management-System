@@ -19,9 +19,9 @@ import { PondResponse, PondSearchParams } from "@/lib/api/services/fetchPond";
 import { useDebounce } from "@/hooks/useDebounce";
 import TaskSelectionPopup from "./TaskSelectionPopup";
 import { TaskTemplateResponse } from "@/lib/api/services/fetchTaskTemplate";
-import { useGetStaffByRole } from "@/hooks/useUsers";
+import { useGetUserByRole } from "@/hooks/useUsers";
 import { Roles } from "@/lib/api/services/fetchAuth";
-import { StaffUser } from "@/lib/api/services/fetchUsers";
+import { User } from "@/lib/api/services/fetchUsers";
 import { useCreateWorkSchedule } from "@/hooks/useWorkSchedule";
 
 interface CreateWorkScheduleModalProps {
@@ -70,7 +70,7 @@ export default function CreateWorkScheduleModal({
   } as PondSearchParams);
 
   // Fetch staff from API
-  const { data: staffData, isLoading: isLoadingStaff } = useGetStaffByRole({
+  const { data: staffData, isLoading: isLoadingStaff } = useGetUserByRole({
     role: Roles.FarmStaff,
     pageIndex: staffPageIndex,
     pageSize: STAFF_PER_PAGE,
@@ -386,7 +386,7 @@ export default function CreateWorkScheduleModal({
                   <p className="text-sm">Không có nhân viên nào</p>
                 </div>
               ) : (
-                staffData.datas.map((staff: StaffUser) => (
+                staffData.datas.map((staff: User) => (
                   <Card
                     key={staff.id}
                     className={`p-3 cursor-pointer transition-all ${

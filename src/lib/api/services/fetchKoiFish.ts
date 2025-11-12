@@ -27,14 +27,20 @@ export enum KoiType {
 }
 
 export enum FishSize {
-  UNDER_10CM = "Under10cm",
-  FROM_10_TO_20CM = "From10To20cm",
-  FROM_21_TO_25CM = "From21To25cm",
-  FROM_26_TO_30CM = "From26To30cm",
-  FROM_31_TO_40CM = "From31To40cm",
-  FROM_41_TO_45CM = "From41To45cm",
-  FROM_46_TO_50CM = "From46To50cm",
-  OVER_50CM = "Over50cm",
+  FROM_0_TO_19CM = "From0To19cm",
+  FROM_20_TO_25CM = "From20To25cm",
+  FROM_25_1_TO_30CM = "From25_1To30cm",
+  FROM_30_1_TO_40CM = "From30_1To40cm",
+  FROM_40_1_TO_44CM = "From40_1To44cm",
+  FROM_44_1_TO_50CM = "From44_1To50cm",
+  FROM_50_1_TO_55CM = "From50_1To55cm",
+  FROM_50_1_TO_60CM_HIRENAGA = "From50_1To60cm_Hirenaga",
+  FROM_55_1_TO_60CM = "From55_1To60cm",
+  FROM_60_1_TO_65CM = "From60_1To65cm",
+  FROM_60_1_TO_65CM_HIRENAGA = "From60_1To65cm_Hirenaga",
+  FROM_65_1_TO_73CM = "From65_1To73cm",
+  FROM_73_1_TO_83CM = "From73_1To83cm",
+  OVER_83_1CM = "Over83_1cm",
 }
 
 export interface KoiFishResponse {
