@@ -1,5 +1,5 @@
 import toRequestParams from "@/lib/utils/params";
-import apiService, { BaseResponse } from "../apiClient";
+import apiService, { BaseResponse, PagedResponse } from "../apiClient";
 import { Roles } from "./fetchAuth";
 
 export interface User {
@@ -8,15 +8,6 @@ export interface User {
   role: string;
   isBlocked: boolean;
   email: string;
-}
-
-export interface UserPagedResponse {
-  pageIndex: number;
-  totalPages: number;
-  totalItems: number;
-  hasPreviousPage: boolean;
-  hasNextPage: boolean;
-  datas: User[];
 }
 
 export interface UserSearchParams {
@@ -127,7 +118,7 @@ export const usersService = {
 
   getUserByRole: async (
     params: UserSearchParams,
-  ): Promise<BaseResponse<UserPagedResponse>> => {
+  ): Promise<BaseResponse<PagedResponse<User>>> => {
     const filter = toRequestParams({
       role: params.role,
       pageIndex: params.pageIndex || 1,
@@ -135,7 +126,7 @@ export const usersService = {
       search: params.search || undefined,
     });
 
-    const response = await apiService.get<BaseResponse<UserPagedResponse>>(
+    const response = await apiService.get<BaseResponse<PagedResponse<User>>>(
       `${userUrl}/by-role`,
       filter,
     );

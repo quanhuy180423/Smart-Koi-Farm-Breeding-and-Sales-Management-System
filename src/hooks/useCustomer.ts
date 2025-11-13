@@ -1,6 +1,6 @@
-import { BaseResponse } from "@/lib/api/apiClient";
+import { BaseResponse, PagedResponse } from "@/lib/api/apiClient";
 import {
-  CustomerPagedResponse,
+  Customer,
   CustomerSearchParams,
 } from "@/lib/api/services/fetchCustomer";
 import customerService from "@/lib/api/services/fetchCustomer";
@@ -15,21 +15,21 @@ export function useGetCustomers(params: CustomerSearchParams) {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
   return useQuery<
-    BaseResponse<CustomerPagedResponse>,
+    BaseResponse<PagedResponse<Customer>>,
     ApiError,
-    CustomerPagedResponse
+    PagedResponse<Customer>
   >({
     queryKey: ["customers", params.pageIndex, params.pageSize, params.search],
     queryFn: () => customerService.getCustomers(params),
     enabled: isAuthenticated,
-    select: (data: BaseResponse<CustomerPagedResponse>) =>
+    select: (data: BaseResponse<PagedResponse<Customer>>) =>
       data?.result || {
         pageIndex: 1,
         totalPages: 0,
         totalItems: 0,
         hasPreviousPage: false,
         hasNextPage: false,
-        datas: [],
+        data: [],
       },
     retry: (failureCount, error: unknown) => {
       if (

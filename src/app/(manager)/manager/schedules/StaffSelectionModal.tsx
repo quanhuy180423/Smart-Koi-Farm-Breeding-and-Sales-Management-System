@@ -81,8 +81,8 @@ export default function StaffSelectionModal({
 
   // Filter staff data for the selection modal based on selected role
   const filteredStaffData = [
-    ...(roleFilter === Roles.FarmStaff ? farmStaffData?.datas || [] : []),
-    ...(roleFilter === Roles.SaleStaff ? saleStaffData?.datas || [] : []),
+    ...(roleFilter === Roles.FarmStaff ? farmStaffData?.data || [] : []),
+    ...(roleFilter === Roles.SaleStaff ? saleStaffData?.data || [] : []),
   ];
 
   const staffData = {
@@ -91,7 +91,7 @@ export default function StaffSelectionModal({
     totalItems: filteredStaffData.length,
     hasPreviousPage: farmStaffData?.hasPreviousPage || false,
     hasNextPage: farmStaffData?.hasNextPage || false,
-    datas: filteredStaffData,
+    data: filteredStaffData,
   };
 
   const isLoadingStaff = isLoadingFarmStaff || isLoadingSaleStaff;
@@ -178,7 +178,7 @@ export default function StaffSelectionModal({
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {!staffData?.datas || staffData.datas.length === 0 ? (
+                  {!staffData?.data || staffData.data.length === 0 ? (
                     <TableRow>
                       <TableCell
                         colSpan={5}
@@ -188,7 +188,7 @@ export default function StaffSelectionModal({
                       </TableCell>
                     </TableRow>
                   ) : (
-                    staffData.datas.map((staff: User) => (
+                    staffData.data.map((staff: User) => (
                       <TableRow
                         key={staff.id}
                         onClick={() => onToggleStaff(staff.id)}

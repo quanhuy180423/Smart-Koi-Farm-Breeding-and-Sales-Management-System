@@ -1,7 +1,7 @@
-import { BaseResponse } from "@/lib/api/apiClient";
+import { BaseResponse, PagedResponse } from "@/lib/api/apiClient";
 import {
   UserSearchParams,
-  UserPagedResponse,
+  User,
   CreateStaffAccountRequest,
   CreateStaffAccountResponse,
   ImportAccountsResponse,
@@ -46,39 +46,41 @@ export function useGetUserDetails() {
 export function useGetUserByRole(params: UserSearchParams) {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
-  return useQuery<BaseResponse<UserPagedResponse>, ApiError, UserPagedResponse>(
-    {
-      queryKey: [
-        "users-by-role",
-        params.role,
-        params.pageIndex,
-        params.pageSize,
-        params.search,
-      ],
-      queryFn: () => usersService.getUserByRole(params),
-      enabled: isAuthenticated,
-      select: (data: BaseResponse<UserPagedResponse>) =>
-        data?.result || {
-          pageIndex: 1,
-          totalPages: 0,
-          totalItems: 0,
-          hasPreviousPage: false,
-          hasNextPage: false,
-          datas: [],
-        },
-      retry: (failureCount, error: unknown) => {
-        if (
-          error &&
-          typeof error === "object" &&
-          "status" in error &&
-          error.status === 401
-        ) {
-          return false;
-        }
-        return failureCount < 2;
+  return useQuery<
+    BaseResponse<PagedResponse<User>>,
+    ApiError,
+    PagedResponse<User>
+  >({
+    queryKey: [
+      "users-by-role",
+      params.role,
+      params.pageIndex,
+      params.pageSize,
+      params.search,
+    ],
+    queryFn: () => usersService.getUserByRole(params),
+    enabled: isAuthenticated,
+    select: (data: BaseResponse<PagedResponse<User>>) =>
+      data?.result || {
+        pageIndex: 1,
+        totalPages: 0,
+        totalItems: 0,
+        hasPreviousPage: false,
+        hasNextPage: false,
+        data: [],
       },
+    retry: (failureCount, error: unknown) => {
+      if (
+        error &&
+        typeof error === "object" &&
+        "status" in error &&
+        error.status === 401
+      ) {
+        return false;
+      }
+      return failureCount < 2;
     },
-  );
+  });
 }
 
 /**

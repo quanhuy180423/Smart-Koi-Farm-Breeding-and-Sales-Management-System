@@ -49,7 +49,6 @@ import {
   PaginationSection,
 } from "@/components/common/PaginationSection";
 import { getPondStatusLabel } from "@/lib/utils/enum";
-import PondStats from "./PondStats";
 import AreaSelectionDialog from "./AreaSelectionDialog";
 import PondDetailModal from "./PondDetailModal";
 import AddPondModal from "./AddPondModal";
@@ -429,20 +428,6 @@ export default function PondManagement() {
     );
   });
 
-  const totalFish = 1200;
-  const activePondsCount = useMemo(
-    () =>
-      pondsData?.data?.filter((p) => p.pondStatus === PondStatus.ACTIVE)
-        .length || 0,
-    [pondsData],
-  );
-  const maintenancePondsCount = useMemo(
-    () =>
-      pondsData?.data?.filter((p) => p.pondStatus === PondStatus.MAINTENANCE)
-        .length || 0,
-    [pondsData],
-  );
-
   return (
     <div className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
       <div className="flex items-center justify-between">
@@ -457,13 +442,6 @@ export default function PondManagement() {
           Thêm hồ mới
         </Button>
       </div>
-
-      <PondStats
-        totalCount={totalCount}
-        totalFish={totalFish}
-        activePondsCount={activePondsCount}
-        maintenancePondsCount={maintenancePondsCount}
-      />
 
       <Card>
         <CardHeader>

@@ -104,8 +104,8 @@ export default function EditWorkScheduleModal({
 
   // Keep all staff data from both roles for displaying selected staff
   const allStaffForDisplay = [
-    ...(farmStaffData?.datas || []),
-    ...(saleStaffData?.datas || []),
+    ...(farmStaffData?.data || []),
+    ...(saleStaffData?.data || []),
   ];
 
   // Fetch all ponds for displaying selected ponds
