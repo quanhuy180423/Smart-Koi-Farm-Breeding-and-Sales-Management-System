@@ -34,7 +34,6 @@ import {
   Package,
   Search,
   Eye,
-  AlertCircle,
   Star,
   Loader2,
   CheckCircle,
@@ -48,6 +47,9 @@ import Image from "next/image";
 import { formatCurrency } from "@/lib/utils/numbers/formatCurrency";
 import CustomerLayout from "@/components/customer/CustomerLayout";
 import { useGetCustomerOrders, useUpdateOrderStatus } from "@/hooks/useOrder";
+import { LoadingState } from "@/components/common/LoadingState";
+import { ErrorState } from "@/components/common/ErrorState";
+import { EmptyState } from "@/components/common/EmptyState";
 import { OrderStatus, OrderSearchParams } from "@/lib/api/services/fetchOrder";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useCreatePayment } from "@/hooks/useOrderPayment";
@@ -622,9 +624,7 @@ export default function OrdersPage() {
         {/* Orders List */}
         <div className="space-y-6">
           {isLoading && (
-            <div className="flex items-center justify-center py-12">
-              <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            </div>
+            <LoadingState message="Đang tải danh sách đơn hàng..." />
           )}
 
           {!isLoading && ordersData?.data && ordersData.data.length > 0 && (
@@ -658,22 +658,18 @@ export default function OrdersPage() {
 
           {!isLoading &&
             (!ordersData?.data || ordersData.data.length === 0) && (
-              <div className="text-center py-12">
-                <Package className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <p className="text-muted-foreground">
-                  Không tìm thấy đơn hàng nào
-                </p>
-              </div>
+              <EmptyState
+                icon={Package}
+                title="Không có đơn hàng"
+                description="Bạn chưa có đơn hàng nào. Hãy khám phá danh sách sản phẩm của chúng tôi."
+              />
             )}
 
           {!isLoading && !ordersData && (
-            <div className="text-center py-12">
-              <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
-              <h3 className="text-lg font-medium mb-2">Lỗi tải dữ liệu</h3>
-              <p className="text-muted-foreground">
-                Không thể tải danh sách đơn hàng. Vui lòng thử lại.
-              </p>
-            </div>
+            <ErrorState
+              title="Lỗi khi tải dữ liệu"
+              message="Không thể tải danh sách đơn hàng. Vui lòng thử lại."
+            />
           )}
         </div>
 

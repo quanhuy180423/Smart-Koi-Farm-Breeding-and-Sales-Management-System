@@ -1,6 +1,7 @@
 import toRequestParams from "@/lib/utils/params";
 import apiService, { BaseResponse } from "../apiClient";
 import { TaskTemplateResponse } from "./fetchTaskTemplate";
+import { Roles } from "./fetchAuth";
 
 export enum WorkScheduleStatusEnum {
   Pending = "Pending",
@@ -14,6 +15,7 @@ export interface StaffAssignment {
   workScheduleId: number;
   staffId: number;
   staffName: string;
+  role: Roles;
   completionNotes: string | null;
   completedAt: string | null;
 }
@@ -48,6 +50,13 @@ export interface WorkScheduleRequest {
   pondId?: number;
 }
 
+export interface MyWorkScheduleParams {
+  search?: string;
+  status?: WorkScheduleStatusEnum;
+  scheduledDateFrom?: string;
+  scheduledDateTo?: string;
+}
+
 export interface UpdateWorkScheduleRequest {
   taskTemplateId: number;
   scheduledDate: string;
@@ -61,6 +70,16 @@ export interface UpdateWorkScheduleRequest {
 const baseUrl = "/api/WorkSchedule";
 
 export const workScheduleService = {
+  getMyWorkSchedules: async (
+    params: MyWorkScheduleParams,
+  ): Promise<BaseResponse<WorkSchedule[]>> => {
+    const filter = toRequestParams(params);
+    const response = await apiService.get<BaseResponse<WorkSchedule[]>>(
+      `${baseUrl}/me`,
+      filter,
+    );
+    return response.data;
+  },
   getWorkSchedules: async (
     request: WorkScheduleRequest,
   ): Promise<BaseResponse<WorkSchedule[]>> => {

@@ -51,6 +51,8 @@ import { getFishSizeLabel, getGenderLabel } from "@/lib/utils/enum";
 import { PaginationSection } from "@/components/common/PaginationSection";
 import { Slider } from "@/components/ui/slider";
 import { useAddItemToCart } from "@/hooks/useCart";
+import { LoadingState } from "@/components/common/LoadingState";
+import { EmptyState } from "@/components/common/EmptyState";
 
 const PAGE_SIZE_OPTIONS = [9, 12, 24];
 
@@ -356,10 +358,7 @@ export default function CatalogPage() {
           </div>
 
           {isLoading ? (
-            <div className="w-full flex items-center justify-center text-gray-500">
-              <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-              Đang tải dữ liệu...
-            </div>
+            <LoadingState message="Đang tải danh sách cá Koi..." />
           ) : (
             <div className="flex-1">
               {(debouncedSearchTerm ||
@@ -476,18 +475,14 @@ export default function CatalogPage() {
               </div>
 
               {koiData?.data.length === 0 && (
-                <div className="text-center py-12">
-                  <p className="text-muted-foreground text-lg">
-                    Không tìm thấy cá Koi nào phù hợp với tiêu chí tìm kiếm
-                  </p>
-                  <Button
-                    variant="outline"
-                    className="mt-4 border-primary/30 text-primary hover:bg-primary hover:border-primary bg-white/50 backdrop-blur-sm"
-                    onClick={resetFilters}
-                  >
-                    Xóa tất cả bộ lọc
-                  </Button>
-                </div>
+                <EmptyState
+                  title="Không tìm thấy cá Koi"
+                  description="Không tìm thấy cá Koi nào phù hợp với tiêu chí tìm kiếm"
+                  action={{
+                    label: "Xóa tất cả bộ lọc",
+                    onClick: resetFilters,
+                  }}
+                />
               )}
 
               {koiData && koiData.data.length > 0 && (

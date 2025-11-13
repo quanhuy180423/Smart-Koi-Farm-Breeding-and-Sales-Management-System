@@ -18,7 +18,6 @@ import {
   UserCheck,
   Shield,
   Loader2,
-  AlertCircle,
   Eye,
   EyeOff,
   Ban,
@@ -48,6 +47,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { LoadingState } from "@/components/common/LoadingState";
+import { ErrorState } from "@/components/common/ErrorState";
+import { EmptyState } from "@/components/common/EmptyState";
 import {
   Select,
   SelectContent,
@@ -184,7 +186,7 @@ export default function AccountManagement() {
   // Fetch user data
   const { data: userData, isLoading, error } = useGetUserByRole(searchParams);
 
-  const userList = userData?.datas || [];
+  const userList = userData?.data || [];
   const totalItems = userData?.totalItems || 0;
   const totalPages = userData?.totalPages || 0;
 
@@ -414,19 +416,18 @@ export default function AccountManagement() {
 
           {/* Loading State */}
           {isLoading ? (
-            <div className="flex items-center justify-center py-8">
-              <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            </div>
+            <LoadingState message="Đang tải danh sách tài khoản..." />
           ) : error ? (
-            <div className="flex items-center justify-center py-8 text-red-600">
-              <AlertCircle className="h-5 w-5 mr-2" />
-              <p>Lỗi khi tải danh sách tài khoản</p>
-            </div>
+            <ErrorState
+              title="Lỗi khi tải dữ liệu"
+              message="Không thể tải danh sách tài khoản. Vui lòng thử lại."
+            />
           ) : userList.length === 0 ? (
-            <div className="flex items-center justify-center py-8 text-muted-foreground">
-              <Users className="h-5 w-5 mr-2" />
-              <p>Không tìm thấy tài khoản nào</p>
-            </div>
+            <EmptyState
+              icon={Users}
+              title="Không có tài khoản"
+              description="Chưa có tài khoản nào được tạo. Hãy thêm tài khoản mới."
+            />
           ) : (
             <>
               {/* Table */}

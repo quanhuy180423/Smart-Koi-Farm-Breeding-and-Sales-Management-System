@@ -3,12 +3,44 @@ import {
   WorkSchedule,
   WorkScheduleRequest,
   UpdateWorkScheduleRequest,
+  MyWorkScheduleParams,
 } from "@/lib/api/services/fetchWorkSchedule";
 import workScheduleService from "@/lib/api/services/fetchWorkSchedule";
 import { useAuthStore } from "@/store/auth-store";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ApiError } from "next/dist/server/api-utils";
 import toast from "react-hot-toast";
+
+/**
+ * Hook to fetch my work schedules (for current staff)
+ */
+export function useGetMyWorkSchedules(params: MyWorkScheduleParams) {
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+
+  return useQuery<BaseResponse<WorkSchedule[]>, ApiError, WorkSchedule[]>({
+    queryKey: [
+      "my-work-schedules",
+      params.search,
+      params.status,
+      params.scheduledDateFrom,
+      params.scheduledDateTo,
+    ],
+    queryFn: () => workScheduleService.getMyWorkSchedules(params),
+    enabled: isAuthenticated,
+    select: (data: BaseResponse<WorkSchedule[]>) => data?.result || [],
+    retry: (failureCount, error: unknown) => {
+      if (
+        error &&
+        typeof error === "object" &&
+        "status" in error &&
+        error.status === 401
+      ) {
+        return false;
+      }
+      return failureCount < 2;
+    },
+  });
+}
 
 /**
  * Hook to fetch work schedules within a date range

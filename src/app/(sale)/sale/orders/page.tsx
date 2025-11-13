@@ -72,6 +72,9 @@ import {
 } from "@/lib/utils/enum/formatEnum";
 import { Calendar } from "@/components/ui/calendar";
 import { DATE_FORMATS, formatDate } from "@/lib/utils/dates";
+import { LoadingState } from "@/components/common/LoadingState";
+import { ErrorState } from "@/components/common/ErrorState";
+import { EmptyState } from "@/components/common/EmptyState";
 
 export default function OrdersPage() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -295,6 +298,10 @@ export default function OrdersPage() {
   // Debounce search term
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
 
+  // Debounce price filters
+  const debouncedMinPrice = useDebounce(minPrice, 500);
+  const debouncedMaxPrice = useDebounce(maxPrice, 500);
+
   // Build search params
   const searchParams = useMemo<OrderSearchParams>(() => {
     return {
@@ -307,8 +314,12 @@ export default function OrdersPage() {
         ? Math.floor(startDate.getTime() / 1000)
         : undefined,
       createdTo: endDate ? Math.floor(endDate.getTime() / 1000) : undefined,
-      minTotalAmount: minPrice ? parseFloat(minPrice) : undefined,
-      maxTotalAmount: maxPrice ? parseFloat(maxPrice) : undefined,
+      minTotalAmount: debouncedMinPrice
+        ? parseFloat(debouncedMinPrice)
+        : undefined,
+      maxTotalAmount: debouncedMaxPrice
+        ? parseFloat(debouncedMaxPrice)
+        : undefined,
       pageIndex: currentPage,
       pageSize: pageSize,
     };
@@ -317,8 +328,8 @@ export default function OrdersPage() {
     statusFilter,
     startDate,
     endDate,
-    minPrice,
-    maxPrice,
+    debouncedMinPrice,
+    debouncedMaxPrice,
     currentPage,
     pageSize,
   ]);
@@ -628,19 +639,14 @@ export default function OrdersPage() {
         <CardContent>
           <div className="space-y-4">
             {isLoading && (
-              <div className="flex items-center justify-center py-8">
-                <Loader2 className="h-8 w-8 animate-spin text-primary" />
-              </div>
+              <LoadingState message="Đang tải danh sách đơn hàng..." />
             )}
 
             {!isLoading && !ordersData && (
-              <div className="text-center py-8">
-                <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
-                <h3 className="text-lg font-medium mb-2">Lỗi tải dữ liệu</h3>
-                <p className="text-muted-foreground">
-                  Không thể tải danh sách đơn hàng. Vui lòng thử lại.
-                </p>
-              </div>
+              <ErrorState
+                title="Lỗi khi tải dữ liệu"
+                message="Không thể tải danh sách đơn hàng. Vui lòng thử lại."
+              />
             )}
 
             {!isLoading &&
@@ -818,15 +824,11 @@ export default function OrdersPage() {
 
             {!isLoading &&
               (!ordersData?.data || ordersData.data.length === 0) && (
-                <div className="text-center py-8">
-                  <ShoppingCart className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                  <h3 className="text-lg font-medium mb-2">
-                    Không tìm thấy đơn hàng
-                  </h3>
-                  <p className="text-muted-foreground">
-                    Thử thay đổi từ khóa tìm kiếm hoặc bộ lọc
-                  </p>
-                </div>
+                <EmptyState
+                  icon={ShoppingCart}
+                  title="Không tìm thấy đơn hàng"
+                  description="Thử thay đổi từ khóa tìm kiếm hoặc bộ lọc"
+                />
               )}
           </div>
 

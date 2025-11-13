@@ -2,7 +2,16 @@
 
 import * as React from "react";
 import { useState, useEffect } from "react";
-import { Plus, Search, Edit, Trash2, Eye, Loader2, Filter } from "lucide-react";
+import {
+  Plus,
+  Search,
+  Edit,
+  Trash2,
+  Eye,
+  Loader2,
+  Filter,
+  Droplets,
+} from "lucide-react";
 import {
   Card,
   CardContent,
@@ -41,6 +50,7 @@ import AddPondTypeModal from "./AddPondTypeModal";
 import EditPondTypeModal from "./EditPondTypeModal";
 import PondTypeDetailModal from "./PondTypeDetailModal";
 import DeletePondTypeConfirmDialog from "./DeletePondTypeConfirmDialog";
+import WaterParameterThresholdModal from "./WaterParameterThresholdModal";
 import { useDebounce } from "@/hooks/useDebounce";
 import {
   Dialog,
@@ -74,6 +84,11 @@ export default function PondTypeManagement() {
 
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
   const [pondTypeToDelete, setPondTypeToDelete] =
+    useState<PondTypeResponse | null>(null);
+
+  const [isWaterParameterModalOpen, setIsWaterParameterModalOpen] =
+    useState(false);
+  const [selectedPondTypeForParams, setSelectedPondTypeForParams] =
     useState<PondTypeResponse | null>(null);
 
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
@@ -124,6 +139,11 @@ export default function PondTypeManagement() {
   const handleViewDetails = (pondType: PondTypeResponse) => {
     setSelectedPondType(pondType);
     setIsDetailModalOpen(true);
+  };
+
+  const handleViewWaterParameters = (pondType: PondTypeResponse) => {
+    setSelectedPondTypeForParams(pondType);
+    setIsWaterParameterModalOpen(true);
   };
 
   const handleOpenAddModal = () => {
@@ -362,6 +382,17 @@ export default function PondTypeManagement() {
                             <Button
                               variant="ghost"
                               size="icon"
+                              onClick={() =>
+                                handleViewWaterParameters(pondType)
+                              }
+                              title="Thông số nước"
+                              className="text-blue-600 hover:text-blue-800"
+                            >
+                              <Droplets className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
                               onClick={() => handleEditPondType(pondType)}
                               title="Chỉnh sửa"
                             >
@@ -502,6 +533,15 @@ export default function PondTypeManagement() {
         onConfirm={handleConfirmDelete}
         isPending={deletePondTypeMutation.isPending}
       />
+
+      {selectedPondTypeForParams && (
+        <WaterParameterThresholdModal
+          isOpen={isWaterParameterModalOpen}
+          onOpenChange={setIsWaterParameterModalOpen}
+          pondTypeId={selectedPondTypeForParams.id}
+          pondTypeName={selectedPondTypeForParams.typeName}
+        />
+      )}
     </div>
   );
 }

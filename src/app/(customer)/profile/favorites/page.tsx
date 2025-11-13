@@ -10,6 +10,7 @@ import CustomerLayout from "@/components/customer/CustomerLayout";
 import formatCurrency from "@/lib/utils/numbers";
 import { getFishSizeLabel } from "@/lib/utils/enum";
 import { useCartStore } from "@/store/cart-store";
+import { EmptyState } from "@/components/common/EmptyState";
 
 // Mock data for favorite koi
 const favoriteKoi = [
@@ -83,20 +84,15 @@ export default function FavoritesPage() {
         </div>
 
         {favoriteKoi.length === 0 ? (
-          <Card className="text-center py-12">
-            <CardContent>
-              <Heart className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-semibold mb-2">
-                Chưa có cá Koi yêu thích
-              </h3>
-              <p className="text-muted-foreground mb-4">
-                Khám phá bộ sưu tập và thêm những con cá Koi bạn yêu thích
-              </p>
-              <Link href="/catalog">
-                <Button>Khám phá ngay</Button>
-              </Link>
-            </CardContent>
-          </Card>
+          <EmptyState
+            icon={Heart}
+            title="Chưa có cá Koi yêu thích"
+            description="Khám phá bộ sưu tập và thêm những con cá Koi bạn yêu thích"
+            action={{
+              label: "Khám phá ngay",
+              onClick: () => (window.location.href = "/catalog"),
+            }}
+          />
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {favoriteKoi.map((koi) => (

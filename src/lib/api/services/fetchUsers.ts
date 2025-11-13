@@ -1,5 +1,5 @@
 import toRequestParams from "@/lib/utils/params";
-import apiService, { BaseResponse } from "../apiClient";
+import apiService, { BaseResponse, PagedResponse } from "../apiClient";
 import { Roles } from "./fetchAuth";
 
 export interface User {
@@ -10,20 +10,12 @@ export interface User {
   email: string;
 }
 
-export interface UserPagedResponse {
-  pageIndex: number;
-  totalPages: number;
-  totalItems: number;
-  hasPreviousPage: boolean;
-  hasNextPage: boolean;
-  datas: User[];
-}
-
 export interface UserSearchParams {
   role?: Roles;
   pageIndex?: number;
   pageSize?: number;
   search?: string;
+  isBlocked?: boolean;
 }
 
 export interface CreateStaffAccountRequest {
@@ -73,13 +65,60 @@ export interface ImportAccountsResponse {
   errors: ImportError[];
 }
 
+export interface UserDetails {
+  id: number;
+  fullName: string;
+  phoneNumber: string;
+  email: string;
+  dateOfBirth: string;
+  gender: string;
+  avatarURL: string;
+  address: string;
+  role: Roles;
+}
+
+export interface UpdateProfileRequest {
+  fullName: string;
+  phoneNumber: string;
+  dateOfBirth: string;
+  gender: string;
+  avatarURL: string;
+  address: string;
+}
+
+export interface UpdateProfileResponse {
+  id: number;
+  fullName: string;
+  role: string;
+  isBlocked: boolean;
+  email: string;
+}
+
 const userUrl = "/api/Users";
 const accountUrl = "/api/Accounts";
+const userDetailsUrl = "/api/UserDetails";
 
 export const usersService = {
+  getUserDetails: async (): Promise<BaseResponse<UserDetails>> => {
+    const response = await apiService.get<BaseResponse<UserDetails>>(
+      `${userDetailsUrl}/get-me`,
+    );
+    return response.data;
+  },
+
+  updateProfile: async (
+    data: UpdateProfileRequest,
+  ): Promise<BaseResponse<UpdateProfileResponse>> => {
+    const response = await apiService.put<BaseResponse<UpdateProfileResponse>>(
+      `${userUrl}/profile`,
+      data as unknown as Record<string, unknown>,
+    );
+    return response.data;
+  },
+
   getUserByRole: async (
     params: UserSearchParams,
-  ): Promise<BaseResponse<UserPagedResponse>> => {
+  ): Promise<BaseResponse<PagedResponse<User>>> => {
     const filter = toRequestParams({
       role: params.role,
       pageIndex: params.pageIndex || 1,
@@ -87,7 +126,7 @@ export const usersService = {
       search: params.search || undefined,
     });
 
-    const response = await apiService.get<BaseResponse<UserPagedResponse>>(
+    const response = await apiService.get<BaseResponse<PagedResponse<User>>>(
       `${userUrl}/by-role`,
       filter,
     );
