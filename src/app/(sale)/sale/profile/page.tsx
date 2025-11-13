@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import * as React from "react";
 import {
   Card,
   CardContent,
@@ -11,368 +12,727 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import {
-  User,
-  Mail,
-  Phone,
-  MapPin,
   Calendar,
+  Shield,
   Edit,
+  Camera,
   Save,
   X,
-  Camera,
-  Shield,
-  Award,
-  TrendingUp,
-  Clock,
-  Target,
+  Loader2,
+  Eye,
+  EyeOff,
 } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useGetUserDetails, useUpdateProfile } from "@/hooks/useUsers";
+import { useChangePassword } from "@/hooks/useAuth";
+import { UpdateProfileRequest } from "@/lib/api/services/fetchUsers";
+import { useUploadImage } from "@/hooks/useUploadFile";
+import { Gender } from "@/lib/api/services/fetchKoiFish";
+import { getUserGenderLabelForPerson, getRoleLabel } from "@/lib/utils/enum";
+import { Roles } from "@/lib/api/services/fetchAuth";
+import toast from "react-hot-toast";
 
-// Mock data - replace with real API calls
-const mockProfile = {
-  id: "EMP001",
-  name: "Nguyễn Văn Bán hàng",
-  email: "sale.nguyen@zenkoi.com",
-  phone: "0987654321",
-  avatar: "/user.png",
-  position: "Nhân viên bán hàng",
-  department: "Phòng kinh doanh",
-  startDate: "2023-01-15",
-  address: "123 Đường ABC, Quận 1, TP.HCM",
-  bio: "Chuyên gia tư vấn cá Koi với 3 năm kinh nghiệm trong ngành. Đam mê nghệ thuật nuôi cá và cam kết mang đến trải nghiệm tốt nhất cho khách hàng.",
-  achievements: [
-    { title: "Nhân viên xuất sắc Q1/2024", type: "award" },
-    { title: "Top 3 doanh số tháng 3", type: "target" },
-    { title: "Khách hàng đánh giá 5 sao", type: "rating" },
-  ],
-  stats: {
-    totalSales: 150,
-    totalRevenue: 450000000,
-    customerSatisfaction: 98,
-    averageOrderValue: 3000000,
-  },
-};
+interface SaleProfile {
+  id: number;
+  fullName: string;
+  email: string;
+  phoneNumber: string;
+  avatarURL?: string;
+  role: Roles;
+  dateOfBirth: string;
+  address: string;
+  gender: string;
+}
 
-export default function SaleProfilePage() {
+export default function SaleProfile() {
   const [isEditing, setIsEditing] = useState(false);
-  const [profile, setProfile] = useState(mockProfile);
+  const [isAvatarDialogOpen, setIsAvatarDialogOpen] = useState(false);
+  const [selectedAvatarFile, setSelectedAvatarFile] = useState<File | null>(
+    null,
+  );
+  const [previewAvatarUrl, setPreviewAvatarUrl] = useState<string | null>(null);
+  const [passwordForm, setPasswordForm] = useState({
+    oldPassword: "",
+    newPassword: "",
+    confirmedNewPassword: "",
+  });
+  const [showOldPassword, setShowOldPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("vi-VN", {
-      style: "currency",
-      currency: "VND",
-    }).format(amount);
-  };
+  // Fetch user details from API
+  const { data: userDetails, isLoading, error } = useGetUserDetails();
+  const { mutate: updateProfile, isPending: isUpdating } = useUpdateProfile();
+  const { mutate: uploadImage, isPending: isUploading } = useUploadImage();
+  const { mutate: changePassword, isPending: isChangingPassword } =
+    useChangePassword(() => {
+      setPasswordForm({
+        oldPassword: "",
+        newPassword: "",
+        confirmedNewPassword: "",
+      });
+      toast.success("Đổi mật khẩu thành công");
+    });
+
+  // Convert API response to component state
+  const [profile, setProfile] = useState<SaleProfile | null>(null);
+  const [editedProfile, setEditedProfile] = useState<SaleProfile | null>(null);
+
+  // Update profile when user details are fetched
+  React.useEffect(() => {
+    if (userDetails) {
+      const profileData: SaleProfile = {
+        id: userDetails.id,
+        fullName: userDetails.fullName,
+        email: userDetails.email,
+        phoneNumber: userDetails.phoneNumber,
+        avatarURL: userDetails.avatarURL,
+        role: userDetails.role,
+        dateOfBirth: userDetails.dateOfBirth,
+        address: userDetails.address,
+        gender: userDetails.gender,
+      };
+      setProfile(profileData);
+      setEditedProfile(profileData);
+    }
+  }, [userDetails]);
 
   const handleSave = () => {
-    // Save profile logic here
-    setIsEditing(false);
+    if (!editedProfile) return;
+
+    // Prepare update request
+    const updateRequest: UpdateProfileRequest = {
+      fullName: editedProfile.fullName,
+      phoneNumber: editedProfile.phoneNumber,
+      dateOfBirth: editedProfile.dateOfBirth || new Date().toISOString(),
+      gender: editedProfile.gender,
+      avatarURL: editedProfile.avatarURL || "",
+      address: editedProfile.address,
+    };
+
+    updateProfile(updateRequest, {
+      onSuccess: () => {
+        setProfile(editedProfile);
+        setIsEditing(false);
+      },
+    });
   };
 
   const handleCancel = () => {
-    setProfile(mockProfile); // Reset to original
+    setEditedProfile(profile);
     setIsEditing(false);
   };
 
+  const handleInputChange = (field: keyof SaleProfile, value: string) => {
+    if (editedProfile) {
+      setEditedProfile((prev) => {
+        if (!prev) return null;
+        return {
+          ...prev,
+          [field]: value,
+        };
+      });
+    }
+  };
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setSelectedAvatarFile(file);
+      // Create preview URL
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setPreviewAvatarUrl(e.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleAvatarConfirm = () => {
+    if (!selectedAvatarFile || !editedProfile) return;
+
+    uploadImage(
+      { file: selectedAvatarFile },
+      {
+        onSuccess: (uploadedUrl) => {
+          const updatedProfile = {
+            ...editedProfile,
+            avatarURL: uploadedUrl.url,
+          };
+          setEditedProfile(updatedProfile);
+
+          // If not editing, call updateProfile immediately
+          if (!isEditing) {
+            const updateRequest = {
+              fullName: updatedProfile.fullName,
+              phoneNumber: updatedProfile.phoneNumber,
+              dateOfBirth:
+                updatedProfile.dateOfBirth || new Date().toISOString(),
+              gender: updatedProfile.gender,
+              avatarURL: updatedProfile.avatarURL,
+              address: updatedProfile.address,
+            };
+            updateProfile(updateRequest);
+          }
+
+          setSelectedAvatarFile(null);
+          setPreviewAvatarUrl(null);
+          setIsAvatarDialogOpen(false);
+        },
+      },
+    );
+  };
+
+  const handlePasswordChange = (field: string, value: string) => {
+    setPasswordForm((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleChangePassword = () => {
+    // Validate form
+    if (
+      !passwordForm.oldPassword ||
+      !passwordForm.newPassword ||
+      !passwordForm.confirmedNewPassword
+    ) {
+      toast.error("Vui lòng điền đầy đủ tất cả các trường");
+      return;
+    }
+
+    if (passwordForm.newPassword !== passwordForm.confirmedNewPassword) {
+      toast.error("Mật khẩu mới không khớp với xác nhận");
+      return;
+    }
+
+    // Call API
+    changePassword({
+      oldPassword: passwordForm.oldPassword,
+      newPassword: passwordForm.newPassword,
+      confirmedNewPassword: passwordForm.confirmedNewPassword,
+    });
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8 items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin" />
+        <p className="text-muted-foreground">Đang tải thông tin...</p>
+      </div>
+    );
+  }
+
+  if (error || !profile) {
+    return (
+      <div className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8 items-center justify-center">
+        <p className="text-red-600">Có lỗi xảy ra khi tải thông tin cá nhân</p>
+      </div>
+    );
+  }
+
   return (
-    <div className="flex flex-col gap-6 p-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
+      <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+          <h1 className="text-3xl font-bold tracking-tight">
             Thông tin cá nhân
           </h1>
           <p className="text-muted-foreground">
-            Quản lý thông tin tài khoản và hiệu suất công việc
+            Quản lý thông tin cá nhân và hồ sơ của bạn
           </p>
-        </div>
-        <div className="flex gap-2">
-          {isEditing ? (
-            <>
-              <Button variant="outline" onClick={handleCancel}>
-                <X className="h-4 w-4 mr-2" />
-                Hủy
-              </Button>
-              <Button onClick={handleSave}>
-                <Save className="h-4 w-4 mr-2" />
-                Lưu thay đổi
-              </Button>
-            </>
-          ) : (
-            <Button onClick={() => setIsEditing(true)}>
-              <Edit className="h-4 w-4 mr-2" />
-              Chỉnh sửa
-            </Button>
-          )}
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Profile Information */}
-        <div className="lg:col-span-2 space-y-6">
-          {/* Basic Info Card */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <User className="h-5 w-5" />
-                Thông tin cơ bản
-              </CardTitle>
-              <CardDescription>Thông tin cá nhân và liên hệ</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              {/* Avatar Section */}
-              <div className="flex items-center gap-4">
-                <div className="relative">
-                  <Avatar className="h-20 w-20">
-                    <AvatarImage src={profile.avatar} alt={profile.name} />
-                    <AvatarFallback>
-                      <User className="h-8 w-8" />
-                    </AvatarFallback>
-                  </Avatar>
-                  {isEditing && (
+      <Tabs defaultValue="profile" className="space-y-3">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="profile">Thông tin</TabsTrigger>
+          <TabsTrigger value="security">Bảo mật</TabsTrigger>
+        </TabsList>
+
+        {/* Profile Tab */}
+        <TabsContent value="profile" className="space-y-6">
+          <div className="grid gap-6 md:grid-cols-3">
+            {/* Profile Card */}
+            <Card className="md:col-span-1">
+              <CardHeader className="text-center">
+                <div className="flex flex-col items-center space-y-4">
+                  <div className="relative">
+                    <Avatar className="h-24 w-24">
+                      <AvatarImage
+                        src={profile.avatarURL}
+                        alt={profile.fullName}
+                      />
+                      <AvatarFallback className="text-lg">
+                        {profile.fullName
+                          .split(" ")
+                          .map((n) => n[0])
+                          .join("")}
+                      </AvatarFallback>
+                    </Avatar>
                     <Button
                       size="icon"
-                      variant="secondary"
+                      variant="outline"
                       className="absolute -bottom-2 -right-2 h-8 w-8 rounded-full"
+                      onClick={() => setIsAvatarDialogOpen(true)}
                     >
                       <Camera className="h-4 w-4" />
                     </Button>
+                  </div>
+                  <div className="space-y-1">
+                    <h3 className="text-xl font-semibold">
+                      {profile.fullName}
+                    </h3>
+                    <Badge
+                      variant="secondary"
+                      className="flex items-center gap-1 w-fit mx-auto"
+                    >
+                      <Shield className="h-3 w-3" />
+                      {getRoleLabel(profile.role).label}
+                    </Badge>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-center gap-3 text-sm">
+                  <Calendar className="h-4 w-4 text-muted-foreground" />
+                  <span>
+                    Ngày sinh:{" "}
+                    {new Date(profile.dateOfBirth).toLocaleDateString("vi-VN")}
+                  </span>
+                </div>
+                <Separator />
+                <div className="space-y-2">
+                  <h4 className="font-medium text-sm">Giới tính</h4>
+                  <p className="text-sm text-muted-foreground">
+                    {
+                      getUserGenderLabelForPerson(
+                        profile.gender as Gender | undefined,
+                      ).label
+                    }
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Profile Details */}
+            <Card className="md:col-span-2">
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle>Thông tin chi tiết</CardTitle>
+                    <CardDescription>
+                      Cập nhật thông tin cá nhân của bạn
+                    </CardDescription>
+                  </div>
+                  {!isEditing ? (
+                    <Button onClick={() => setIsEditing(true)}>
+                      <Edit className="mr-2 h-4 w-4" />
+                      Chỉnh sửa
+                    </Button>
+                  ) : (
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        onClick={handleCancel}
+                        disabled={isUpdating}
+                      >
+                        <X className="mr-2 h-4 w-4" />
+                        Hủy
+                      </Button>
+                      <Button onClick={handleSave} disabled={isUpdating}>
+                        {isUpdating ? (
+                          <>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            Đang lưu...
+                          </>
+                        ) : (
+                          <>
+                            <Save className="mr-2 h-4 w-4" />
+                            Lưu
+                          </>
+                        )}
+                      </Button>
+                    </div>
                   )}
                 </div>
-                <div>
-                  <h3 className="text-lg font-semibold">{profile.name}</h3>
-                  <p className="text-sm text-muted-foreground">
-                    {profile.position}
-                  </p>
-                  <Badge variant="secondary" className="mt-1">
-                    <Shield className="h-3 w-3 mr-1" />
-                    {profile.department}
-                  </Badge>
-                </div>
-              </div>
-
-              <Separator />
-
-              {/* Form Fields */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="name">Họ và tên</Label>
-                  <Input
-                    id="name"
-                    value={profile.name}
-                    onChange={(e) =>
-                      setProfile({ ...profile, name: e.target.value })
-                    }
-                    disabled={!isEditing}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    value={profile.email}
-                    onChange={(e) =>
-                      setProfile({ ...profile, email: e.target.value })
-                    }
-                    disabled={!isEditing}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="phone">Số điện thoại</Label>
-                  <Input
-                    id="phone"
-                    value={profile.phone}
-                    onChange={(e) =>
-                      setProfile({ ...profile, phone: e.target.value })
-                    }
-                    disabled={!isEditing}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="startDate">Ngày bắt đầu làm việc</Label>
-                  <Input id="startDate" value={profile.startDate} disabled />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="address">Địa chỉ</Label>
-                <Input
-                  id="address"
-                  value={profile.address}
-                  onChange={(e) =>
-                    setProfile({ ...profile, address: e.target.value })
-                  }
-                  disabled={!isEditing}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="bio">Giới thiệu bản thân</Label>
-                <Textarea
-                  id="bio"
-                  value={profile.bio}
-                  onChange={(e) =>
-                    setProfile({ ...profile, bio: e.target.value })
-                  }
-                  disabled={!isEditing}
-                  rows={3}
-                />
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Achievements Card */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Award className="h-5 w-5" />
-                Thành tích nổi bật
-              </CardTitle>
-              <CardDescription>
-                Các giải thưởng và thành tích đạt được
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {profile.achievements.map((achievement, index) => (
-                  <div
-                    key={index}
-                    className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg"
-                  >
-                    <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                      {achievement.type === "award" && (
-                        <Award className="h-5 w-5 text-primary" />
-                      )}
-                      {achievement.type === "target" && (
-                        <Target className="h-5 w-5 text-primary" />
-                      )}
-                      {achievement.type === "rating" && (
-                        <TrendingUp className="h-5 w-5 text-primary" />
-                      )}
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-sm font-medium">{achievement.title}</p>
-                    </div>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="fullName">Họ và tên</Label>
+                    <Input
+                      id="fullName"
+                      value={
+                        isEditing ? editedProfile?.fullName : profile.fullName
+                      }
+                      onChange={(e) =>
+                        handleInputChange("fullName", e.target.value)
+                      }
+                      disabled={!isEditing}
+                      className={
+                        !isEditing ? "bg-muted/50" : "border border-primary"
+                      }
+                    />
                   </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
 
-        {/* Performance Stats */}
-        <div className="space-y-6">
-          {/* Quick Stats */}
+                  <div className="space-y-2">
+                    <Label htmlFor="email">Email</Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      value={isEditing ? editedProfile?.email : profile.email}
+                      onChange={(e) =>
+                        handleInputChange("email", e.target.value)
+                      }
+                      disabled={!isEditing}
+                      className={
+                        !isEditing ? "bg-muted/50" : "border border-primary"
+                      }
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="phoneNumber">Số điện thoại</Label>
+                    <Input
+                      id="phoneNumber"
+                      value={
+                        isEditing
+                          ? editedProfile?.phoneNumber
+                          : profile.phoneNumber
+                      }
+                      onChange={(e) =>
+                        handleInputChange("phoneNumber", e.target.value)
+                      }
+                      disabled={!isEditing}
+                      className={
+                        !isEditing ? "bg-muted/50" : "border border-primary"
+                      }
+                    />
+                  </div>
+
+                  <div className="space-y-2 md:col-span-2">
+                    <Label htmlFor="gender">Giới tính</Label>
+                    {isEditing ? (
+                      <Select
+                        value={editedProfile?.gender || ""}
+                        onValueChange={(value) =>
+                          handleInputChange("gender", value)
+                        }
+                      >
+                        <SelectTrigger
+                          id="gender"
+                          className="border border-primary w-full"
+                        >
+                          <SelectValue placeholder="Chọn giới tính" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value={Gender.MALE}>
+                            {getUserGenderLabelForPerson(Gender.MALE).label}
+                          </SelectItem>
+                          <SelectItem value={Gender.FEMALE}>
+                            {getUserGenderLabelForPerson(Gender.FEMALE).label}
+                          </SelectItem>
+                          <SelectItem value={Gender.UNKNOWN}>
+                            {getUserGenderLabelForPerson(Gender.UNKNOWN).label}
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+                    ) : (
+                      <div className="bg-muted/50 border border-gray-200 rounded-md px-3 py-2 text-sm">
+                        {
+                          getUserGenderLabelForPerson(
+                            editedProfile?.gender as Gender | undefined,
+                          ).label
+                        }
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="dateOfBirth">Ngày sinh</Label>
+                  <Input
+                    id="dateOfBirth"
+                    type="date"
+                    value={
+                      isEditing
+                        ? editedProfile?.dateOfBirth?.substring(0, 10)
+                        : profile.dateOfBirth?.substring(0, 10)
+                    }
+                    onChange={(e) =>
+                      handleInputChange("dateOfBirth", e.target.value)
+                    }
+                    disabled={!isEditing}
+                    className={
+                      !isEditing ? "bg-muted/50" : "border border-primary"
+                    }
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="address">Địa chỉ</Label>
+                  <Input
+                    id="address"
+                    value={isEditing ? editedProfile?.address : profile.address}
+                    onChange={(e) =>
+                      handleInputChange("address", e.target.value)
+                    }
+                    disabled={!isEditing}
+                    className={
+                      !isEditing ? "bg-muted/50" : "border border-primary"
+                    }
+                  />
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+
+        {/* Security Tab */}
+        <TabsContent value="security">
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <TrendingUp className="h-5 w-5" />
-                Hiệu suất làm việc
-              </CardTitle>
-              <CardDescription>Thống kê tháng này</CardDescription>
+              <CardTitle>Bảo mật tài khoản</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+            <CardContent className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                  <p className="text-sm text-muted-foreground">Tổng đơn hàng</p>
-                  <p className="text-2xl font-bold">
-                    {profile.stats.totalSales}
-                  </p>
+                  <Label htmlFor="currentPassword" className="mb-2">
+                    Mật khẩu hiện tại
+                  </Label>
+                  <div className="relative">
+                    <Input
+                      id="currentPassword"
+                      type={showOldPassword ? "text" : "password"}
+                      placeholder="Nhập mật khẩu hiện tại"
+                      value={passwordForm.oldPassword}
+                      onChange={(e) =>
+                        handlePasswordChange("oldPassword", e.target.value)
+                      }
+                      disabled={isChangingPassword}
+                      className="border-2 border-border hover:border-primary/50 focus:border-primary transition-colors pr-11"
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="absolute right-2 top-1/2 -translate-y-1/2 h-6 w-6"
+                      onClick={() => setShowOldPassword(!showOldPassword)}
+                      disabled={isChangingPassword}
+                    >
+                      {showOldPassword ? (
+                        <EyeOff className="h-4 w-4 text-muted-foreground" />
+                      ) : (
+                        <Eye className="h-4 w-4 text-muted-foreground" />
+                      )}
+                    </Button>
+                  </div>
                 </div>
-                <TrendingUp className="h-8 w-8 text-green-600" />
-              </div>
-
-              <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
                 <div>
-                  <p className="text-sm text-muted-foreground">Doanh thu</p>
-                  <p className="text-lg font-bold">
-                    {formatCurrency(profile.stats.totalRevenue)}
-                  </p>
+                  <Label htmlFor="newPassword" className="mb-2">
+                    Mật khẩu mới
+                  </Label>
+                  <div className="relative">
+                    <Input
+                      id="newPassword"
+                      type={showNewPassword ? "text" : "password"}
+                      placeholder="Nhập mật khẩu mới"
+                      value={passwordForm.newPassword}
+                      onChange={(e) =>
+                        handlePasswordChange("newPassword", e.target.value)
+                      }
+                      disabled={isChangingPassword}
+                      className="border-2 border-border hover:border-primary/50 focus:border-primary transition-colors pr-11"
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="absolute right-2 top-1/2 -translate-y-1/2 h-6 w-6"
+                      onClick={() => setShowNewPassword(!showNewPassword)}
+                      disabled={isChangingPassword}
+                    >
+                      {showNewPassword ? (
+                        <EyeOff className="h-4 w-4 text-muted-foreground" />
+                      ) : (
+                        <Eye className="h-4 w-4 text-muted-foreground" />
+                      )}
+                    </Button>
+                  </div>
                 </div>
-                <TrendingUp className="h-8 w-8 text-blue-600" />
-              </div>
-
-              <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
                 <div>
-                  <p className="text-sm text-muted-foreground">Hài lòng KH</p>
-                  <p className="text-2xl font-bold">
-                    {profile.stats.customerSatisfaction}%
-                  </p>
+                  <Label htmlFor="confirmPassword" className="mb-2">
+                    Xác nhận mật khẩu mới
+                  </Label>
+                  <div className="relative">
+                    <Input
+                      id="confirmPassword"
+                      type={showConfirmPassword ? "text" : "password"}
+                      placeholder="Xác nhận mật khẩu mới"
+                      value={passwordForm.confirmedNewPassword}
+                      onChange={(e) =>
+                        handlePasswordChange(
+                          "confirmedNewPassword",
+                          e.target.value,
+                        )
+                      }
+                      disabled={isChangingPassword}
+                      className="border-2 border-border hover:border-primary/50 focus:border-primary transition-colors pr-11"
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="absolute right-2 top-1/2 -translate-y-1/2 h-6 w-6"
+                      onClick={() =>
+                        setShowConfirmPassword(!showConfirmPassword)
+                      }
+                      disabled={isChangingPassword}
+                    >
+                      {showConfirmPassword ? (
+                        <EyeOff className="h-4 w-4 text-muted-foreground" />
+                      ) : (
+                        <Eye className="h-4 w-4 text-muted-foreground" />
+                      )}
+                    </Button>
+                  </div>
                 </div>
-                <Award className="h-8 w-8 text-yellow-600" />
               </div>
-
-              <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-                <div>
-                  <p className="text-sm text-muted-foreground">
-                    Đơn trung bình
+              <Button
+                onClick={handleChangePassword}
+                disabled={
+                  isChangingPassword ||
+                  !passwordForm.oldPassword ||
+                  !passwordForm.newPassword ||
+                  !passwordForm.confirmedNewPassword ||
+                  passwordForm.newPassword !== passwordForm.confirmedNewPassword
+                }
+              >
+                {isChangingPassword ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Đang xử lý...
+                  </>
+                ) : (
+                  <>
+                    <Save className="mr-2 h-4 w-4" />
+                    Đổi mật khẩu
+                  </>
+                )}
+              </Button>
+              {passwordForm.newPassword &&
+                passwordForm.confirmedNewPassword &&
+                passwordForm.newPassword !==
+                  passwordForm.confirmedNewPassword && (
+                  <p className="text-sm text-red-500">
+                    Mật khẩu mới không khớp với xác nhận
                   </p>
-                  <p className="text-lg font-bold">
-                    {formatCurrency(profile.stats.averageOrderValue)}
-                  </p>
-                </div>
-                <Target className="h-8 w-8 text-purple-600" />
-              </div>
+                )}
             </CardContent>
           </Card>
+        </TabsContent>
+      </Tabs>
 
-          {/* Work Info */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Clock className="h-5 w-5" />
-                Thông tin công việc
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center gap-3">
-                <Mail className="h-4 w-4 text-muted-foreground" />
-                <div>
-                  <p className="text-sm font-medium">Email công ty</p>
-                  <p className="text-sm text-muted-foreground">
-                    {profile.email}
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-3">
-                <Phone className="h-4 w-4 text-muted-foreground" />
-                <div>
-                  <p className="text-sm font-medium">Điện thoại</p>
-                  <p className="text-sm text-muted-foreground">
-                    {profile.phone}
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-3">
-                <Calendar className="h-4 w-4 text-muted-foreground" />
-                <div>
-                  <p className="text-sm font-medium">Ngày bắt đầu</p>
-                  <p className="text-sm text-muted-foreground">
-                    {profile.startDate}
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-3">
-                <MapPin className="h-4 w-4 text-muted-foreground" />
-                <div>
-                  <p className="text-sm font-medium">Địa chỉ</p>
-                  <p className="text-sm text-muted-foreground">
-                    {profile.address}
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
+      {/* Avatar Change Dialog */}
+      <Dialog open={isAvatarDialogOpen} onOpenChange={setIsAvatarDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Thay đổi ảnh đại diện</DialogTitle>
+            <DialogDescription>
+              Chọn ảnh mới cho hồ sơ của bạn
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="flex justify-center">
+              <Avatar className="h-32 w-32">
+                <AvatarImage
+                  src={previewAvatarUrl || editedProfile?.avatarURL}
+                  alt={profile?.fullName}
+                />
+                <AvatarFallback className="text-2xl">
+                  {profile?.fullName
+                    .split(" ")
+                    .map((n) => n[0])
+                    .join("")}
+                </AvatarFallback>
+              </Avatar>
+            </div>
+            <div className="flex gap-2 justify-center">
+              <input
+                ref={(input) => {
+                  if (input) input.accept = "image/*";
+                }}
+                type="file"
+                id="avatar-upload"
+                style={{ display: "none" }}
+                onChange={handleFileSelect}
+                disabled={isUploading}
+              />
+              <Button
+                variant="outline"
+                onClick={() =>
+                  document.getElementById("avatar-upload")?.click()
+                }
+                disabled={isUploading || previewAvatarUrl !== null}
+              >
+                {isUploading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Đang tải...
+                  </>
+                ) : (
+                  <>
+                    <Camera className="mr-2 h-4 w-4" />
+                    Chọn ảnh
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
+          <div className="flex justify-end gap-2">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setIsAvatarDialogOpen(false);
+                setSelectedAvatarFile(null);
+                setPreviewAvatarUrl(null);
+              }}
+              disabled={isUploading}
+            >
+              Hủy
+            </Button>
+            <Button
+              onClick={handleAvatarConfirm}
+              disabled={isUploading || !selectedAvatarFile}
+            >
+              {isUploading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Đang tải...
+                </>
+              ) : (
+                "Xong"
+              )}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

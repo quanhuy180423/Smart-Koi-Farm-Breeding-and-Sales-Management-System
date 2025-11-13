@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Plus, Loader2, Clock, X } from "lucide-react";
+import toast from "react-hot-toast";
 import { TaskTemplateResponse } from "@/lib/api/services/fetchTaskTemplate";
 import {
   TemplateItemRequest,
@@ -62,7 +63,7 @@ export default function AddWeeklyScheduleModal({
 
   const handleSelectTask = (task: TaskTemplateResponse) => {
     if (selectedDays.size === 0) {
-      alert("Vui lòng chọn ít nhất một ngày");
+      toast.error("Vui lòng chọn ít nhất một ngày");
       return;
     }
 
@@ -99,12 +100,12 @@ export default function AddWeeklyScheduleModal({
 
   const handleSubmit = () => {
     if (!name.trim() || !description.trim()) {
-      alert("Vui lòng điền đầy đủ tên và mô tả");
+      toast.error("Vui lòng điền đầy đủ tên và mô tả");
       return;
     }
 
     if (templateItems.length === 0) {
-      alert("Vui lòng thêm ít nhất một công việc");
+      toast.error("Vui lòng thêm ít nhất một công việc");
       return;
     }
 

@@ -15,6 +15,7 @@ import { formatTimeToHHMM } from "@/lib/utils/formatTime";
 import {
   getWorkScheduleStatusColor,
   getWorkScheduleStatusText,
+  getRoleLabel,
 } from "@/lib/utils/enum";
 
 interface WorkScheduleDetailModalProps {
@@ -125,12 +126,18 @@ export default function WorkScheduleDetailModal({
                     <CardContent className="pt-4">
                       <div className="flex items-start gap-3">
                         <User className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
-                        <div>
+                        <div className="flex-1 space-y-2">
                           <p className="font-medium text-gray-900">
                             {staff.staffName}
                           </p>
+                          <Badge
+                            variant="outline"
+                            className={`text-xs ${getRoleLabel(staff.role).colorClass}`}
+                          >
+                            {getRoleLabel(staff.role).label}
+                          </Badge>
                           {staff.completedAt ? (
-                            <div className="mt-1 space-y-1 text-xs text-gray-600">
+                            <div className="space-y-1 text-xs text-gray-600 pt-1">
                               <p className="text-green-600 font-medium">
                                 ✓ Đã hoàn thành
                               </p>
@@ -140,13 +147,13 @@ export default function WorkScheduleDetailModal({
                                 )}
                               </p>
                               {staff.completionNotes && (
-                                <p className="italic text-gray-700 mt-1">
+                                <p className="italic text-gray-700">
                                   {staff.completionNotes}
                                 </p>
                               )}
                             </div>
                           ) : (
-                            <p className="text-xs text-yellow-600 font-medium mt-1">
+                            <p className="text-xs text-yellow-600 font-medium">
                               Chưa hoàn thành
                             </p>
                           )}

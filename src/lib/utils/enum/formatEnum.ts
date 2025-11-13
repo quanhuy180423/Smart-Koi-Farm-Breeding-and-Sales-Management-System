@@ -13,6 +13,7 @@ import { PondStatus } from "@/lib/api/services/fetchPond";
 import { OrderStatus } from "@/lib/api/services/fetchOrder";
 import { WorkScheduleStatusEnum } from "@/lib/api/services/fetchWorkSchedule";
 import { PondTypeEnum } from "@/lib/api/services/fetchPondType";
+import { Roles } from "@/lib/api/services/fetchAuth";
 import {
   CheckCircle,
   Clock,
@@ -55,6 +56,12 @@ const genderMeta: Record<Gender, Label> = {
   [Gender.MALE]: { label: "Đực", colorClass: "text-blue-600" },
   [Gender.FEMALE]: { label: "Cái", colorClass: "text-pink-600" },
   [Gender.UNKNOWN]: { label: "Chưa rõ", colorClass: "text-gray-500" },
+};
+
+const userGenderMeta: Record<Gender, Label> = {
+  [Gender.MALE]: { label: "Nam", colorClass: "text-blue-600" },
+  [Gender.FEMALE]: { label: "Nữ", colorClass: "text-pink-600" },
+  [Gender.UNKNOWN]: { label: "Khác", colorClass: "text-gray-500" },
 };
 
 const saleStatusMeta: Record<SaleStatus, Label> = {
@@ -195,6 +202,25 @@ const pondTypeMeta: Record<PondTypeEnum, Label> = {
   },
 };
 
+const rolesMeta: Record<Roles, Label> = {
+  [Roles.Manager]: {
+    label: "Quản lý",
+    colorClass: "bg-red-100 text-red-800",
+  },
+  [Roles.FarmStaff]: {
+    label: "Nhân viên trang trại",
+    colorClass: "bg-green-100 text-green-800",
+  },
+  [Roles.SaleStaff]: {
+    label: "Nhân viên bán hàng",
+    colorClass: "bg-blue-100 text-blue-800",
+  },
+  [Roles.Customer]: {
+    label: "Khách hàng",
+    colorClass: "bg-gray-100 text-gray-800",
+  },
+};
+
 const DEFAULT_LABEL: Label = {
   label: "Không xác định",
   colorClass: "bg-gray-100 text-gray-700",
@@ -259,6 +285,10 @@ export function getGenderLabel(gender?: Gender): Label {
   return getLabelForEnum(gender, genderMeta);
 }
 
+export function getUserGenderLabelForPerson(gender?: Gender): Label {
+  return getLabelForEnum(gender, userGenderMeta);
+}
+
 export function getSaleStatusLabel(status?: SaleStatus): Label {
   return getLabelForEnum(status, saleStatusMeta);
 }
@@ -290,6 +320,14 @@ export function getWorkScheduleStatusLabel(
 
 export function getPondTypeLabel(type?: PondTypeEnum): Label {
   return getLabelForEnum(type, pondTypeMeta);
+}
+
+export function getRoleLabel(role?: Roles): Label {
+  return getLabelForEnum(role, rolesMeta);
+}
+
+export function getRoleText(role?: Roles): string {
+  return getRoleLabel(role).label;
 }
 
 /**

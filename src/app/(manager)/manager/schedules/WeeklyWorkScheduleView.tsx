@@ -26,6 +26,7 @@ import { formatTimeToHHMM } from "@/lib/utils/formatTime";
 import {
   getWorkScheduleStatusText,
   getWorkScheduleStatusColor,
+  getRoleText,
 } from "@/lib/utils/enum";
 import EditWorkScheduleModal from "./EditWorkScheduleModal";
 import CreateWorkScheduleModal from "./CreateWorkScheduleModal";
@@ -284,8 +285,9 @@ export default function WeeklyWorkScheduleView({
                                 <span
                                   key={staff.staffId}
                                   className="bg-blue-50 text-blue-700 px-2 py-0.5 rounded text-xs"
+                                  title={`${staff.staffName} - ${getRoleText(staff.role)}`}
                                 >
-                                  {staff.staffName}
+                                  {staff.staffName} ({getRoleText(staff.role)})
                                 </span>
                               ))}
                             </div>

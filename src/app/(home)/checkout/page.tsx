@@ -62,6 +62,9 @@ import { PaymentMethod } from "@/lib/api/services/fetchOrderPayment";
 import { formatCurrency } from "@/lib/utils/numbers/formatCurrency";
 import { getFishSizeLabel } from "@/lib/utils/enum";
 import { ShippingFeeDetailDialog } from "@/components/checkout/ShippingFeeDetailDialog";
+import { LoadingState } from "@/components/common/LoadingState";
+import { ErrorState } from "@/components/common/ErrorState";
+import { EmptyState } from "@/components/common/EmptyState";
 
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -411,14 +414,10 @@ export default function CheckoutPage() {
   // Loading state
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-background to-muted/20">
-        <div className="container mx-auto px-4 py-8">
-          <div className="max-w-2xl mx-auto text-center">
-            <Loader2 className="h-16 w-16 text-primary mx-auto mb-6 animate-spin" />
-            <h1 className="text-3xl font-bold mb-4">Đang tải giỏ hàng...</h1>
-            <p className="text-muted-foreground mb-8 text-lg">
-              Vui lòng chờ một chút
-            </p>
+      <div className="min-h-screen bg-gradient-to-br from-background to-muted/20 flex items-center justify-center">
+        <div className="container mx-auto px-4">
+          <div className="max-w-2xl mx-auto">
+            <LoadingState message="Đang tải giỏ hàng..." />
           </div>
         </div>
       </div>
@@ -428,30 +427,14 @@ export default function CheckoutPage() {
   // Error state
   if (isError) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-background to-muted/20">
-        <div className="container mx-auto px-4 py-8">
-          <div className="max-w-2xl mx-auto text-center">
-            <div className="bg-destructive/10 rounded-full w-32 h-32 flex items-center justify-center mx-auto mb-6">
-              <ShoppingCart className="h-16 w-16 text-destructive" />
-            </div>
-            <h1 className="text-3xl font-bold mb-4">Lỗi khi tải giỏ hàng</h1>
-            <p className="text-muted-foreground mb-8 text-lg">
-              Có lỗi xảy ra. Vui lòng thử lại.
-            </p>
-            <div className="space-y-4">
-              <Button size="lg" className="px-8" onClick={() => refetch()}>
-                <Loader2 className="mr-2 h-4 w-4" />
-                Tải lại
-              </Button>
-              <div>
-                <Button asChild variant="outline" size="lg" className="px-11!">
-                  <Link href="/">
-                    <ArrowLeft className="mr-2 h-4 w-4" />
-                    Về trang chủ
-                  </Link>
-                </Button>
-              </div>
-            </div>
+      <div className="min-h-screen bg-gradient-to-br from-background to-muted/20 flex items-center justify-center">
+        <div className="container mx-auto px-4">
+          <div className="max-w-2xl mx-auto">
+            <ErrorState
+              title="Lỗi khi tải giỏ hàng"
+              message="Có lỗi xảy ra. Vui lòng thử lại."
+              onRetry={() => refetch()}
+            />
           </div>
         </div>
       </div>
@@ -461,32 +444,18 @@ export default function CheckoutPage() {
   // Empty cart state
   if (items.length === 0) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-background to-muted/20">
-        <div className="container mx-auto px-4 py-8">
-          <div className="max-w-2xl mx-auto text-center">
-            <div className="bg-muted/50 rounded-full w-32 h-32 flex items-center justify-center mx-auto mb-6">
-              <ShoppingCart className="h-16 w-16 text-muted-foreground" />
-            </div>
-            <h1 className="text-3xl font-bold mb-4">Giỏ hàng trống</h1>
-            <p className="text-muted-foreground mb-8 text-lg">
-              Bạn cần thêm sản phẩm vào giỏ hàng trước khi thanh toán.
-            </p>
-            <div className="space-y-4">
-              <Button asChild size="lg" className="px-8">
-                <Link href="/catalog">
-                  <ShoppingCart className="mr-2 h-5 w-5" />
-                  Xem danh mục cá Koi
-                </Link>
-              </Button>
-              <div>
-                <Button asChild variant="outline" size="lg" className="px-11!">
-                  <Link href="/">
-                    <ArrowLeft className="mr-2 h-4 w-4" />
-                    Về trang chủ
-                  </Link>
-                </Button>
-              </div>
-            </div>
+      <div className="min-h-screen bg-gradient-to-br from-background to-muted/20 flex items-center justify-center">
+        <div className="container mx-auto px-4">
+          <div className="max-w-2xl mx-auto">
+            <EmptyState
+              icon={ShoppingCart}
+              title="Giỏ hàng trống"
+              description="Bạn cần thêm sản phẩm vào giỏ hàng trước khi thanh toán."
+              action={{
+                label: "Xem danh mục sản phẩm",
+                onClick: () => (window.location.href = "/catalog"),
+              }}
+            />
           </div>
         </div>
       </div>

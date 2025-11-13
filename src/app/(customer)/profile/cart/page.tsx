@@ -3,19 +3,14 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import {
-  ShoppingCart,
-  ArrowLeft,
-  Shield,
-  Clock,
-  Loader2,
-  Calculator,
-} from "lucide-react";
+import { ShoppingCart, Shield, Clock, Calculator } from "lucide-react";
 import Link from "next/link";
 import { formatCurrency } from "@/lib/utils/numbers/formatCurrency";
 import { useGetCart } from "@/hooks/useCart";
 import { CartPageItem } from "./CartPageItem";
 import CustomerLayout from "@/components/customer/CustomerLayout";
+import { LoadingState } from "@/components/common/LoadingState";
+import { EmptyState } from "@/components/common/EmptyState";
 
 export default function CartPage() {
   const { data: cart, isLoading: isCartLoading } = useGetCart();
@@ -24,8 +19,7 @@ export default function CartPage() {
   if (isCartLoading) {
     return (
       <div className="container mx-auto px-4 py-6 md:py-8 flex items-center justify-center min-h-[60vh]">
-        <Loader2 className="w-8 h-8 mr-2 animate-spin text-muted-foreground" />
-        <p className="text-muted-foreground">Đang tải giỏ hàng...</p>
+        <LoadingState message="Đang tải giỏ hàng..." />
       </div>
     );
   }
@@ -34,38 +28,16 @@ export default function CartPage() {
   if (!cart || cart.cartItems.length === 0) {
     return (
       <div className="container mx-auto px-4 py-6 md:py-8">
-        <div className="max-w-2xl mx-auto text-center">
-          <div className="bg-muted/50 rounded-full w-24 h-24 md:w-32 md:h-32 flex items-center justify-center mx-auto mb-4 md:mb-6">
-            <ShoppingCart className="h-12 w-12 md:h-16 md:w-16 text-muted-foreground" />
-          </div>
-          <h1 className="text-2xl md:text-3xl font-bold mb-3 md:mb-4">
-            Giỏ hàng trống
-          </h1>
-          <p className="text-muted-foreground mb-6 md:mb-8 text-base md:text-lg px-4">
-            Bạn chưa có sản phẩm nào trong giỏ hàng. Hãy khám phá bộ sưu tập cá
-            Koi tuyệt đẹp của chúng tôi.
-          </p>
-          <div className="space-y-3 md:space-y-4 px-4">
-            <Button asChild size="lg" className="w-full md:w-auto md:px-8">
-              <Link href="/catalog">
-                <ShoppingCart className="mr-2 h-5 w-5" />
-                Xem danh mục cá Koi
-              </Link>
-            </Button>
-            <div>
-              <Button
-                asChild
-                variant="outline"
-                size="lg"
-                className="w-full md:w-auto md:px-11"
-              >
-                <Link href="/">
-                  <ArrowLeft className="mr-2 h-4 w-4" />
-                  Về trang chủ
-                </Link>
-              </Button>
-            </div>
-          </div>
+        <div className="max-w-2xl mx-auto">
+          <EmptyState
+            icon={ShoppingCart}
+            title="Giỏ hàng trống"
+            description="Bạn chưa có sản phẩm nào trong giỏ hàng. Hãy khám phá bộ sưu tập cá Koi tuyệt đẹp của chúng tôi."
+            action={{
+              label: "Xem danh mục sản phẩm",
+              onClick: () => (window.location.href = "/catalog"),
+            }}
+          />
         </div>
       </div>
     );
