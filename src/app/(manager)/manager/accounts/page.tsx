@@ -186,7 +186,7 @@ export default function AccountManagement() {
   // Fetch user data
   const { data: userData, isLoading, error } = useGetUserByRole(searchParams);
 
-  const userList = userData?.datas || [];
+  const userList = userData?.data || [];
   const totalItems = userData?.totalItems || 0;
   const totalPages = userData?.totalPages || 0;
 

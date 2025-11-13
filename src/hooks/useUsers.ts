@@ -1,7 +1,7 @@
-import { BaseResponse } from "@/lib/api/apiClient";
+import { BaseResponse, PagedResponse } from "@/lib/api/apiClient";
 import {
   UserSearchParams,
-  UserPagedResponse,
+  User,
   CreateStaffAccountRequest,
   CreateStaffAccountResponse,
   ImportAccountsResponse,
@@ -46,7 +46,7 @@ export function useGetUserDetails() {
 export function useGetUserByRole(params: UserSearchParams) {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
-  return useQuery<BaseResponse<UserPagedResponse>, ApiError, UserPagedResponse>(
+  return useQuery<BaseResponse<PagedResponse<User>>, ApiError, PagedResponse<User>>(
     {
       queryKey: [
         "users-by-role",
@@ -57,14 +57,14 @@ export function useGetUserByRole(params: UserSearchParams) {
       ],
       queryFn: () => usersService.getUserByRole(params),
       enabled: isAuthenticated,
-      select: (data: BaseResponse<UserPagedResponse>) =>
+      select: (data: BaseResponse<PagedResponse<User>>) =>
         data?.result || {
           pageIndex: 1,
           totalPages: 0,
           totalItems: 0,
           hasPreviousPage: false,
           hasNextPage: false,
-          datas: [],
+          data: [],
         },
       retry: (failureCount, error: unknown) => {
         if (

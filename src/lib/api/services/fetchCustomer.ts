@@ -1,5 +1,5 @@
 import toRequestParams from "@/lib/utils/params";
-import apiService, { BaseResponse } from "../apiClient";
+import apiService, { BaseResponse, PagedResponse } from "../apiClient";
 
 export interface RecentOrder {
   id: number;
@@ -25,15 +25,6 @@ export interface Customer {
   recentOrders: RecentOrder[];
 }
 
-export interface CustomerPagedResponse {
-  pageIndex: number;
-  totalPages: number;
-  totalItems: number;
-  hasPreviousPage: boolean;
-  hasNextPage: boolean;
-  datas: Customer[];
-}
-
 export interface CustomerSearchParams {
   pageIndex?: number;
   pageSize?: number;
@@ -46,14 +37,14 @@ const baseUrl = "/api/Customer";
 export const customerService = {
   getCustomers: async (
     params: CustomerSearchParams,
-  ): Promise<BaseResponse<CustomerPagedResponse>> => {
+  ): Promise<BaseResponse<PagedResponse<Customer>>> => {
     const filter = toRequestParams({
       pageIndex: params.pageIndex || 1,
       pageSize: params.pageSize || 10,
       search: params.search,
       isActive: params.isActive,
     });
-    const response = await apiService.get<BaseResponse<CustomerPagedResponse>>(
+    const response = await apiService.get<BaseResponse<PagedResponse<Customer>>>(
       baseUrl,
       filter,
     );

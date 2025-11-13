@@ -42,7 +42,7 @@ const defaultCustomerData = {
   totalItems: 0,
   hasPreviousPage: false,
   hasNextPage: false,
-  datas: [],
+  data: [],
 };
 
 export default function CustomersPage() {
@@ -129,12 +129,12 @@ export default function CustomersPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {customersData.datas.filter((c) => c.isActive).length}
+              {customersData.data.filter((c) => c.isActive).length}
             </div>
             <p className="text-xs text-muted-foreground">
               {Math.round(
-                (customersData.datas.filter((c) => c.isActive).length /
-                  customersData.datas.length) *
+                (customersData.data.filter((c) => c.isActive).length /
+                  customersData.data.length) *
                   100,
               )}
               % tổng số
@@ -151,11 +151,11 @@ export default function CustomersPage() {
           <CardContent>
             <div className="text-2xl font-bold">
               {formatCurrency(
-                customersData.datas.reduce((sum, c) => sum + c.totalSpent, 0),
+                customersData.data.reduce((sum, c) => sum + c.totalSpent, 0),
               )}
             </div>
             <p className="text-xs text-muted-foreground">
-              Từ {customersData.datas.length} khách hàng
+              Từ {customersData.data.length} khách hàng
             </p>
           </CardContent>
         </Card>
@@ -168,12 +168,12 @@ export default function CustomersPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {customersData.datas.length > 0
+              {customersData.data.length > 0
                 ? formatCurrency(
-                    customersData.datas.reduce(
+                    customersData.data.reduce(
                       (sum, c) => sum + c.totalSpent,
                       0,
-                    ) / customersData.datas.length,
+                    ) / customersData.data.length,
                   )
                 : "0 đ"}
             </div>
@@ -209,7 +209,7 @@ export default function CustomersPage() {
             <div className="flex items-center justify-center py-10">
               <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
             </div>
-          ) : customersData.datas.length === 0 ? (
+          ) : customersData.data.length === 0 ? (
             <div className="text-center py-10 text-muted-foreground">
               Không có khách hàng nào
             </div>
@@ -230,7 +230,7 @@ export default function CustomersPage() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {customersData.datas.map((customer) => (
+                    {customersData.data.map((customer) => (
                       <TableRow key={customer.id} className="hover:bg-muted/50">
                         <TableCell>
                           <div>
