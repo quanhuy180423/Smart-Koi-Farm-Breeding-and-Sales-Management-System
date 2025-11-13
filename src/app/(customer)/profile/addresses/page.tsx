@@ -12,7 +12,6 @@ import {
   Calendar,
   Star,
   Loader2,
-  AlertCircle,
   Plus,
   Edit,
   Trash2,
@@ -33,6 +32,9 @@ import {
   useDeleteAddress,
 } from "@/hooks/useCustomerAddress";
 import { formatDate, DATE_FORMATS } from "@/lib/utils/dates";
+import { LoadingState } from "@/components/common/LoadingState";
+import { ErrorState } from "@/components/common/ErrorState";
+import { EmptyState } from "@/components/common/EmptyState";
 
 export default function AddressesPage() {
   const { data: addresses, isLoading } = useGetCustomerAddresses();
@@ -107,33 +109,23 @@ export default function AddressesPage() {
         </div>
 
         {/* Loading State */}
-        {isLoading && (
-          <div className="flex items-center justify-center py-12">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          </div>
-        )}
+        {isLoading && <LoadingState message="Đang tải danh sách địa chỉ..." />}
 
         {/* Error State */}
         {!isLoading && !addresses && (
-          <div className="text-center py-12">
-            <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
-            <h3 className="text-lg font-medium mb-2">Lỗi tải dữ liệu</h3>
-            <p className="text-muted-foreground">
-              Không thể tải danh sách địa chỉ. Vui lòng thử lại.
-            </p>
-          </div>
+          <ErrorState
+            title="Lỗi tải dữ liệu"
+            message="Không thể tải danh sách địa chỉ. Vui lòng thử lại."
+          />
         )}
 
         {/* Empty State */}
         {!isLoading && addresses && addresses.length === 0 && (
-          <div className="text-center py-12">
-            <MapPin className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-            <h3 className="text-lg font-medium mb-2">Chưa có địa chỉ</h3>
-            <p className="text-muted-foreground">
-              Bạn chưa thêm bất kỳ địa chỉ nào. Hãy thêm địa chỉ để sử dụng
-              trong checkout.
-            </p>
-          </div>
+          <EmptyState
+            icon={MapPin}
+            title="Chưa có địa chỉ"
+            description="Bạn chưa thêm bất kỳ địa chỉ nào. Hãy thêm địa chỉ để sử dụng trong checkout."
+          />
         )}
 
         {/* Addresses List */}

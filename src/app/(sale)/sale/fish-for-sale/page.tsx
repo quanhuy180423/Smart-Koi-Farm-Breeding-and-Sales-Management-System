@@ -31,7 +31,6 @@ import {
   Tag,
   Ruler,
   Calendar,
-  Loader2,
 } from "lucide-react";
 import { formatCurrency } from "@/lib/utils/numbers/formatCurrency";
 import { useGetKoiFishes } from "@/hooks/useKoiFish";
@@ -51,6 +50,8 @@ import { PaginationSection } from "@/components/common/PaginationSection";
 import Image from "next/image";
 import { AddFishDialog } from "./AddFishDialog";
 import { KoiDetailDialog } from "@/components/dialogs/KoiDetailDialog";
+import { LoadingState } from "@/components/common/LoadingState";
+import { EmptyState } from "@/components/common/EmptyState";
 
 const PAGE_SIZE_OPTIONS: number[] = [9, 12, 15, 18];
 
@@ -143,19 +144,13 @@ export default function FishForSalePage() {
         </CardHeader>
         <CardContent>
           {isLoading ? (
-            <div className="flex items-center justify-center min-h-[300px]">
-              <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            </div>
+            <LoadingState message="Đang tải danh sách cá..." />
           ) : fishList.length === 0 ? (
-            <div className="text-center py-8 sm:py-12">
-              <Fish className="h-12 w-12 sm:h-16 sm:w-16 text-muted-foreground mx-auto mb-3 sm:mb-4" />
-              <h3 className="text-base sm:text-lg font-medium mb-2">
-                Không tìm thấy cá
-              </h3>
-              <p className="text-sm text-muted-foreground mb-4 px-4">
-                Thử thay đổi từ khóa tìm kiếm của bạn.
-              </p>
-            </div>
+            <EmptyState
+              icon={Fish}
+              title="Không tìm thấy cá"
+              description="Thử thay đổi từ khóa tìm kiếm của bạn."
+            />
           ) : (
             <>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
