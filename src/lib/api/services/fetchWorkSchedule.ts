@@ -50,6 +50,13 @@ export interface WorkScheduleRequest {
   pondId?: number;
 }
 
+export interface MyWorkScheduleParams {
+  search?: string;
+  status?: WorkScheduleStatusEnum;
+  scheduledDateFrom?: string;
+  scheduledDateTo?: string;
+}
+
 export interface UpdateWorkScheduleRequest {
   taskTemplateId: number;
   scheduledDate: string;
@@ -63,6 +70,16 @@ export interface UpdateWorkScheduleRequest {
 const baseUrl = "/api/WorkSchedule";
 
 export const workScheduleService = {
+  getMyWorkSchedules: async (
+    params: MyWorkScheduleParams,
+  ): Promise<BaseResponse<WorkSchedule[]>> => {
+    const filter = toRequestParams(params);
+    const response = await apiService.get<BaseResponse<WorkSchedule[]>>(
+      `${baseUrl}/me`,
+      filter,
+    );
+    return response.data;
+  },
   getWorkSchedules: async (
     request: WorkScheduleRequest,
   ): Promise<BaseResponse<WorkSchedule[]>> => {

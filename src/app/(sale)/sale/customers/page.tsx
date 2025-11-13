@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import {
   Card,
   CardContent,
@@ -8,415 +8,470 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-
+import { Badge } from "@/components/ui/badge";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
+import { Loader2, Search, Phone, Mail, ShoppingCart, Eye } from "lucide-react";
+import { useGetCustomers } from "@/hooks/useCustomer";
+import { Customer } from "@/lib/api/services/fetchCustomer";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
-  Users,
-  UserPlus,
-  Search,
-  MoreHorizontal,
-  Eye,
-  Edit,
-  Trash2,
-  Phone,
-  Mail,
-  MapPin,
-  ShoppingCart,
-  TrendingUp,
-  Star,
-} from "lucide-react";
+  PaginationSection,
+  PAGE_SIZE_OPTIONS_DEFAULT,
+} from "@/components/common/PaginationSection";
 import formatCurrency from "@/lib/utils/numbers";
+import { getOrderStatusLabel } from "@/lib/utils/enum";
 
-// Mock data - replace with real API calls
-const mockCustomerStats = {
-  totalCustomers: 156,
-  newCustomers: 23,
-  activeCustomers: 134,
-  vipCustomers: 18,
+const defaultCustomerData = {
+  pageIndex: 1,
+  totalPages: 0,
+  totalItems: 0,
+  hasPreviousPage: false,
+  hasNextPage: false,
+  datas: [],
 };
 
-const mockCustomers = [
-  {
-    id: "CUST001",
-    name: "Nguyễn Văn An",
-    email: "nguyenvanan@email.com",
-    phone: "0901234567",
-    address: "123 Đường ABC, Quận 1, TP.HCM",
-    totalOrders: 12,
-    totalSpent: 45600000,
-    lastOrder: "2024-01-15",
-    status: "active",
-    tier: "vip",
-    joinDate: "2023-06-15",
-  },
-  {
-    id: "CUST002",
-    name: "Trần Thị Bình",
-    email: "tranthib@email.com",
-    phone: "0987654321",
-    address: "456 Đường XYZ, Quận 3, TP.HCM",
-    totalOrders: 8,
-    totalSpent: 28400000,
-    lastOrder: "2024-01-12",
-    status: "active",
-    tier: "regular",
-    joinDate: "2023-09-20",
-  },
-  {
-    id: "CUST003",
-    name: "Lê Văn Cường",
-    email: "levanc@email.com",
-    phone: "0912345678",
-    address: "789 Đường DEF, Quận 7, TP.HCM",
-    totalOrders: 25,
-    totalSpent: 89200000,
-    lastOrder: "2024-01-10",
-    status: "active",
-    tier: "vip",
-    joinDate: "2023-03-10",
-  },
-  {
-    id: "CUST004",
-    name: "Phạm Thị Dung",
-    email: "phamthid@email.com",
-    phone: "0923456789",
-    address: "321 Đường GHI, Quận 5, TP.HCM",
-    totalOrders: 3,
-    totalSpent: 12800000,
-    lastOrder: "2023-12-28",
-    status: "inactive",
-    tier: "new",
-    joinDate: "2023-12-01",
-  },
-];
-
 export default function CustomersPage() {
-  const [customers] = useState(mockCustomers);
-  const [filteredCustomers, setFilteredCustomers] = useState(mockCustomers);
   const [searchTerm, setSearchTerm] = useState("");
-  const [isLoading, setIsLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(PAGE_SIZE_OPTIONS_DEFAULT[0]);
+  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(
+    null,
+  );
+  const [isDetailOpen, setIsDetailOpen] = useState(false);
 
-  useEffect(() => {
-    // Simulate loading
-    const timer = setTimeout(() => setIsLoading(false), 1000);
-    return () => clearTimeout(timer);
-  }, []);
+  const {
+    data: customersData = defaultCustomerData,
+    isLoading,
+    error,
+  } = useGetCustomers({
+    pageIndex: currentPage,
+    pageSize: pageSize,
+    search: searchTerm,
+  });
 
-  useEffect(() => {
-    const filtered = customers.filter(
-      (customer) =>
-        customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        customer.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        customer.phone.includes(searchTerm),
-    );
-    setFilteredCustomers(filtered);
-  }, [searchTerm, customers]);
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "active":
-        return "bg-green-100 text-green-800";
-      case "inactive":
-        return "bg-gray-100 text-gray-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
+  const handleSearch = (value: string) => {
+    setSearchTerm(value);
+    setCurrentPage(1);
   };
 
-  const getTierColor = (tier: string) => {
-    switch (tier) {
-      case "vip":
-        return "bg-purple-100 text-purple-800";
-      case "regular":
-        return "bg-blue-100 text-blue-800";
-      case "new":
-        return "bg-green-100 text-green-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
+  const handlePageChange = (newPage: number) => {
+    setCurrentPage(newPage);
   };
 
-  const getTierText = (tier: string) => {
-    switch (tier) {
-      case "vip":
-        return "VIP";
-      case "regular":
-        return "Thường";
-      case "new":
-        return "Mới";
-      default:
-        return "Không xác định";
-    }
+  const handlePageSizeChange = (newPageSize: number) => {
+    setPageSize(newPageSize);
+    setCurrentPage(1);
   };
 
-  if (isLoading) {
+  const viewDetails = (customer: Customer) => {
+    setSelectedCustomer(customer);
+    setIsDetailOpen(true);
+  };
+
+  if (error) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      <div className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8 items-center justify-center">
+        <p className="text-red-600">
+          Có lỗi xảy ra khi tải danh sách khách hàng
+        </p>
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col gap-6 p-6">
+    <div className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
       {/* Header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-            Quản lý khách hàng
-          </h1>
-          <p className="text-muted-foreground">
-            Quản lý thông tin và theo dõi hoạt động của khách hàng
-          </p>
-        </div>
-        <div className="flex gap-3">
-          <Button variant="outline" size="sm">
-            <Eye className="h-4 w-4 mr-2" />
-            <span className="hidden sm:inline">Xuất báo cáo</span>
-            <span className="sm:hidden">Báo cáo</span>
-          </Button>
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button size="sm">
-                <UserPlus className="h-4 w-4 mr-2" />
-                <span className="hidden sm:inline">Thêm khách hàng</span>
-                <span className="sm:hidden">Thêm</span>
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Thêm khách hàng mới</DialogTitle>
-                <DialogDescription>
-                  Form thêm khách hàng sẽ được implement sau
-                </DialogDescription>
-              </DialogHeader>
-            </DialogContent>
-          </Dialog>
-        </div>
+      <div>
+        <h1 className="text-3xl font-bold tracking-tight">
+          Quản Lý Khách Hàng
+        </h1>
+        <p className="text-muted-foreground">
+          Xem và quản lý danh sách khách hàng
+        </p>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Tổng khách hàng
+            <CardTitle className="text-sm font-medium">
+              Tổng Khách Hàng
             </CardTitle>
-            <div className="h-8 w-8 rounded-lg bg-blue-100 flex items-center justify-center">
-              <Users className="h-4 w-4 text-blue-600" />
-            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
-              {mockCustomerStats.totalCustomers}
-            </div>
+            <div className="text-2xl font-bold">{customersData.totalItems}</div>
             <p className="text-xs text-muted-foreground">
-              +12% so với tháng trước
+              Trên {customersData.totalPages} trang
             </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Khách hàng mới
+            <CardTitle className="text-sm font-medium">
+              Khách Hàng Hoạt Động
             </CardTitle>
-            <div className="h-8 w-8 rounded-lg bg-green-100 flex items-center justify-center">
-              <UserPlus className="h-4 w-4 text-green-600" />
-            </div>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {mockCustomerStats.newCustomers}
-            </div>
-            <p className="text-xs text-muted-foreground">Trong tháng này</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Khách hàng hoạt động
-            </CardTitle>
-            <div className="h-8 w-8 rounded-lg bg-orange-100 flex items-center justify-center">
-              <TrendingUp className="h-4 w-4 text-orange-600" />
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {mockCustomerStats.activeCustomers}
+              {customersData.datas.filter((c) => c.isActive).length}
             </div>
             <p className="text-xs text-muted-foreground">
-              Mua hàng trong 30 ngày
+              {Math.round(
+                (customersData.datas.filter((c) => c.isActive).length /
+                  customersData.datas.length) *
+                  100,
+              )}
+              % tổng số
             </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Khách hàng VIP
+            <CardTitle className="text-sm font-medium">
+              Tổng Doanh Thu
             </CardTitle>
-            <div className="h-8 w-8 rounded-lg bg-purple-100 flex items-center justify-center">
-              <Star className="h-4 w-4 text-purple-600" />
-            </div>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {mockCustomerStats.vipCustomers}
+              {formatCurrency(
+                customersData.datas.reduce((sum, c) => sum + c.totalSpent, 0),
+              )}
             </div>
             <p className="text-xs text-muted-foreground">
-              Chi tiêu {">"} 50 triệu
+              Từ {customersData.datas.length} khách hàng
             </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">
+              Trung Bình Đơn Hàng
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {customersData.datas.length > 0
+                ? formatCurrency(
+                    customersData.datas.reduce(
+                      (sum, c) => sum + c.totalSpent,
+                      0,
+                    ) / customersData.datas.length,
+                  )
+                : "0 đ"}
+            </div>
+            <p className="text-xs text-muted-foreground">Mỗi khách hàng</p>
           </CardContent>
         </Card>
       </div>
 
-      {/* Search and Filters */}
+      {/* Search and Filter */}
       <Card>
         <CardHeader>
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <CardTitle>Danh sách khách hàng</CardTitle>
-              <CardDescription>
-                Tìm kiếm và quản lý khách hàng của bạn
-              </CardDescription>
-            </div>
-            <div className="flex gap-3">
-              <div className="relative flex-1 sm:flex-none border border-gray-300 rounded-lg">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Tìm theo tên, email hoặc SĐT..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 w-full sm:w-80"
-                />
-              </div>
+          <CardTitle>Danh Sách Khách Hàng</CardTitle>
+          <CardDescription>
+            Tìm kiếm và quản lý khách hàng của bạn
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {/* Search */}
+          <div className="flex gap-2">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Tìm kiếm theo tên, email, số điện thoại..."
+                value={searchTerm}
+                onChange={(e) => handleSearch(e.target.value)}
+                className="pl-10"
+              />
             </div>
           </div>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {filteredCustomers.map((customer) => (
-              <div
-                key={customer.id}
-                className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors gap-4"
-              >
-                <div className="flex items-start sm:items-center gap-4">
-                  <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                    <Users className="h-6 w-6" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex flex-wrap items-center gap-2 mb-2">
-                      <h3 className="font-medium text-sm sm:text-base">
-                        {customer.name}
-                      </h3>
+
+          {/* Table */}
+          {isLoading ? (
+            <div className="flex items-center justify-center py-10">
+              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+            </div>
+          ) : customersData.datas.length === 0 ? (
+            <div className="text-center py-10 text-muted-foreground">
+              Không có khách hàng nào
+            </div>
+          ) : (
+            <>
+              <div className="border rounded-lg overflow-hidden">
+                <Table>
+                  <TableHeader>
+                    <TableRow className="bg-muted/50">
+                      <TableHead>Khách Hàng</TableHead>
+                      <TableHead>Liên Hệ</TableHead>
+                      <TableHead className="text-right">Đơn Hàng</TableHead>
+                      <TableHead className="text-right">
+                        Tổng Chi Tiêu
+                      </TableHead>
+                      <TableHead>Trạng Thái</TableHead>
+                      <TableHead className="text-right">Hành Động</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {customersData.datas.map((customer) => (
+                      <TableRow key={customer.id} className="hover:bg-muted/50">
+                        <TableCell>
+                          <div>
+                            <p className="font-medium">{customer.fullName}</p>
+                            <p className="text-sm text-muted-foreground">
+                              @{customer.userName}
+                            </p>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="space-y-1 text-sm">
+                            <div className="flex items-center gap-2">
+                              <Mail className="h-4 w-4 text-muted-foreground" />
+                              <span className="truncate">{customer.email}</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Phone className="h-4 w-4 text-muted-foreground" />
+                              <span>{customer.phoneNumber}</span>
+                            </div>
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <div className="flex items-center justify-end gap-1">
+                            <ShoppingCart className="h-4 w-4 text-muted-foreground" />
+                            <span className="font-medium">
+                              {customer.totalOrders}
+                            </span>
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-right font-medium">
+                          {formatCurrency(customer.totalSpent)}
+                        </TableCell>
+                        <TableCell>
+                          <Badge
+                            variant={
+                              customer.isActive ? "default" : "secondary"
+                            }
+                          >
+                            {customer.isActive
+                              ? "Hoạt động"
+                              : "Không hoạt động"}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => viewDetails(customer)}
+                            title="Xem chi tiết"
+                          >
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+
+              {/* Pagination */}
+              <PaginationSection
+                currentPage={currentPage}
+                setCurrentPage={handlePageChange}
+                totalPages={customersData.totalPages}
+                setPageSize={handlePageSizeChange}
+                pageSizeOptions={PAGE_SIZE_OPTIONS_DEFAULT}
+                hasNextPage={customersData.hasNextPage}
+                hasPreviousPage={customersData.hasPreviousPage}
+              />
+            </>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Customer Detail Dialog */}
+      <Dialog open={isDetailOpen} onOpenChange={setIsDetailOpen}>
+        <DialogContent className="!max-w-2xl max-h-[90vh] overflow-y-auto">
+          {selectedCustomer && (
+            <>
+              <DialogHeader>
+                <DialogTitle>{selectedCustomer.fullName}</DialogTitle>
+                <DialogDescription>
+                  Thông tin chi tiết khách hàng
+                </DialogDescription>
+              </DialogHeader>
+
+              <div className="space-y-6">
+                {/* Basic Info */}
+                <div className="space-y-4">
+                  <h4 className="font-semibold">Thông Tin Cơ Bản</h4>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-sm text-muted-foreground">
+                        Tên Khách Hàng
+                      </p>
+                      <p className="font-medium">{selectedCustomer.fullName}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground">
+                        Tên Đăng Nhập
+                      </p>
+                      <p className="font-medium">
+                        @{selectedCustomer.userName}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground">Email</p>
+                      <p className="font-medium">{selectedCustomer.email}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground">
+                        Số Điện Thoại
+                      </p>
+                      <p className="font-medium">
+                        {selectedCustomer.phoneNumber}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground">
+                        Số Liên Hệ
+                      </p>
+                      <p className="font-medium">
+                        {selectedCustomer.contactNumber}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground">
+                        Trạng Thái
+                      </p>
                       <Badge
-                        className={getTierColor(customer.tier)}
-                        variant="secondary"
+                        variant={
+                          selectedCustomer.isActive ? "default" : "secondary"
+                        }
                       >
-                        {getTierText(customer.tier)}
-                      </Badge>
-                      <Badge
-                        className={getStatusColor(customer.status)}
-                        variant="secondary"
-                      >
-                        {customer.status === "active"
+                        {selectedCustomer.isActive
                           ? "Hoạt động"
                           : "Không hoạt động"}
                       </Badge>
                     </div>
-                    <div className="space-y-1 sm:space-y-0 sm:flex sm:items-center sm:gap-4 text-xs sm:text-sm text-muted-foreground">
-                      <div className="flex items-center gap-1">
-                        <Mail className="h-3 w-3 flex-shrink-0" />
-                        <span className="truncate">{customer.email}</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Phone className="h-3 w-3 flex-shrink-0" />
-                        <span>{customer.phone}</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <ShoppingCart className="h-3 w-3 flex-shrink-0" />
-                        <span>{customer.totalOrders} đơn</span>
-                      </div>
-                    </div>
-                    <div className="flex items-start gap-1 text-xs text-muted-foreground mt-1">
-                      <MapPin className="h-3 w-3 flex-shrink-0 mt-0.5" />
-                      <span className="line-clamp-2">{customer.address}</span>
-                    </div>
                   </div>
                 </div>
-                <div className="flex items-center justify-between sm:justify-end gap-4">
-                  <div className="text-left sm:text-right">
-                    <p className="font-medium text-sm sm:text-base">
-                      {formatCurrency(customer.totalSpent)}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      Lần cuối: {customer.lastOrder}
-                    </p>
+
+                {/* Stats */}
+                <div className="space-y-4">
+                  <h4 className="font-semibold">Thống Kê</h4>
+                  <div className="grid grid-cols-3 gap-4">
+                    <Card>
+                      <CardContent className="pt-4">
+                        <p className="text-sm text-muted-foreground mb-1">
+                          Tổng Đơn Hàng
+                        </p>
+                        <p className="text-2xl font-bold">
+                          {selectedCustomer.totalOrders}
+                        </p>
+                      </CardContent>
+                    </Card>
+                    <Card>
+                      <CardContent className="pt-4">
+                        <p className="text-sm text-muted-foreground mb-1">
+                          Tổng Chi Tiêu
+                        </p>
+                        <p className="text-2xl font-bold">
+                          {formatCurrency(selectedCustomer.totalSpent)}
+                        </p>
+                      </CardContent>
+                    </Card>
+                    <Card>
+                      <CardContent className="pt-4">
+                        <p className="text-sm text-muted-foreground mb-1">
+                          Trung Bình/Đơn
+                        </p>
+                        <p className="text-2xl font-bold">
+                          {selectedCustomer.totalOrders > 0
+                            ? formatCurrency(
+                                selectedCustomer.totalSpent /
+                                  selectedCustomer.totalOrders,
+                              )
+                            : "0 đ"}
+                        </p>
+                      </CardContent>
+                    </Card>
                   </div>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        className="h-8 w-8 p-0 flex-shrink-0"
-                      >
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuLabel>Hành động</DropdownMenuLabel>
-                      <DropdownMenuItem>
-                        <Eye className="mr-2 h-4 w-4" />
-                        Xem chi tiết
-                      </DropdownMenuItem>
-                      <DropdownMenuItem>
-                        <Edit className="mr-2 h-4 w-4" />
-                        Chỉnh sửa
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem className="text-red-600">
-                        <Trash2 className="mr-2 h-4 w-4" />
-                        Xóa khách hàng
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                </div>
+
+                {/* Recent Orders */}
+                {selectedCustomer.recentOrders.length > 0 && (
+                  <div className="space-y-4">
+                    <h4 className="font-semibold">Đơn Hàng Gần Đây</h4>
+                    <div className="space-y-2">
+                      {selectedCustomer.recentOrders.map((order) => (
+                        <div
+                          key={order.id}
+                          className="border rounded-lg p-3 space-y-2 hover:bg-muted/50 transition-colors"
+                        >
+                          <div className="flex items-start justify-between gap-2">
+                            <div>
+                              <p className="font-medium">{order.orderNumber}</p>
+                              <p className="text-sm text-muted-foreground">
+                                {new Date(order.createdAt).toLocaleDateString(
+                                  "vi-VN",
+                                )}
+                              </p>
+                            </div>
+                            <div className="text-right">
+                              <p className="font-medium">
+                                {formatCurrency(order.totalAmount)}
+                              </p>
+                              <Badge
+                                className={`text-xs ${getOrderStatusLabel(order.status).colorClass}`}
+                              >
+                                {getOrderStatusLabel(order.status).label}
+                              </Badge>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Dates */}
+                <div className="space-y-4">
+                  <h4 className="font-semibold">Ngày Tạo</h4>
+                  <p className="text-sm">
+                    {new Date(selectedCustomer.createdAt).toLocaleDateString(
+                      "vi-VN",
+                      {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      },
+                    )}
+                  </p>
                 </div>
               </div>
-            ))}
-          </div>
-
-          {filteredCustomers.length === 0 && (
-            <div className="text-center py-8">
-              <Users className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-medium mb-2">
-                Không tìm thấy khách hàng
-              </h3>
-              <p className="text-muted-foreground">
-                Thử thay đổi từ khóa tìm kiếm hoặc thêm khách hàng mới
-              </p>
-            </div>
+            </>
           )}
-        </CardContent>
-      </Card>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
