@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import * as React from "react";
 import {
   Card,
   CardContent,
@@ -14,7 +15,7 @@ import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { User, Calendar, Shield, Edit, Camera, Save, X } from "lucide-react";
+import { Calendar, Shield, Edit, Camera, Save, X, Loader2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -22,43 +23,89 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useGetUserDetails, useUpdateProfile } from "@/hooks/useUsers";
+import { UpdateProfileRequest } from "@/lib/api/services/fetchUsers";
+import { useUploadImage } from "@/hooks/useUploadFile";
+import { Gender } from "@/lib/api/services/fetchKoiFish";
+import { getUserGenderLabelForPerson, getRoleLabel } from "@/lib/utils/enum";
+import { Roles } from "@/lib/api/services/fetchAuth";
 
 interface ManagerProfile {
-  id: string;
-  name: string;
+  id: number;
+  fullName: string;
   email: string;
-  phone: string;
-  avatar?: string;
-  role: string;
-  joinDate: string;
+  phoneNumber: string;
+  avatarURL?: string;
+  role: Roles;
+  dateOfBirth: string;
   address: string;
-  department: string;
-  employeeId: string;
+  gender: string;
 }
 
 export default function ManagerProfile() {
   const [isEditing, setIsEditing] = useState(false);
   const [isAvatarDialogOpen, setIsAvatarDialogOpen] = useState(false);
+  const [selectedAvatarFile, setSelectedAvatarFile] = useState<File | null>(
+    null,
+  );
+  const [previewAvatarUrl, setPreviewAvatarUrl] = useState<string | null>(null);
 
-  // Mock data - in real app, this would come from API
-  const [profile, setProfile] = useState<ManagerProfile>({
-    id: "mgr001",
-    name: "Nguyễn Văn Quản Lý",
-    email: "manager@koifarm.vn",
-    phone: "+84 123 456 789",
-    avatar: "/ZenKoi.png",
-    role: "Quản Lý Chung",
-    joinDate: "2023-01-15",
-    address: "123 Đường ABC, Quận 1, TP.HCM",
-    department: "Quản Lý",
-    employeeId: "MGR2023001",
-  });
+  // Fetch user details from API
+  const { data: userDetails, isLoading, error } = useGetUserDetails();
+  const { mutate: updateProfile, isPending: isUpdating } = useUpdateProfile();
+  const { mutate: uploadImage, isPending: isUploading } = useUploadImage();
 
-  const [editedProfile, setEditedProfile] = useState<ManagerProfile>(profile);
+  // Convert API response to component state
+  const [profile, setProfile] = useState<ManagerProfile | null>(null);
+  const [editedProfile, setEditedProfile] = useState<ManagerProfile | null>(
+    null,
+  );
+
+  // Update profile when user details are fetched
+  React.useEffect(() => {
+    if (userDetails) {
+      const profileData: ManagerProfile = {
+        id: userDetails.id,
+        fullName: userDetails.fullName,
+        email: userDetails.email,
+        phoneNumber: userDetails.phoneNumber,
+        avatarURL: userDetails.avatarURL,
+        role: userDetails.role,
+        dateOfBirth: userDetails.dateOfBirth,
+        address: userDetails.address,
+        gender: userDetails.gender,
+      };
+      setProfile(profileData);
+      setEditedProfile(profileData);
+    }
+  }, [userDetails]);
 
   const handleSave = () => {
-    setProfile(editedProfile);
-    setIsEditing(false);
+    if (!editedProfile) return;
+
+    // Prepare update request
+    const updateRequest: UpdateProfileRequest = {
+      fullName: editedProfile.fullName,
+      phoneNumber: editedProfile.phoneNumber,
+      dateOfBirth: editedProfile.dateOfBirth || new Date().toISOString(),
+      gender: editedProfile.gender,
+      avatarURL: editedProfile.avatarURL || "",
+      address: editedProfile.address,
+    };
+
+    updateProfile(updateRequest, {
+      onSuccess: () => {
+        setProfile(editedProfile);
+        setIsEditing(false);
+      },
+    });
   };
 
   const handleCancel = () => {
@@ -67,11 +114,81 @@ export default function ManagerProfile() {
   };
 
   const handleInputChange = (field: keyof ManagerProfile, value: string) => {
-    setEditedProfile((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
+    if (editedProfile) {
+      setEditedProfile((prev) => {
+        if (!prev) return null;
+        return {
+          ...prev,
+          [field]: value,
+        };
+      });
+    }
   };
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setSelectedAvatarFile(file);
+      // Create preview URL
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setPreviewAvatarUrl(e.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleAvatarConfirm = () => {
+    if (!selectedAvatarFile || !editedProfile) return;
+
+    uploadImage(
+      { file: selectedAvatarFile },
+      {
+        onSuccess: (uploadedUrl) => {
+          const updatedProfile = {
+            ...editedProfile,
+            avatarURL: uploadedUrl.url,
+          };
+          setEditedProfile(updatedProfile);
+
+          // If not editing, call updateProfile immediately
+          if (!isEditing) {
+            const updateRequest = {
+              fullName: updatedProfile.fullName,
+              phoneNumber: updatedProfile.phoneNumber,
+              dateOfBirth:
+                updatedProfile.dateOfBirth || new Date().toISOString(),
+              gender: updatedProfile.gender,
+              avatarURL: updatedProfile.avatarURL,
+              address: updatedProfile.address,
+            };
+            updateProfile(updateRequest);
+          }
+
+          setSelectedAvatarFile(null);
+          setPreviewAvatarUrl(null);
+          setIsAvatarDialogOpen(false);
+        },
+      },
+    );
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8 items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin" />
+        <p className="text-muted-foreground">Đang tải thông tin...</p>
+      </div>
+    );
+  }
+
+  if (error || !profile) {
+    return (
+      <div className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8 items-center justify-center">
+        <p className="text-red-600">Có lỗi xảy ra khi tải thông tin cá nhân</p>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
@@ -93,9 +210,9 @@ export default function ManagerProfile() {
             <div className="flex flex-col items-center space-y-4">
               <div className="relative">
                 <Avatar className="h-24 w-24">
-                  <AvatarImage src={profile.avatar} alt={profile.name} />
+                  <AvatarImage src={profile.avatarURL} alt={profile.fullName} />
                   <AvatarFallback className="text-lg">
-                    {profile.name
+                    {profile.fullName
                       .split(" ")
                       .map((n) => n[0])
                       .join("")}
@@ -111,34 +228,34 @@ export default function ManagerProfile() {
                 </Button>
               </div>
               <div className="space-y-1">
-                <h3 className="text-xl font-semibold">{profile.name}</h3>
+                <h3 className="text-xl font-semibold">{profile.fullName}</h3>
                 <Badge
                   variant="secondary"
                   className="flex items-center gap-1 w-fit mx-auto"
                 >
                   <Shield className="h-3 w-3" />
-                  {profile.role}
+                  {getRoleLabel(profile.role).label}
                 </Badge>
               </div>
             </div>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-center gap-3 text-sm">
-              <User className="h-4 w-4 text-muted-foreground" />
-              <span>Mã nhân viên: {profile.employeeId}</span>
-            </div>
-            <div className="flex items-center gap-3 text-sm">
               <Calendar className="h-4 w-4 text-muted-foreground" />
               <span>
-                Ngày tham gia:{" "}
-                {new Date(profile.joinDate).toLocaleDateString("vi-VN")}
+                Ngày sinh:{" "}
+                {new Date(profile.dateOfBirth).toLocaleDateString("vi-VN")}
               </span>
             </div>
             <Separator />
             <div className="space-y-2">
-              <h4 className="font-medium text-sm">Phòng ban</h4>
+              <h4 className="font-medium text-sm">Giới tính</h4>
               <p className="text-sm text-muted-foreground">
-                {profile.department}
+                {
+                  getUserGenderLabelForPerson(
+                    profile.gender as Gender | undefined,
+                  ).label
+                }
               </p>
             </div>
           </CardContent>
@@ -161,13 +278,26 @@ export default function ManagerProfile() {
                 </Button>
               ) : (
                 <div className="flex gap-2">
-                  <Button variant="outline" onClick={handleCancel}>
+                  <Button
+                    variant="outline"
+                    onClick={handleCancel}
+                    disabled={isUpdating}
+                  >
                     <X className="mr-2 h-4 w-4" />
                     Hủy
                   </Button>
-                  <Button onClick={handleSave}>
-                    <Save className="mr-2 h-4 w-4" />
-                    Lưu
+                  <Button onClick={handleSave} disabled={isUpdating}>
+                    {isUpdating ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Đang lưu...
+                      </>
+                    ) : (
+                      <>
+                        <Save className="mr-2 h-4 w-4" />
+                        Lưu
+                      </>
+                    )}
                   </Button>
                 </div>
               )}
@@ -176,11 +306,13 @@ export default function ManagerProfile() {
           <CardContent className="space-y-6">
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
-                <Label htmlFor="name">Họ và tên</Label>
+                <Label htmlFor="fullName">Họ và tên</Label>
                 <Input
-                  id="name"
-                  value={isEditing ? editedProfile.name : profile.name}
-                  onChange={(e) => handleInputChange("name", e.target.value)}
+                  id="fullName"
+                  value={isEditing ? editedProfile?.fullName : profile.fullName}
+                  onChange={(e) =>
+                    handleInputChange("fullName", e.target.value)
+                  }
                   disabled={!isEditing}
                   className={
                     !isEditing ? "bg-muted/50" : "border border-primary"
@@ -193,7 +325,7 @@ export default function ManagerProfile() {
                 <Input
                   id="email"
                   type="email"
-                  value={isEditing ? editedProfile.email : profile.email}
+                  value={isEditing ? editedProfile?.email : profile.email}
                   onChange={(e) => handleInputChange("email", e.target.value)}
                   disabled={!isEditing}
                   className={
@@ -203,11 +335,15 @@ export default function ManagerProfile() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="phone">Số điện thoại</Label>
+                <Label htmlFor="phoneNumber">Số điện thoại</Label>
                 <Input
-                  id="phone"
-                  value={isEditing ? editedProfile.phone : profile.phone}
-                  onChange={(e) => handleInputChange("phone", e.target.value)}
+                  id="phoneNumber"
+                  value={
+                    isEditing ? editedProfile?.phoneNumber : profile.phoneNumber
+                  }
+                  onChange={(e) =>
+                    handleInputChange("phoneNumber", e.target.value)
+                  }
                   disabled={!isEditing}
                   className={
                     !isEditing ? "bg-muted/50" : "border border-primary"
@@ -215,22 +351,68 @@ export default function ManagerProfile() {
                 />
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="employeeId">Mã nhân viên</Label>
-                <Input
-                  id="employeeId"
-                  value={profile.employeeId}
-                  disabled={true}
-                  className="bg-muted/50"
-                />
+              <div className="space-y-2 md:col-span-2">
+                <Label htmlFor="gender">Giới tính</Label>
+                {isEditing ? (
+                  <Select
+                    value={editedProfile?.gender || ""}
+                    onValueChange={(value) =>
+                      handleInputChange("gender", value)
+                    }
+                  >
+                    <SelectTrigger
+                      id="gender"
+                      className="border border-primary w-full"
+                    >
+                      <SelectValue placeholder="Chọn giới tính" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value={Gender.MALE}>
+                        {getUserGenderLabelForPerson(Gender.MALE).label}
+                      </SelectItem>
+                      <SelectItem value={Gender.FEMALE}>
+                        {getUserGenderLabelForPerson(Gender.FEMALE).label}
+                      </SelectItem>
+                      <SelectItem value={Gender.UNKNOWN}>
+                        {getUserGenderLabelForPerson(Gender.UNKNOWN).label}
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                ) : (
+                  <div className="bg-muted/50 border border-gray-200 rounded-md px-3 py-2 text-sm">
+                    {
+                      getUserGenderLabelForPerson(
+                        editedProfile?.gender as Gender | undefined,
+                      ).label
+                    }
+                  </div>
+                )}
               </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="dateOfBirth">Ngày sinh</Label>
+              <Input
+                id="dateOfBirth"
+                type="date"
+                value={
+                  isEditing
+                    ? editedProfile?.dateOfBirth?.substring(0, 10)
+                    : profile.dateOfBirth?.substring(0, 10)
+                }
+                onChange={(e) =>
+                  handleInputChange("dateOfBirth", e.target.value)
+                }
+                disabled={!isEditing}
+                className={!isEditing ? "bg-muted/50" : "border border-primary"}
+              />
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="address">Địa chỉ</Label>
               <Input
                 id="address"
-                value={isEditing ? editedProfile.address : profile.address}
+                value={isEditing ? editedProfile?.address : profile.address}
                 onChange={(e) => handleInputChange("address", e.target.value)}
                 disabled={!isEditing}
                 className={!isEditing ? "bg-muted/50" : "border border-primary"}
@@ -252,9 +434,12 @@ export default function ManagerProfile() {
           <div className="space-y-4">
             <div className="flex justify-center">
               <Avatar className="h-32 w-32">
-                <AvatarImage src={profile.avatar} alt={profile.name} />
+                <AvatarImage
+                  src={previewAvatarUrl || editedProfile?.avatarURL}
+                  alt={profile?.fullName}
+                />
                 <AvatarFallback className="text-2xl">
-                  {profile.name
+                  {profile?.fullName
                     .split(" ")
                     .map((n) => n[0])
                     .join("")}
@@ -262,22 +447,61 @@ export default function ManagerProfile() {
               </Avatar>
             </div>
             <div className="flex gap-2 justify-center">
-              <Button variant="outline">
-                <Camera className="mr-2 h-4 w-4" />
-                Chọn ảnh
+              <input
+                ref={(input) => {
+                  if (input) input.accept = "image/*";
+                }}
+                type="file"
+                id="avatar-upload"
+                style={{ display: "none" }}
+                onChange={handleFileSelect}
+                disabled={isUploading}
+              />
+              <Button
+                variant="outline"
+                onClick={() =>
+                  document.getElementById("avatar-upload")?.click()
+                }
+                disabled={isUploading || previewAvatarUrl !== null}
+              >
+                {isUploading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Đang tải...
+                  </>
+                ) : (
+                  <>
+                    <Camera className="mr-2 h-4 w-4" />
+                    Chọn ảnh
+                  </>
+                )}
               </Button>
-              <Button variant="outline">Xóa ảnh</Button>
             </div>
           </div>
           <div className="flex justify-end gap-2">
             <Button
               variant="outline"
-              onClick={() => setIsAvatarDialogOpen(false)}
+              onClick={() => {
+                setIsAvatarDialogOpen(false);
+                setSelectedAvatarFile(null);
+                setPreviewAvatarUrl(null);
+              }}
+              disabled={isUploading}
             >
               Hủy
             </Button>
-            <Button onClick={() => setIsAvatarDialogOpen(false)}>
-              Lưu thay đổi
+            <Button
+              onClick={handleAvatarConfirm}
+              disabled={isUploading || !selectedAvatarFile}
+            >
+              {isUploading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Đang tải...
+                </>
+              ) : (
+                "Xong"
+              )}
             </Button>
           </div>
         </DialogContent>

@@ -1,6 +1,7 @@
 import toRequestParams from "@/lib/utils/params";
 import apiService, { BaseResponse } from "../apiClient";
 import { TaskTemplateResponse } from "./fetchTaskTemplate";
+import { Roles } from "./fetchAuth";
 
 export enum WorkScheduleStatusEnum {
   Pending = "Pending",
@@ -14,6 +15,7 @@ export interface StaffAssignment {
   workScheduleId: number;
   staffId: number;
   staffName: string;
+  role: Roles;
   completionNotes: string | null;
   completedAt: string | null;
 }
