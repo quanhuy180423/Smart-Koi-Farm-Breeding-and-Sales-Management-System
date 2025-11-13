@@ -28,7 +28,12 @@ import { Button } from "@/components/ui/button";
 import { InputNumber } from "@/components/ui/input-number";
 import { Label } from "@/components/ui/label";
 import { Loader2, Plus, X, Edit, Trash2 } from "lucide-react";
-import { useGetWaterParameterThresholds, useCreateWaterParameterThreshold, useUpdateWaterParameterThreshold, useDeleteWaterParameterThreshold } from "@/hooks/useWaterParameterThreshold";
+import {
+  useGetWaterParameterThresholds,
+  useCreateWaterParameterThreshold,
+  useUpdateWaterParameterThreshold,
+  useDeleteWaterParameterThreshold,
+} from "@/hooks/useWaterParameterThreshold";
 import {
   WaterParameterName,
   WaterParameterThreshold,
@@ -81,9 +86,13 @@ export default function WaterParameterThresholdModal({
   const [pageSize, setPageSize] = useState(10);
   const [isCreateFormOpen, setIsCreateFormOpen] = useState(false);
   const [isEditFormOpen, setIsEditFormOpen] = useState(false);
-  const [editingThresholdId, setEditingThresholdId] = useState<number | null>(null);
+  const [editingThresholdId, setEditingThresholdId] = useState<number | null>(
+    null,
+  );
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
-  const [deletingThresholdId, setDeletingThresholdId] = useState<number | null>(null);
+  const [deletingThresholdId, setDeletingThresholdId] = useState<number | null>(
+    null,
+  );
   const [createFormData, setCreateFormData] = useState({
     parameterName: WaterParameterName.PHLevel,
     minValue: "",
@@ -102,9 +111,12 @@ export default function WaterParameterThresholdModal({
     pageSize: pageSize,
   });
 
-  const { mutate: createThreshold, isPending: isCreating } = useCreateWaterParameterThreshold();
-  const { mutate: updateThreshold, isPending: isUpdating } = useUpdateWaterParameterThreshold();
-  const { mutate: deleteThreshold, isPending: isDeleting } = useDeleteWaterParameterThreshold();
+  const { mutate: createThreshold, isPending: isCreating } =
+    useCreateWaterParameterThreshold();
+  const { mutate: updateThreshold, isPending: isUpdating } =
+    useUpdateWaterParameterThreshold();
+  const { mutate: deleteThreshold, isPending: isDeleting } =
+    useDeleteWaterParameterThreshold();
 
   const thresholds: WaterParameterThreshold[] = thresholdsData?.data || [];
   const totalPages = thresholdsData?.totalPages || 0;
@@ -176,7 +188,11 @@ export default function WaterParameterThresholdModal({
   };
 
   const handleEditSubmit = () => {
-    if (!editFormData.minValue || !editFormData.maxValue || !editingThresholdId) {
+    if (
+      !editFormData.minValue ||
+      !editFormData.maxValue ||
+      !editingThresholdId
+    ) {
       return;
     }
 
@@ -255,7 +271,10 @@ export default function WaterParameterThresholdModal({
           <div className="flex items-center justify-between">
             <div className="flex-1">
               <label className="text-sm font-medium">Chọn thông số</label>
-              <Select value={selectedParameter} onValueChange={handleParameterChange}>
+              <Select
+                value={selectedParameter}
+                onValueChange={handleParameterChange}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Chọn thông số..." />
                 </SelectTrigger>
@@ -302,7 +321,10 @@ export default function WaterParameterThresholdModal({
                   <Select
                     value={createFormData.parameterName}
                     onValueChange={(value) =>
-                      setCreateFormData({ ...createFormData, parameterName: value as WaterParameterName })
+                      setCreateFormData({
+                        ...createFormData,
+                        parameterName: value as WaterParameterName,
+                      })
                     }
                     disabled={isCreating}
                   >
@@ -327,7 +349,10 @@ export default function WaterParameterThresholdModal({
                       placeholder="0"
                       value={createFormData.minValue}
                       onChange={(value) =>
-                        setCreateFormData({ ...createFormData, minValue: String(value) })
+                        setCreateFormData({
+                          ...createFormData,
+                          minValue: String(value),
+                        })
                       }
                       disabled={isCreating}
                       allowDecimal={true}
@@ -341,7 +366,10 @@ export default function WaterParameterThresholdModal({
                       placeholder="100"
                       value={createFormData.maxValue}
                       onChange={(value) =>
-                        setCreateFormData({ ...createFormData, maxValue: String(value) })
+                        setCreateFormData({
+                          ...createFormData,
+                          maxValue: String(value),
+                        })
                       }
                       disabled={isCreating}
                       allowDecimal={true}
@@ -353,14 +381,20 @@ export default function WaterParameterThresholdModal({
                 {paramUnits[createFormData.parameterName] && (
                   <div className="p-2 bg-white rounded border text-sm">
                     <span className="text-muted-foreground">Đơn vị: </span>
-                    <span className="font-medium">{paramUnits[createFormData.parameterName]}</span>
+                    <span className="font-medium">
+                      {paramUnits[createFormData.parameterName]}
+                    </span>
                   </div>
                 )}
 
                 <div className="flex gap-2 pt-2">
                   <Button
                     onClick={handleCreateSubmit}
-                    disabled={isCreating || !createFormData.minValue || !createFormData.maxValue}
+                    disabled={
+                      isCreating ||
+                      !createFormData.minValue ||
+                      !createFormData.maxValue
+                    }
                     className="flex-1"
                   >
                     {isCreating ? (
@@ -382,7 +416,9 @@ export default function WaterParameterThresholdModal({
             <Card className="bg-yellow-50 border-yellow-200">
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
-                  <CardTitle className="text-base">Chỉnh sửa thông số</CardTitle>
+                  <CardTitle className="text-base">
+                    Chỉnh sửa thông số
+                  </CardTitle>
                   <Button
                     variant="ghost"
                     size="icon"
@@ -399,7 +435,10 @@ export default function WaterParameterThresholdModal({
                   <Select
                     value={editFormData.parameterName}
                     onValueChange={(value) =>
-                      setEditFormData({ ...editFormData, parameterName: value as WaterParameterName })
+                      setEditFormData({
+                        ...editFormData,
+                        parameterName: value as WaterParameterName,
+                      })
                     }
                     disabled={isUpdating}
                   >
@@ -424,7 +463,10 @@ export default function WaterParameterThresholdModal({
                       placeholder="0"
                       value={editFormData.minValue}
                       onChange={(value) =>
-                        setEditFormData({ ...editFormData, minValue: String(value) })
+                        setEditFormData({
+                          ...editFormData,
+                          minValue: String(value),
+                        })
                       }
                       disabled={isUpdating}
                       allowDecimal={true}
@@ -438,7 +480,10 @@ export default function WaterParameterThresholdModal({
                       placeholder="100"
                       value={editFormData.maxValue}
                       onChange={(value) =>
-                        setEditFormData({ ...editFormData, maxValue: String(value) })
+                        setEditFormData({
+                          ...editFormData,
+                          maxValue: String(value),
+                        })
                       }
                       disabled={isUpdating}
                       allowDecimal={true}
@@ -450,14 +495,20 @@ export default function WaterParameterThresholdModal({
                 {paramUnits[editFormData.parameterName] && (
                   <div className="p-2 bg-white rounded border text-sm">
                     <span className="text-muted-foreground">Đơn vị: </span>
-                    <span className="font-medium">{paramUnits[editFormData.parameterName]}</span>
+                    <span className="font-medium">
+                      {paramUnits[editFormData.parameterName]}
+                    </span>
                   </div>
                 )}
 
                 <div className="flex gap-2 pt-2">
                   <Button
                     onClick={handleEditSubmit}
-                    disabled={isUpdating || !editFormData.minValue || !editFormData.maxValue}
+                    disabled={
+                      isUpdating ||
+                      !editFormData.minValue ||
+                      !editFormData.maxValue
+                    }
                     className="flex-1"
                   >
                     {isUpdating ? (
@@ -487,15 +538,22 @@ export default function WaterParameterThresholdModal({
                     <TableRow className="bg-muted/50">
                       <TableHead>Thông số</TableHead>
                       <TableHead>Loại hồ</TableHead>
-                      <TableHead className="text-right">Giá trị tối thiểu</TableHead>
-                      <TableHead className="text-right">Giá trị tối đa</TableHead>
+                      <TableHead className="text-right">
+                        Giá trị tối thiểu
+                      </TableHead>
+                      <TableHead className="text-right">
+                        Giá trị tối đa
+                      </TableHead>
                       <TableHead className="text-center">Đơn vị</TableHead>
                       <TableHead className="text-center">Thao tác</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {thresholds.map((threshold) => (
-                      <TableRow key={threshold.id} className="hover:bg-muted/50">
+                      <TableRow
+                        key={threshold.id}
+                        className="hover:bg-muted/50"
+                      >
                         <TableCell className="font-medium">
                           {
                             parameterOptions.find(
@@ -577,7 +635,8 @@ export default function WaterParameterThresholdModal({
               Xóa thông số
             </DialogTitle>
             <DialogDescription>
-              Bạn có chắc chắn muốn xóa thông số này? Hành động này không thể hoàn tác.
+              Bạn có chắc chắn muốn xóa thông số này? Hành động này không thể
+              hoàn tác.
             </DialogDescription>
           </DialogHeader>
           <div className="flex gap-3 justify-end">

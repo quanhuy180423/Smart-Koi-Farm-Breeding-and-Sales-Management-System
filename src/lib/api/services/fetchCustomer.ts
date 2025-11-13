@@ -44,10 +44,9 @@ export const customerService = {
       search: params.search,
       isActive: params.isActive,
     });
-    const response = await apiService.get<BaseResponse<PagedResponse<Customer>>>(
-      baseUrl,
-      filter,
-    );
+    const response = await apiService.get<
+      BaseResponse<PagedResponse<Customer>>
+    >(baseUrl, filter);
     return response.data;
   },
 };

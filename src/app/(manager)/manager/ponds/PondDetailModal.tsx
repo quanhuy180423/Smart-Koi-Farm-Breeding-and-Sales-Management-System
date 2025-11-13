@@ -7,12 +7,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Table,
   TableBody,
@@ -169,13 +164,27 @@ const PondDetailModal = ({
                           <TableHead>Ngày ghi nhận</TableHead>
                           <TableHead>Người ghi nhận</TableHead>
                           <TableHead className="text-right">pH</TableHead>
-                          <TableHead className="text-right">Nhiệt độ (°C)</TableHead>
-                          <TableHead className="text-right">Oxy (mg/L)</TableHead>
-                          <TableHead className="text-right">Amoniac (mg/L)</TableHead>
-                          <TableHead className="text-right">Nitrite (mg/L)</TableHead>
-                          <TableHead className="text-right">Nitrate (mg/L)</TableHead>
-                          <TableHead className="text-right">Độ cứng (°dH)</TableHead>
-                          <TableHead className="text-right">Mức nước (m)</TableHead>
+                          <TableHead className="text-right">
+                            Nhiệt độ (°C)
+                          </TableHead>
+                          <TableHead className="text-right">
+                            Oxy (mg/L)
+                          </TableHead>
+                          <TableHead className="text-right">
+                            Amoniac (mg/L)
+                          </TableHead>
+                          <TableHead className="text-right">
+                            Nitrite (mg/L)
+                          </TableHead>
+                          <TableHead className="text-right">
+                            Nitrate (mg/L)
+                          </TableHead>
+                          <TableHead className="text-right">
+                            Độ cứng (°dH)
+                          </TableHead>
+                          <TableHead className="text-right">
+                            Mức nước (m)
+                          </TableHead>
                           <TableHead>Ghi chú</TableHead>
                         </TableRow>
                       </TableHeader>

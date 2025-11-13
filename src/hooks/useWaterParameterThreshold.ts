@@ -33,7 +33,8 @@ export function useGetWaterParameterThresholds(
       params.pageIndex,
       params.pageSize,
     ],
-    queryFn: () => waterParameterThresholdService.getWaterParameterThresholds(params),
+    queryFn: () =>
+      waterParameterThresholdService.getWaterParameterThresholds(params),
     enabled: isAuthenticated,
     select: (data: BaseResponse<PagedResponse<WaterParameterThreshold>>) =>
       data?.result || {
@@ -69,7 +70,8 @@ export function useCreateWaterParameterThreshold() {
     ApiError,
     CreateWaterParameterThresholdRequest
   >({
-    mutationFn: (data) => waterParameterThresholdService.createWaterParameterThreshold(data),
+    mutationFn: (data) =>
+      waterParameterThresholdService.createWaterParameterThreshold(data),
     onSuccess: () => {
       // Invalidate water parameter thresholds query to refresh the list
       queryClient.invalidateQueries({
@@ -94,7 +96,8 @@ export function useUpdateWaterParameterThreshold() {
     ApiError,
     { id: number; data: UpdateWaterParameterThresholdRequest }
   >({
-    mutationFn: ({ id, data }) => waterParameterThresholdService.updateWaterParameterThreshold(id, data),
+    mutationFn: ({ id, data }) =>
+      waterParameterThresholdService.updateWaterParameterThreshold(id, data),
     onSuccess: () => {
       // Invalidate water parameter thresholds query to refresh the list
       queryClient.invalidateQueries({
@@ -115,7 +118,8 @@ export function useDeleteWaterParameterThreshold() {
   const queryClient = useQueryClient();
 
   return useMutation<BaseResponse<boolean>, ApiError, number>({
-    mutationFn: (id) => waterParameterThresholdService.deleteWaterParameterThreshold(id),
+    mutationFn: (id) =>
+      waterParameterThresholdService.deleteWaterParameterThreshold(id),
     onSuccess: () => {
       // Invalidate water parameter thresholds query to refresh the list
       queryClient.invalidateQueries({

@@ -2,7 +2,16 @@
 
 import * as React from "react";
 import { useState, useEffect } from "react";
-import { Plus, Search, Edit, Trash2, Eye, Loader2, Filter, Droplets } from "lucide-react";
+import {
+  Plus,
+  Search,
+  Edit,
+  Trash2,
+  Eye,
+  Loader2,
+  Filter,
+  Droplets,
+} from "lucide-react";
 import {
   Card,
   CardContent,
@@ -373,7 +382,9 @@ export default function PondTypeManagement() {
                             <Button
                               variant="ghost"
                               size="icon"
-                              onClick={() => handleViewWaterParameters(pondType)}
+                              onClick={() =>
+                                handleViewWaterParameters(pondType)
+                              }
                               title="Thông số nước"
                               className="text-blue-600 hover:text-blue-800"
                             >
