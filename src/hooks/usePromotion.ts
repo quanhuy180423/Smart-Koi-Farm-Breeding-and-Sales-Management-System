@@ -159,3 +159,31 @@ export function useDeletePromotion(options?: UseDeletePromotionOptions) {
     },
   });
 }
+
+/**
+ * Hook to fetch the current active promotion
+ */
+export function useCurrentPromotion() {
+  return useQuery<
+    BaseResponse<PromotionResponse>,
+    ApiError,
+    PromotionResponse | null
+  >({
+    queryKey: ["currentPromotion"],
+    queryFn: () => promotionService.getCurrentPromotion(),
+    select: (data: BaseResponse<PromotionResponse>) =>
+      data?.result && data.result.isActive ? data.result : null,
+    retry: (failureCount, error: unknown) => {
+      if (
+        error &&
+        typeof error === "object" &&
+        "status" in error &&
+        error.status === 401
+      ) {
+        return false;
+      }
+      return failureCount < 2;
+    },
+    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+  });
+}
