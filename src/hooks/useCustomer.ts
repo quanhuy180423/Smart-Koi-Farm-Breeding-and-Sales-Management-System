@@ -19,7 +19,20 @@ export function useGetCustomers(params: CustomerSearchParams) {
     ApiError,
     PagedResponse<Customer>
   >({
-    queryKey: ["customers", params.pageIndex, params.pageSize, params.search],
+    queryKey: [
+      "customers",
+      params.pageIndex,
+      params.pageSize,
+      params.search,
+      params.isActive,
+      params.minTotalSpent,
+      params.maxTotalSpent,
+      params.minTotalOrders,
+      params.maxTotalOrders,
+      params.createdFrom,
+      params.createdTo,
+      params.contactNumber,
+    ],
     queryFn: () => customerService.getCustomers(params),
     enabled: isAuthenticated,
     select: (data: BaseResponse<PagedResponse<Customer>>) =>

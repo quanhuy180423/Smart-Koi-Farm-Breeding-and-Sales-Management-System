@@ -10,7 +10,9 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { InputNumber } from "@/components/ui/input-number";
 import { Badge } from "@/components/ui/badge";
+import { Slider } from "@/components/ui/slider";
 import {
   Table,
   TableBody,
@@ -23,18 +25,32 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Loader2, Search, Phone, Mail, ShoppingCart, Eye } from "lucide-react";
+import { Label } from "@/components/ui/label";
+import {
+  Search,
+  Phone,
+  Mail,
+  ShoppingCart,
+  Eye,
+  Filter,
+  Users,
+} from "lucide-react";
 import { useGetCustomers } from "@/hooks/useCustomer";
 import { Customer } from "@/lib/api/services/fetchCustomer";
+import { LoadingState } from "@/components/common/LoadingState";
+import { ErrorState } from "@/components/common/ErrorState";
+import { EmptyState } from "@/components/common/EmptyState";
 import {
   PaginationSection,
   PAGE_SIZE_OPTIONS_DEFAULT,
 } from "@/components/common/PaginationSection";
 import formatCurrency from "@/lib/utils/numbers";
 import { getOrderStatusLabel } from "@/lib/utils/enum";
+import { useDebounce } from "@/hooks/useDebounce";
 
 const defaultCustomerData = {
   pageIndex: 1,
@@ -47,12 +63,42 @@ const defaultCustomerData = {
 
 export default function CustomersPage() {
   const [searchTerm, setSearchTerm] = useState("");
+  const debouncedSearchTerm = useDebounce(searchTerm, 500);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(PAGE_SIZE_OPTIONS_DEFAULT[0]);
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(
     null,
   );
   const [isDetailOpen, setIsDetailOpen] = useState(false);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+
+  // UI state for filter inputs (not applied yet)
+  const [minTotalSpentInput, setMinTotalSpentInput] = useState<
+    number | undefined
+  >();
+  const [maxTotalSpentInput, setMaxTotalSpentInput] = useState<
+    number | undefined
+  >();
+  const [minTotalOrdersInput, setMinTotalOrdersInput] = useState<
+    number | undefined
+  >();
+  const [maxTotalOrdersInput, setMaxTotalOrdersInput] = useState<
+    number | undefined
+  >();
+  const [createdFromInput, setCreatedFromInput] = useState("");
+  const [createdToInput, setCreatedToInput] = useState("");
+  const [contactNumberInput, setContactNumberInput] = useState("");
+  const [isActiveInput, setIsActiveInput] = useState<boolean | undefined>();
+
+  // Applied filter state (used for API calls)
+  const [minTotalSpent, setMinTotalSpent] = useState<number | undefined>();
+  const [maxTotalSpent, setMaxTotalSpent] = useState<number | undefined>();
+  const [minTotalOrders, setMinTotalOrders] = useState<number | undefined>();
+  const [maxTotalOrders, setMaxTotalOrders] = useState<number | undefined>();
+  const [createdFrom, setCreatedFrom] = useState("");
+  const [createdTo, setCreatedTo] = useState("");
+  const [contactNumber, setContactNumber] = useState("");
+  const [isActive, setIsActive] = useState<boolean | undefined>();
 
   const {
     data: customersData = defaultCustomerData,
@@ -61,7 +107,15 @@ export default function CustomersPage() {
   } = useGetCustomers({
     pageIndex: currentPage,
     pageSize: pageSize,
-    search: searchTerm,
+    search: debouncedSearchTerm,
+    isActive,
+    minTotalSpent,
+    maxTotalSpent,
+    minTotalOrders,
+    maxTotalOrders,
+    createdFrom: createdFrom || undefined,
+    createdTo: createdTo || undefined,
+    contactNumber: contactNumber || undefined,
   });
 
   const handleSearch = (value: string) => {
@@ -83,12 +137,49 @@ export default function CustomersPage() {
     setIsDetailOpen(true);
   };
 
+  const handleApplyFilters = () => {
+    // Apply the filter inputs to the actual filters
+    setMinTotalSpent(minTotalSpentInput);
+    setMaxTotalSpent(maxTotalSpentInput);
+    setMinTotalOrders(minTotalOrdersInput);
+    setMaxTotalOrders(maxTotalOrdersInput);
+    setCreatedFrom(createdFromInput);
+    setCreatedTo(createdToInput);
+    setContactNumber(contactNumberInput);
+    setIsActive(isActiveInput);
+    setCurrentPage(1);
+    setIsFilterOpen(false);
+  };
+
+  const handleResetFilters = () => {
+    // Reset both input state and applied filters
+    setMinTotalSpentInput(undefined);
+    setMaxTotalSpentInput(undefined);
+    setMinTotalOrdersInput(undefined);
+    setMaxTotalOrdersInput(undefined);
+    setCreatedFromInput("");
+    setCreatedToInput("");
+    setContactNumberInput("");
+    setIsActiveInput(undefined);
+
+    setMinTotalSpent(undefined);
+    setMaxTotalSpent(undefined);
+    setMinTotalOrders(undefined);
+    setMaxTotalOrders(undefined);
+    setCreatedFrom("");
+    setCreatedTo("");
+    setContactNumber("");
+    setIsActive(undefined);
+    setCurrentPage(1);
+  };
+
   if (error) {
     return (
-      <div className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8 items-center justify-center">
-        <p className="text-red-600">
-          Có lỗi xảy ra khi tải danh sách khách hàng
-        </p>
+      <div className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
+        <ErrorState
+          title="Có lỗi xảy ra"
+          message="Không thể tải danh sách khách hàng. Vui lòng thử lại."
+        />
       </div>
     );
   }
@@ -191,7 +282,7 @@ export default function CustomersPage() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          {/* Search */}
+          {/* Search and Filter */}
           <div className="flex gap-2">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
@@ -202,17 +293,26 @@ export default function CustomersPage() {
                 className="pl-10"
               />
             </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setIsFilterOpen(true)}
+              className="whitespace-nowrap"
+            >
+              <Filter className="h-4 w-4 mr-2" />
+              Bộ lọc
+            </Button>
           </div>
 
           {/* Table */}
           {isLoading ? (
-            <div className="flex items-center justify-center py-10">
-              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-            </div>
+            <LoadingState message="Đang tải danh sách khách hàng..." />
           ) : customersData.data.length === 0 ? (
-            <div className="text-center py-10 text-muted-foreground">
-              Không có khách hàng nào
-            </div>
+            <EmptyState
+              icon={Users}
+              title="Không có khách hàng nào"
+              description="Chưa có khách hàng trong hệ thống. Khách hàng sẽ xuất hiện ở đây sau khi họ tạo tài khoản."
+            />
           ) : (
             <>
               <div className="border rounded-lg overflow-hidden">
@@ -304,6 +404,216 @@ export default function CustomersPage() {
           )}
         </CardContent>
       </Card>
+
+      {/* Filter Dialog */}
+      <Dialog open={isFilterOpen} onOpenChange={setIsFilterOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Bộ lọc Khách Hàng</DialogTitle>
+            <DialogDescription>
+              Lọc danh sách khách hàng theo tiêu chí
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            {/* Total Spent Range */}
+            <div className="space-y-3">
+              <Label>
+                Tổng Chi Tiêu: {formatCurrency(minTotalSpentInput || 0)} -{" "}
+                {formatCurrency(maxTotalSpentInput || 10000000)}
+              </Label>
+              <Slider
+                min={0}
+                max={10000000}
+                step={100000}
+                value={[
+                  minTotalSpentInput || 0,
+                  maxTotalSpentInput || 10000000,
+                ]}
+                onValueChange={(values) => {
+                  setMinTotalSpentInput(values[0]);
+                  setMaxTotalSpentInput(values[1]);
+                }}
+                className="w-full"
+              />
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <Label className="text-xs">Tối thiểu</Label>
+                  <InputNumber
+                    placeholder="0"
+                    value={minTotalSpentInput}
+                    onChange={(v) => {
+                      if (
+                        v !== undefined &&
+                        maxTotalSpentInput !== undefined &&
+                        v <= maxTotalSpentInput
+                      ) {
+                        setMinTotalSpentInput(v);
+                      } else if (v !== undefined) {
+                        setMinTotalSpentInput(v);
+                      }
+                    }}
+                    min={0}
+                    className="border-2 border-gray-300"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs">Tối đa</Label>
+                  <InputNumber
+                    placeholder="10000000"
+                    value={maxTotalSpentInput}
+                    onChange={(v) => {
+                      if (
+                        v !== undefined &&
+                        minTotalSpentInput !== undefined &&
+                        v >= minTotalSpentInput
+                      ) {
+                        setMaxTotalSpentInput(v);
+                      } else if (v !== undefined) {
+                        setMaxTotalSpentInput(v);
+                      }
+                    }}
+                    min={0}
+                    className="border-2 border-gray-300"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Total Orders Range */}
+            <div className="space-y-3">
+              <Label>
+                Số Đơn Hàng: {minTotalOrdersInput || 0} -{" "}
+                {maxTotalOrdersInput || 1000}
+              </Label>
+              <Slider
+                min={0}
+                max={1000}
+                step={10}
+                value={[minTotalOrdersInput || 0, maxTotalOrdersInput || 1000]}
+                onValueChange={(values) => {
+                  setMinTotalOrdersInput(values[0]);
+                  setMaxTotalOrdersInput(values[1]);
+                }}
+                className="w-full"
+              />
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <Label className="text-xs">Tối thiểu</Label>
+                  <InputNumber
+                    placeholder="0"
+                    value={minTotalOrdersInput}
+                    onChange={(v) => {
+                      if (
+                        v !== undefined &&
+                        maxTotalOrdersInput !== undefined &&
+                        v <= maxTotalOrdersInput
+                      ) {
+                        setMinTotalOrdersInput(v);
+                      } else if (v !== undefined) {
+                        setMinTotalOrdersInput(v);
+                      }
+                    }}
+                    min={0}
+                    className="border-2 border-gray-300"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs">Tối đa</Label>
+                  <InputNumber
+                    placeholder="1000"
+                    value={maxTotalOrdersInput}
+                    onChange={(v) => {
+                      if (
+                        v !== undefined &&
+                        minTotalOrdersInput !== undefined &&
+                        v >= minTotalOrdersInput
+                      ) {
+                        setMaxTotalOrdersInput(v);
+                      } else if (v !== undefined) {
+                        setMaxTotalOrdersInput(v);
+                      }
+                    }}
+                    min={0}
+                    className="border-2 border-gray-300"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Date Range */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Ngày Tạo - Từ</Label>
+                <Input
+                  type="date"
+                  value={createdFromInput}
+                  onChange={(e) => setCreatedFromInput(e.target.value)}
+                  className="border-2 border-gray-300"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Ngày Tạo - Đến</Label>
+                <Input
+                  type="date"
+                  value={createdToInput}
+                  onChange={(e) => setCreatedToInput(e.target.value)}
+                  className="border-2 border-gray-300"
+                />
+              </div>
+            </div>
+
+            {/* Contact Number */}
+            <div className="space-y-2">
+              <Label>Số Liên Hệ</Label>
+              <Input
+                placeholder="Ví dụ: 0987654321"
+                value={contactNumberInput}
+                onChange={(e) => setContactNumberInput(e.target.value)}
+                className="border-2 border-gray-300"
+              />
+            </div>
+
+            {/* Status Filter */}
+            <div className="space-y-2">
+              <Label>Trạng Thái</Label>
+              <div className="flex gap-2">
+                <Button
+                  variant={isActiveInput === undefined ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setIsActiveInput(undefined)}
+                  className="flex-1"
+                >
+                  Tất cả
+                </Button>
+                <Button
+                  variant={isActiveInput === true ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setIsActiveInput(true)}
+                  className="flex-1"
+                >
+                  Hoạt động
+                </Button>
+                <Button
+                  variant={isActiveInput === false ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setIsActiveInput(false)}
+                  className="flex-1"
+                >
+                  Không hoạt động
+                </Button>
+              </div>
+            </div>
+          </div>
+
+          <DialogFooter className="mt-4 flex justify-between sm:justify-between">
+            <Button variant="outline" onClick={handleResetFilters}>
+              Đặt lại
+            </Button>
+            <Button onClick={handleApplyFilters}>Áp dụng bộ lọc</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Customer Detail Dialog */}
       <Dialog open={isDetailOpen} onOpenChange={setIsDetailOpen}>
