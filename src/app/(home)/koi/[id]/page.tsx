@@ -245,6 +245,22 @@ export default function KoiDetailPage() {
                     </span>
                     <span className="font-medium">{koi.origin}</span>
                   </div>
+                  <div className="flex items-center gap-2">
+                    <Fish className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-sm text-muted-foreground">
+                      Loại cá:
+                    </span>
+                    <span className="font-medium">{koi.type}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Fish className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-sm text-muted-foreground">
+                      Hoa văn:
+                    </span>
+                    <span className="font-medium">
+                      {koi.patternType || "Không xác định"}
+                    </span>
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -357,6 +373,28 @@ export default function KoiDetailPage() {
                         {formatDate(koi.birthDate, DATE_FORMATS.MEDIUM_DATE)}
                       </p>
                     </div>
+                    {/* Mutation Info */}
+                    {koi.isMutated && (
+                      <>
+                        <Separator />
+                        <div>
+                          <span className="text-sm text-muted-foreground">
+                            Đặc tính đột biến:
+                          </span>
+                          <p className="font-medium">
+                            {koi.mutationDescription || "Không xác định"}
+                          </p>
+                        </div>
+                        <div>
+                          <span className="text-sm text-muted-foreground">
+                            Tỷ lệ đột biến:
+                          </span>
+                          <p className="font-medium">
+                            {koi.mutationRate.toFixed(2)}%
+                          </p>
+                        </div>
+                      </>
+                    )}
                   </CardContent>
                 </Card>
               </div>

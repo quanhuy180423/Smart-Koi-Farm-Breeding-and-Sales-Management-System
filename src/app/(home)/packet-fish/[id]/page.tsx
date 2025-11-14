@@ -117,7 +117,7 @@ export default function PacketFishDetailPage() {
             )}
 
             {/* Videos */}
-            {packet.video && packet.video.length > 0 && (
+            {packet.videos && packet.videos.length > 0 && (
               <Card className="flex-shrink-0">
                 <CardHeader>
                   <h3 className="font-semibold">Video</h3>
@@ -126,16 +126,16 @@ export default function PacketFishDetailPage() {
                   {/* Main Video */}
                   <div className="relative w-full h-96 bg-muted rounded-lg overflow-hidden">
                     <video
-                      src={packet.video[selectedVideoIdx]}
+                      src={packet.videos[selectedVideoIdx]}
                       className="w-full h-full object-cover"
                       controls
                     />
                   </div>
 
                   {/* Video Thumbnails */}
-                  {packet.video.length > 1 && (
+                  {packet.videos.length > 1 && (
                     <div className="flex gap-2 overflow-x-auto">
-                      {packet.video.map((vid, idx) => (
+                      {packet.videos.map((vid, idx) => (
                         <button
                           key={idx}
                           onClick={() => setSelectedVideoIdx(idx)}
@@ -191,7 +191,7 @@ export default function PacketFishDetailPage() {
                 <div className="space-y-2">
                   <p className="text-sm text-muted-foreground">Giá</p>
                   <p className="text-4xl font-bold text-primary">
-                    {formatCurrency(packet.totalPrice)}
+                    {formatCurrency(packet.pricePerPacket)}
                   </p>
                 </div>
 
@@ -221,7 +221,7 @@ export default function PacketFishDetailPage() {
                     <Package className="h-5 w-5 text-primary flex-shrink-0" />
                     <div className="flex-1">
                       <p className="text-xs text-muted-foreground">Số lượng</p>
-                      <p className="font-semibold">{packet.quantity} cá</p>
+                      <p className="font-semibold">{packet.fishPerPacket} cá</p>
                     </div>
                   </div>
                 </div>

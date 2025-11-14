@@ -71,7 +71,6 @@ export function AddFishDialog({ onClose }: AddFishDialogProps) {
       images: koi.images,
       videos: koi.videos,
       sellingPrice: koi.sellingPrice ?? 0,
-      bodyShape: koi.bodyShape ?? "",
       description: koi.description,
       colorPattern: "",
 

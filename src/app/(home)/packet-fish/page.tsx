@@ -376,7 +376,7 @@ export default function PacketFishPage() {
                               {packet.name}
                             </CardTitle>
                             <p className="text-sm text-muted-foreground">
-                              Số lượng: {packet.quantity}
+                              Số lượng: {packet.fishPerPacket}
                             </p>
                           </div>
                         </div>
@@ -408,7 +408,7 @@ export default function PacketFishPage() {
 
                         <div className="mt-auto">
                           <p className="text-2xl font-bold text-primary">
-                            {formatCurrency(packet.totalPrice || 0)}
+                            {formatCurrency(packet.pricePerPacket || 0)}
                           </p>
                         </div>
                       </CardContent>

@@ -181,13 +181,19 @@ export function KoiDetailDialog({
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span>Hình dạng cơ thể:</span>
-                    <span className="font-medium">{koi.bodyShape}</span>
-                  </div>
-                  <div className="flex justify-between">
                     <span>Giới tính:</span>
                     <span className="font-medium">
                       {getGenderLabel(koi.gender).label}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Loại cá:</span>
+                    <span className="font-medium">{koi.type}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Hoa văn:</span>
+                    <span className="font-medium">
+                      {koi.patternType || "Không xác định"}
                     </span>
                   </div>
                 </div>
@@ -219,6 +225,35 @@ export function KoiDetailDialog({
                 </div>
               </div>
             </div>
+
+            {/* Mutation Info */}
+            {koi.isMutated && (
+              <div className="border-t pt-4">
+                <h4 className="font-medium text-muted-foreground mb-2">
+                  Thông tin đột biến
+                </h4>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span>Đột biến:</span>
+                    <Badge variant="outline">Có</Badge>
+                  </div>
+                  {koi.mutationDescription && (
+                    <div className="flex justify-between">
+                      <span>Mô tả:</span>
+                      <span className="font-medium">
+                        {koi.mutationDescription}
+                      </span>
+                    </div>
+                  )}
+                  <div className="flex justify-between">
+                    <span>Tỷ lệ đột biến:</span>
+                    <span className="font-medium">
+                      {koi.mutationRate.toFixed(2)}%
+                    </span>
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Description */}
             {koi.description && (

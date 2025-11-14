@@ -705,13 +705,23 @@ export default function OrdersPage() {
                           <span className="text-muted-foreground">
                             {order?.orderDetails?.length || 0} sản phẩm:
                           </span>
-                          <div className="font-medium line-clamp-2">
-                            {order?.orderDetails
-                              ?.map(
-                                (item) =>
-                                  `${item.koiFish?.rfid || item.packetFish?.name} (${item.quantity})`,
-                              )
-                              .join(", ")}
+                          <div className="space-y-1">
+                            {order?.orderDetails?.map((item, idx) => (
+                              <div key={idx} className="font-medium">
+                                <span>
+                                  {item.koiFish?.rfid || item.packetFish?.name}{" "}
+                                  ({item.quantity})
+                                </span>
+                                {item.koiFish && (
+                                  <div className="text-xs text-muted-foreground ml-2">
+                                    {item.koiFish.variety?.varietyName}{" "}
+                                    {item.koiFish.patternType && (
+                                      <>• {item.koiFish.patternType}</>
+                                    )}
+                                  </div>
+                                )}
+                              </div>
+                            ))}
                           </div>
                         </div>
                       </div>
