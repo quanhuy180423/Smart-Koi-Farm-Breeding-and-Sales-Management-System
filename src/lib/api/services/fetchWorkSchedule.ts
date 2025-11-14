@@ -48,6 +48,7 @@ export interface WorkScheduleRequest {
   scheduledDateFrom: string;
   scheduledDateTo: string;
   pondId?: number;
+  staffRole?: Roles;
 }
 
 export interface MyWorkScheduleParams {

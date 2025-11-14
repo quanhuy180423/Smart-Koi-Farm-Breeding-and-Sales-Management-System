@@ -27,6 +27,7 @@ import {
   Grid2X2,
   BookMinus,
   FileSpreadsheet,
+  Tag,
 } from "lucide-react";
 import Image from "next/image";
 import Logo from "@/assets/images/ZenKoi.png";
@@ -91,6 +92,12 @@ const sidebarItems = [
     href: "/manager/shipping" as const,
     icon: Truck,
     description: "Quản lý giá cước",
+  },
+  {
+    title: "Khuyến mãi",
+    href: "/manager/promotions" as const,
+    icon: Tag,
+    description: "Quản lý các khuyến mãi",
   },
   {
     title: "Thông báo",

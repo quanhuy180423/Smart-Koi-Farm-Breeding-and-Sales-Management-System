@@ -34,6 +34,7 @@ import {
   TaskTemplateResponse,
   TaskTemplatePagedRequest,
 } from "@/lib/api/services/fetchTaskTemplate";
+import { Roles } from "@/lib/api/services/fetchAuth";
 import {
   useGetTaskTemplates,
   useCreateTaskTemplate,
@@ -127,6 +128,9 @@ export default function ScheduleManagement() {
     notesTask: null,
   });
   const [selectedPondId, setSelectedPondId] = useState<number | null>(null);
+  const [selectedStaffRole, setSelectedStaffRole] = useState<Roles | null>(
+    null,
+  );
 
   // Update search params when debounced search term changes
   useEffect(() => {
@@ -146,6 +150,7 @@ export default function ScheduleManagement() {
       scheduledDateFrom: weekBoundaries.from,
       scheduledDateTo: weekBoundaries.to,
       pondId: selectedPondId || undefined,
+      staffRole: selectedStaffRole || undefined,
     });
 
   const createMutation = useCreateTaskTemplate();
@@ -477,6 +482,8 @@ export default function ScheduleManagement() {
                 onDateChange={setCurrentDate}
                 selectedPondId={selectedPondId}
                 onPondChange={setSelectedPondId}
+                selectedStaffRole={selectedStaffRole}
+                onStaffRoleChange={setSelectedStaffRole}
               />
             </TabsContent>
           </Tabs>

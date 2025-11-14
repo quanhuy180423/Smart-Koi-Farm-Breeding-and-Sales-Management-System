@@ -54,6 +54,7 @@ export function useGetWorkSchedules(request: WorkScheduleRequest) {
       request.scheduledDateFrom,
       request.scheduledDateTo,
       request.pondId,
+      request.staffRole,
     ],
     queryFn: () => workScheduleService.getWorkSchedules(request),
     enabled:
