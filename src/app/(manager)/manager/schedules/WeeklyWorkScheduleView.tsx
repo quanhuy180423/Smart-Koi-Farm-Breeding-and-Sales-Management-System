@@ -6,6 +6,13 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   ChevronLeft,
   ChevronRight,
   Loader2,
@@ -22,6 +29,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { WorkSchedule } from "@/lib/api/services/fetchWorkSchedule";
+import { Roles } from "@/lib/api/services/fetchAuth";
 import { formatTimeToHHMM } from "@/lib/utils/formatTime";
 import {
   getWorkScheduleStatusText,
@@ -53,6 +61,8 @@ interface WeeklyWorkScheduleViewProps {
   onDateChange: (date: Date) => void;
   selectedPondId?: number | null;
   onPondChange?: (pondId: number | null) => void;
+  selectedStaffRole?: Roles | null;
+  onStaffRoleChange?: (staffRole: Roles | null) => void;
 }
 
 const DAYS_OF_WEEK = [
@@ -72,6 +82,8 @@ export default function WeeklyWorkScheduleView({
   onDateChange,
   selectedPondId = null,
   onPondChange,
+  selectedStaffRole = null,
+  onStaffRoleChange,
 }: WeeklyWorkScheduleViewProps) {
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [selectedSchedule, setSelectedSchedule] = useState<WorkSchedule | null>(
@@ -189,6 +201,26 @@ export default function WeeklyWorkScheduleView({
             </Button>
           )}
         </div>
+
+        <Select
+          value={selectedStaffRole || "all"}
+          onValueChange={(value) =>
+            onStaffRoleChange?.(value === "all" ? null : (value as Roles))
+          }
+        >
+          <SelectTrigger className="w-auto border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 h-9 px-3 rounded-md">
+            <Users className="h-4 w-4 mr-2" />
+            <SelectValue placeholder="Chọn nhân viên" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Tất cả nhân viên</SelectItem>
+            <SelectItem value={Roles.FarmStaff}>
+              Nhân viên trang trại
+            </SelectItem>
+            <SelectItem value={Roles.SaleStaff}>Nhân viên bán hàng</SelectItem>
+          </SelectContent>
+        </Select>
+
         <Button variant="outline" size="sm" onClick={handleNextWeek}>
           Tuần sau
           <ChevronRight className="h-4 w-4 ml-2" />

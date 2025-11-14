@@ -18,7 +18,6 @@ export interface CartItemUpdateRequest {
 export interface ConvertCartToOrderRequest {
   customerAddressId?: number;
   shippingFee?: number;
-  promotionId?: number;
 }
 
 export interface CartItemResponse {

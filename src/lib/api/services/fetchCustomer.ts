@@ -30,6 +30,13 @@ export interface CustomerSearchParams {
   pageSize?: number;
   search?: string;
   isActive?: boolean;
+  minTotalSpent?: number;
+  maxTotalSpent?: number;
+  minTotalOrders?: number;
+  maxTotalOrders?: number;
+  createdFrom?: string;
+  createdTo?: string;
+  contactNumber?: string;
 }
 
 const baseUrl = "/api/Customer";
@@ -43,6 +50,13 @@ export const customerService = {
       pageSize: params.pageSize || 10,
       search: params.search,
       isActive: params.isActive,
+      minTotalSpent: params.minTotalSpent,
+      maxTotalSpent: params.maxTotalSpent,
+      minTotalOrders: params.minTotalOrders,
+      maxTotalOrders: params.maxTotalOrders,
+      createdFrom: params.createdFrom,
+      createdTo: params.createdTo,
+      contactNumber: params.contactNumber,
     });
     const response = await apiService.get<
       BaseResponse<PagedResponse<Customer>>
