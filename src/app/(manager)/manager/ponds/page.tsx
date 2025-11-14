@@ -2,7 +2,16 @@
 
 import * as React from "react";
 import { useState, useMemo, useEffect } from "react";
-import { Plus, Search, Edit, Trash2, Eye, Loader2, Filter } from "lucide-react";
+import {
+  Plus,
+  Search,
+  Edit,
+  Trash2,
+  Eye,
+  Loader2,
+  Filter,
+  Calendar as CalendarIcon,
+} from "lucide-react";
 import {
   Card,
   CardContent,
@@ -67,6 +76,14 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { format } from "date-fns";
+import { vi } from "date-fns/locale";
 
 export interface PondFormState {
   pondName: string;
@@ -159,6 +176,24 @@ export default function PondManagement() {
   const getPondTypeNameById = (id: string | number | undefined) => {
     const type = availablePondTypes.find((t) => String(t.id) === String(id));
     return type ? type.typeName : id ? `ID: ${id}` : "Không xác định";
+  };
+
+  // Helper functions for date handling
+  const getDateFromString = (dateString: string): Date | undefined => {
+    if (!dateString) return undefined;
+    const parts = dateString.split("T")[0].split("-");
+    return new Date(
+      parseInt(parts[0]),
+      parseInt(parts[1]) - 1,
+      parseInt(parts[2]),
+    );
+  };
+
+  const formatDateToString = (date: Date): string => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
   };
 
   useEffect(() => {
@@ -756,21 +791,65 @@ export default function PondManagement() {
               </p>
               <div className="space-y-2 col-span-2 md:col-span-1">
                 <Label htmlFor="createdFrom">Từ ngày</Label>
-                <Input
-                  id="createdFrom"
-                  type="date"
-                  value={createdFromInput}
-                  onChange={(e) => setCreatedFromInput(e.target.value)}
-                />
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className="w-full justify-start text-left font-normal"
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {createdFromInput
+                        ? format(
+                            getDateFromString(createdFromInput)!,
+                            "dd MMM yyyy",
+                            { locale: vi },
+                          )
+                        : "Chọn ngày..."}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={getDateFromString(createdFromInput)}
+                      onSelect={(date) => {
+                        if (date) {
+                          setCreatedFromInput(formatDateToString(date));
+                        }
+                      }}
+                    />
+                  </PopoverContent>
+                </Popover>
               </div>
               <div className="space-y-2 col-span-2 md:col-span-1">
                 <Label htmlFor="createdTo">Đến ngày</Label>
-                <Input
-                  id="createdTo"
-                  type="date"
-                  value={createdToInput}
-                  onChange={(e) => setCreatedToInput(e.target.value)}
-                />
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className="w-full justify-start text-left font-normal"
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {createdToInput
+                        ? format(
+                            getDateFromString(createdToInput)!,
+                            "dd MMM yyyy",
+                            { locale: vi },
+                          )
+                        : "Chọn ngày..."}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={getDateFromString(createdToInput)}
+                      onSelect={(date) => {
+                        if (date) {
+                          setCreatedToInput(formatDateToString(date));
+                        }
+                      }}
+                    />
+                  </PopoverContent>
+                </Popover>
               </div>
             </div>
           </div>
