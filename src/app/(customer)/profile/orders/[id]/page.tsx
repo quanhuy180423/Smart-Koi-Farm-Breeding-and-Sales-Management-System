@@ -17,6 +17,7 @@ import {
   Clock,
   CreditCard,
 } from "lucide-react";
+import Image from "next/image";
 import { toast } from "sonner";
 import CustomerLayout from "@/components/customer/CustomerLayout";
 import { OrderStatus } from "@/lib/api/services/fetchOrder";
@@ -234,8 +235,27 @@ export default function OrderDetailPage() {
               {order.orderDetails.map((item, index) => (
                 <div
                   key={index}
-                  className="flex items-start justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors"
+                  className="flex items-start gap-4 p-4 border rounded-lg hover:bg-muted/50 transition-colors"
                 >
+                  {/* Product Image */}
+                  <div className="relative w-24 h-24 flex-shrink-0 rounded-lg overflow-hidden bg-muted border">
+                    <Image
+                      src={
+                        item.koiFish?.images?.[0] ||
+                        item.packetFish?.images?.[0] ||
+                        "/placeholder.svg"
+                      }
+                      alt={
+                        item.koiFish?.rfid ||
+                        item.packetFish?.name ||
+                        "Sản phẩm"
+                      }
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
+
+                  {/* Product Info */}
                   <div className="flex-1">
                     <h4 className="font-semibold">
                       {item.koiFish?.rfid ||
@@ -243,20 +263,16 @@ export default function OrderDetailPage() {
                         "Sản phẩm"}
                     </h4>
                     <p className="text-sm text-muted-foreground mt-1">
-                      Số lượng: {item.quantity}
+                      {item.koiFish?.variety?.varietyName ||
+                        item.packetFish?.varietyPacketFishes?.[0]?.varietyName}
                     </p>
-                    {item.koiFishId && (
-                      <p className="text-sm text-muted-foreground">
-                        ID Cá Koi: {item.koiFishId}
-                      </p>
-                    )}
-                    {item.packetFishId && (
-                      <p className="text-sm text-muted-foreground">
-                        ID Gói cá: {item.packetFishId}
-                      </p>
-                    )}
+                    <div className="flex flex-col gap-1 mt-2 text-sm text-muted-foreground">
+                      <p>Số lượng: {item.quantity}</p>
+                    </div>
                   </div>
-                  <div className="text-right">
+
+                  {/* Pricing */}
+                  <div className="text-right flex-shrink-0">
                     <p className="text-sm text-muted-foreground">Đơn giá</p>
                     <p className="font-semibold">
                       {formatCurrency(item.unitPrice)}

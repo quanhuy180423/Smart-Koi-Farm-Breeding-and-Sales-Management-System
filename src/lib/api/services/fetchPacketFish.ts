@@ -11,15 +11,16 @@ export interface PacketFishResponse {
   id: number;
   name: string;
   description: string;
-  quantity: number;
-  totalPrice: number;
-  size: FishSize;
+  fishPerPacket: number;
+  pricePerPacket: number;
+  stockQuantity: number;
+  size: string;
   ageMonths: number;
   images: string[];
-  video: string[];
+  videos: string[];
   isAvailable: boolean;
   createdAt: string;
-  updatedAt: string;
+  updatedAt: string | null;
   varietyPacketFishes: VarietyResponse[];
 }
 
@@ -38,9 +39,9 @@ export interface PacketFishSearchParams extends PagingRequest {
 export interface CreatePacketFishRequest {
   name: string;
   description: string;
-  quantity: number;
-  totalPrice: number;
-  size: FishSize;
+  fishPerPacket: number;
+  pricePerPacket: number;
+  size: string;
   ageMonths: number;
   images: string[];
   videos: string[];
