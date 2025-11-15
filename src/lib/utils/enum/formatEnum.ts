@@ -15,6 +15,14 @@ import { WorkScheduleStatusEnum } from "@/lib/api/services/fetchWorkSchedule";
 import { PondTypeEnum } from "@/lib/api/services/fetchPondType";
 import { Roles } from "@/lib/api/services/fetchAuth";
 import {
+  IncidentSeverity,
+  IncidentStatus,
+} from "@/lib/api/services/fetchIncident";
+import {
+  Severity as WaterAlertSeverity,
+  AlertType,
+} from "@/lib/api/services/fetchWaterAlert";
+import {
   CheckCircle,
   Clock,
   AlertCircle,
@@ -221,6 +229,78 @@ const rolesMeta: Record<Roles, Label> = {
   },
 };
 
+const incidentSeverityMeta: Record<IncidentSeverity, Label> = {
+  [IncidentSeverity.LOW]: {
+    label: "Thấp",
+    colorClass: "bg-blue-100 text-blue-800",
+  },
+  [IncidentSeverity.MEDIUM]: {
+    label: "Trung bình",
+    colorClass: "bg-yellow-100 text-yellow-800",
+  },
+  [IncidentSeverity.HIGH]: {
+    label: "Cao",
+    colorClass: "bg-orange-100 text-orange-800",
+  },
+  [IncidentSeverity.URGENT]: {
+    label: "Khẩn cấp",
+    colorClass: "bg-red-100 text-red-800",
+  },
+};
+
+const incidentStatusMeta: Record<IncidentStatus, Label> = {
+  [IncidentStatus.REPORTED]: {
+    label: "Đã báo cáo",
+    colorClass: "bg-blue-100 text-blue-800",
+  },
+  [IncidentStatus.INVESTIGATING]: {
+    label: "Đang điều tra",
+    colorClass: "bg-yellow-100 text-yellow-800",
+  },
+  [IncidentStatus.RESOLVED]: {
+    label: "Đã giải quyết",
+    colorClass: "bg-green-100 text-green-800",
+  },
+  [IncidentStatus.CANCELLED]: {
+    label: "Đã hủy",
+    colorClass: "bg-gray-100 text-gray-800",
+  },
+};
+
+const waterAlertSeverityMeta: Record<WaterAlertSeverity, Label> = {
+  [WaterAlertSeverity.LOW]: {
+    label: "Thấp",
+    colorClass: "bg-blue-100 text-blue-800 hover:bg-blue-100",
+  },
+  [WaterAlertSeverity.MEDIUM]: {
+    label: "Trung bình",
+    colorClass: "bg-yellow-100 text-yellow-800 hover:bg-yellow-100",
+  },
+  [WaterAlertSeverity.HIGH]: {
+    label: "Cao",
+    colorClass: "bg-orange-100 text-orange-800 hover:bg-orange-100",
+  },
+  [WaterAlertSeverity.URGENT]: {
+    label: "Khẩn cấp",
+    colorClass: "bg-red-100 text-red-800 hover:bg-red-100",
+  },
+};
+
+const alertTypeMeta: Record<AlertType, Label> = {
+  [AlertType.HIGH]: {
+    label: "Cao",
+    colorClass: "text-gray-700",
+  },
+  [AlertType.LOW]: {
+    label: "Thấp",
+    colorClass: "text-gray-700",
+  },
+  [AlertType.RAPID_CHANGE]: {
+    label: "Thay đổi nhanh",
+    colorClass: "text-gray-700",
+  },
+};
+
 const DEFAULT_LABEL: Label = {
   label: "Không xác định",
   colorClass: "bg-gray-100 text-gray-700",
@@ -328,6 +408,115 @@ export function getRoleLabel(role?: Roles): Label {
 
 export function getRoleText(role?: Roles): string {
   return getRoleLabel(role).label;
+}
+
+// --- INCIDENT FUNCTIONS ---
+
+/**
+ * Get incident severity label, color class
+ * @param severity The incident severity
+ * @returns Label object with label and colorClass
+ */
+export function getIncidentSeverityLabel(severity?: IncidentSeverity): Label {
+  return getLabelForEnum(severity, incidentSeverityMeta);
+}
+
+/**
+ * Get incident severity color class
+ * @param severity The incident severity
+ * @returns Tailwind CSS color classes
+ */
+export function getIncidentSeverityColor(severity?: IncidentSeverity): string {
+  return getIncidentSeverityLabel(severity).colorClass;
+}
+
+/**
+ * Get incident severity text
+ * @param severity The incident severity
+ * @returns Severity text in Vietnamese
+ */
+export function getIncidentSeverityText(severity?: IncidentSeverity): string {
+  return getIncidentSeverityLabel(severity).label;
+}
+
+/**
+ * Get incident status label, color class
+ * @param status The incident status
+ * @returns Label object with label and colorClass
+ */
+export function getIncidentStatusLabel(status?: IncidentStatus): Label {
+  return getLabelForEnum(status, incidentStatusMeta);
+}
+
+/**
+ * Get incident status color class
+ * @param status The incident status
+ * @returns Tailwind CSS color classes
+ */
+export function getIncidentStatusColor(status?: IncidentStatus): string {
+  return getIncidentStatusLabel(status).colorClass;
+}
+
+/**
+ * Get incident status text
+ * @param status The incident status
+ * @returns Status text in Vietnamese
+ */
+export function getIncidentStatusText(status?: IncidentStatus): string {
+  return getIncidentStatusLabel(status).label;
+}
+
+// --- WATER ALERT FUNCTIONS ---
+
+/**
+ * Get water alert severity label, color class
+ * @param severity The water alert severity
+ * @returns Label object with label and colorClass
+ */
+export function getWaterAlertSeverityLabel(
+  severity?: WaterAlertSeverity,
+): Label {
+  return getLabelForEnum(severity, waterAlertSeverityMeta);
+}
+
+/**
+ * Get water alert severity color class
+ * @param severity The water alert severity
+ * @returns Tailwind CSS color classes
+ */
+export function getWaterAlertSeverityColor(
+  severity?: WaterAlertSeverity,
+): string {
+  return getWaterAlertSeverityLabel(severity).colorClass;
+}
+
+/**
+ * Get water alert severity text
+ * @param severity The water alert severity
+ * @returns Severity text in Vietnamese
+ */
+export function getWaterAlertSeverityText(
+  severity?: WaterAlertSeverity,
+): string {
+  return getWaterAlertSeverityLabel(severity).label;
+}
+
+/**
+ * Get alert type label
+ * @param alertType The alert type
+ * @returns Label object with label and colorClass
+ */
+export function getAlertTypeLabel(alertType?: AlertType): Label {
+  return getLabelForEnum(alertType, alertTypeMeta);
+}
+
+/**
+ * Get alert type text
+ * @param alertType The alert type
+ * @returns Alert type text in Vietnamese
+ */
+export function getAlertTypeText(alertType?: AlertType): string {
+  return getAlertTypeLabel(alertType).label;
 }
 
 /**

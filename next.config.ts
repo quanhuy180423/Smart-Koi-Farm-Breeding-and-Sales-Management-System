@@ -52,6 +52,13 @@ const nextConfig: NextConfig = {
         port: "",
         pathname: "/**",
       },
+      // Làm tạm cho một số data ở db còn dùng
+      {
+        protocol: "https",
+        hostname: "cdn2.fptshop.com.vn",
+        port: "",
+        pathname: "/**",
+      },
     ],
   },
 };

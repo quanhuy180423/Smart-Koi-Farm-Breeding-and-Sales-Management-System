@@ -31,53 +31,15 @@ import {
   PaginationSection,
 } from "@/components/common/PaginationSection";
 import PondSelectionDialog from "./PondSelectionDialog";
+import {
+  getWaterAlertSeverityColor,
+  getWaterAlertSeverityText,
+  getAlertTypeText,
+} from "@/lib/utils/enum/formatEnum";
 
 interface WaterAlertListProps {
   pondId?: number;
 }
-
-const getSeverityColor = (severity: Severity) => {
-  switch (severity) {
-    case Severity.LOW:
-      return "bg-blue-100 text-blue-800 hover:bg-blue-100";
-    case Severity.MEDIUM:
-      return "bg-yellow-100 text-yellow-800 hover:bg-yellow-100";
-    case Severity.HIGH:
-      return "bg-orange-100 text-orange-800 hover:bg-orange-100";
-    case Severity.URGENT:
-      return "bg-red-100 text-red-800 hover:bg-red-100";
-    default:
-      return "bg-gray-100 text-gray-800 hover:bg-gray-100";
-  }
-};
-
-const getSeverityLabel = (severity: Severity) => {
-  switch (severity) {
-    case Severity.LOW:
-      return "Thấp";
-    case Severity.MEDIUM:
-      return "Trung bình";
-    case Severity.HIGH:
-      return "Cao";
-    case Severity.URGENT:
-      return "Khẩn cấp";
-    default:
-      return severity;
-  }
-};
-
-const getAlertTypeLabel = (alertType: AlertType) => {
-  switch (alertType) {
-    case AlertType.HIGH:
-      return "Cao";
-    case AlertType.LOW:
-      return "Thấp";
-    case AlertType.RAPID_CHANGE:
-      return "Thay đổi nhanh";
-    default:
-      return alertType;
-  }
-};
 
 export function WaterAlertList({ pondId }: WaterAlertListProps) {
   const [searchParams, setSearchParams] = useState<WaterAlertSearchParams>({
@@ -257,6 +219,7 @@ export function WaterAlertList({ pondId }: WaterAlertListProps) {
             <Table>
               <TableHeader>
                 <TableRow className="bg-muted/50">
+                  <TableHead className="font-semibold w-[5%]">#</TableHead>
                   <TableHead className="font-semibold">Hồ</TableHead>
                   <TableHead className="font-semibold">Tham số</TableHead>
                   <TableHead className="font-semibold">Giá trị đo</TableHead>
@@ -268,8 +231,13 @@ export function WaterAlertList({ pondId }: WaterAlertListProps) {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {dataToDisplay.map((alert) => (
+                {dataToDisplay.map((alert, index) => (
                   <TableRow key={alert.id} className="hover:bg-muted/30">
+                    <TableCell className="text-sm text-muted-foreground w-[5%]">
+                      {(searchParams.pageIndex - 1) * searchParams.pageSize +
+                        index +
+                        1}
+                    </TableCell>
                     <TableCell className="font-medium">
                       {alert.pondName}
                     </TableCell>
@@ -281,16 +249,16 @@ export function WaterAlertList({ pondId }: WaterAlertListProps) {
                     </TableCell>
                     <TableCell>
                       <Badge variant="outline" className="text-xs">
-                        {getAlertTypeLabel(alert.alertType as AlertType)}
+                        {getAlertTypeText(alert.alertType as AlertType)}
                       </Badge>
                     </TableCell>
                     <TableCell>
                       <Badge
-                        className={`${getSeverityColor(
+                        className={`${getWaterAlertSeverityColor(
                           alert.severity as Severity,
                         )} font-semibold text-xs`}
                       >
-                        {getSeverityLabel(alert.severity as Severity)}
+                        {getWaterAlertSeverityText(alert.severity as Severity)}
                       </Badge>
                     </TableCell>
                     <TableCell className="text-sm max-w-xs">
