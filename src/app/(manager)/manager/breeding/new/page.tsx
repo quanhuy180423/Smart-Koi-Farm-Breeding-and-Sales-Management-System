@@ -37,6 +37,7 @@ import {
   PondResponse,
   PondSearchParams,
   PondStatus,
+  PondTypeEnum,
 } from "@/lib/api/services/fetchPond";
 import { useAddBreedingProcess } from "@/hooks/useBreedingProcess";
 import { getPondStatusLabel } from "@/lib/utils/enum";
@@ -55,6 +56,7 @@ function PondSelectionList({
     pageIndex: 1,
     pageSize: PAGE_SIZE_OPTIONS_DEFAULT[0],
     status: PondStatus.EMPTY,
+    pondTypeEnum: PondTypeEnum.PARING,
     search: "",
   });
 
