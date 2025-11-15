@@ -10,6 +10,13 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   Table,
   TableBody,
   TableCell,
@@ -18,7 +25,11 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useGetPonds } from "@/hooks/usePond";
-import { PondSearchParams } from "@/lib/api/services/fetchPond";
+import {
+  PondSearchParams,
+  PondStatus,
+  PondTypeEnum,
+} from "@/lib/api/services/fetchPond";
 import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -38,6 +49,9 @@ const PondSelectionDialog = ({
   initialSelectedId,
 }: PondSelectionDialogProps) => {
   const [pondSearchTerm, setPondSearchTerm] = useState("");
+  const [filterStatus, setFilterStatus] = useState<string>("all");
+  const [filterPondType, setFilterPondType] = useState<string>("all");
+  const [filterAvailable, setFilterAvailable] = useState<string>("all");
   const [selectedId, setSelectedId] = useState<number | undefined>(
     initialSelectedId,
   );
@@ -56,11 +70,19 @@ const PondSelectionDialog = ({
       setPondSearchParams((prev) => ({
         ...prev,
         search: pondSearchTerm,
+        status:
+          filterStatus !== "all" ? (filterStatus as PondStatus) : undefined,
+        pondTypeEnum:
+          filterPondType !== "all"
+            ? (filterPondType as PondTypeEnum)
+            : undefined,
+        available:
+          filterAvailable === "all" ? undefined : filterAvailable === "true",
         pageIndex: 1,
       }));
     }, 300);
     return () => clearTimeout(timer);
-  }, [pondSearchTerm]);
+  }, [pondSearchTerm, filterStatus, filterPondType, filterAvailable]);
 
   const { data: pondsData, isLoading: isTableLoading } =
     useGetPonds(pondSearchParams);
@@ -99,6 +121,72 @@ const PondSelectionDialog = ({
             onChange={(e) => setPondSearchTerm(e.target.value)}
             className="w-full"
           />
+
+          {/* Filters */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 p-3 bg-muted/30 rounded-lg">
+            {/* Status Filter */}
+            <div className="space-y-1">
+              <label className="text-xs font-medium">Trạng thái</label>
+              <Select value={filterStatus} onValueChange={setFilterStatus}>
+                <SelectTrigger className="w-full bg-white h-8">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Tất cả</SelectItem>
+                  <SelectItem value={PondStatus.ACTIVE}>Hoạt động</SelectItem>
+                  <SelectItem value={PondStatus.EMPTY}>Trống</SelectItem>
+                  <SelectItem value={PondStatus.MAINTENANCE}>
+                    Bảo trì
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Pond Type Filter */}
+            <div className="space-y-1">
+              <label className="text-xs font-medium">Loại hồ</label>
+              <Select value={filterPondType} onValueChange={setFilterPondType}>
+                <SelectTrigger className="w-full bg-white h-8">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Tất cả</SelectItem>
+                  <SelectItem value={PondTypeEnum.PARING}>Ghép cặp</SelectItem>
+                  <SelectItem value={PondTypeEnum.EGG_BATCH}>
+                    Ấp trứng
+                  </SelectItem>
+                  <SelectItem value={PondTypeEnum.FRY_FISH}>Cá con</SelectItem>
+                  <SelectItem value={PondTypeEnum.CLASSIFICATION}>
+                    Tuyển chọn
+                  </SelectItem>
+                  <SelectItem value={PondTypeEnum.MARKET_POND}>
+                    Thương mại
+                  </SelectItem>
+                  <SelectItem value={PondTypeEnum.BROOD_STOCK}>
+                    Cơ sở giống
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Available Filter */}
+            <div className="space-y-1">
+              <label className="text-xs font-medium">Tình trạng</label>
+              <Select
+                value={filterAvailable}
+                onValueChange={setFilterAvailable}
+              >
+                <SelectTrigger className="w-full bg-white h-8">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Tất cả</SelectItem>
+                  <SelectItem value="true">Có sẵn</SelectItem>
+                  <SelectItem value="false">Không có sẵn</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
 
           {isTableLoading ? (
             <div className="flex items-center justify-center py-10 text-gray-500">

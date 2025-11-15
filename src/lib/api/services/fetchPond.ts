@@ -11,6 +11,15 @@ export enum PondStatus {
   MAINTENANCE = "Maintenance",
 }
 
+export enum PondTypeEnum {
+  PARING = "Paring",
+  EGG_BATCH = "EggBatch",
+  FRY_FISH = "FryFish",
+  CLASSIFICATION = "Classification",
+  MARKET_POND = "MarketPond",
+  BROOD_STOCK = "BroodStock",
+}
+
 export interface PondBasicResponse {
   id: number;
   pondName: string;
@@ -31,8 +40,10 @@ export interface PondResponse {
   createdAt: string;
   pondTypeId: number;
   pondTypeName: string;
+  pondTypeEnum?: PondTypeEnum;
   areaId: number;
   areaName: string;
+  available?: boolean;
 }
 
 const baseUrl = "/api/Pond";
@@ -42,6 +53,8 @@ export interface PondSearchParams extends PagingRequest {
   status?: PondStatus;
   areaId?: number;
   pondTypeId?: number;
+  pondTypeEnum?: PondTypeEnum;
+  available?: boolean;
   minCapacityLiters?: number;
   maxCapacityLiters?: number;
   minDepthMeters?: number;

@@ -77,6 +77,8 @@ import {
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import { vi } from "date-fns/locale";
+import KoiFishSelectionDialogForBreeding from "@/components/manager/KoiFishSelectionDialogForBreeding";
+import PondSelectionDialog from "@/components/manager/PondSelectionDialog";
 
 export default function BreedingManagement() {
   const router = useRouter();
@@ -130,6 +132,19 @@ export default function BreedingManagement() {
   const [survivalRateRange, setSurvivalRateRange] = useState<[number, number]>([
     0, 100,
   ]);
+
+  const [isMaleDialogOpen, setIsMaleDialogOpen] = useState(false);
+  const [isFemaleDialogOpen, setIsFemaleDialogOpen] = useState(false);
+  const [isPondDialogOpen, setIsPondDialogOpen] = useState(false);
+  const [selectedMaleName, setSelectedMaleName] = useState<
+    string | undefined
+  >();
+  const [selectedFemaleName, setSelectedFemaleName] = useState<
+    string | undefined
+  >();
+  const [selectedPondName, setSelectedPondName] = useState<
+    string | undefined
+  >();
 
   const [searchParams, setSearchParams] = useState<BreedingProcessSearchParams>(
     {
@@ -191,6 +206,39 @@ export default function BreedingManagement() {
     const month = String(date.getMonth() + 1).padStart(2, "0");
     const day = String(date.getDate()).padStart(2, "0");
     return `${year}-${month}-${day}`;
+  };
+
+  const handleSelectMale = (fishId: number, fishName: string) => {
+    setMaleKoiIdInput(String(fishId));
+    setSelectedMaleName(fishName);
+    setIsMaleDialogOpen(false);
+  };
+
+  const handleSelectFemale = (fishId: number, fishName: string) => {
+    setFemaleKoiIdInput(String(fishId));
+    setSelectedFemaleName(fishName);
+    setIsFemaleDialogOpen(false);
+  };
+
+  const handleSelectPond = (pondId: number, pondName: string) => {
+    setPondIdInput(String(pondId));
+    setSelectedPondName(pondName);
+    setIsPondDialogOpen(false);
+  };
+
+  const handleClearMale = () => {
+    setMaleKoiIdInput("");
+    setSelectedMaleName(undefined);
+  };
+
+  const handleClearFemale = () => {
+    setFemaleKoiIdInput("");
+    setSelectedFemaleName(undefined);
+  };
+
+  const handleClearPond = () => {
+    setPondIdInput("");
+    setSelectedPondName(undefined);
   };
 
   const handleApplyFilters = () => {
@@ -264,6 +312,9 @@ export default function BreedingManagement() {
     setMaleKoiIdInput("");
     setFemaleKoiIdInput("");
     setPondIdInput("");
+    setSelectedMaleName(undefined);
+    setSelectedFemaleName(undefined);
+    setSelectedPondName(undefined);
     setCodeInput("");
     setMinTotalEggsInput("");
     setMaxTotalEggsInput("");
@@ -636,36 +687,73 @@ export default function BreedingManagement() {
           <div className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="maleId">ID Cá Đực</Label>
-                <InputNumber
-                  value={maleKoiIdInput ? Number(maleKoiIdInput) : undefined}
-                  onChange={(value) =>
-                    setMaleKoiIdInput(value ? String(value) : "")
-                  }
-                  placeholder="ID cá đực..."
-                />
+                <Label htmlFor="maleId">Cá Đực</Label>
+                <Button
+                  variant="outline"
+                  onClick={() => setIsMaleDialogOpen(true)}
+                  className="w-full justify-start text-left"
+                >
+                  {selectedMaleName ? (
+                    <span className="flex items-center justify-between w-full">
+                      <span>{selectedMaleName}</span>
+                      <X
+                        className="h-4 w-4"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleClearMale();
+                        }}
+                      />
+                    </span>
+                  ) : (
+                    <span className="text-muted-foreground">Chọn cá đực</span>
+                  )}
+                </Button>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="femaleId">ID Cá Cái</Label>
-                <InputNumber
-                  value={
-                    femaleKoiIdInput ? Number(femaleKoiIdInput) : undefined
-                  }
-                  onChange={(value) =>
-                    setFemaleKoiIdInput(value ? String(value) : "")
-                  }
-                  placeholder="ID cá cái..."
-                />
+                <Label htmlFor="femaleId">Cá Cái</Label>
+                <Button
+                  variant="outline"
+                  onClick={() => setIsFemaleDialogOpen(true)}
+                  className="w-full justify-start text-left"
+                >
+                  {selectedFemaleName ? (
+                    <span className="flex items-center justify-between w-full">
+                      <span>{selectedFemaleName}</span>
+                      <X
+                        className="h-4 w-4"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleClearFemale();
+                        }}
+                      />
+                    </span>
+                  ) : (
+                    <span className="text-muted-foreground">Chọn cá cái</span>
+                  )}
+                </Button>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="pondId">ID Hồ</Label>
-                <InputNumber
-                  value={pondIdInput ? Number(pondIdInput) : undefined}
-                  onChange={(value) =>
-                    setPondIdInput(value ? String(value) : "")
-                  }
-                  placeholder="ID hồ..."
-                />
+                <Label htmlFor="pondId">Hồ cá</Label>
+                <Button
+                  variant="outline"
+                  onClick={() => setIsPondDialogOpen(true)}
+                  className="w-full justify-start text-left"
+                >
+                  {selectedPondName ? (
+                    <span className="flex items-center justify-between w-full">
+                      <span>{selectedPondName}</span>
+                      <X
+                        className="h-4 w-4"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleClearPond();
+                        }}
+                      />
+                    </span>
+                  ) : (
+                    <span className="text-muted-foreground">Chọn hồ cá</span>
+                  )}
+                </Button>
               </div>
 
               <div className="space-y-2">
@@ -985,6 +1073,31 @@ export default function BreedingManagement() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Male Fish Selection Dialog */}
+      <KoiFishSelectionDialogForBreeding
+        isOpen={isMaleDialogOpen}
+        onOpenChange={setIsMaleDialogOpen}
+        onSelect={handleSelectMale}
+        title="Chọn Cá Đực"
+        description="Chọn cá đực để lọc danh sách đợt sinh sản"
+      />
+
+      {/* Female Fish Selection Dialog */}
+      <KoiFishSelectionDialogForBreeding
+        isOpen={isFemaleDialogOpen}
+        onOpenChange={setIsFemaleDialogOpen}
+        onSelect={handleSelectFemale}
+        title="Chọn Cá Cái"
+        description="Chọn cá cái để lọc danh sách đợt sinh sản"
+      />
+
+      {/* Pond Selection Dialog */}
+      <PondSelectionDialog
+        isOpen={isPondDialogOpen}
+        onOpenChange={setIsPondDialogOpen}
+        onSelect={handleSelectPond}
+      />
 
       {/* Confirm Complete Classification Dialog */}
       <Dialog open={isCompleteModalOpen} onOpenChange={setIsCompleteModalOpen}>
