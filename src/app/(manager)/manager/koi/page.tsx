@@ -23,6 +23,7 @@ import {
   ChevronLeft,
   ChevronRight,
   X,
+  AlertCircle,
 } from "lucide-react";
 import {
   Table,
@@ -69,6 +70,7 @@ import { useDebounce } from "@/hooks/useDebounce";
 import { Label } from "@/components/ui/label";
 import PedigreeModal from "./PedigreeModal";
 import { KoiDetailDialog } from "@/components/dialogs/KoiDetailDialog";
+import { KoiIncidentHistoryDialog } from "@/components/dialogs/KoiIncidentHistoryDialog";
 import PondSelectionDialog from "@/components/manager/PondSelectionDialog";
 import VarietySelectionDialog from "@/components/manager/VarietySelectionDialog";
 
@@ -78,6 +80,7 @@ export default function KoiManagement() {
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const [selectedImageIdx, setSelectedImageIdx] = useState(0);
   const [isImageViewerOpen, setIsImageViewerOpen] = useState(false);
+  const [isIncidentHistoryOpen, setIsIncidentHistoryOpen] = useState(false);
 
   const [searchTerm, setSearchTerm] = useState<string>("");
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
@@ -225,6 +228,11 @@ export default function KoiManagement() {
   const handleViewPedigree = (koi: KoiFishResponse) => {
     setSelectedKoi(koi);
     setIsPedigreeModalOpen(true);
+  };
+
+  const handleViewIncidentHistory = (koi: KoiFishResponse) => {
+    setSelectedKoi(koi);
+    setIsIncidentHistoryOpen(true);
   };
 
   const handleSelectVariety = (varietyId: number, varietyName: string) => {
@@ -397,6 +405,15 @@ export default function KoiManagement() {
                             </Button>
 
                             <Button
+                              size="icon"
+                              variant="ghost"
+                              title="Xem lịch sử sự cố"
+                              onClick={() => handleViewIncidentHistory(koi)}
+                            >
+                              <AlertCircle className="h-4 w-4" />
+                            </Button>
+
+                            <Button
                               variant="ghost"
                               size="icon"
                               title="Xóa"
@@ -524,6 +541,16 @@ export default function KoiManagement() {
         onOpenChange={setIsPedigreeModalOpen}
         koi={selectedKoi}
       />
+
+      {/* Incident History Dialog */}
+      {selectedKoi && (
+        <KoiIncidentHistoryDialog
+          isOpen={isIncidentHistoryOpen}
+          onOpenChange={setIsIncidentHistoryOpen}
+          koiFishId={selectedKoi.id}
+          koiFishRFID={selectedKoi.rfid}
+        />
+      )}
 
       {/* Variety Selection Dialog */}
       <VarietySelectionDialog
