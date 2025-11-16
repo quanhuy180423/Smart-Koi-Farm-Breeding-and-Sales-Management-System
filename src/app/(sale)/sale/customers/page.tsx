@@ -734,7 +734,10 @@ export default function CustomersPage() {
                             <div>
                               <p className="font-medium">{order.orderNumber}</p>
                               <p className="text-sm text-muted-foreground">
-                                {formatDate(order.createdAt, DATE_FORMATS.MEDIUM_DATE)}
+                                {formatDate(
+                                  order.createdAt,
+                                  DATE_FORMATS.MEDIUM_DATE,
+                                )}
                               </p>
                             </div>
                             <div className="text-right">
@@ -758,7 +761,10 @@ export default function CustomersPage() {
                 <div className="space-y-4">
                   <h4 className="font-semibold">Ngày Tạo</h4>
                   <p className="text-sm">
-                    {formatDate(selectedCustomer.createdAt, DATE_FORMATS.DATETIME_24H)}
+                    {formatDate(
+                      selectedCustomer.createdAt,
+                      DATE_FORMATS.DATETIME_24H,
+                    )}
                   </p>
                 </div>
               </div>

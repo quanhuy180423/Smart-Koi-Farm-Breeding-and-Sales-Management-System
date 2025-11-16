@@ -39,8 +39,7 @@ export function formatDate(
     }
 
     return "N/A";
-  } catch (error) {
-    console.error("Error formatting date:", error);
+  } catch {
     return "N/A";
   }
 }
@@ -68,8 +67,7 @@ export function formatDateForInput(
     }
 
     return "";
-  } catch (error) {
-    console.error("Error formatting date for input:", error);
+  } catch {
     return "";
   }
 }

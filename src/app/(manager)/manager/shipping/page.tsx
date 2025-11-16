@@ -231,9 +231,7 @@ export default function ShippingManagement() {
         await createBox(payload);
       }
       handleCloseBoxDialog();
-    } catch (error) {
-      console.error("Failed to save shipping box:", error);
-    }
+    } catch {}
   };
 
   const handleDeleteBox = (box: ShippingBoxResponse) => {
@@ -249,9 +247,7 @@ export default function ShippingManagement() {
     try {
       await deleteBox(box.id);
       setDeleteConfirm(null);
-    } catch (error) {
-      console.error("Failed to delete shipping box:", error);
-    }
+    } catch {}
   };
 
   // Rule handlers
@@ -342,9 +338,7 @@ export default function ShippingManagement() {
         await createRule(payload);
       }
       handleCloseRuleDialog();
-    } catch (error) {
-      console.error("Failed to save shipping box rule:", error);
-    }
+    } catch {}
   };
 
   const handleDeleteRule = (rule: ShippingBoxRule) => {
@@ -364,9 +358,7 @@ export default function ShippingManagement() {
     try {
       await deleteRule(rule.id);
       setDeleteConfirm(null);
-    } catch (error) {
-      console.error("Failed to delete shipping box rule:", error);
-    }
+    } catch {}
   };
 
   // Distance handlers
@@ -474,9 +466,7 @@ export default function ShippingManagement() {
         await createDistance(payload);
       }
       handleCloseDistanceDialog();
-    } catch (error) {
-      console.error("Failed to save shipping distance:", error);
-    }
+    } catch {}
   };
 
   const handleDeleteDistance = (distance: ShippingDistance) => {
@@ -496,9 +486,7 @@ export default function ShippingManagement() {
     try {
       await deleteDistanceAsync(distance.id);
       setDeleteConfirm(null);
-    } catch (error) {
-      console.error("Failed to delete shipping distance:", error);
-    }
+    } catch {}
   };
 
   return (

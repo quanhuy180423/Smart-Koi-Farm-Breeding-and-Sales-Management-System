@@ -80,8 +80,7 @@ async function geocodeAddress(
 
     const results: NominatimResult[] = await response.json();
     return results.length > 0 ? results[0] : null;
-  } catch (error) {
-    console.error("Geocoding error:", error);
+  } catch {
     return null;
   }
 }
@@ -195,8 +194,7 @@ export default function EditAddressPage() {
             toast.error("Không tìm thấy địa chỉ này");
           }
         }
-      } catch (error) {
-        console.error("Geocoding error:", error);
+      } catch {
       } finally {
         setIsSearching(false);
       }

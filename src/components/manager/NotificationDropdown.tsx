@@ -147,25 +147,52 @@ export function NotificationDropdown() {
   // Memoize onMessage callback to prevent unnecessary WebSocket re-setup
   const handleNotificationMessage = useCallback(
     (notification: NotificationMessage) => {
-      // Extract water alert from either notification.data or direct properties
-      // Backend sends PascalCase (Id, PondId, PondName) wrapped in notification or directly
-      const alertData = notification.data || notification;
+      // Backend sends water alerts with PascalCase properties in notification.data
+      // Example: { PondId: 1, PondName: "Ao Chính Fuji", ParameterName: "PHLevel", Message: "...", CreatedAt: "2025-11-16T18:11:00Z", ... }
+      const alertData = notification.data;
 
-      // Check for both camelCase and PascalCase property names
-      const hasId = "id" in alertData || "Id" in alertData;
-      const hasPondName = "pondName" in alertData || "PondName" in alertData;
+      if (!alertData || typeof alertData !== "object") {
+        return;
+      }
+
+      // Check for water alert specific fields (PascalCase from C# backend)
+      const hasPondId = "PondId" in alertData || "pondId" in alertData;
+      const hasPondName = "PondName" in alertData || "pondName" in alertData;
 
       // If it's a water alert, add to real-time list
-      if (alertData && typeof alertData === "object" && hasId && hasPondName) {
-        // Handle both camelCase and PascalCase properties
-        const id = (alertData.id || alertData.Id) as number;
-        const pondId = (alertData.pondId || alertData.PondId) as number;
-        const pondName = (alertData.pondName || alertData.PondName) as string;
-        const parameterName = (alertData.parameterName ||
-          alertData.ParameterName) as string;
-        const measuredValue = (alertData.measuredValue ||
-          alertData.MeasuredValue) as number;
-        const severity = (alertData.severity || alertData.Severity) as Severity;
+      if (hasPondId && hasPondName) {
+        // Extract fields - handle both PascalCase (C# backend) and camelCase (fallback)
+        const pondId = (alertData.PondId || alertData.pondId) as number;
+        const pondName = (alertData.PondName || alertData.pondName) as string;
+        const parameterName = (alertData.ParameterName ||
+          alertData.parameterName) as string;
+        const measuredValue = (alertData.MeasuredValue ||
+          alertData.measuredValue) as number;
+        const severity = (alertData.Severity || alertData.severity) as Severity;
+        const alertType = (alertData.AlertType ||
+          alertData.alertType) as string;
+        const createdAt = (alertData.CreatedAt ||
+          alertData.createdAt ||
+          notification.timestamp) as string;
+
+        // Generate unique ID - hash of pondId + parameterName + timestamp
+        const idStr = `${pondId}-${parameterName}-${createdAt}`;
+        let id = 0;
+        for (let i = 0; i < idStr.length; i++) {
+          id = (id << 5) - id + idStr.charCodeAt(i);
+          id = id & id; // Convert to 32-bit integer
+        }
+        id = Math.abs(id);
+
+        // Map alertType string to AlertTypeEnum
+        let mappedAlertType = AlertTypeEnum.HIGH;
+        if (alertType === "Low") {
+          mappedAlertType = AlertTypeEnum.LOW;
+        } else if (alertType === "RapidChange") {
+          mappedAlertType = AlertTypeEnum.RAPID_CHANGE;
+        } else if (alertType === "High") {
+          mappedAlertType = AlertTypeEnum.HIGH;
+        }
 
         const newAlert: WaterAlertResponse = {
           id: id || Date.now(),
@@ -173,15 +200,10 @@ export function NotificationDropdown() {
           pondName: pondName || "",
           parameterName: parameterName || "",
           measuredValue: measuredValue || 0,
-          alertType: AlertTypeEnum.HIGH,
-          severity: severity || "Medium",
+          alertType: mappedAlertType,
+          severity: severity || ("Medium" as Severity),
           message: notification.message || "",
-          // Use the timestamp from backend if available, otherwise use current time
-          // The timestamp should be in ISO format (UTC) and will be interpreted correctly by formatDistanceToNow
-          createdAt:
-            notification.timestamp ||
-            (alertData.CreatedAt as string) ||
-            new Date().toISOString(),
+          createdAt: createdAt,
           isResolved: false,
           resolvedByUserId: null,
           resolvedByUserName: null,
@@ -308,7 +330,7 @@ export function NotificationDropdown() {
 
                       {/* Pond Info */}
                       <div className="flex items-center gap-1 text-xs text-slate-600 mb-2">
-                        <span className="font-medium">🏞️ {alert.pondName}</span>
+                        <span className="font-medium">{alert.pondName}</span>
                         <span className="text-slate-400">•</span>
                         <span>Giá trị: {alert.measuredValue}</span>
                       </div>
@@ -320,21 +342,22 @@ export function NotificationDropdown() {
 
                       {/* Timestamp */}
                       <p className="text-xs text-slate-500">
-                        {alert.createdAt &&
-                          formatDistanceToNow(
-                            convertUtcToLocalTimezone(alert.createdAt),
-                            {
-                              locale: vi,
-                              addSuffix: true,
-                            },
-                          )}
+                        {alert.createdAt && (
+                          <>
+                            {formatDistanceToNow(
+                              // WebSocket sends UTC with 'Z', API sends local time without 'Z'
+                              alert.createdAt.endsWith("Z")
+                                ? new Date(alert.createdAt)
+                                : convertUtcToLocalTimezone(alert.createdAt),
+                              {
+                                locale: vi,
+                                addSuffix: true,
+                              },
+                            )}
+                          </>
+                        )}
                       </p>
                     </div>
-
-                    {/* Status Dot */}
-                    <div
-                      className={`flex-shrink-0 w-2 h-2 rounded-full ${styles.dot} mt-1`}
-                    ></div>
                   </div>
                 </div>
               );

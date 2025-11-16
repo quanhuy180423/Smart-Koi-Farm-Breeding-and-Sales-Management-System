@@ -107,9 +107,7 @@ export function useLogin() {
               token,
               getAuthCookieConfig(variables?.rememberMe),
             );
-          } catch (e) {
-            console.warn("Failed to persist auth token via store", e);
-          }
+          } catch {}
 
           if (refreshToken) {
             try {
@@ -118,9 +116,7 @@ export function useLogin() {
                 refreshToken,
                 getAuthCookieConfig(variables?.rememberMe),
               );
-            } catch (e) {
-              console.warn("Failed to persist refresh token", e);
-            }
+            } catch {}
           }
 
           queryClient.invalidateQueries({ queryKey: ["auth", "login"] });
@@ -244,9 +240,7 @@ export function useGoogleLogin() {
                 refreshToken,
                 getAuthCookieConfig(variables?.rememberMe),
               );
-            } catch (e) {
-              console.warn("Failed to persist refresh token", e);
-            }
+            } catch {}
           }
 
           queryClient.invalidateQueries({ queryKey: ["auth", "login"] });
