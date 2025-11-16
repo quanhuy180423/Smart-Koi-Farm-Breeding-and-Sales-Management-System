@@ -12,6 +12,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Clock, Users, Droplets, FileText, Calendar, User } from "lucide-react";
 import { WorkSchedule } from "@/lib/api/services/fetchWorkSchedule";
 import { formatTimeToHHMM } from "@/lib/utils/formatTime";
+import { formatDate, DATE_FORMATS } from "@/lib/utils/dates";
 import {
   getWorkScheduleStatusColor,
   getWorkScheduleStatusText,
@@ -68,14 +69,9 @@ export default function WorkScheduleDetailModal({
                       Ngày thực hiện
                     </p>
                     <p className="text-base font-semibold text-gray-900">
-                      {new Date(workSchedule.scheduledDate).toLocaleDateString(
-                        "vi-VN",
-                        {
-                          weekday: "long",
-                          year: "numeric",
-                          month: "long",
-                          day: "numeric",
-                        },
+                      {formatDate(
+                        workSchedule.scheduledDate,
+                        DATE_FORMATS.FULL_DATETIME,
                       )}
                     </p>
                   </div>
@@ -142,8 +138,9 @@ export default function WorkScheduleDetailModal({
                                 ✓ Đã hoàn thành
                               </p>
                               <p>
-                                {new Date(staff.completedAt).toLocaleString(
-                                  "vi-VN",
+                                {formatDate(
+                                  staff.completedAt,
+                                  DATE_FORMATS.DATETIME_24H,
                                 )}
                               </p>
                               {staff.completionNotes && (
@@ -230,12 +227,18 @@ export default function WorkScheduleDetailModal({
                 </p>
                 <p>
                   <span className="font-medium">Ngày tạo:</span>{" "}
-                  {new Date(workSchedule.createdAt).toLocaleString("vi-VN")}
+                  {formatDate(
+                    workSchedule.createdAt,
+                    DATE_FORMATS.DATETIME_24H,
+                  )}
                 </p>
                 {workSchedule.updatedAt && (
                   <p>
                     <span className="font-medium">Cập nhật:</span>{" "}
-                    {new Date(workSchedule.updatedAt).toLocaleString("vi-VN")}
+                    {formatDate(
+                      workSchedule.updatedAt,
+                      DATE_FORMATS.DATETIME_24H,
+                    )}
                   </p>
                 )}
               </div>

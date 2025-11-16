@@ -15,6 +15,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Search, Download, CreditCard, Receipt, Gift } from "lucide-react";
 import { formatCurrency } from "@/lib/utils/numbers/formatCurrency";
+import { formatDate, DATE_FORMATS } from "@/lib/utils/dates";
 import CustomerLayout from "@/components/customer/CustomerLayout";
 
 // Type definitions
@@ -127,14 +128,6 @@ export default function TransactionsPage() {
   const [methodFilter, setMethodFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("vi-VN", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-    });
-  };
-
   const filteredTransactions = mockTransactions.filter((transaction) => {
     const matchesSearch =
       transaction.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -178,7 +171,7 @@ export default function TransactionsPage() {
                 </p>
                 <div className="flex flex-col md:flex-row md:items-center gap-1 md:gap-3 text-xs md:text-sm text-muted-foreground">
                   <span className="font-medium">
-                    {formatDate(transaction.date)}
+                    {formatDate(transaction.date, DATE_FORMATS.MEDIUM_DATE)}
                   </span>
                   <span className="hidden md:inline">•</span>
                   <span>{paymentMethods[transaction.method]}</span>

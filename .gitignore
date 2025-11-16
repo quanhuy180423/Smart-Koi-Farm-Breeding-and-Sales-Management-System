@@ -43,3 +43,6 @@ next-env.d.ts
 .vercel
 
 .claude
+
+REAL_TIME_NOTIFICATIONS.md
+NOTIFICATION_DEBUGGING.md

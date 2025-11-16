@@ -7,6 +7,7 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { TaskTemplateResponse } from "@/lib/api/services/fetchTaskTemplate";
+import { formatDate, DATE_FORMATS } from "@/lib/utils/dates";
 
 interface TaskTemplateDetailModalProps {
   isOpen: boolean;
@@ -78,14 +79,17 @@ const TaskTemplateDetailModal = ({
             <p>
               Tạo lúc:{" "}
               <span className="text-gray-700">
-                {new Date(selectedTask.createdAt).toLocaleString("vi-VN")}
+                {formatDate(selectedTask.createdAt, DATE_FORMATS.DATETIME_24H)}
               </span>
             </p>
             {selectedTask.updatedAt && (
               <p>
                 Cập nhật lúc:{" "}
                 <span className="text-gray-700">
-                  {new Date(selectedTask.updatedAt).toLocaleString("vi-VN")}
+                  {formatDate(
+                    selectedTask.updatedAt,
+                    DATE_FORMATS.DATETIME_24H,
+                  )}
                 </span>
               </p>
             )}

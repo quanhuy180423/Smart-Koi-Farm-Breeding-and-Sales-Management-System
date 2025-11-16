@@ -24,6 +24,7 @@ import {
 } from "@/hooks/useFarmDashboard";
 import { ActivityType } from "@/lib/api/services/fetchFarmDashboard";
 import { formatCurrency } from "@/lib/utils/numbers/formatCurrency";
+import { convertUtcToLocalTimezone } from "@/lib/utils/dates";
 import { Skeleton } from "@/components/ui/skeleton";
 import { LoadingState } from "@/components/common/LoadingState";
 import { ErrorState } from "@/components/common/ErrorState";
@@ -50,7 +51,8 @@ function getActivityIcon(type: ActivityType) {
 
 function formatRelativeTime(timestamp: string): string {
   const now = new Date();
-  const activityTime = new Date(timestamp);
+  // Convert UTC timestamp to local timezone
+  const activityTime = convertUtcToLocalTimezone(timestamp);
   const diffMs = now.getTime() - activityTime.getTime();
   const diffMins = Math.floor(diffMs / (1000 * 60));
   const diffHours = Math.floor(diffMs / (1000 * 60 * 60));

@@ -60,6 +60,7 @@ import {
   getOrderStatusText,
   getOrderStatusColor,
 } from "@/lib/utils/enum/formatEnum";
+import { formatDate, DATE_FORMATS } from "@/lib/utils/dates";
 
 export default function OrdersPage() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -190,7 +191,7 @@ export default function OrdersPage() {
           <div className="p-3 bg-gray-50 rounded-lg">
             <p className="text-muted-foreground text-xs">Ngày đặt hàng</p>
             <p className="font-medium">
-              {new Date(specificOrder.createdAt).toLocaleDateString("vi-VN")}
+              {formatDate(specificOrder.createdAt, DATE_FORMATS.MEDIUM_DATE)}
             </p>
           </div>
           <div className="p-3 bg-gray-50 rounded-lg">
@@ -304,7 +305,7 @@ export default function OrdersPage() {
                 Đơn hàng #{order.orderNumber}
               </CardTitle>
               <p className="text-sm text-muted-foreground">
-                {new Date(order.createdAt).toLocaleDateString("vi-VN")}
+                {formatDate(order.createdAt, DATE_FORMATS.MEDIUM_DATE)}
               </p>
             </div>
             <Badge className={getOrderStatusColor(order.status)}>
