@@ -34,7 +34,7 @@ export default function MotherFishInfo({ selectedFish }: MotherFishInfoProps) {
     },
     {
       label: "Hoa văn",
-      value: selectedFish.patternType || "Không rõ",
+      value: selectedFish.pattern || "Không rõ",
     },
     {
       label: "Nguồn gốc",

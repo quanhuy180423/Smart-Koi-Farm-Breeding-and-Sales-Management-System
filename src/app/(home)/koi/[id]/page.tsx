@@ -258,7 +258,7 @@ export default function KoiDetailPage() {
                       Hoa văn:
                     </span>
                     <span className="font-medium">
-                      {koi.patternType || "Không xác định"}
+                      {koi.pattern || "Không xác định"}
                     </span>
                   </div>
                 </div>

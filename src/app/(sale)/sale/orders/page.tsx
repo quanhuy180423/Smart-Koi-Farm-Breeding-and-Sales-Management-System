@@ -715,8 +715,8 @@ export default function OrdersPage() {
                                 {item.koiFish && (
                                   <div className="text-xs text-muted-foreground ml-2">
                                     {item.koiFish.variety?.varietyName}{" "}
-                                    {item.koiFish.patternType && (
-                                      <>• {item.koiFish.patternType}</>
+                                    {item.koiFish.pattern && (
+                                      <>• {item.koiFish.pattern}</>
                                     )}
                                   </div>
                                 )}

@@ -51,7 +51,7 @@ export enum MutationType {
   METALLIC = "Metallic",
 }
 
-export enum PatternType {
+export enum pattern {
   NONE = "None",
   TANCHO = "Tancho",
   MARUTEN = "Maruten",
@@ -71,7 +71,7 @@ export interface KoiFishResponse {
   birthDate: string;
   gender: Gender;
   healthStatus: HealthStatus;
-  patternType: PatternType;
+  pattern: pattern;
   saleStatus: SaleStatus;
   images: string[];
   videos: string[];

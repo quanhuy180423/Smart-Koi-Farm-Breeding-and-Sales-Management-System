@@ -235,7 +235,7 @@ export default function FishForSalePage() {
                           <div className="flex items-center gap-1.5">
                             <Tag className="h-3.5 w-3.5 text-muted-foreground" />
                             <span className="font-medium text-xs">
-                              {koi.patternType || "N/A"}
+                              {koi.pattern || "N/A"}
                             </span>
                           </div>
                         </div>

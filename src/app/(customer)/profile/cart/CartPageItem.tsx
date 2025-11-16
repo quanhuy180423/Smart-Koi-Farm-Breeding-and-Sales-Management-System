@@ -125,7 +125,7 @@ export function CartPageItem({ item }: CartPageItemProps) {
                       </span>
                       <span>
                         <span className="font-medium">Hoa văn:</span>{" "}
-                        {item.koiFish.patternType || "Không xác định"}
+                        {item.koiFish.pattern || "Không xác định"}
                       </span>
                     </div>
                     <div className="flex gap-4 text-xs sm:text-sm text-muted-foreground">

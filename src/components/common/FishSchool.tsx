@@ -57,7 +57,7 @@ const KoiPatterns = {
   },
 };
 
-type PatternType = keyof typeof KoiPatterns;
+type pattern = keyof typeof KoiPatterns;
 
 const FishSVG = ({
   scale,
@@ -68,7 +68,7 @@ const FishSVG = ({
   rotation: number;
   pattern: number;
 }) => {
-  const patternTypes = Object.keys(KoiPatterns) as PatternType[];
+  const patternTypes = Object.keys(KoiPatterns) as pattern[];
   const selectedPattern = patternTypes[pattern % patternTypes.length];
   const koiColor = KoiPatterns[selectedPattern];
 
