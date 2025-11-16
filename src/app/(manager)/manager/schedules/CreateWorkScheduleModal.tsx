@@ -44,9 +44,7 @@ export default function CreateWorkScheduleModal({
   const [notes, setNotes] = useState("");
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
-  const [selectedStaffIds, setSelectedStaffIds] = useState<Set<number>>(
-    new Set(),
-  );
+  const [selectedStaffId, setSelectedStaffId] = useState<number | null>(null);
   const [selectedPondIds, setSelectedPondIds] = useState<Set<number>>(
     new Set(),
   );
@@ -90,7 +88,7 @@ export default function CreateWorkScheduleModal({
       setNotes("");
       setStartTime("");
       setEndTime("");
-      setSelectedStaffIds(new Set());
+      setSelectedStaffId(null);
       setSelectedPondIds(new Set());
     }
   }, [isOpen]);
@@ -101,6 +99,11 @@ export default function CreateWorkScheduleModal({
       return;
     }
 
+    if (!selectedStaffId) {
+      toast.error("Vui lòng chọn nhân viên");
+      return;
+    }
+
     createWorkSchedule(
       {
         taskTemplateId: selectedTask.id,
@@ -108,7 +111,7 @@ export default function CreateWorkScheduleModal({
         startTime,
         endTime,
         notes,
-        staffIds: Array.from(selectedStaffIds),
+        staffIds: [selectedStaffId],
         pondIds: Array.from(selectedPondIds),
       },
       {
@@ -119,14 +122,8 @@ export default function CreateWorkScheduleModal({
     );
   };
 
-  const toggleStaffSelection = (staffId: number) => {
-    const newSelection = new Set(selectedStaffIds);
-    if (newSelection.has(staffId)) {
-      newSelection.delete(staffId);
-    } else {
-      newSelection.add(staffId);
-    }
-    setSelectedStaffIds(newSelection);
+  const handleSelectStaff = (staffId: number) => {
+    setSelectedStaffId(staffId);
   };
 
   const togglePondSelection = (pondId: number) => {
@@ -252,13 +249,13 @@ export default function CreateWorkScheduleModal({
                   onClick={() => setIsStaffModalOpen(true)}
                 >
                   <Plus className="h-4 w-4 mr-1" />
-                  Thêm nhân viên
+                  Chọn nhân viên
                 </Button>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                {Array.from(selectedStaffIds).length > 0 ? (
+                {selectedStaffId ? (
                   allStaffForDisplay
-                    ?.filter((staff: User) => selectedStaffIds.has(staff.id))
+                    ?.filter((staff: User) => staff.id === selectedStaffId)
                     .map((staff: User) => (
                       <Card
                         key={staff.id}
@@ -266,22 +263,18 @@ export default function CreateWorkScheduleModal({
                       >
                         <CardContent className="pt-4">
                           <div className="flex items-start justify-between gap-3">
-                            <div className="flex-1 space-y-2">
+                            <div>
+                              <Users className="h-5 w-5 text-blue-600 mb-2" />
                               <p className="font-medium text-gray-900">
                                 {staff.fullName}
                               </p>
-                              {staff.role && (
-                                <Badge
-                                  variant="outline"
-                                  className={`text-xs ${getRoleLabel(staff.role as Roles).colorClass}`}
-                                >
-                                  {getRoleLabel(staff.role as Roles).label}
-                                </Badge>
-                              )}
+                              <p className="text-xs text-gray-500 mt-1">
+                                {getRoleLabel(staff.role as Roles).label}
+                              </p>
                             </div>
                             <button
                               type="button"
-                              onClick={() => toggleStaffSelection(staff.id)}
+                              onClick={() => setSelectedStaffId(null)}
                               className="text-red-600 hover:text-red-700 font-bold"
                               title="Xóa nhân viên"
                             >
@@ -293,7 +286,7 @@ export default function CreateWorkScheduleModal({
                     ))
                 ) : (
                   <div className="col-span-2 text-center py-4 text-gray-500">
-                    Chưa chọn nhân viên nào
+                    Chưa chọn nhân viên
                   </div>
                 )}
               </div>
@@ -392,8 +385,8 @@ export default function CreateWorkScheduleModal({
       <StaffSelectionModal
         isOpen={isStaffModalOpen}
         onOpenChange={setIsStaffModalOpen}
-        selectedStaffIds={selectedStaffIds}
-        onToggleStaff={toggleStaffSelection}
+        selectedStaffId={selectedStaffId}
+        onSelectStaff={handleSelectStaff}
       />
 
       {/* Pond Selection Modal */}

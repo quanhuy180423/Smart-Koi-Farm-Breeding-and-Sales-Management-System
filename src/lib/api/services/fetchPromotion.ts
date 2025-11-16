@@ -89,6 +89,12 @@ export const promotionService = {
     );
     return response.data;
   },
+  getCurrentPromotion: async (): Promise<BaseResponse<PromotionResponse>> => {
+    const response = await apiService.get<BaseResponse<PromotionResponse>>(
+      `${baseUrl}/current`,
+    );
+    return response.data;
+  },
 };
 
 export default promotionService;

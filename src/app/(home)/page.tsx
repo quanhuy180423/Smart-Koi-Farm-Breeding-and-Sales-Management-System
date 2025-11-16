@@ -3,7 +3,6 @@
 import { Button } from "@/components/ui/button";
 import {
   Card,
-  CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
@@ -17,15 +16,27 @@ import {
   CarouselPrevious,
   type CarouselApi,
 } from "@/components/ui/carousel";
-import { Star, Zap, Shield, Award, ArrowRight, Play } from "lucide-react";
+import { Zap, Shield, Award, ArrowRight, Play } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
-import { getFishSizeLabel } from "@/lib/utils/enum";
+import { PromotionBanner } from "@/components/common/PromotionBanner";
+import { useGetKoiFishes } from "@/hooks/useKoiFish";
+import { SaleStatus } from "@/lib/api/services/fetchKoiFish";
+import formatCurrency from "@/lib/utils/numbers";
 
 export default function HomePage() {
   const [api, setApi] = useState<CarouselApi>();
   const [isHovered, setIsHovered] = useState(false);
+
+  // Fetch Koi fishes for carousel (limit to 5 items)
+  const { data: koiFishesData, isLoading: isLoadingKoi } = useGetKoiFishes({
+    pageIndex: 1,
+    pageSize: 5,
+    saleStatus: SaleStatus.AVAILABLE,
+  });
+
+  const koiFishes = koiFishesData?.data || [];
 
   useEffect(() => {
     if (!api || isHovered) {
@@ -132,6 +143,13 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Promotion Banner */}
+      <section className="py-8 px-4">
+        <div className="container mx-auto">
+          <PromotionBanner variant="full" />
+        </div>
+      </section>
+
       {/* Technology Features */}
       <section id="technology" className="py-10 bg-muted/30">
         <div className="container mx-auto px-4">
@@ -217,92 +235,90 @@ export default function HomePage() {
               onMouseLeave={() => setIsHovered(false)}
             >
               <CarouselContent className="-ml-2 md:-ml-4">
-                {[
-                  {
-                    id: 1,
-                    name: "Kohaku Premium",
-                    price: "15,000,000",
-                    age: "2 năm",
-                    size: "35cm",
-                  },
-                  {
-                    id: 2,
-                    name: "Sanke Đặc biệt",
-                    price: "22,000,000",
-                    age: "3 năm",
-                    size: "42cm",
-                  },
-                  {
-                    id: 3,
-                    name: "Showa Cao cấp",
-                    price: "18,000,000",
-                    age: "2.5 năm",
-                    size: "38cm",
-                  },
-                  {
-                    id: 4,
-                    name: "Taisho Sanke Elite",
-                    price: "28,000,000",
-                    age: "4 năm",
-                    size: "45cm",
-                  },
-                  {
-                    id: 5,
-                    name: "Asagi Platinum",
-                    price: "20,000,000",
-                    age: "3 năm",
-                    size: "40cm",
-                  },
-                ].map((koi, index) => (
-                  <CarouselItem
-                    key={index}
-                    className="pl-2 md:pl-4 md:basis-1/2 lg:basis-1/3"
-                  >
-                    <Card className="border-border hover:shadow-lg transition-all group cursor-pointer pt-0">
-                      <div className="aspect-square overflow-hidden rounded-t-lg">
-                        <Image
-                          src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/attachments/gen-images/public/beautiful-japanese-koi-fish-swimming-in-clear-pond-1MrDrpINIJ33x6iP0z7Xz4hMlnVc50.jpg"
-                          alt={koi.name}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                          width={400}
-                          height={400}
-                        />
-                      </div>
-                      <CardHeader>
-                        <div className="flex justify-between items-start">
-                          <div>
-                            <CardTitle className="text-lg">
-                              {koi.name}
-                            </CardTitle>
-                            <CardDescription>
-                              Tuổi: {koi.age} • Kích thước:{" "}
-                              {getFishSizeLabel(koi.size)}
-                            </CardDescription>
+                {isLoadingKoi ? (
+                  // Loading skeleton
+                  Array.from({ length: 3 }).map((_, index) => (
+                    <CarouselItem
+                      key={index}
+                      className="pl-2 md:pl-4 md:basis-1/2 lg:basis-1/3"
+                    >
+                      <Card className="border-border pt-0">
+                        <div className="aspect-square overflow-hidden rounded-t-lg bg-muted animate-pulse" />
+                        <CardHeader>
+                          <div className="space-y-2">
+                            <div className="h-6 bg-muted rounded w-3/4 animate-pulse" />
+                            <div className="h-4 bg-muted rounded w-1/2 animate-pulse" />
                           </div>
-                          <Badge
-                            variant="secondary"
-                            className="bg-primary/10 text-foreground"
-                          >
-                            Có sẵn
-                          </Badge>
+                        </CardHeader>
+                      </Card>
+                    </CarouselItem>
+                  ))
+                ) : koiFishes && koiFishes.length > 0 ? (
+                  koiFishes.map((koi) => (
+                    <CarouselItem
+                      key={koi.id}
+                      className="pl-2 md:pl-4 md:basis-1/2 lg:basis-1/3"
+                    >
+                      <Card className="border-border hover:shadow-lg transition-all group cursor-pointer pt-0">
+                        <div className="aspect-square overflow-hidden rounded-t-lg bg-muted/30">
+                          {koi.images && koi.images.length > 0 ? (
+                            <Image
+                              src={koi.images[0]}
+                              alt={koi.variety.varietyName}
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                              width={400}
+                              height={400}
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+                              Chưa có ảnh
+                            </div>
+                          )}
                         </div>
-                        <div className="flex justify-between items-center pt-4">
-                          <span className="text-2xl font-bold text-primary">
-                            {koi.price}₫
-                          </span>
-                          <Link href={`/koi/${koi.id}`}>
-                            <Button
-                              size="sm"
-                              className="bg-primary hover:bg-primary/90 text-xs sm:text-sm"
+                        <CardHeader>
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <CardTitle className="text-lg">
+                                {koi.variety.varietyName}
+                              </CardTitle>
+                              <CardDescription className="text-sm">
+                                RFID: {koi.rfid}
+                                {koi.size && ` • Size: ${koi.size}`}
+                              </CardDescription>
+                            </div>
+                            <Badge
+                              variant="secondary"
+                              className="bg-primary/10 text-foreground"
                             >
-                              Xem chi tiết
-                            </Button>
-                          </Link>
-                        </div>
-                      </CardHeader>
-                    </Card>
-                  </CarouselItem>
-                ))}
+                              Có sẵn
+                            </Badge>
+                          </div>
+                          <div className="flex justify-between items-center pt-4">
+                            <span className="text-2xl font-bold text-primary">
+                              {koi.sellingPrice
+                                ? formatCurrency(koi.sellingPrice)
+                                : "Liên hệ"}
+                            </span>
+                            <Link href={`/koi/${koi.id}`}>
+                              <Button
+                                size="sm"
+                                className="bg-primary hover:bg-primary/90 text-xs sm:text-sm"
+                              >
+                                Xem chi tiết
+                              </Button>
+                            </Link>
+                          </div>
+                        </CardHeader>
+                      </Card>
+                    </CarouselItem>
+                  ))
+                ) : (
+                  <div className="w-full text-center py-12">
+                    <p className="text-muted-foreground">
+                      Không có cá Koi nào có sẵn
+                    </p>
+                  </div>
+                )}
               </CarouselContent>
               <CarouselPrevious className="hidden md:flex" />
               <CarouselNext className="hidden md:flex" />
@@ -320,69 +336,6 @@ export default function HomePage() {
                 <ArrowRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5" />
               </Button>
             </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* Testimonials */}
-      <section className="py-10 bg-muted/30">
-        <div className="container mx-auto px-4">
-          <div className="text-center space-y-4 mb-8">
-            <h2 className="text-3xl lg:text-4xl font-bold text-foreground text-balance">
-              Khách hàng nói gì về chúng tôi
-            </h2>
-          </div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {[
-              {
-                name: "Anh Minh Tuấn",
-                role: "Chủ hồ cá Koi",
-                content:
-                  "Chất lượng cá Koi tuyệt vời, hệ thống theo dõi rất chuyên nghiệp. Tôi rất hài lòng với dịch vụ.",
-                rating: 5,
-              },
-              {
-                name: "Chị Lan Anh",
-                role: "Người sưu tầm",
-                content:
-                  "Công nghệ RFID giúp tôi yên tâm về nguồn gốc. Cá khỏe mạnh và đẹp như mô tả.",
-                rating: 5,
-              },
-              {
-                name: "Anh Đức Thành",
-                role: "Chủ trang trại",
-                content:
-                  "Hệ thống AI tư vấn rất hữu ích cho việc chọn cá giống. Dịch vụ chuyên nghiệp.",
-                rating: 5,
-              },
-            ].map((testimonial, index) => (
-              <Card key={index} className="border-border">
-                <CardHeader>
-                  <div className="flex items-center space-x-1 mb-4">
-                    {[...Array(testimonial.rating)].map((_, i) => (
-                      <Star
-                        key={i}
-                        className="h-4 w-4 fill-yellow-400 text-yellow-400"
-                      />
-                    ))}
-                  </div>
-                  <CardDescription className="text-base leading-relaxed">
-                    &quot;{testimonial.content}&quot;
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div>
-                    <div className="font-semibold text-foreground">
-                      {testimonial.name}
-                    </div>
-                    <div className="text-sm text-muted-foreground">
-                      {testimonial.role}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
           </div>
         </div>
       </section>

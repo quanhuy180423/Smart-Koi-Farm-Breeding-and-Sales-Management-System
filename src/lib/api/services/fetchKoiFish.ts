@@ -51,24 +51,35 @@ export enum MutationType {
   METALLIC = "Metallic",
 }
 
+export enum pattern {
+  NONE = "None",
+  TANCHO = "Tancho",
+  MARUTEN = "Maruten",
+  NIDAN = "Nidan",
+  SANDAN = "Sandan",
+  INAZUMA = "Inazuma",
+  STRAIGHT_HI = "StraightHi",
+  MENKABURI = "Menkaburi",
+  BOZU = "Bozu",
+}
+
 export interface KoiFishResponse {
   id: number;
   rfid: string;
-  size?: string;
+  size: string;
   type: KoiType;
-  birthDate?: string;
+  birthDate: string;
   gender: Gender;
   healthStatus: HealthStatus;
-  patternType?: string;
+  pattern: pattern;
   saleStatus: SaleStatus;
   images: string[];
   videos: string[];
-  sellingPrice?: number;
+  sellingPrice: number;
   description: string;
-  origin?: string;
-  bodyShape?: string;
+  origin: string;
   isMutated: boolean;
-  mutationType: MutationType;
+  mutationDescription: string | null;
   mutationRate: number;
   createdAt: string;
   updatedAt: string | null;
@@ -120,9 +131,8 @@ export interface KoiFishUpdateRequest {
   images: string[];
   videos: string[];
   sellingPrice: number;
-  bodyShape: string;
-  colorPattern: string;
   description: string;
+  colorPattern?: string;
 }
 
 const baseUrl = "/api/KoiFish";

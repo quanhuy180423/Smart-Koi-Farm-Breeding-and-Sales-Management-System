@@ -90,13 +90,13 @@ export function CartItem({ item }: CartItemProps) {
         </p>
         {item.koiFish ? (
           <p className="text-sm text-muted-foreground">
-            {getFishSizeLabel(item.koiFish?.size)} •{" "}
+            {getFishSizeLabel(item.koiFish?.size)} cm •{" "}
             {getAge(item.koiFish?.birthDate)} tuổi
           </p>
         ) : (
           <p className="text-sm text-muted-foreground">
-            {getFishSizeLabel(item.packetFish?.size)} •{" "}
-            {item.packetFish?.ageMonths} tuổi • {item?.packetFish?.quantity} con
+            {item.packetFish?.size} • {item.packetFish?.ageMonths} tuổi •{" "}
+            {item?.packetFish?.fishPerPacket} con
           </p>
         )}
         <p className="font-semibold text-primary">

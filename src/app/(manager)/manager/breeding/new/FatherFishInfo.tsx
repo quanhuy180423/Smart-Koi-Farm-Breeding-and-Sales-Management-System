@@ -25,16 +25,16 @@ export default function FatherFishInfo({ selectedFish }: FatherFishInfoProps) {
 
   const basicQualityData = [
     {
+      label: "Loại cá",
+      value: selectedFish.type || "Không rõ",
+    },
+    {
       label: "Kích thước",
       value: getFishSizeLabel(selectedFish.size),
     },
     {
-      label: "Dáng vẻ",
-      value: selectedFish.bodyShape || "Không rõ",
-    },
-    {
       label: "Hoa văn",
-      value: selectedFish.patternType || "Không rõ",
+      value: selectedFish.pattern || "Không rõ",
     },
     {
       label: "Nguồn gốc",
@@ -63,8 +63,8 @@ export default function FatherFishInfo({ selectedFish }: FatherFishInfoProps) {
       value: selectedFish?.variety?.characteristic || "Không rõ",
     },
     {
-      label: "Loại đột biến",
-      value: selectedFish.mutationType || "Không có",
+      label: "Đặc tính đột biến",
+      value: selectedFish.mutationDescription || "Không có",
     },
     {
       label: "Tỷ lệ đột biến",

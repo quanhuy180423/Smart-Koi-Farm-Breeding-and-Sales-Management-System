@@ -17,8 +17,10 @@ import {
   getFishSizeLabel,
   getGenderLabel,
   getHealthStatusLabel,
+  getSaleStatusLabel,
 } from "@/lib/utils/enum";
 import { formatCurrency } from "@/lib/utils/numbers/formatCurrency";
+import { formatDate, DATE_FORMATS } from "@/lib/utils/dates/formatDate";
 import { KoiImageViewer } from "./KoiImageViewer";
 
 interface KoiDetailDialogProps {
@@ -164,61 +166,185 @@ export function KoiDetailDialog({
               </div>
             )}
 
-            <div className="grid grid-cols-2 gap-4 text-sm border-t pt-4">
-              <div>
-                <h4 className="font-medium text-muted-foreground">
-                  Thuộc tính vật lý
-                </h4>
-                <div className="mt-2 space-y-2">
+            {/* Physical & Basic Info Section */}
+            <div className="border-t pt-4">
+              <h4 className="font-medium text-muted-foreground mb-3">
+                Thông tin cơ bản
+              </h4>
+              <div className="space-y-3 text-sm">
+                <div className="grid grid-cols-2 gap-4">
                   <div className="flex justify-between">
-                    <span>Tuổi:</span>
+                    <span className="text-gray-600 font-medium">RFID:</span>
+                    <span className="font-semibold text-primary">
+                      {koi.rfid}
+                    </span>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="flex justify-between">
+                    <span className="text-gray-600 font-medium">Tuổi:</span>
                     <span className="font-medium">{getAge(koi.birthDate)}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span>Kích thước:</span>
+                    <span className="text-gray-600 font-medium">
+                      Ngày sinh:
+                    </span>
                     <span className="font-medium">
-                      {getFishSizeLabel(koi.size)}
+                      {formatDate(koi.birthDate, DATE_FORMATS.MEDIUM_DATE)}
                     </span>
                   </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
                   <div className="flex justify-between">
-                    <span>Hình dạng cơ thể:</span>
-                    <span className="font-medium">{koi.bodyShape}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Giới tính:</span>
+                    <span className="text-gray-600 font-medium">
+                      Giới tính:
+                    </span>
                     <span className="font-medium">
                       {getGenderLabel(koi.gender).label}
                     </span>
                   </div>
-                </div>
-              </div>
-
-              <div>
-                <h4 className="font-medium text-muted-foreground">
-                  Vị trí & Nguồn gốc
-                </h4>
-                <div className="mt-2 space-y-2">
                   <div className="flex justify-between">
-                    <span>Hồ:</span>
-                    <span className="font-medium">{koi.pond.pondName}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Xuất xứ:</span>
-                    <span className="font-medium">
-                      {koi.origin || koi.variety.originCountry}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Sức khỏe:</span>
-                    <Badge
-                      className={`font-semibold text-xs ${healthStatusInfo.colorClass}`}
-                    >
-                      {healthStatusInfo.label}
-                    </Badge>
+                    <span className="text-gray-600 font-medium">Loại cá:</span>
+                    <span className="font-medium">{koi.type}</span>
                   </div>
                 </div>
               </div>
             </div>
+
+            {/* Physical Characteristics & Location - Side by Side */}
+            <div className="border-t pt-4">
+              <div className="grid grid-cols-2 gap-6">
+                {/* Physical Characteristics */}
+                <div>
+                  <h4 className="font-medium text-muted-foreground mb-3">
+                    Đặc điểm vật lý
+                  </h4>
+                  <div className="space-y-3 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-gray-600 font-medium">
+                        Kích thước:
+                      </span>
+                      <span className="font-medium">
+                        {getFishSizeLabel(koi.size)}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600 font-medium">
+                        Hoa văn:
+                      </span>
+                      <Badge variant="secondary" className="text-xs">
+                        {koi.pattern || "Không xác định"}
+                      </Badge>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600 font-medium">
+                        Sức khỏe:
+                      </span>
+                      <Badge
+                        className={`font-semibold text-xs ${healthStatusInfo.colorClass}`}
+                      >
+                        {healthStatusInfo.label}
+                      </Badge>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Location & Origin */}
+                <div>
+                  <h4 className="font-medium text-muted-foreground mb-3">
+                    Vị trí & Nguồn gốc
+                  </h4>
+                  <div className="space-y-3 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-gray-600 font-medium">
+                        Hồ nước:
+                      </span>
+                      <span className="font-medium">{koi.pond.pondName}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600 font-medium">
+                        Xuất xứ:
+                      </span>
+                      <span className="font-medium">
+                        {koi.origin || koi.variety.originCountry}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600 font-medium">
+                        Giống loại:
+                      </span>
+                      <span className="font-medium">
+                        {koi.variety.varietyName}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Sale Status Section */}
+            {koi.saleStatus && (
+              <div className="border-t pt-4">
+                <div className="flex items-center justify-between">
+                  <span className="font-medium text-muted-foreground">
+                    Trạng thái bán hàng:
+                  </span>
+                  <Badge
+                    className={`font-semibold text-xs ${getSaleStatusLabel(koi.saleStatus).colorClass}`}
+                  >
+                    {getSaleStatusLabel(koi.saleStatus).label}
+                  </Badge>
+                </div>
+              </div>
+            )}
+
+            {/* Breeding Process Info */}
+            {koi.breedingProcess && (
+              <div className="border-t pt-4">
+                <h4 className="font-medium text-muted-foreground mb-3">
+                  Quy trình sinh sản
+                </h4>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Tên quy trình:</span>
+                    <span className="font-medium">
+                      {koi.breedingProcess.processName}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Mutation Info */}
+            {koi.isMutated && (
+              <div className="border-t pt-4">
+                <h4 className="font-medium text-muted-foreground mb-3">
+                  Thông tin đột biến
+                </h4>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Đột biến:</span>
+                    <Badge variant="destructive" className="text-xs">
+                      Có
+                    </Badge>
+                  </div>
+                  {koi.mutationDescription && (
+                    <div>
+                      <p className="text-gray-600 mb-1">Mô tả:</p>
+                      <p className="font-medium text-sm italic text-gray-700">
+                        {koi.mutationDescription}
+                      </p>
+                    </div>
+                  )}
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Tỷ lệ đột biến:</span>
+                    <span className="font-medium">
+                      {koi.mutationRate.toFixed(2)}%
+                    </span>
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Description */}
             {koi.description && (
@@ -235,16 +361,37 @@ export function KoiDetailDialog({
             {/* Price and Info */}
             {showPricingInfo && (
               <div className="border-t pt-4">
-                <div className="flex justify-between items-center">
-                  <div>
-                    <h4 className="font-medium">Giá bán</h4>
-                    <p className="text-2xl font-bold text-primary">
-                      {formatCurrency(koi.sellingPrice || 0)}
-                    </p>
-                  </div>
+                <h4 className="font-medium text-muted-foreground mb-3">
+                  Giá bán
+                </h4>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-3xl font-bold text-primary">
+                    {formatCurrency(koi.sellingPrice || 0)}
+                  </span>
                 </div>
               </div>
             )}
+
+            {/* Timestamps */}
+            <div className="border-t pt-4">
+              <h4 className="font-medium text-muted-foreground mb-3">
+                Thông tin hệ thống
+              </h4>
+              <div className="grid grid-cols-2 gap-4 text-xs text-gray-500">
+                <div>
+                  <p className="text-gray-600 font-medium mb-1">Ngày tạo:</p>
+                  <p>{formatDate(koi.createdAt, DATE_FORMATS.MEDIUM_DATE)}</p>
+                </div>
+                {koi.updatedAt && (
+                  <div>
+                    <p className="text-gray-600 font-medium mb-1">
+                      Cập nhật lần cuối:
+                    </p>
+                    <p>{formatDate(koi.updatedAt, DATE_FORMATS.MEDIUM_DATE)}</p>
+                  </div>
+                )}
+              </div>
+            </div>
 
             {/* Action Buttons */}
             {onSelectFish && (

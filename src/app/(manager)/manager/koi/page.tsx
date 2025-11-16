@@ -23,6 +23,7 @@ import {
   ChevronLeft,
   ChevronRight,
   X,
+  AlertCircle,
 } from "lucide-react";
 import {
   Table,
@@ -69,6 +70,9 @@ import { useDebounce } from "@/hooks/useDebounce";
 import { Label } from "@/components/ui/label";
 import PedigreeModal from "./PedigreeModal";
 import { KoiDetailDialog } from "@/components/dialogs/KoiDetailDialog";
+import { KoiIncidentHistoryDialog } from "@/components/dialogs/KoiIncidentHistoryDialog";
+import PondSelectionDialog from "@/components/manager/PondSelectionDialog";
+import VarietySelectionDialog from "@/components/manager/VarietySelectionDialog";
 
 export default function KoiManagement() {
   const [selectedKoi, setSelectedKoi] = useState<KoiFishResponse | null>(null);
@@ -76,6 +80,7 @@ export default function KoiManagement() {
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const [selectedImageIdx, setSelectedImageIdx] = useState(0);
   const [isImageViewerOpen, setIsImageViewerOpen] = useState(false);
+  const [isIncidentHistoryOpen, setIsIncidentHistoryOpen] = useState(false);
 
   const [searchTerm, setSearchTerm] = useState<string>("");
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
@@ -90,6 +95,14 @@ export default function KoiManagement() {
   const [originInput, setOriginInput] = useState<string>("");
 
   const [isPedigreeModalOpen, setIsPedigreeModalOpen] = useState(false);
+  const [isVarietyDialogOpen, setIsVarietyDialogOpen] = useState(false);
+  const [isPondDialogOpen, setIsPondDialogOpen] = useState(false);
+  const [selectedVarietyName, setSelectedVarietyName] = useState<
+    string | undefined
+  >();
+  const [selectedPondName, setSelectedPondName] = useState<
+    string | undefined
+  >();
 
   const [searchParams, setSearchParams] = useState<KoiFishSearchParams>({
     pageIndex: 1,
@@ -215,6 +228,33 @@ export default function KoiManagement() {
   const handleViewPedigree = (koi: KoiFishResponse) => {
     setSelectedKoi(koi);
     setIsPedigreeModalOpen(true);
+  };
+
+  const handleViewIncidentHistory = (koi: KoiFishResponse) => {
+    setSelectedKoi(koi);
+    setIsIncidentHistoryOpen(true);
+  };
+
+  const handleSelectVariety = (varietyId: number, varietyName: string) => {
+    setVarietyIdInput(String(varietyId));
+    setSelectedVarietyName(varietyName);
+    setIsVarietyDialogOpen(false);
+  };
+
+  const handleSelectPond = (pondId: number, pondName: string) => {
+    setPondIdInput(String(pondId));
+    setSelectedPondName(pondName);
+    setIsPondDialogOpen(false);
+  };
+
+  const handleClearVariety = () => {
+    setVarietyIdInput("");
+    setSelectedVarietyName(undefined);
+  };
+
+  const handleClearPond = () => {
+    setPondIdInput("");
+    setSelectedPondName(undefined);
   };
 
   const isFilterActive = Object.keys(searchParams).some((key) => {
@@ -365,6 +405,15 @@ export default function KoiManagement() {
                             </Button>
 
                             <Button
+                              size="icon"
+                              variant="ghost"
+                              title="Xem lịch sử sự cố"
+                              onClick={() => handleViewIncidentHistory(koi)}
+                            >
+                              <AlertCircle className="h-4 w-4" />
+                            </Button>
+
+                            <Button
                               variant="ghost"
                               size="icon"
                               title="Xóa"
@@ -493,6 +542,30 @@ export default function KoiManagement() {
         koi={selectedKoi}
       />
 
+      {/* Incident History Dialog */}
+      {selectedKoi && (
+        <KoiIncidentHistoryDialog
+          isOpen={isIncidentHistoryOpen}
+          onOpenChange={setIsIncidentHistoryOpen}
+          koiFishId={selectedKoi.id}
+          koiFishRFID={selectedKoi.rfid}
+        />
+      )}
+
+      {/* Variety Selection Dialog */}
+      <VarietySelectionDialog
+        isOpen={isVarietyDialogOpen}
+        onOpenChange={setIsVarietyDialogOpen}
+        onSelect={handleSelectVariety}
+      />
+
+      {/* Pond Selection Dialog */}
+      <PondSelectionDialog
+        isOpen={isPondDialogOpen}
+        onOpenChange={setIsPondDialogOpen}
+        onSelect={handleSelectPond}
+      />
+
       <Dialog
         open={isFilterModalOpen}
         onOpenChange={(open) => {
@@ -614,30 +687,54 @@ export default function KoiManagement() {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 border-t pt-4">
+            <div className="grid grid-cols-2 gap-4 border-t pt-4">
               <div className="space-y-2">
-                <Label htmlFor="varietyId">ID Giống</Label>
-                <InputNumber
-                  value={varietyIdInput ? Number(varietyIdInput) : undefined}
-                  onChange={(value) =>
-                    setVarietyIdInput(value ? String(value) : "")
-                  }
-                  placeholder="ID Giống..."
-                />
+                <Label>Giống cá</Label>
+                <Button
+                  variant="outline"
+                  onClick={() => setIsVarietyDialogOpen(true)}
+                  className="w-full justify-start text-left"
+                >
+                  {selectedVarietyName ? (
+                    <span className="flex items-center justify-between w-full">
+                      <span>{selectedVarietyName}</span>
+                      <X
+                        className="h-4 w-4"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleClearVariety();
+                        }}
+                      />
+                    </span>
+                  ) : (
+                    <span className="text-muted-foreground">Chọn giống cá</span>
+                  )}
+                </Button>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="pondId">ID Hồ</Label>
-                <InputNumber
-                  value={pondIdInput ? Number(pondIdInput) : undefined}
-                  onChange={(value) =>
-                    setPondIdInput(value ? String(value) : "")
-                  }
-                  placeholder="ID Hồ..."
-                />
+                <Label>Hồ cá</Label>
+                <Button
+                  variant="outline"
+                  onClick={() => setIsPondDialogOpen(true)}
+                  className="w-full justify-start text-left"
+                >
+                  {selectedPondName ? (
+                    <span className="flex items-center justify-between w-full">
+                      <span>{selectedPondName}</span>
+                      <X
+                        className="h-4 w-4"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleClearPond();
+                        }}
+                      />
+                    </span>
+                  ) : (
+                    <span className="text-muted-foreground">Chọn hồ cá</span>
+                  )}
+                </Button>
               </div>
-
-              <p className="text-sm font-semibold col-span-full mb-[-8px] text-muted-foreground md:col-span-2"></p>
             </div>
 
             <div className="grid grid-cols-2 gap-4 border-t pt-4">

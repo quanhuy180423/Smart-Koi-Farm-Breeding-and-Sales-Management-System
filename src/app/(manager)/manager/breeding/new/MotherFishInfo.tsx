@@ -25,16 +25,16 @@ export default function MotherFishInfo({ selectedFish }: MotherFishInfoProps) {
 
   const basicQualityData = [
     {
+      label: "Loại cá",
+      value: selectedFish.type || "Không rõ",
+    },
+    {
       label: "Kích thước",
       value: getFishSizeLabel(selectedFish.size),
     },
     {
-      label: "Dáng vẻ",
-      value: selectedFish.bodyShape || "Không rõ",
-    },
-    {
       label: "Hoa văn",
-      value: selectedFish.patternType || "Không rõ",
+      value: selectedFish.pattern || "Không rõ",
     },
     {
       label: "Nguồn gốc",
@@ -63,8 +63,8 @@ export default function MotherFishInfo({ selectedFish }: MotherFishInfoProps) {
       value: selectedFish?.variety?.characteristic || "Không rõ",
     },
     {
-      label: "Loại đột biến",
-      value: selectedFish.mutationType || "Không có",
+      label: "Đặc tính đột biến",
+      value: selectedFish.mutationDescription || "Không có",
     },
     {
       label: "Tỷ lệ đột biến",
@@ -181,12 +181,12 @@ export default function MotherFishInfo({ selectedFish }: MotherFishInfoProps) {
 
       <div className="space-y-8">
         <div>
-          <h4 className="text-lg font-bold text-gray-800 mb-5 flex items-center gap-2">
+          <h3 className="text-lg font-bold text-gray-800 mb-5 flex items-center gap-2">
             <span className="bg-pink-100 text-pink-800 rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold">
               1
             </span>
             Phẩm Chất Cơ Bản của Cá Thể
-          </h4>
+          </h3>
           <div className="grid grid-cols-4 gap-4">
             {basicQualityData.map((item, index) => (
               <Card
@@ -205,12 +205,12 @@ export default function MotherFishInfo({ selectedFish }: MotherFishInfoProps) {
         </div>
 
         {/* <div>
-          <h4 className="text-lg font-bold text-gray-800 mb-5 flex items-center gap-2">
+          <h3 className="text-lg font-bold text-gray-800 mb-5 flex items-center gap-2">
             <span className="bg-pink-100 text-pink-800 rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold">
               2
             </span>
             Dữ liệu Di truyền & Phả hệ
-          </h4>
+          </h3>
           <div className="grid grid-cols-2 gap-4">
             {geneticData.map((item, index) => (
               <Card
@@ -229,12 +229,12 @@ export default function MotherFishInfo({ selectedFish }: MotherFishInfoProps) {
         </div> */}
 
         <div>
-          <h4 className="text-lg font-bold text-gray-800 mb-5 flex items-center gap-2">
+          <h3 className="text-lg font-bold text-gray-800 mb-5 flex items-center gap-2">
             <span className="bg-pink-100 text-pink-800 rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold">
               2
             </span>
             Sức Khỏe & Độ Tuổi
-          </h4>
+          </h3>
           <div className="grid grid-cols-2 gap-4">
             {healthAgeData.map((item, index) => (
               <Card
@@ -253,12 +253,12 @@ export default function MotherFishInfo({ selectedFish }: MotherFishInfoProps) {
         </div>
 
         <div>
-          <h4 className="text-lg font-bold text-gray-800 mb-5 flex items-center gap-2">
+          <h3 className="text-lg font-bold text-gray-800 mb-5 flex items-center gap-2">
             <span className="bg-pink-100 text-pink-800 rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold">
               3
             </span>
             Đặc Tính Riêng Biệt Theo Giống
-          </h4>
+          </h3>
           <div className="grid grid-cols-4 gap-4">
             {breedData.map((item, index) => (
               <Card
@@ -277,12 +277,12 @@ export default function MotherFishInfo({ selectedFish }: MotherFishInfoProps) {
         </div>
 
         <div>
-          <h4 className="text-lg font-bold text-gray-800 mb-5 flex items-center gap-2">
+          <h3 className="text-lg font-bold text-gray-800 mb-5 flex items-center gap-2">
             <span className="bg-pink-100 text-pink-800 rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold">
               4
             </span>
             Dữ Liệu Lịch Sử Sinh Sản
-          </h4>
+          </h3>
           <div className={`grid grid-cols-4 gap-4`}>
             {breedingHistoryData.map((item, index) => (
               <Card

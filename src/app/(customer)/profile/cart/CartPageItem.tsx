@@ -22,6 +22,7 @@ import getAge from "@/lib/utils/dates/age";
 import {
   getFishSizeLabel,
   getHealthStatusLabel,
+  getGenderLabel,
 } from "@/lib/utils/enum/formatEnum";
 
 interface CartPageItemProps {
@@ -110,11 +111,21 @@ export function CartPageItem({ item }: CartPageItemProps) {
                     <div className="flex gap-4 text-xs sm:text-sm text-muted-foreground">
                       <span>
                         <span className="font-medium">Kích thước:</span>{" "}
-                        {getFishSizeLabel(item.koiFish.size)} cm
+                        {getFishSizeLabel(item.koiFish.size)}
                       </span>
                       <span>
                         <span className="font-medium">Tuổi:</span>{" "}
                         {getAge(item.koiFish.birthDate)} tuổi
+                      </span>
+                    </div>
+                    <div className="flex gap-4 text-xs sm:text-sm text-muted-foreground">
+                      <span>
+                        <span className="font-medium">Giới tính:</span>{" "}
+                        {getGenderLabel(item.koiFish.gender).label}
+                      </span>
+                      <span>
+                        <span className="font-medium">Hoa văn:</span>{" "}
+                        {item.koiFish.pattern || "Không xác định"}
                       </span>
                     </div>
                     <div className="flex gap-4 text-xs sm:text-sm text-muted-foreground">
@@ -131,7 +142,7 @@ export function CartPageItem({ item }: CartPageItemProps) {
                     <div className="flex gap-4 text-xs sm:text-sm text-muted-foreground">
                       <span>
                         <span className="font-medium">Kích thước:</span>{" "}
-                        {getFishSizeLabel(item.packetFish.size)}
+                        {item.packetFish.size}
                       </span>
                       <span>
                         <span className="font-medium">Tuổi:</span>{" "}
