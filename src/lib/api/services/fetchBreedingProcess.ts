@@ -4,7 +4,7 @@ import apiService, {
   PagedResponse,
   PagingRequest,
 } from "../apiClient";
-import { KoiFishResponse, MutationType } from "./fetchKoiFish";
+import { KoiFishResponse } from "./fetchKoiFish";
 import { EggBatchResponse } from "./fetchEggBatch";
 import { FryFishResponse } from "./fetchFryFish";
 import { ClassificationStageResponse } from "./fetchClassificationStage";
@@ -92,19 +92,18 @@ export interface BreedingParentHistoryResponse {
   koiFishId: number;
   participationCount: number;
   failCount: number;
-  fertilizationRate: number;
+  fertilizationRate: number | null;
   averageMutationRate: number;
-  commonMutationType: string;
-  hatchRate: number;
-  survivalRate: number;
+  mutationDescription: string | null;
+  hatchRate: number | null;
+  survivalRate: number | null;
   highQualifiedRate: number | null;
 }
 
 export interface BreedingRecommendRequest {
   targetVariety: string;
   priority: string;
-  desiredMutationType: MutationType;
-  desiredMutationRate: number;
+  isMutation: boolean;
   minHatchRate: number;
   minSurvivalRate: number;
   minHighQualifiedRate: number;
@@ -114,19 +113,24 @@ export interface RecommendedPair {
   maleId: number;
   maleRFID: string;
   maleImage: string;
+  maleIsMutated: boolean;
+  maleMutationDescription: string;
+  maleMutationRate: number;
   femaleId: number;
   femaleRFID: string;
   femaleImage: string;
+  femaleIsMutated: boolean;
+  femaleMutationDescription: string;
+  femaleMutationRate: number;
   reason: string;
   predictedFertilizationRate: number;
   predictedHatchRate: number;
+  predictedMutationRate: number;
+  predictedMutationDescription: string;
   predictedSurvivalRate: number;
   predictedHighQualifiedRate: number;
-  patternMatchScore: number;
-  bodyShapeCompatibility: number;
+  percentInbreeding: number;
   rank: number;
-  // percentInbreeding: string;
-  // percentInbreedingValue?: number;
 }
 
 export interface BreedingDetailResponse {
@@ -167,7 +171,7 @@ export interface AnalyzePairRequest {
 }
 
 export interface BreedingInfo {
-  sumary: string;
+  summary: string;
   breedingSuccessRate: number;
 }
 
@@ -178,11 +182,12 @@ export interface AnalyzePairResponse {
   predictedHatchRate: number;
   predictedSurvivalRate: number;
   predictedHighQualifiedRate: number;
-  patternMatchScore: number;
-  bodyShapeCompatibility: number;
   percentInbreeding: number;
+  predictedMutationRate: number;
+  mutationDescription: string;
+  predictedMatchToDesiredMutationType: number;
   summary: string;
-  maleBreeingInfo?: BreedingInfo;
+  maleBreedingInfo?: BreedingInfo;
   femaleBreedingInfo?: BreedingInfo;
 }
 

@@ -13,16 +13,13 @@ export function useCreatePayment() {
       orderPaymentService.createPayment(payload.orderId, payload.method),
     onSuccess: (data: BaseResponse<OrderPaymentResponse>) => {
       if (data.isSuccess && data.result?.paymentUrl) {
-        console.log("Payment URL from API:", data.result.paymentUrl);
         // Chuyển hướng tới trang thanh toán VNPay
         window.location.href = data.result.paymentUrl;
       } else {
-        console.error("Payment creation failed:", data);
         toast.error(data.message || "Không thể tạo liên kết thanh toán");
       }
     },
     onError: (error: ApiError) => {
-      console.error("Payment error:", error);
       toast.error(
         error.error?.result ||
           error.message ||

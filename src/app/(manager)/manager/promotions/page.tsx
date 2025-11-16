@@ -347,9 +347,7 @@ export default function PromotionManagement() {
           if (result?.url) {
             uploadedImageUrls.push(result.url);
           }
-        } catch (error) {
-          console.error("Failed to upload image:", error);
-        }
+        } catch {}
       }
 
       const createRequest: PromotionRequest = {
@@ -358,8 +356,7 @@ export default function PromotionManagement() {
       };
 
       await createPromotionMutation.mutateAsync(createRequest);
-    } catch (error) {
-      console.error("Error creating promotion:", error);
+    } catch {
     } finally {
       setIsCreating(false);
     }
@@ -394,9 +391,7 @@ export default function PromotionManagement() {
           if (result?.url) {
             uploadedImageUrls.push(result.url);
           }
-        } catch (error) {
-          console.error("Failed to upload image:", error);
-        }
+        } catch {}
       }
 
       // Filter existing images (URLs from server, not base64)
@@ -417,8 +412,7 @@ export default function PromotionManagement() {
         id: editingPromotion.id,
         request: updateRequest,
       });
-    } catch (error) {
-      console.error("Error updating promotion:", error);
+    } catch {
     } finally {
       setIsEditing(false);
     }

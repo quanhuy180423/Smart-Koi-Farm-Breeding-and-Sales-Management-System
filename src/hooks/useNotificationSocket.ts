@@ -8,16 +8,39 @@ export enum NotificationType {
   INFO = "info",
 }
 
-export interface NotificationData {
-  [key: string]: string | number | boolean | null | undefined;
+export interface WaterAlertData {
+  PondId?: number;
+  pondId?: number;
+  PondName?: string;
+  pondName?: string;
+  ParameterName?: string;
+  parameterName?: string;
+  MeasuredValue?: number;
+  measuredValue?: number;
+  Severity?: string;
+  severity?: string;
+  AlertType?: string;
+  alertType?: string;
+  Message?: string;
+  message?: string;
+  CreatedAt?: string;
+  createdAt?: string;
+  IsResolved?: boolean;
+  isResolved?: boolean;
+  ResolvedByUserId?: number | null;
+  resolvedByUserId?: number | null;
+  ResolvedByUserName?: string | null;
+  resolvedByUserName?: string | null;
 }
+
+export type NotificationMessageData = WaterAlertData | undefined;
 
 export interface NotificationMessage {
   type: NotificationType | string;
   title: string;
   message: string;
   timestamp?: string;
-  data?: NotificationData;
+  data?: NotificationMessageData;
 }
 
 interface UseNotificationSocketReturn {
@@ -84,7 +107,6 @@ export function useNotificationSocket(
 
       wsRef.current.onmessage = (event: Event) => {
         if (!(event instanceof MessageEvent)) {
-          console.error("Invalid event type");
           return;
         }
 
@@ -93,51 +115,52 @@ export function useNotificationSocket(
 
           // Validate notification structure
           if (typeof parsedData !== "object" || parsedData === null) {
-            console.warn(
-              "⚠️ Invalid data structure (not an object):",
-              parsedData,
-            );
             return;
           }
 
           const notif = parsedData as Record<string, unknown>;
 
-          // Check if it's a water alert (has Id or id field indicating it's from the alert service)
-          const isWaterAlert = "Id" in notif || "id" in notif;
+          // Check if it's a water alert by looking for water alert specific fields
+          // Backend sends PascalCase (C# style): PondId, PondName, ParameterName, MeasuredValue, AlertType, Severity
+          const isWaterAlert =
+            ("PondId" in notif || "pondId" in notif) &&
+            ("PondName" in notif || "pondName" in notif);
 
-          // Ensure we have either message or title, or it's a water alert
-          if (!isWaterAlert && !("message" in notif) && !("title" in notif)) {
-            console.warn(
-              "⚠️ Invalid notification format - missing required fields:",
-              notif,
-            );
+          // Ensure we have either message/Message or title/Title, or it's a water alert
+          const hasMessage =
+            "message" in notif ||
+            "Message" in notif ||
+            "title" in notif ||
+            "Title" in notif;
+
+          if (!isWaterAlert && !hasMessage) {
             return;
           }
 
           // Build notification with defaults
           // For water alerts, pass the entire alert object as data
           const notification: NotificationMessage = {
-            type: (notif.type as string) || "info",
-            title: (notif.title as string) || "",
-            message: (notif.message as string) || "",
-            timestamp: notif.timestamp as string | undefined,
+            type: (notif.type as string) || (notif.Type as string) || "info",
+            title:
+              (notif.title as string) ||
+              (notif.Title as string) ||
+              (notif.ParameterName as string) ||
+              "",
+            message:
+              (notif.message as string) || (notif.Message as string) || "",
+            timestamp:
+              (notif.timestamp as string) ||
+              (notif.CreatedAt as string) ||
+              undefined,
             // If data exists, use it; otherwise, if it's a water alert, use the whole object
             data:
-              (notif.data as NotificationData) ||
-              (isWaterAlert ? (notif as NotificationData) : undefined),
+              (notif.data as WaterAlertData) ||
+              (isWaterAlert ? (notif as WaterAlertData) : undefined),
           };
 
           // Call callback if provided
           onMessage?.(notification);
-        } catch (error) {
-          if (error instanceof SyntaxError) {
-            console.error("Failed to parse notification JSON:", error.message);
-          } else if (error instanceof Error) {
-            console.error("Notification processing error:", error.message);
-          } else {
-            console.error("Unknown error processing notification");
-          }
-        }
+        } catch {}
       };
 
       wsRef.current.onerror = () => {

@@ -108,8 +108,7 @@ async function geocodeAddress(
 
     const results: NominatimResult[] = await response.json();
     return results.length > 0 ? results[0] : null;
-  } catch (error) {
-    console.error("Geocoding error:", error);
+  } catch {
     return null;
   }
 }
@@ -221,8 +220,7 @@ export default function CheckoutPage() {
         } else {
           toast.error("Không tìm thấy địa chỉ này");
         }
-      } catch (error) {
-        console.error("Geocoding error:", error);
+      } catch {
       } finally {
         setIsGeocoding(false);
       }
@@ -358,20 +356,13 @@ export default function CheckoutPage() {
         toast.success("Tính phí vận chuyển thành công");
         setStep(2);
       } else {
-        console.error(
-          "API returned unsuccessful response:",
-          result?.message || "Unknown error",
-        );
         toast.error(
           result?.message || "Không thể tính phí vận chuyển. Vui lòng thử lại",
         );
       }
     } catch (error: Error | unknown) {
-      console.error("=== [Checkout] Error caught ===");
-      console.error("Error details:", error);
       const errorMessage =
         error instanceof Error ? error.message : "Unknown error";
-      console.error("Error message:", errorMessage);
       toast.error(
         errorMessage ||
           "Có lỗi xảy ra khi tính phí vận chuyển. Vui lòng thử lại",

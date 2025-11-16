@@ -322,8 +322,7 @@ export const authHelpers = {
       void _password;
       useAuthStore.getState().login(user);
       return { success: true, user };
-    } catch (error) {
-      console.error("Login error:", error);
+    } catch {
       return { success: false, error: "Login failed" };
     } finally {
       useAuthStore.getState().setLoading(false);
@@ -348,8 +347,7 @@ export const authHelpers = {
       void _password;
       useAuthStore.getState().login(user);
       return { success: true, user };
-    } catch (error) {
-      console.error("Register error:", error);
+    } catch {
       return { success: false, error: "Registration failed" };
     } finally {
       useAuthStore.getState().setLoading(false);
