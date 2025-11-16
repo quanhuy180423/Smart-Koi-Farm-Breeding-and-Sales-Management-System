@@ -23,6 +23,7 @@ import { PaginationSection } from "@/components/common/PaginationSection";
 import { getFishSizeLabel, getGenderLabel } from "@/lib/utils/enum";
 import { formatCurrency } from "@/lib/utils/numbers/formatCurrency";
 import { KoiDetailDialog } from "@/components/dialogs/KoiDetailDialog";
+import { parseSizeToNumber } from "@/lib/utils/numbers/parseSize";
 
 const PAGE_SIZE_OPTIONS = [6, 12, 18];
 
@@ -62,8 +63,10 @@ export function AddFishDialog({ onClose }: AddFishDialogProps) {
       rfid: koi.rfid,
       pondId: koi.pond.id,
       varietyId: koi.variety.id,
-      size: koi.size ?? "",
+      breedingProcessId: koi.breedingProcess?.id ?? undefined,
+      size: parseSizeToNumber(koi.size),
       type: koi.type,
+      pattern: koi.pattern ?? "",
       birthDate: koi.birthDate ?? "",
       gender: koi.gender,
       healthStatus: koi.healthStatus,
@@ -72,9 +75,9 @@ export function AddFishDialog({ onClose }: AddFishDialogProps) {
       videos: koi.videos,
       sellingPrice: koi.sellingPrice ?? 0,
       description: koi.description,
-      colorPattern: "",
-
-      // 2. Cập nhật trường mong muốn
+      isMutated: koi.isMutated ?? false,
+      mutationDescription: koi.mutationDescription ?? "",
+      // Field cần update
       saleStatus: SaleStatus.AVAILABLE,
     };
 
@@ -132,7 +135,7 @@ export function AddFishDialog({ onClose }: AddFishDialogProps) {
               return (
                 <Card
                   key={koi.id}
-                  className="cursor-pointer hover:border-primary transition-colors relative"
+                  className="cursor-pointer hover:border-primary transition-colors relative py-0"
                   onClick={() => setSelectedKoi(koi)}
                 >
                   {isThisFishUpdating && (
@@ -143,7 +146,7 @@ export function AddFishDialog({ onClose }: AddFishDialogProps) {
                   <CardContent className="p-3">
                     <div className="relative w-full h-32 rounded-md overflow-hidden mb-2">
                       <Image
-                        src={koi.images[0] || "/placeholder.svg"}
+                        src={koi.images[0]}
                         alt={koi.rfid}
                         fill
                         className="object-cover"
