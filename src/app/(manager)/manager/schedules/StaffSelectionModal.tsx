@@ -40,15 +40,15 @@ import { getRoleLabel } from "@/lib/utils/enum";
 interface StaffSelectionModalProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
-  selectedStaffIds: Set<number>;
-  onToggleStaff: (staffId: number) => void;
+  selectedStaffId: number | null;
+  onSelectStaff: (staffId: number) => void;
 }
 
 export default function StaffSelectionModal({
   isOpen,
   onOpenChange,
-  selectedStaffIds,
-  onToggleStaff,
+  selectedStaffId,
+  onSelectStaff,
 }: StaffSelectionModalProps) {
   const [roleFilter, setRoleFilter] = useState<Roles>(Roles.FarmStaff);
   const [staffSearchTerm, setStaffSearchTerm] = useState("");
@@ -191,18 +191,19 @@ export default function StaffSelectionModal({
                     staffData.data.map((staff: User) => (
                       <TableRow
                         key={staff.id}
-                        onClick={() => onToggleStaff(staff.id)}
+                        onClick={() => onSelectStaff(staff.id)}
                         className={
-                          selectedStaffIds.has(staff.id)
+                          selectedStaffId === staff.id
                             ? "bg-blue-50/50 cursor-pointer"
                             : "hover:bg-gray-50 cursor-pointer"
                         }
                       >
                         <TableCell>
                           <input
-                            type="checkbox"
-                            checked={selectedStaffIds.has(staff.id)}
-                            onChange={() => onToggleStaff(staff.id)}
+                            type="radio"
+                            name="staff-selection"
+                            checked={selectedStaffId === staff.id}
+                            onChange={() => onSelectStaff(staff.id)}
                             className="text-blue-600 focus:ring-blue-500"
                           />
                         </TableCell>
@@ -263,9 +264,9 @@ export default function StaffSelectionModal({
           </Button>
           <Button
             onClick={handleConfirm}
-            disabled={selectedStaffIds.size === 0 || isLoadingStaff}
+            disabled={selectedStaffId === null || isLoadingStaff}
           >
-            Chọn ({selectedStaffIds.size})
+            Chọn nhân viên
           </Button>
         </DialogFooter>
       </DialogContent>
