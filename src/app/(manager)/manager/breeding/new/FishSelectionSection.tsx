@@ -23,11 +23,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import Image from "next/image";
-import {
-  Gender,
-  KoiFishResponse,
-  MutationType,
-} from "@/lib/api/services/fetchKoiFish";
+import { Gender, KoiFishResponse } from "@/lib/api/services/fetchKoiFish";
 import { useGetKoiFishById, useGetKoiFishes } from "@/hooks/useKoiFish";
 import toast from "react-hot-toast";
 import getAge from "@/lib/utils/dates/age";
@@ -44,20 +40,7 @@ import { Zap, Target, TrendingUp } from "lucide-react";
 const recommendSchema = z.object({
   targetVariety: z.string().min(1, { message: "Giống mong muốn là bắt buộc." }),
   priority: z.string().min(1, { message: "Mục tiêu ưu tiên là bắt buộc." }),
-  desiredMutationType: z
-    .string()
-    .min(1, { message: "Loại đột biến là bắt buộc." })
-    .transform((val) => val as MutationType),
-  desiredMutationRate: z
-    .string()
-    .min(0, { message: "Tỷ lệ đột biến là bắt buộc." })
-    .transform(Number)
-    .pipe(
-      z
-        .number()
-        .min(0, "Tỷ lệ phải lớn hơn hoặc bằng 0")
-        .max(100, "Tỷ lệ không được quá 100"),
-    ),
+  isMutation: z.boolean(),
   minHatchRate: z
     .string()
     .min(1, { message: "Tỷ lệ nở là bắt buộc." })
@@ -103,10 +86,7 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
 
   const [targetVariety, setTargetVariety] = useState("");
   const [priority, setPriority] = useState("");
-  const [desiredMutationType, setDesiredMutationType] = useState<MutationType>(
-    MutationType.NONE,
-  );
-  const [desiredMutationRate, setDesiredMutationRate] = useState("");
+  const [isMutation, setIsMutation] = useState(false);
   const [minHatchRate, setMinHatchRate] = useState("");
   const [minSurvivalRate, setMinSurvivalRate] = useState("");
   const [minHighQualifiedRate, setMinHighQualifiedRate] = useState("");
@@ -234,8 +214,7 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
     const formData = {
       targetVariety,
       priority,
-      desiredMutationType,
-      desiredMutationRate,
+      isMutation,
       minHatchRate,
       minSurvivalRate,
       minHighQualifiedRate,
@@ -703,55 +682,42 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
                 Tiêu chí đột biến
               </h3>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-amber-50 p-6 rounded-lg border border-amber-100">
-              <div>
-                <Label
-                  htmlFor="desired-mutation-type"
-                  className="text-sm font-medium text-gray-700"
-                >
-                  Loại đột biến mong muốn{" "}
-                  <span className="text-red-500">*</span>
-                </Label>
-                <Select
-                  value={desiredMutationType}
-                  onValueChange={(value) =>
-                    setDesiredMutationType(value as MutationType)
-                  }
-                >
-                  <SelectTrigger className="mt-1 border border-gray-300 w-full">
-                    <SelectValue placeholder="Chọn loại đột biến..." />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value={MutationType.NONE}>Không có</SelectItem>
-                    <SelectItem value={MutationType.DOITSU}>Doitsu</SelectItem>
-                    <SelectItem value={MutationType.GIN_RIN}>
-                      Gin Rin
-                    </SelectItem>
-                    <SelectItem value={MutationType.HIRENAGA}>
-                      Hirenaga
-                    </SelectItem>
-                    <SelectItem value={MutationType.METALLIC}>
-                      Metallic
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <Label
-                  htmlFor="desired-mutation-rate"
-                  className="text-sm font-medium text-gray-700"
-                >
-                  Tỷ lệ đột biến tối thiểu (%){" "}
-                  <span className="text-red-500">*</span>
-                </Label>
-                <Input
-                  id="desired-mutation-rate"
-                  placeholder="VD: 50"
-                  value={desiredMutationRate}
-                  onChange={(e) => setDesiredMutationRate(e.target.value)}
-                  onInput={handleNumericInput}
-                  className="mt-1 border border-gray-300 w-full"
-                />
+            <div className="bg-gradient-to-r from-amber-50 to-yellow-50 p-6 rounded-lg border border-amber-200 shadow-sm">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-amber-100 rounded-lg">
+                    <Zap className="w-5 h-5 text-amber-600" />
+                  </div>
+                  <div>
+                    <p className="font-semibold text-gray-900">
+                      Mong muốn cá có đột biến
+                    </p>
+                    <p className="text-sm text-gray-600 mt-1">
+                      Bật để tìm cặp cá có khả năng tạo ra cá con với đột biến
+                    </p>
+                  </div>
+                </div>
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    id="is-mutation"
+                    checked={isMutation}
+                    onChange={(e) => setIsMutation(e.target.checked)}
+                    className="sr-only peer"
+                  />
+                  <div
+                    className={`w-14 h-7 rounded-full transition-all ${
+                      isMutation
+                        ? "bg-amber-500 shadow-lg shadow-amber-500/50"
+                        : "bg-gray-300"
+                    }`}
+                  />
+                  <span
+                    className={`absolute left-1 top-1 w-5 h-5 bg-white rounded-full transition-transform duration-300 ${
+                      isMutation ? "translate-x-7" : ""
+                    }`}
+                  />
+                </label>
               </div>
             </div>
           </div>
@@ -860,8 +826,22 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
                               height={150}
                               className="rounded-lg object-cover mx-auto w-full h-32"
                             />
-                            <p className="font-bold mt-2">{pair.maleRFID}</p>
-                            <Badge className="bg-blue-500 mt-1">Đực</Badge>
+                            <p className="font-bold mt-2 text-sm">
+                              {pair.maleRFID}
+                            </p>
+                            <Badge className="bg-blue-500 mt-1 text-xs">
+                              Đực
+                            </Badge>
+                            {pair.maleIsMutated && (
+                              <div className="mt-2 text-xs bg-blue-50 p-1 rounded border border-blue-200">
+                                <p className="text-blue-700 font-medium">
+                                  {pair.maleMutationDescription}
+                                </p>
+                                <p className="text-blue-600">
+                                  {pair.maleMutationRate}%
+                                </p>
+                              </div>
+                            )}
                           </div>
 
                           {/* Cá cái */}
@@ -873,8 +853,22 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
                               height={150}
                               className="rounded-lg object-cover mx-auto w-full h-32"
                             />
-                            <p className="font-bold mt-2">{pair.femaleRFID}</p>
-                            <Badge className="bg-pink-500 mt-1">Cái</Badge>
+                            <p className="font-bold mt-2 text-sm">
+                              {pair.femaleRFID}
+                            </p>
+                            <Badge className="bg-pink-500 mt-1 text-xs">
+                              Cái
+                            </Badge>
+                            {pair.femaleIsMutated && (
+                              <div className="mt-2 text-xs bg-pink-50 p-1 rounded border border-pink-200">
+                                <p className="text-pink-700 font-medium">
+                                  {pair.femaleMutationDescription}
+                                </p>
+                                <p className="text-pink-600">
+                                  {pair.femaleMutationRate}%
+                                </p>
+                              </div>
+                            )}
                           </div>
                         </div>
                         <div className="mt-4 border-t pt-4">
@@ -882,7 +876,7 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
                           <p className="text-sm text-gray-600 mb-2">
                             {pair.reason}
                           </p>
-                          <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
+                          <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
                             <span>
                               Tỷ lệ thụ tinh:{" "}
                               <strong>
@@ -907,6 +901,18 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
                                 {pair.predictedHighQualifiedRate.toFixed(2)}%
                               </strong>
                             </span>
+                            {pair.predictedMutationRate > 0 && (
+                              <>
+                                <span className="col-span-2 pt-2 border-t text-xs text-gray-700">
+                                  <strong>Dự kiến đột biến:</strong>{" "}
+                                  {pair.predictedMutationDescription}
+                                </span>
+                                <span className="col-span-2 text-xs text-gray-700">
+                                  <strong>Tỷ lệ đột biến:</strong>{" "}
+                                  {pair.predictedMutationRate.toFixed(2)}%
+                                </span>
+                              </>
+                            )}
                           </div>
                         </div>
                       </CardContent>

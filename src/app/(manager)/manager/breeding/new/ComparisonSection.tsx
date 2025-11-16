@@ -81,26 +81,6 @@ export default function ComparisonSection({
     };
   };
 
-  // Helper function to determine body shape compatibility level
-  const getCompatibilityLevel = (
-    score: number,
-  ): { label: string; color: string } => {
-    if (score >= 70) return { label: "Rất tương hợp", color: "text-green-600" };
-    if (score >= 50) return { label: "Tương hợp tốt", color: "text-green-600" };
-    if (score >= 30)
-      return { label: "Tương hợp vừa phải", color: "text-yellow-600" };
-    return { label: "Tương hợp thấp", color: "text-orange-600" };
-  };
-
-  // Helper function to determine pattern match level
-  const getPatternLevel = (score: number): { label: string; color: string } => {
-    if (score >= 80) return { label: "Khớp hoàn hảo", color: "text-green-600" };
-    if (score >= 60) return { label: "Khớp tốt", color: "text-green-600" };
-    if (score >= 40)
-      return { label: "Khớp vừa phải", color: "text-yellow-600" };
-    return { label: "Khớp thấp", color: "text-orange-600" };
-  };
-
   const geneticData = analysisData
     ? [
         {
@@ -109,15 +89,14 @@ export default function ComparisonSection({
           color: getRiskLevel(analysisData.percentInbreeding).textColor,
         },
         {
-          label: "Tương hợp hình dáng cơ thể:",
-          value: `${analysisData.bodyShapeCompatibility}%`,
-          color: getCompatibilityLevel(analysisData.bodyShapeCompatibility)
-            .color,
+          label: "Tỷ lệ đột biến dự kiến:",
+          value: `${analysisData.predictedMutationRate.toFixed(1)}%`,
+          color: "text-amber-600",
         },
         {
-          label: "Tương hợp hoa văn:",
-          value: `${analysisData.patternMatchScore}%`,
-          color: getPatternLevel(analysisData.patternMatchScore).color,
+          label: "Khả năng khớp với đột biến mong muốn:",
+          value: `${analysisData.predictedMatchToDesiredMutationType.toFixed(1)}%`,
+          color: "text-purple-600",
         },
       ]
     : [];
@@ -148,16 +127,6 @@ export default function ComparisonSection({
           message: `Nguy cơ cận huyết ${analysisData.percentInbreeding > 0 ? "ở mức " + analysisData.percentInbreeding.toFixed(1) + "%" : "rất thấp"}. ${analysisData.percentInbreeding < 2 ? "An toàn cho phối giống." : "Cần xem xét."}`,
           percent: analysisData.percentInbreeding,
           ...getRiskLevel(analysisData.percentInbreeding),
-        },
-        {
-          message: `Tương hợp hình dáng cơ thể đạt ${analysisData.bodyShapeCompatibility}%. ${getCompatibilityLevel(analysisData.bodyShapeCompatibility).label}.`,
-          percent: analysisData.bodyShapeCompatibility,
-          ...(() => {
-            const score = analysisData.bodyShapeCompatibility;
-            if (score >= 70) return getRiskLevel(1);
-            if (score >= 50) return getRiskLevel(3);
-            return getRiskLevel(5);
-          })(),
         },
       ]
     : [];
@@ -330,10 +299,10 @@ export default function ComparisonSection({
                 <span className="text-base font-bold text-blue-800">Cá Bố</span>
               </div>
               <div className="text-sm text-gray-700 mb-3 leading-relaxed">
-                {analysisData?.maleBreeingInfo?.sumary ||
+                {analysisData?.maleBreedingInfo?.summary ||
                   "Chưa có dữ liệu lịch sử sinh sản"}
               </div>
-              {analysisData?.maleBreeingInfo && (
+              {analysisData?.maleBreedingInfo && (
                 <div className="bg-white p-3 rounded-lg border border-blue-100">
                   <span className="text-xs text-gray-600">
                     Tỷ lệ thành công:
@@ -343,12 +312,12 @@ export default function ComparisonSection({
                       <div
                         className="bg-blue-500 h-2 rounded-full"
                         style={{
-                          width: `${analysisData?.maleBreeingInfo?.breedingSuccessRate?.toFixed(0)}%`,
+                          width: `${analysisData?.maleBreedingInfo?.breedingSuccessRate?.toFixed(0)}%`,
                         }}
                       ></div>
                     </div>
                     <span className="text-sm font-bold text-blue-600">
-                      {analysisData?.maleBreeingInfo?.breedingSuccessRate?.toFixed(
+                      {analysisData?.maleBreedingInfo?.breedingSuccessRate?.toFixed(
                         2,
                       )}
                       %
@@ -366,7 +335,7 @@ export default function ComparisonSection({
                 <span className="text-base font-bold text-pink-800">Cá Mẹ</span>
               </div>
               <div className="text-sm text-gray-700 mb-3 leading-relaxed">
-                {analysisData?.femaleBreedingInfo?.sumary ||
+                {analysisData?.femaleBreedingInfo?.summary ||
                   "Chưa có dữ liệu lịch sử sinh sản"}
               </div>
               {analysisData?.femaleBreedingInfo && (

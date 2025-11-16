@@ -125,7 +125,7 @@ export default function FatherFishInfo({ selectedFish }: FatherFishInfoProps) {
     },
     {
       label: "Loại đột biến phổ biến",
-      value: breedingParentHistory?.commonMutationType || "Không có",
+      value: breedingParentHistory?.mutationDescription || "Không có",
     },
   ];
 
