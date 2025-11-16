@@ -60,6 +60,7 @@ import {
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import { vi } from "date-fns/locale";
+import { formatDate, DATE_FORMATS } from "@/lib/utils/dates";
 
 const defaultCustomerData = {
   pageIndex: 1,
@@ -733,9 +734,7 @@ export default function CustomersPage() {
                             <div>
                               <p className="font-medium">{order.orderNumber}</p>
                               <p className="text-sm text-muted-foreground">
-                                {new Date(order.createdAt).toLocaleDateString(
-                                  "vi-VN",
-                                )}
+                                {formatDate(order.createdAt, DATE_FORMATS.MEDIUM_DATE)}
                               </p>
                             </div>
                             <div className="text-right">
@@ -759,16 +758,7 @@ export default function CustomersPage() {
                 <div className="space-y-4">
                   <h4 className="font-semibold">Ngày Tạo</h4>
                   <p className="text-sm">
-                    {new Date(selectedCustomer.createdAt).toLocaleDateString(
-                      "vi-VN",
-                      {
-                        year: "numeric",
-                        month: "long",
-                        day: "numeric",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      },
-                    )}
+                    {formatDate(selectedCustomer.createdAt, DATE_FORMATS.DATETIME_24H)}
                   </p>
                 </div>
               </div>

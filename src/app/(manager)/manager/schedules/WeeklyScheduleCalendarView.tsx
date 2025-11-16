@@ -7,6 +7,7 @@ import {
 } from "@/lib/api/services/fetchWeeklyScheduleTemplate";
 import { Clock, Edit2, Trash2 } from "lucide-react";
 import { formatTimeToHHMM } from "@/lib/utils/formatTime";
+import { formatDate, DATE_FORMATS } from "@/lib/utils/dates";
 
 interface WeeklyScheduleCalendarViewProps {
   templates: WeeklyScheduleTemplate[];
@@ -143,14 +144,14 @@ const WeeklyScheduleCalendarView = ({
               <p>
                 Tạo lúc:{" "}
                 <span className="text-gray-700">
-                  {new Date(template.createdAt).toLocaleString("vi-VN")}
+                  {formatDate(template.createdAt, DATE_FORMATS.DATETIME_24H)}
                 </span>
               </p>
               {template.updatedAt && (
                 <p>
                   Cập nhật lúc:{" "}
                   <span className="text-gray-700">
-                    {new Date(template.updatedAt).toLocaleString("vi-VN")}
+                    {formatDate(template.updatedAt, DATE_FORMATS.DATETIME_24H)}
                   </span>
                 </p>
               )}

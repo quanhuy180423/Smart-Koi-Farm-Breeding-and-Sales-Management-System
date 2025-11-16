@@ -15,6 +15,7 @@ import { useNotification } from "@/hooks/useNotification";
 import type { NotificationMessage } from "@/hooks/useNotificationSocket";
 import { formatDistanceToNow } from "date-fns";
 import { vi } from "date-fns/locale";
+import { convertUtcToLocalTimezone } from "@/lib/utils/dates";
 import type {
   Severity,
   WaterAlertResponse,
@@ -29,19 +30,6 @@ interface SeverityStyleConfig {
   badge: string;
   hoverBg: string;
 }
-
-// Helper function to parse ISO timestamp and adjust for timezone offset
-const parseTimestampWithTimezone = (timestamp: string): Date => {
-  // Parse the ISO string as UTC
-  const date = new Date(timestamp);
-
-  // Get the local timezone offset in milliseconds
-  const localOffset = new Date().getTimezoneOffset() * 60 * 1000;
-
-  // Adjust the date by adding the offset to convert from UTC to local time
-  // The backend sends UTC time, so we need to convert it properly
-  return new Date(date.getTime() - localOffset);
-};
 
 const getSeverityStyles = (
   severity: Severity | string | null | undefined,
@@ -334,7 +322,7 @@ export function NotificationDropdown() {
                       <p className="text-xs text-slate-500">
                         {alert.createdAt &&
                           formatDistanceToNow(
-                            parseTimestampWithTimezone(alert.createdAt),
+                            convertUtcToLocalTimezone(alert.createdAt),
                             {
                               locale: vi,
                               addSuffix: true,
