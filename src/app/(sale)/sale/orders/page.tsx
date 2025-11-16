@@ -47,10 +47,8 @@ import {
   MoreHorizontal,
   Eye,
   Package,
-  Clock,
   CheckCircle,
   XCircle,
-  AlertCircle,
   User,
   Fish,
   Calendar as CalendarIcon,
@@ -337,70 +335,6 @@ export default function OrdersPage() {
   // Fetch orders
   const { data: ordersData, isLoading } = useGetAllOrders(searchParams);
 
-  // Calculate stats from fetched data
-  const stats = useMemo(() => {
-    if (!ordersData?.data) {
-      return {
-        totalOrders: 0,
-        pendingOrders: 0,
-        processingOrders: 0,
-        completedOrders: 0,
-        cancelledOrders: 0,
-        totalRevenue: 0,
-      };
-    }
-
-    const orders = ordersData.data;
-    const countByStatus = orders.reduce(
-      (acc, order) => {
-        acc[order.status] = (acc[order.status] || 0) + 1;
-        return acc;
-      },
-      {} as Record<string, number>,
-    );
-
-    return {
-      totalOrders: ordersData.totalItems || 0,
-      pendingOrders: countByStatus[OrderStatus.PENDING_PAYMENT] || 0,
-      processingOrders:
-        countByStatus[OrderStatus.CONFIRMED] ||
-        countByStatus[OrderStatus.SHIPPED] ||
-        0,
-      completedOrders: countByStatus[OrderStatus.COMPLETED] || 0,
-      cancelledOrders: countByStatus[OrderStatus.CANCELLED] || 0,
-      totalRevenue: orders.reduce(
-        (sum, order) => sum + (order.totalAmount || 0),
-        0,
-      ),
-    };
-  }, [ordersData]);
-
-  // const getPaymentStatusColor = (status: string) => {
-  //   switch (status) {
-  //     case "paid":
-  //       return "bg-green-100 text-green-800";
-  //     case "pending":
-  //       return "bg-yellow-100 text-yellow-800";
-  //     case "refunded":
-  //       return "bg-gray-100 text-gray-800";
-  //     default:
-  //       return "bg-gray-100 text-gray-800";
-  //   }
-  // };
-
-  // const getPaymentStatusText = (status: string) => {
-  //   switch (status) {
-  //     case "paid":
-  //       return "Đã thanh toán";
-  //     case "pending":
-  //       return "Chờ thanh toán";
-  //     case "refunded":
-  //       return "Đã hoàn tiền";
-  //     default:
-  //       return "Không xác định";
-  //   }
-  // };
-
   return (
     <div className="flex flex-col gap-6 p-6">
       {/* Header */}
@@ -420,93 +354,6 @@ export default function OrdersPage() {
             <span className="sm:hidden">Báo cáo</span>
           </Button>
         </div>
-      </div>
-
-      {/* Stats Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">
-              Tổng đơn hàng
-            </CardTitle>
-            <ShoppingCart className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-xl sm:text-2xl font-bold">
-              {isLoading ? "-" : stats.totalOrders}
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">
-              Chờ xác nhận
-            </CardTitle>
-            <AlertCircle className="h-4 w-4 text-yellow-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-xl sm:text-2xl font-bold text-yellow-600">
-              {isLoading ? "-" : stats.pendingOrders}
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">
-              Đang xử lý
-            </CardTitle>
-            <Clock className="h-4 w-4 text-blue-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-xl sm:text-2xl font-bold text-blue-600">
-              {isLoading ? "-" : stats.processingOrders}
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">
-              Hoàn thành
-            </CardTitle>
-            <CheckCircle className="h-4 w-4 text-green-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-xl sm:text-2xl font-bold text-green-600">
-              {isLoading ? "-" : stats.completedOrders}
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">
-              Đã hủy
-            </CardTitle>
-            <XCircle className="h-4 w-4 text-red-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-xl sm:text-2xl font-bold text-red-600">
-              {isLoading ? "-" : stats.cancelledOrders}
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="col-span-2 md:col-span-1">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">
-              Doanh thu
-            </CardTitle>
-            <DollarSign className="h-4 w-4 text-green-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-sm sm:text-lg font-bold text-green-600">
-              {isLoading ? "-" : formatCurrency(stats.totalRevenue)}
-            </div>
-          </CardContent>
-        </Card>
       </div>
 
       {/* Search and Filters */}

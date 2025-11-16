@@ -23,7 +23,7 @@ export enum HealthStatus {
 
 export enum KoiType {
   HIGH = "High",
-  SHOW = "Show ",
+  SHOW = "Show",
 }
 
 export enum FishSize {
@@ -51,7 +51,7 @@ export enum MutationType {
   METALLIC = "Metallic",
 }
 
-export enum pattern {
+export enum Pattern {
   NONE = "None",
   TANCHO = "Tancho",
   MARUTEN = "Maruten",
@@ -71,7 +71,7 @@ export interface KoiFishResponse {
   birthDate: string;
   gender: Gender;
   healthStatus: HealthStatus;
-  pattern: pattern;
+  pattern: Pattern;
   saleStatus: SaleStatus;
   images: string[];
   videos: string[];
@@ -120,11 +120,13 @@ export interface KoiFishFamilyResponse {
 export interface KoiFishUpdateRequest {
   pondId: number;
   varietyId: number;
+  breedingProcessId?: number;
   rfid: string;
-  size: string;
-  type: string;
+  size: number;
+  type: KoiType;
+  pattern: Pattern;
   birthDate: string;
-  gender?: Gender;
+  gender: Gender;
   healthStatus: HealthStatus;
   saleStatus: SaleStatus;
   origin: string;
@@ -132,7 +134,8 @@ export interface KoiFishUpdateRequest {
   videos: string[];
   sellingPrice: number;
   description: string;
-  colorPattern?: string;
+  isMutated: boolean;
+  mutationDescription: string;
 }
 
 const baseUrl = "/api/KoiFish";

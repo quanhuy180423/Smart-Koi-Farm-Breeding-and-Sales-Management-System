@@ -33,6 +33,7 @@ import {
   getOrderStatusText,
   getOrderStatusLabel,
 } from "@/lib/utils/enum/formatEnum";
+import { formatDate, DATE_FORMATS } from "@/lib/utils/dates";
 
 export default function OrderDetailPage() {
   const router = useRouter();
@@ -219,13 +220,7 @@ export default function OrderDetailPage() {
             <div>
               <p className="text-sm text-muted-foreground">Ngày đặt hàng</p>
               <p className="font-medium">
-                {new Date(order.createdAt).toLocaleDateString("vi-VN", {
-                  year: "numeric",
-                  month: "long",
-                  day: "numeric",
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}
+                {formatDate(order.createdAt, DATE_FORMATS.DATETIME_24H)}
               </p>
             </div>
             <div>

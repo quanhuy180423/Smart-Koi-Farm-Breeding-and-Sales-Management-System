@@ -867,29 +867,18 @@ export default function PromotionManagement() {
                     <div>
                       <p className="text-sm text-muted-foreground">Từ</p>
                       <p className="font-medium">
-                        {new Date(
+                        {formatDate(
                           selectedPromotion.validFrom,
-                        ).toLocaleDateString("vi-VN", {
-                          year: "numeric",
-                          month: "long",
-                          day: "numeric",
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
+                          DATE_FORMATS.DATETIME_24H,
+                        )}
                       </p>
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground">Đến</p>
                       <p className="font-medium">
-                        {new Date(selectedPromotion.validTo).toLocaleDateString(
-                          "vi-VN",
-                          {
-                            year: "numeric",
-                            month: "long",
-                            day: "numeric",
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          },
+                        {formatDate(
+                          selectedPromotion.validTo,
+                          DATE_FORMATS.DATETIME_24H,
                         )}
                       </p>
                     </div>

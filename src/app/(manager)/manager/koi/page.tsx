@@ -17,6 +17,7 @@ import {
   Search,
   Trash2,
   Eye,
+  Edit,
   Loader2,
   Filter,
   Network,
@@ -24,6 +25,7 @@ import {
   ChevronRight,
   X,
   AlertCircle,
+  MoreHorizontal,
 } from "lucide-react";
 import {
   Table,
@@ -48,6 +50,13 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
   FishSize,
   Gender,
   HealthStatus,
@@ -71,12 +80,15 @@ import { Label } from "@/components/ui/label";
 import PedigreeModal from "./PedigreeModal";
 import { KoiDetailDialog } from "@/components/dialogs/KoiDetailDialog";
 import { KoiIncidentHistoryDialog } from "@/components/dialogs/KoiIncidentHistoryDialog";
+import { EditKoiModal } from "./EditKoiModal";
 import PondSelectionDialog from "@/components/manager/PondSelectionDialog";
 import VarietySelectionDialog from "@/components/manager/VarietySelectionDialog";
 
 export default function KoiManagement() {
   const [selectedKoi, setSelectedKoi] = useState<KoiFishResponse | null>(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState<boolean>(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false);
+  const [editingKoi, setEditingKoi] = useState<KoiFishResponse | null>(null);
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const [selectedImageIdx, setSelectedImageIdx] = useState(0);
   const [isImageViewerOpen, setIsImageViewerOpen] = useState(false);
@@ -235,6 +247,11 @@ export default function KoiManagement() {
     setIsIncidentHistoryOpen(true);
   };
 
+  const handleEditKoi = (koi: KoiFishResponse) => {
+    setEditingKoi(koi);
+    setIsEditModalOpen(true);
+  };
+
   const handleSelectVariety = (varietyId: number, varietyName: string) => {
     setVarietyIdInput(String(varietyId));
     setSelectedVarietyName(varietyName);
@@ -332,13 +349,13 @@ export default function KoiManagement() {
                   <TableRow>
                     <TableHead className="w-[5%]">STT</TableHead>
                     <TableHead className="w-[10%]">RFID</TableHead>
-                    <TableHead className="w-[10%]">Giống</TableHead>
+                    <TableHead className="w-[12%]">Giống</TableHead>
                     <TableHead className="w-[5%]">Tuổi</TableHead>
                     <TableHead className="w-[10%]">Kích thước</TableHead>
-                    <TableHead className="w-[20%]">Hồ</TableHead>
-                    <TableHead className="w-[10%]">Sức khỏe</TableHead>
-                    <TableHead className="w-[10%]">Giá bán (VNĐ)</TableHead>
-                    <TableHead className="w-[20%]">Thao tác</TableHead>
+                    <TableHead className="w-[18%]">Hồ</TableHead>
+                    <TableHead className="w-[15%]">Sức khỏe</TableHead>
+                    <TableHead className="w-[15%]">Giá bán (VNĐ)</TableHead>
+                    <TableHead className="w-[10%]">Thao tác</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -384,44 +401,56 @@ export default function KoiManagement() {
                         <TableCell>
                           {formatCurrency(koi.sellingPrice || 0)}
                         </TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-2">
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              title="Xem chi tiết"
-                              onClick={() => handleViewDetails(koi)}
-                            >
-                              <Eye className="h-4 w-4" />
-                            </Button>
-
-                            <Button
-                              size="icon"
-                              variant="ghost"
-                              title="Xem gia phả"
-                              onClick={() => handleViewPedigree(koi)}
-                            >
-                              <Network className="h-4 w-4" />
-                            </Button>
-
-                            <Button
-                              size="icon"
-                              variant="ghost"
-                              title="Xem lịch sử sự cố"
-                              onClick={() => handleViewIncidentHistory(koi)}
-                            >
-                              <AlertCircle className="h-4 w-4" />
-                            </Button>
-
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              title="Xóa"
-                              className="text-red-600 hover:bg-red-500"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </div>
+                        <TableCell className="w-[10%]">
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                title="Hành động"
+                              >
+                                <MoreHorizontal className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuLabel>Hành động</DropdownMenuLabel>
+                              <DropdownMenuItem
+                                onClick={() => handleViewDetails(koi)}
+                                className="hover:bg-primary hover:text-white cursor-pointer"
+                              >
+                                <Eye className="mr-2 h-4 w-4 hover:text-white" />
+                                Xem chi tiết
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={() => handleViewPedigree(koi)}
+                                className="hover:bg-primary hover:text-white cursor-pointer"
+                              >
+                                <Network className="mr-2 h-4 w-4 hover:text-white" />
+                                Xem gia phả
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={() => handleEditKoi(koi)}
+                                className="hover:bg-primary hover:text-white cursor-pointer"
+                              >
+                                <Edit className="mr-2 h-4 w-4 hover:text-white" />
+                                Chỉnh sửa
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={() => handleViewIncidentHistory(koi)}
+                                className="hover:bg-primary hover:text-white cursor-pointer"
+                              >
+                                <AlertCircle className="mr-2 h-4 w-4 hover:text-white" />
+                                Xem lịch sử sự cố
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={() => handleViewIncidentHistory(koi)}
+                                className="text-red-600 hover:text-white hover:bg-red-600 focus:text-white focus:bg-red-600 cursor-pointer"
+                              >
+                                <Trash2 className="mr-2 h-4 w-4 hover:text-white" />
+                                Xóa
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
                         </TableCell>
                       </TableRow>
                     ))
@@ -771,6 +800,13 @@ export default function KoiManagement() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Edit Koi Modal */}
+      <EditKoiModal
+        isOpen={isEditModalOpen}
+        onOpenChange={setIsEditModalOpen}
+        koi={editingKoi}
+      />
     </div>
   );
 }

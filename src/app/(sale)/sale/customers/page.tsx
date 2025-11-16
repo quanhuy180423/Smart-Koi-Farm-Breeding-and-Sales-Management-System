@@ -60,6 +60,7 @@ import {
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import { vi } from "date-fns/locale";
+import { formatDate, DATE_FORMATS } from "@/lib/utils/dates";
 
 const defaultCustomerData = {
   pageIndex: 1,
@@ -221,83 +222,6 @@ export default function CustomersPage() {
         <p className="text-muted-foreground">
           Xem và quản lý danh sách khách hàng
         </p>
-      </div>
-
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Tổng Khách Hàng
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{customersData.totalItems}</div>
-            <p className="text-xs text-muted-foreground">
-              Trên {customersData.totalPages} trang
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Khách Hàng Hoạt Động
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {customersData.data.filter((c) => c.isActive).length}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              {Math.round(
-                (customersData.data.filter((c) => c.isActive).length /
-                  customersData.data.length) *
-                  100,
-              )}
-              % tổng số
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Tổng Doanh Thu
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {formatCurrency(
-                customersData.data.reduce((sum, c) => sum + c.totalSpent, 0),
-              )}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Từ {customersData.data.length} khách hàng
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Trung Bình Đơn Hàng
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {customersData.data.length > 0
-                ? formatCurrency(
-                    customersData.data.reduce(
-                      (sum, c) => sum + c.totalSpent,
-                      0,
-                    ) / customersData.data.length,
-                  )
-                : "0 đ"}
-            </div>
-            <p className="text-xs text-muted-foreground">Mỗi khách hàng</p>
-          </CardContent>
-        </Card>
       </div>
 
       {/* Search and Filter */}
@@ -810,9 +734,7 @@ export default function CustomersPage() {
                             <div>
                               <p className="font-medium">{order.orderNumber}</p>
                               <p className="text-sm text-muted-foreground">
-                                {new Date(order.createdAt).toLocaleDateString(
-                                  "vi-VN",
-                                )}
+                                {formatDate(order.createdAt, DATE_FORMATS.MEDIUM_DATE)}
                               </p>
                             </div>
                             <div className="text-right">
@@ -836,16 +758,7 @@ export default function CustomersPage() {
                 <div className="space-y-4">
                   <h4 className="font-semibold">Ngày Tạo</h4>
                   <p className="text-sm">
-                    {new Date(selectedCustomer.createdAt).toLocaleDateString(
-                      "vi-VN",
-                      {
-                        year: "numeric",
-                        month: "long",
-                        day: "numeric",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      },
-                    )}
+                    {formatDate(selectedCustomer.createdAt, DATE_FORMATS.DATETIME_24H)}
                   </p>
                 </div>
               </div>

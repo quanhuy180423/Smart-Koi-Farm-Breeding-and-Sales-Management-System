@@ -11,7 +11,15 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Dialog, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { KoiFishResponse } from "@/lib/api/services/fetchKoiFish";
 import {
   DropdownMenu,
@@ -26,17 +34,18 @@ import {
   Search,
   MoreHorizontal,
   Eye,
-  Edit,
   Package,
   Tag,
   Ruler,
   Calendar,
+  Trash2,
 } from "lucide-react";
 import { formatCurrency } from "@/lib/utils/numbers/formatCurrency";
-import { useGetKoiFishes } from "@/hooks/useKoiFish";
+import { useGetKoiFishes, useUpdateKoiFish } from "@/hooks/useKoiFish";
 import {
   KoiFishSearchParams,
   SaleStatus,
+  KoiFishUpdateRequest,
 } from "@/lib/api/services/fetchKoiFish";
 import { useDebounce } from "@/hooks/useDebounce";
 import getAge from "@/lib/utils/dates/age";
@@ -52,6 +61,7 @@ import { AddFishDialog } from "./AddFishDialog";
 import { KoiDetailDialog } from "@/components/dialogs/KoiDetailDialog";
 import { LoadingState } from "@/components/common/LoadingState";
 import { EmptyState } from "@/components/common/EmptyState";
+import { parseSizeToNumber } from "@/lib/utils/numbers/parseSize";
 
 const PAGE_SIZE_OPTIONS: number[] = [9, 12, 15, 18];
 
@@ -66,7 +76,13 @@ export default function FishForSalePage() {
   });
   const [isAddFishDialogOpen, setIsAddFishDialogOpen] = useState(false);
   const [selectedKoi, setSelectedKoi] = useState<KoiFishResponse | null>(null);
+  const [fishToRemove, setFishToRemove] = useState<KoiFishResponse | null>(
+    null,
+  );
+  const [isRemovingFishId, setIsRemovingFishId] = useState<number | null>(null);
+
   const { data: koiData, isLoading } = useGetKoiFishes(searchParams);
+  const { mutate: updateFish, isPending: isUpdating } = useUpdateKoiFish();
 
   useEffect(() => {
     setSearchParams((prev) => ({
@@ -82,6 +98,47 @@ export default function FishForSalePage() {
 
   const handlePageSizeChange = (size: number) => {
     setSearchParams((prev) => ({ ...prev, pageSize: size, pageIndex: 1 }));
+  };
+
+  const handleRemoveFromSaleList = (koi: KoiFishResponse) => {
+    setIsRemovingFishId(koi.id);
+
+    const requestBody: KoiFishUpdateRequest = {
+      rfid: koi.rfid,
+      pondId: koi.pond.id,
+      varietyId: koi.variety.id,
+      breedingProcessId: koi.breedingProcess?.id ?? undefined,
+      size: parseSizeToNumber(koi.size),
+      type: koi.type,
+      pattern: koi.pattern ?? "",
+      birthDate: koi.birthDate ?? "",
+      gender: koi.gender,
+      healthStatus: koi.healthStatus,
+      origin: koi.origin ?? "",
+      images: koi.images,
+      videos: koi.videos,
+      sellingPrice: koi.sellingPrice ?? 0,
+      description: koi.description,
+      isMutated: koi.isMutated ?? false,
+      mutationDescription: koi.mutationDescription ?? "",
+      // Field cần update
+      saleStatus: SaleStatus.NOT_FOR_SALE,
+    };
+
+    updateFish(
+      {
+        id: koi.id,
+        request: requestBody,
+      },
+      {
+        onSuccess: () => {
+          setFishToRemove(null);
+        },
+        onSettled: () => {
+          setIsRemovingFishId(null);
+        },
+      },
+    );
   };
 
   const fishList = koiData?.data || [];
@@ -164,27 +221,42 @@ export default function FishForSalePage() {
                   return (
                     <Card
                       key={koi.id}
-                      className="relative overflow-hidden hover:shadow-lg transition-shadow flex flex-col"
+                      className="relative overflow-hidden hover:shadow-xl transition-all duration-300 flex flex-col border-0 bg-white p-0"
                     >
-                      <CardHeader className="p-0">
-                        <div className="relative w-full h-48">
+                      {/* Image Section with Gradient Overlay */}
+                      <CardHeader
+                        className="p-0 relative group cursor-pointer"
+                        onClick={() => setSelectedKoi(koi)}
+                      >
+                        <div className="relative w-full h-56 bg-gradient-to-br from-gray-100 to-gray-200 overflow-hidden">
                           <Image
                             src={koi.images[0] || "/placeholder.svg"}
                             alt={koi.rfid}
-                            className="object-cover"
+                            className="object-cover w-full h-full group-hover:scale-110 transition-transform duration-300"
                             fill
                             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                           />
+                          {/* Status Badge on Image */}
+                          <div className="absolute top-3 right-3">
+                            <Badge
+                              className={`${saleStatusInfo.colorClass} shadow-md`}
+                            >
+                              {saleStatusInfo.label}
+                            </Badge>
+                          </div>
+                          {/* Overlay on Hover */}
+                          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300" />
                         </div>
                       </CardHeader>
 
-                      <CardContent className="p-3 sm:p-4 flex flex-col flex-1">
-                        <div className="flex items-start justify-between mb-2">
+                      <CardContent className="p-4 sm:p-5 flex flex-col flex-1">
+                        {/* Title and Menu */}
+                        <div className="flex items-start justify-between gap-3 mb-3">
                           <div className="flex-1 min-w-0">
-                            <CardTitle className="text-base sm:text-lg line-clamp-1">
+                            <CardTitle className="text-lg sm:text-xl font-bold text-gray-900 line-clamp-1 mb-1">
                               {koi.rfid}
                             </CardTitle>
-                            <CardDescription className="text-xs">
+                            <CardDescription className="text-sm text-gray-600">
                               {koi.variety.varietyName}
                             </CardDescription>
                           </div>
@@ -192,9 +264,9 @@ export default function FishForSalePage() {
                             <DropdownMenuTrigger asChild>
                               <Button
                                 variant="ghost"
-                                className="h-8 w-8 p-0 flex-shrink-0"
+                                className="h-8 w-8 p-0 flex-shrink-0 hover:bg-gray-100"
                               >
-                                <MoreHorizontal className="h-4 w-4" />
+                                <MoreHorizontal className="h-4 w-4 text-gray-500" />
                               </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
@@ -204,67 +276,85 @@ export default function FishForSalePage() {
                               >
                                 <Eye className="mr-2 h-4 w-4" /> Xem chi tiết
                               </DropdownMenuItem>
-                              <DropdownMenuItem>
-                                <Edit className="mr-2 h-4 w-4" /> Chỉnh sửa
+                              <DropdownMenuItem
+                                onClick={() => setFishToRemove(koi)}
+                                className="text-red-600 focus:text-red-600 focus:bg-red-50"
+                              >
+                                <Trash2 className="mr-2 h-4 w-4" /> Xóa khỏi
+                                danh sách
                               </DropdownMenuItem>
                             </DropdownMenuContent>
                           </DropdownMenu>
                         </div>
 
-                        <div className="grid grid-cols-2 gap-x-3 gap-y-2 text-sm mb-3">
-                          <div className="flex items-center gap-1.5">
-                            <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
-                            <span className="font-medium">
-                              {getAge(koi.birthDate)}
-                            </span>
+                        {/* Info Grid */}
+                        <div className="grid grid-cols-2 gap-3 mb-4 p-3 bg-gray-50 rounded-lg">
+                          <div className="flex items-center gap-2">
+                            <div className="p-2 bg-blue-100 rounded-md">
+                              <Calendar className="h-3.5 w-3.5 text-blue-600" />
+                            </div>
+                            <div>
+                              <p className="text-xs text-gray-600">Tuổi</p>
+                              <p className="font-semibold text-sm text-gray-900">
+                                {getAge(koi.birthDate)}
+                              </p>
+                            </div>
                           </div>
-                          <div className="flex items-center gap-1.5">
-                            <Ruler className="h-3.5 w-3.5 text-muted-foreground" />
-                            <span className="font-medium">
-                              {getFishSizeLabel(koi.size)}
-                            </span>
+                          <div className="flex items-center gap-2">
+                            <div className="p-2 bg-green-100 rounded-md">
+                              <Ruler className="h-3.5 w-3.5 text-green-600" />
+                            </div>
+                            <div>
+                              <p className="text-xs text-gray-600">
+                                Kích thước
+                              </p>
+                              <p className="font-semibold text-sm text-gray-900">
+                                {getFishSizeLabel(koi.size)}
+                              </p>
+                            </div>
                           </div>
-                          <div className="flex items-center gap-1.5">
-                            <Package className="h-3.5 w-3.5 text-muted-foreground" />
-                            <span
-                              className={`font-medium ${genderInfo.colorClass}`}
-                            >
-                              {genderInfo.label}
-                            </span>
+                          <div className="flex items-center gap-2">
+                            <div className="p-2 bg-purple-100 rounded-md">
+                              <Package className="h-3.5 w-3.5 text-purple-600" />
+                            </div>
+                            <div>
+                              <p className="text-xs text-gray-600">Giới tính</p>
+                              <p
+                                className={`font-semibold text-sm ${genderInfo.colorClass}`}
+                              >
+                                {genderInfo.label}
+                              </p>
+                            </div>
                           </div>
-                          <div className="flex items-center gap-1.5">
-                            <Tag className="h-3.5 w-3.5 text-muted-foreground" />
-                            <span className="font-medium text-xs">
-                              {koi.pattern || "N/A"}
-                            </span>
+                          <div className="flex items-center gap-2">
+                            <div className="p-2 bg-orange-100 rounded-md">
+                              <Tag className="h-3.5 w-3.5 text-orange-600" />
+                            </div>
+                            <div>
+                              <p className="text-xs text-gray-600">Hoa văn</p>
+                              <p className="font-semibold text-sm text-gray-900 line-clamp-1">
+                                {koi.pattern || "N/A"}
+                              </p>
+                            </div>
                           </div>
                         </div>
 
-                        <div className="flex flex-col gap-2 mt-auto">
+                        {/* Health Status */}
+                        <div className="mb-4">
                           <Badge
                             variant="secondary"
-                            className={`text-xs justify-center ${saleStatusInfo.colorClass}`}
+                            className={`w-full justify-center py-2 text-sm font-semibold ${healthStatusInfo.colorClass}`}
                           >
-                            {saleStatusInfo.label}
-                          </Badge>
-                          <Badge
-                            variant="secondary"
-                            className="text-xs justify-center bg-muted/50 text-muted-foreground"
-                          >
-                            Sức khỏe:{" "}
-                            <span
-                              className={`font-semibold ml-1 ${healthStatusInfo.colorClass}`}
-                            >
-                              {healthStatusInfo.label}
-                            </span>
+                            Sức khỏe: {healthStatusInfo.label}
                           </Badge>
                         </div>
 
-                        <div className="border-t pt-3 mt-3">
-                          <span className="text-sm text-muted-foreground">
+                        {/* Price Section */}
+                        <div className="border-t pt-4 mt-auto bg-gradient-to-r from-blue-50 to-blue-50/0 -mx-4 -mb-4 px-4 py-4 rounded-b-lg">
+                          <p className="text-xs font-medium text-gray-600 uppercase tracking-wide">
                             Giá bán
-                          </span>
-                          <p className="font-bold text-lg text-primary">
+                          </p>
+                          <p className="text-2xl font-bold text-blue-600">
                             {formatCurrency(koi.sellingPrice || 0)}
                           </p>
                         </div>
@@ -300,6 +390,48 @@ export default function FishForSalePage() {
         koi={selectedKoi}
         showPricingInfo={true}
       />
+
+      {/* Remove from Sale List Confirmation Dialog */}
+      <Dialog
+        open={!!fishToRemove}
+        onOpenChange={(open: boolean) => !open && setFishToRemove(null)}
+      >
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-xl">
+              Xóa khỏi danh sách bán?
+            </DialogTitle>
+            <DialogDescription className="text-base pt-2">
+              Bạn có chắc muốn xóa{" "}
+              <span className="font-semibold text-gray-900">
+                {fishToRemove?.rfid}
+              </span>{" "}
+              khỏi danh sách cá bán? Cá sẽ được chuyển trạng thái về &quot;Không
+              bán&quot;.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2 flex justify-end">
+            <Button
+              variant="outline"
+              onClick={() => setFishToRemove(null)}
+              disabled={isRemovingFishId === fishToRemove?.id && isUpdating}
+            >
+              Hủy
+            </Button>
+            <Button
+              onClick={() =>
+                fishToRemove && handleRemoveFromSaleList(fishToRemove)
+              }
+              disabled={isRemovingFishId === fishToRemove?.id && isUpdating}
+              className="bg-red-600 hover:bg-red-700 text-white"
+            >
+              {isRemovingFishId === fishToRemove?.id && isUpdating
+                ? "Đang xóa..."
+                : "Xóa"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

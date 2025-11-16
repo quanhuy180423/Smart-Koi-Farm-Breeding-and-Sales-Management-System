@@ -6,8 +6,20 @@ import { vi } from "date-fns/locale";
  */
 
 /**
+ * Convert UTC timestamp to user's local timezone
+ * @param dateString - UTC ISO date string from API
+ * @returns Date adjusted to user's local timezone
+ */
+export function convertUtcToLocalTimezone(dateString: string): Date {
+  const utcDate = parseISO(dateString);
+  const localOffset = new Date().getTimezoneOffset() * 60 * 1000;
+  return new Date(utcDate.getTime() - localOffset);
+}
+
+/**
  * Format a date string with specified format
- * @param dateString - Date string (ISO format preferred)
+ * Automatically converts UTC timestamps to local timezone
+ * @param dateString - Date string (ISO format preferred, assumed to be UTC)
  * @param formatStr - Format string (date-fns format tokens)
  * @returns Formatted date string or 'N/A' if invalid
  */
@@ -18,10 +30,12 @@ export function formatDate(
   if (!dateString) return "N/A";
 
   try {
-    const date = parseISO(dateString);
+    const utcDate = parseISO(dateString);
 
-    if (isValid(date)) {
-      return format(date, formatStr, { locale: vi });
+    if (isValid(utcDate)) {
+      // Convert UTC to local timezone
+      const localDate = convertUtcToLocalTimezone(dateString);
+      return format(localDate, formatStr, { locale: vi });
     }
 
     return "N/A";
@@ -33,7 +47,8 @@ export function formatDate(
 
 /**
  * Format date for form inputs with custom format
- * @param dateString - Date string (ISO format preferred)
+ * Automatically converts UTC timestamps to local timezone
+ * @param dateString - Date string (ISO format preferred, assumed to be UTC)
  * @param formatStr - Format string (default: 'yyyy-MM-dd')
  * @returns Date string in specified format or empty string if invalid
  */
@@ -44,10 +59,12 @@ export function formatDateForInput(
   if (!dateString) return "";
 
   try {
-    const date = parseISO(dateString);
+    const utcDate = parseISO(dateString);
 
-    if (isValid(date)) {
-      return format(date, formatStr);
+    if (isValid(utcDate)) {
+      // Convert UTC to local timezone
+      const localDate = convertUtcToLocalTimezone(dateString);
+      return format(localDate, formatStr);
     }
 
     return "";

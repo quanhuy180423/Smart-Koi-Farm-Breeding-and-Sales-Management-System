@@ -15,7 +15,7 @@ export const uploadService = {
     const response = await apiService.post<
       BaseResponse<UploadResponse>,
       FormData
-    >(`${baseUrl}/upload-image`, formData);
+    >(`${baseUrl}/upload-file`, formData);
     return response.data;
   },
   // uploadImage endpoint dùng được cho cả ảnh lẫn video
