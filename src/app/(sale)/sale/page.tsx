@@ -27,7 +27,6 @@ import {
   Package,
   Clock,
   Eye,
-  Plus,
   ArrowUpRight,
   ArrowDownRight,
   Loader2,
@@ -149,10 +148,6 @@ export default function SaleDashboard() {
           <Button variant="outline" size="sm">
             <Eye className="h-4 w-4 mr-2" />
             Xem báo cáo
-          </Button>
-          <Button size="sm">
-            <Plus className="h-4 w-4 mr-2" />
-            Tạo đơn hàng
           </Button>
         </div>
       </div>
