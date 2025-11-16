@@ -43,14 +43,6 @@ export enum FishSize {
   OVER_83_1CM = "Over83_1cm",
 }
 
-export enum MutationType {
-  NONE = "None",
-  DOITSU = "Doitsu",
-  GIN_RIN = "GinRin",
-  HIRENAGA = "Hirenaga",
-  METALLIC = "Metallic",
-}
-
 export enum Pattern {
   NONE = "None",
   TANCHO = "Tancho",
