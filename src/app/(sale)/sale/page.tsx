@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import {
   Card,
   CardContent,
@@ -11,6 +11,13 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   TrendingUp,
   Users,
@@ -23,98 +30,99 @@ import {
   Plus,
   ArrowUpRight,
   ArrowDownRight,
+  Loader2,
+  BarChart3,
 } from "lucide-react";
-
-// Mock data - replace with real API calls
-const mockStats = {
-  totalRevenue: 45200000,
-  revenueChange: 12.5,
-  totalOrders: 156,
-  ordersChange: -3.2,
-  totalCustomers: 89,
-  customersChange: 8.1,
-  totalFish: 234,
-  fishChange: 15.7,
-  pendingOrders: 12,
-  completedOrders: 144,
-  lowStockFish: 8,
-  topSellingFish: 15,
-};
-
-const mockRecentOrders = [
-  {
-    id: "ORD001",
-    customer: "Nguyễn Văn A",
-    fish: "Koi Kohaku Premium",
-    amount: 2500000,
-    status: "completed",
-    date: "2024-01-15",
-  },
-  {
-    id: "ORD002",
-    customer: "Trần Thị B",
-    fish: "Koi Sanke",
-    amount: 1800000,
-    status: "pending",
-    date: "2024-01-14",
-  },
-  {
-    id: "ORD003",
-    customer: "Lê Văn C",
-    fish: "Koi Showa",
-    amount: 3200000,
-    status: "processing",
-    date: "2024-01-13",
-  },
-];
-
-const mockTopFish = [
-  { name: "Koi Kohaku Premium", sold: 25, revenue: 62500000 },
-  { name: "Koi Sanke", sold: 18, revenue: 32400000 },
-  { name: "Koi Showa", sold: 15, revenue: 48000000 },
-  { name: "Koi Tancho", sold: 12, revenue: 18000000 },
-];
+import {
+  ComposedChart,
+  Bar,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from "recharts";
+import {
+  useGetSalesDashboardStatistics,
+  useGetSalesDashboardQuickInfo,
+  useGetBestSellers,
+  useGetSalesAnalysis,
+} from "@/hooks/useSalesDashboard";
+import { SalesAnalysisRange } from "@/lib/api/services/fetchSalesDashboard";
+import { formatCurrency } from "@/lib/utils/numbers/formatCurrency";
 
 export default function SaleDashboard() {
-  const [isLoading, setIsLoading] = useState(true);
+  const [analysisRange, setAnalysisRange] = useState<SalesAnalysisRange>(
+    SalesAnalysisRange.LAST_30_DAYS,
+  );
 
-  useEffect(() => {
-    // Simulate loading
-    const timer = setTimeout(() => setIsLoading(false), 1000);
-    return () => clearTimeout(timer);
-  }, []);
+  const { data: stats, isLoading } = useGetSalesDashboardStatistics();
+  const { data: quickInfo, isLoading: isQuickInfoLoading } =
+    useGetSalesDashboardQuickInfo();
+  const { data: bestSellers, isLoading: isBestSellersLoading } =
+    useGetBestSellers(5);
+  const { data: salesAnalysis, isLoading: isSalesAnalysisLoading } =
+    useGetSalesAnalysis(analysisRange);
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("vi-VN", {
-      style: "currency",
-      currency: "VND",
-    }).format(amount);
+  // Transform API data for chart
+  const chartData = salesAnalysis
+    ? salesAnalysis.labels.map((label, index) => ({
+        name: label,
+        revenue: salesAnalysis.revenueData[index] || 0,
+        orders: salesAnalysis.ordersData[index] || 0,
+      }))
+    : [];
+
+  // Format bar label for revenue
+  const formatRevenueLabel = (value: unknown): string => {
+    if (typeof value !== "number") return "";
+    if (value === 0) return "";
+    return new Intl.NumberFormat("vi-VN").format(value);
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "completed":
-        return "bg-green-100 text-green-800";
-      case "pending":
-        return "bg-yellow-100 text-yellow-800";
-      case "processing":
-        return "bg-blue-100 text-blue-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
+  // Format line label for orders
+  const formatOrdersLabel = (value: unknown): string => {
+    return typeof value === "number" ? value.toString() : "";
   };
 
-  const getStatusText = (status: string) => {
-    switch (status) {
-      case "completed":
-        return "Hoàn thành";
-      case "pending":
-        return "Chờ xử lý";
-      case "processing":
-        return "Đang xử lý";
-      default:
-        return "Không xác định";
+  // Format YAxis tick for revenue
+  const formatYAxisTick = (value: number): string => {
+    return new Intl.NumberFormat("vi-VN").format(value);
+  };
+
+  // Custom tooltip content
+  const CustomTooltip = (props: unknown) => {
+    const tooltipProps = props as {
+      active?: boolean;
+      payload?: Array<{
+        name: string;
+        value: number;
+        color?: string;
+      }>;
+      label?: string;
+    };
+
+    const { active, payload, label } = tooltipProps;
+    if (active && payload && payload.length) {
+      return (
+        <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg">
+          <p className="text-sm font-medium text-gray-900">{label}</p>
+          {payload.map((entry, index) => (
+            <p key={index} style={{ color: entry.color }} className="text-sm">
+              {entry.name}:{" "}
+              {entry.name === "Doanh thu"
+                ? new Intl.NumberFormat("vi-VN").format(entry.value)
+                : entry.name === "Số đơn hàng"
+                  ? Math.round(entry.value)
+                  : entry.value}
+            </p>
+          ))}
+        </div>
+      );
     }
+    return null;
   };
 
   if (isLoading) {
@@ -162,26 +170,36 @@ export default function SaleDashboard() {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
-              {formatCurrency(mockStats.totalRevenue)}
-            </div>
-            <div className="flex items-center text-xs text-muted-foreground mt-1">
-              {mockStats.revenueChange > 0 ? (
-                <ArrowUpRight className="h-3 w-3 text-green-600 mr-1" />
-              ) : (
-                <ArrowDownRight className="h-3 w-3 text-red-600 mr-1" />
-              )}
-              <span
-                className={
-                  mockStats.revenueChange > 0
-                    ? "text-green-600"
-                    : "text-red-600"
-                }
-              >
-                {Math.abs(mockStats.revenueChange)}%
-              </span>
-              <span className="ml-1">so với tháng trước</span>
-            </div>
+            {isLoading ? (
+              <div className="flex items-center justify-center py-4">
+                <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+              </div>
+            ) : (
+              <>
+                <div className="text-2xl font-bold">
+                  {stats ? formatCurrency(stats.monthlyRevenue.current) : "N/A"}
+                </div>
+                {stats && (
+                  <div className="flex items-center text-xs text-muted-foreground mt-1">
+                    {stats.monthlyRevenue.changePercent > 0 ? (
+                      <ArrowUpRight className="h-3 w-3 text-green-600 mr-1" />
+                    ) : (
+                      <ArrowDownRight className="h-3 w-3 text-red-600 mr-1" />
+                    )}
+                    <span
+                      className={
+                        stats.monthlyRevenue.changePercent > 0
+                          ? "text-green-600"
+                          : "text-red-600"
+                      }
+                    >
+                      {Math.abs(stats.monthlyRevenue.changePercent)}%
+                    </span>
+                    <span className="ml-1">so với tháng trước</span>
+                  </div>
+                )}
+              </>
+            )}
           </CardContent>
         </Card>
 
@@ -196,22 +214,36 @@ export default function SaleDashboard() {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{mockStats.totalOrders}</div>
-            <div className="flex items-center text-xs text-muted-foreground mt-1">
-              {mockStats.ordersChange > 0 ? (
-                <ArrowUpRight className="h-3 w-3 text-green-600 mr-1" />
-              ) : (
-                <ArrowDownRight className="h-3 w-3 text-red-600 mr-1" />
-              )}
-              <span
-                className={
-                  mockStats.ordersChange > 0 ? "text-green-600" : "text-red-600"
-                }
-              >
-                {Math.abs(mockStats.ordersChange)}%
-              </span>
-              <span className="ml-1">so với tháng trước</span>
-            </div>
+            {isLoading ? (
+              <div className="flex items-center justify-center py-4">
+                <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+              </div>
+            ) : (
+              <>
+                <div className="text-2xl font-bold">
+                  {stats ? stats.totalOrders.current : "N/A"}
+                </div>
+                {stats && (
+                  <div className="flex items-center text-xs text-muted-foreground mt-1">
+                    {stats.totalOrders.changePercent > 0 ? (
+                      <ArrowUpRight className="h-3 w-3 text-green-600 mr-1" />
+                    ) : (
+                      <ArrowDownRight className="h-3 w-3 text-red-600 mr-1" />
+                    )}
+                    <span
+                      className={
+                        stats.totalOrders.changePercent > 0
+                          ? "text-green-600"
+                          : "text-red-600"
+                      }
+                    >
+                      {Math.abs(stats.totalOrders.changePercent)}%
+                    </span>
+                    <span className="ml-1">so với tháng trước</span>
+                  </div>
+                )}
+              </>
+            )}
           </CardContent>
         </Card>
 
@@ -226,24 +258,36 @@ export default function SaleDashboard() {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{mockStats.totalCustomers}</div>
-            <div className="flex items-center text-xs text-muted-foreground mt-1">
-              {mockStats.customersChange > 0 ? (
-                <ArrowUpRight className="h-3 w-3 text-green-600 mr-1" />
-              ) : (
-                <ArrowDownRight className="h-3 w-3 text-red-600 mr-1" />
-              )}
-              <span
-                className={
-                  mockStats.customersChange > 0
-                    ? "text-green-600"
-                    : "text-red-600"
-                }
-              >
-                {Math.abs(mockStats.customersChange)}%
-              </span>
-              <span className="ml-1">khách hàng mới</span>
-            </div>
+            {isLoading ? (
+              <div className="flex items-center justify-center py-4">
+                <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+              </div>
+            ) : (
+              <>
+                <div className="text-2xl font-bold">
+                  {stats ? stats.customerCount.current : "N/A"}
+                </div>
+                {stats && (
+                  <div className="flex items-center text-xs text-muted-foreground mt-1">
+                    {stats.customerCount.newCustomerPercent > 0 ? (
+                      <ArrowUpRight className="h-3 w-3 text-green-600 mr-1" />
+                    ) : (
+                      <ArrowDownRight className="h-3 w-3 text-red-600 mr-1" />
+                    )}
+                    <span
+                      className={
+                        stats.customerCount.newCustomerPercent > 0
+                          ? "text-green-600"
+                          : "text-red-600"
+                      }
+                    >
+                      {Math.abs(stats.customerCount.newCustomerPercent)}%
+                    </span>
+                    <span className="ml-1">khách hàng mới</span>
+                  </div>
+                )}
+              </>
+            )}
           </CardContent>
         </Card>
 
@@ -258,21 +302,34 @@ export default function SaleDashboard() {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{mockStats.totalFish}</div>
-            <div className="flex items-center text-xs text-muted-foreground mt-1">
-              <Package className="h-3 w-3 text-orange-600 mr-1" />
-              <span className="text-orange-600">{mockStats.lowStockFish}</span>
-              <span className="ml-1">cá sắp hết hàng</span>
-            </div>
+            {isLoading ? (
+              <div className="flex items-center justify-center py-4">
+                <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+              </div>
+            ) : (
+              <>
+                <div className="text-2xl font-bold">
+                  {stats ? stats.fishInStock.current : "N/A"}
+                </div>
+                {stats && (
+                  <div className="flex items-center text-xs text-muted-foreground mt-1">
+                    <Package className="h-3 w-3 text-orange-600 mr-1" />
+                    <span className="text-orange-600">
+                      {stats.fishInStock.lowStockCount}
+                    </span>
+                    <span className="ml-1">cá sắp hết hàng</span>
+                  </div>
+                )}
+              </>
+            )}
           </CardContent>
         </Card>
       </div>
 
       {/* Main Content Tabs */}
       <Tabs defaultValue="overview" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="overview">Tổng quan</TabsTrigger>
-          <TabsTrigger value="orders">Đơn hàng gần đây</TabsTrigger>
           <TabsTrigger value="analytics">Phân tích bán hàng</TabsTrigger>
         </TabsList>
 
@@ -290,24 +347,50 @@ export default function SaleDashboard() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-                  <span className="text-sm font-medium">
-                    Đơn hàng chờ xử lý
-                  </span>
-                  <Badge variant="secondary">{mockStats.pendingOrders}</Badge>
-                </div>
-                <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-                  <span className="text-sm font-medium">
-                    Đơn hàng hoàn thành
-                  </span>
-                  <Badge variant="outline">{mockStats.completedOrders}</Badge>
-                </div>
-                <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-                  <span className="text-sm font-medium">Cá bán chạy nhất</span>
-                  <Badge className="bg-green-100 text-green-800">
-                    {mockStats.topSellingFish}
-                  </Badge>
-                </div>
+                {isQuickInfoLoading ? (
+                  <div className="flex items-center justify-center py-8">
+                    <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+                  </div>
+                ) : quickInfo ? (
+                  <>
+                    <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                      <span className="text-sm font-medium">
+                        Đơn hàng chờ xử lý
+                      </span>
+                      <Badge variant="secondary">
+                        {quickInfo.pendingOrders}
+                      </Badge>
+                    </div>
+                    <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                      <span className="text-sm font-medium">
+                        Đơn hàng hoàn thành
+                      </span>
+                      <Badge variant="outline">
+                        {quickInfo.completedOrders}
+                      </Badge>
+                    </div>
+                    <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                      <span className="text-sm font-medium">
+                        Cá bán chạy nhất
+                      </span>
+                      <Badge className="bg-green-100 text-green-800">
+                        {quickInfo.bestSellingItemsCount}
+                      </Badge>
+                    </div>
+                    {quickInfo.alerts && quickInfo.alerts.length > 0 && (
+                      <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                        <p className="text-xs text-blue-800">
+                          <strong>Thông báo:</strong>{" "}
+                          {quickInfo.alerts.join("; ")}
+                        </p>
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <div className="text-center text-sm text-muted-foreground py-4">
+                    Không thể tải dữ liệu
+                  </div>
+                )}
               </CardContent>
             </Card>
 
@@ -324,119 +407,156 @@ export default function SaleDashboard() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {mockTopFish.map((fish, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center justify-between"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-xs font-medium">
-                          {index + 1}
+                  {isBestSellersLoading ? (
+                    <div className="flex items-center justify-center py-8">
+                      <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+                    </div>
+                  ) : bestSellers && bestSellers.length > 0 ? (
+                    bestSellers.map((fish, index) => (
+                      <div
+                        key={fish.id}
+                        className="flex items-center justify-between"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-xs font-medium">
+                            {index + 1}
+                          </div>
+                          <div>
+                            <p className="font-medium text-sm">{fish.name}</p>
+                            <p className="text-xs text-muted-foreground">
+                              Đã bán: {fish.soldCount} gói
+                            </p>
+                          </div>
                         </div>
-                        <div>
-                          <p className="font-medium text-sm">{fish.name}</p>
-                          <p className="text-xs text-muted-foreground">
-                            Đã bán: {fish.sold} con
+                        <div className="text-right">
+                          <p className="font-medium text-sm">
+                            {formatCurrency(fish.totalRevenue)}
                           </p>
                         </div>
                       </div>
-                      <div className="text-right">
-                        <p className="font-medium text-sm">
-                          {formatCurrency(fish.revenue)}
-                        </p>
-                      </div>
+                    ))
+                  ) : (
+                    <div className="text-center text-sm text-muted-foreground py-4">
+                      Không có dữ liệu
                     </div>
-                  ))}
+                  )}
                 </div>
               </CardContent>
             </Card>
           </div>
         </TabsContent>
 
-        <TabsContent value="orders" className="space-y-6">
+        <TabsContent value="analytics" className="space-y-6">
+          {/* Chart */}
           <Card>
             <CardHeader>
-              <CardTitle>Đơn hàng gần đây</CardTitle>
-              <CardDescription>
-                Danh sách các đơn hàng được tạo gần đây
-              </CardDescription>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="flex items-center gap-2">
+                    <BarChart3 className="h-5 w-5" />
+                    Biểu đồ phân tích
+                  </CardTitle>
+                  <CardDescription>
+                    Biểu đồ doanh thu và số đơn hàng theo thời gian
+                  </CardDescription>
+                </div>
+                <Select
+                  value={analysisRange}
+                  onValueChange={(value) =>
+                    setAnalysisRange(value as SalesAnalysisRange)
+                  }
+                >
+                  <SelectTrigger className="w-40 bg-white">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value={SalesAnalysisRange.LAST_30_DAYS}>
+                      30 ngày qua
+                    </SelectItem>
+                    <SelectItem value={SalesAnalysisRange.LAST_12_MONTHS}>
+                      12 tháng qua
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                {mockRecentOrders.map((order) => (
-                  <div
-                    key={order.id}
-                    className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors"
-                  >
-                    <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                        <ShoppingCart className="h-4 w-4" />
-                      </div>
-                      <div>
-                        <p className="font-medium">{order.id}</p>
-                        <p className="text-sm text-muted-foreground">
-                          {order.customer} • {order.fish}
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          {order.date}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <div className="text-right">
-                        <p className="font-medium">
-                          {formatCurrency(order.amount)}
-                        </p>
-                        <Badge
-                          className={getStatusColor(order.status)}
-                          variant="secondary"
-                        >
-                          {getStatusText(order.status)}
-                        </Badge>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <div className="mt-4 text-center">
-                <Button variant="outline" size="sm">
-                  Xem tất cả đơn hàng
-                </Button>
-              </div>
+              {isSalesAnalysisLoading ? (
+                <div className="flex items-center justify-center py-12">
+                  <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                </div>
+              ) : chartData.length > 0 ? (
+                <ResponsiveContainer width="100%" height={400}>
+                  <ComposedChart data={chartData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                    <XAxis
+                      dataKey="name"
+                      stroke="#6b7280"
+                      style={{ fontSize: "12px" }}
+                    />
+                    <YAxis
+                      yAxisId="left"
+                      stroke="#3b82f6"
+                      style={{ fontSize: "12px" }}
+                      tickFormatter={formatYAxisTick}
+                      label={{
+                        value: "Doanh thu (VND)",
+                        angle: -90,
+                        position: "insideLeft",
+                      }}
+                    />
+                    <YAxis
+                      yAxisId="right"
+                      orientation="right"
+                      stroke="#ef4444"
+                      style={{ fontSize: "12px" }}
+                      allowDecimals={false}
+                      label={{
+                        value: "Số đơn hàng",
+                        angle: 90,
+                        position: "insideRight",
+                      }}
+                    />
+                    <Tooltip content={<CustomTooltip />} />
+                    <Legend />
+                    <Bar
+                      yAxisId="left"
+                      dataKey="revenue"
+                      fill="#3b82f6"
+                      name="Doanh thu"
+                      radius={[8, 8, 0, 0]}
+                      label={{
+                        position: "top",
+                        formatter: formatRevenueLabel,
+                        fontSize: 11,
+                        fill: "#6b7280",
+                      }}
+                    />
+                    <Line
+                      yAxisId="right"
+                      type="monotone"
+                      dataKey="orders"
+                      stroke="#ef4444"
+                      name="Số đơn hàng"
+                      strokeWidth={2}
+                      dot={{ fill: "#ef4444", r: 4 }}
+                      activeDot={{ r: 6 }}
+                      label={{
+                        position: "top",
+                        formatter: formatOrdersLabel,
+                        fontSize: 11,
+                        fill: "#6b7280",
+                      }}
+                    />
+                  </ComposedChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className="text-center text-sm text-muted-foreground py-12">
+                  Không có dữ liệu
+                </div>
+              )}
             </CardContent>
           </Card>
-        </TabsContent>
-
-        <TabsContent value="analytics" className="space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Phân tích doanh thu</CardTitle>
-                <CardDescription>
-                  Biểu đồ doanh thu theo thời gian (Sẽ được thêm)
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="h-64 flex items-center justify-center">
-                <p className="text-muted-foreground">
-                  Biểu đồ doanh thu sẽ được thêm vào sau
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Phân tích khách hàng</CardTitle>
-                <CardDescription>
-                  Thống kê về hành vi khách hàng (Sẽ được thêm)
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="h-64 flex items-center justify-center">
-                <p className="text-muted-foreground">
-                  Biểu đồ khách hàng sẽ được thêm vào sau
-                </p>
-              </CardContent>
-            </Card>
-          </div>
         </TabsContent>
       </Tabs>
     </div>

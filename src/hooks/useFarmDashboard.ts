@@ -1,0 +1,55 @@
+import { useQuery } from "@tanstack/react-query";
+import farmDashboardService, {
+  FarmDashboardStatistics,
+  FarmDashboardQuickStats,
+  ActivityFeed,
+} from "@/lib/api/services/fetchFarmDashboard";
+
+export const useGetFarmDashboardStatistics = () => {
+  return useQuery<FarmDashboardStatistics>({
+    queryKey: ["farmDashboardStatistics"],
+    queryFn: async () => {
+      const response = await farmDashboardService.getStatistics();
+      if (!response.isSuccess) {
+        throw new Error(
+          response.message || "Failed to fetch farm dashboard statistics",
+        );
+      }
+      return response.result;
+    },
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    retry: 3,
+  });
+};
+
+export const useGetFarmDashboardQuickStats = () => {
+  return useQuery<FarmDashboardQuickStats>({
+    queryKey: ["farmDashboardQuickStats"],
+    queryFn: async () => {
+      const response = await farmDashboardService.getQuickStats();
+      if (!response.isSuccess) {
+        throw new Error(
+          response.message || "Failed to fetch farm dashboard quick stats",
+        );
+      }
+      return response.result;
+    },
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    retry: 3,
+  });
+};
+
+export const useGetActivityFeed = (limit: number = 5) => {
+  return useQuery<ActivityFeed>({
+    queryKey: ["activityFeed", limit],
+    queryFn: async () => {
+      const response = await farmDashboardService.getActivityFeed(limit);
+      if (!response.isSuccess) {
+        throw new Error(response.message || "Failed to fetch activity feed");
+      }
+      return response.result;
+    },
+    staleTime: 3 * 60 * 1000, // 3 minutes
+    retry: 3,
+  });
+};
