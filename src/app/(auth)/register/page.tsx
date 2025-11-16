@@ -84,8 +84,7 @@ export default function SignUpPage() {
 
     try {
       registerUserMutation(payload);
-    } catch (err) {
-      console.error("Registration error:", err);
+    } catch {
       toast.error("Đã có lỗi xảy ra khi đăng ký. Vui lòng thử lại sau.");
     }
   };

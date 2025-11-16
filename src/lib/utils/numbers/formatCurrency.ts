@@ -43,8 +43,7 @@ export function formatCurrency(
         maximumFractionDigits,
       }).format(amount);
     }
-  } catch (error) {
-    console.error("Error formatting currency:", error);
+  } catch {
     return amount.toString();
   }
 }
@@ -107,8 +106,7 @@ export function parseCurrency(currencyString: string): number {
       .replace(/,/g, "."); // Replace comma with dot for decimal
 
     return parseFloat(cleanString) || 0;
-  } catch (error) {
-    console.error("Error parsing currency:", error);
+  } catch {
     return NaN;
   }
 }

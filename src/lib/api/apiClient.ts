@@ -139,7 +139,6 @@ export class ApiService {
     const accessToken = getCookie("auth-token")?.toString() || "";
 
     if (!refreshToken) {
-      console.warn("⚠️ No refresh token available");
       return null;
     }
 
@@ -442,7 +441,6 @@ const apiService = new ApiService(
   () => {
     // Handle 401 errors by dispatching logout event
     if (typeof window !== "undefined") {
-      console.warn("🚪 Auth error - dispatching logout event");
       window.dispatchEvent(new Event("logout"));
     }
   },

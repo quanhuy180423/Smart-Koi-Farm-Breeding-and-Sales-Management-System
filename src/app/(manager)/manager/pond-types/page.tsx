@@ -162,7 +162,6 @@ export default function PondTypeManagement() {
       !newPondType.type ||
       !newPondType.recommendedQuantity
     ) {
-      console.error("Vui lòng điền đầy đủ Tên loại hồ, Loại hồ, và Sức chứa.");
       return;
     }
 

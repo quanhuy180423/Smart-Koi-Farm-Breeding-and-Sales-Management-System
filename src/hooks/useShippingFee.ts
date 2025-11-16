@@ -7,7 +7,6 @@ import {
 export function useCalculateShippingFee() {
   return useMutation({
     mutationFn: async (request: ShippingFeeCalculateRequest) => {
-      console.log("useShippingFee - mutationFn called with:", request);
       try {
         const result = await shippingFeeService.calculateShippingFee(request);
         return result;

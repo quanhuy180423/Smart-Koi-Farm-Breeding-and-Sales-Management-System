@@ -202,9 +202,7 @@ export function EditKoiModal({ isOpen, onOpenChange, koi }: EditKoiModalProps) {
           if (result?.url) {
             uploadedImageUrls.push(result.url);
           }
-        } catch (error) {
-          console.error("Failed to upload image:", error);
-        }
+        } catch {}
       }
 
       // Upload new videos
@@ -217,9 +215,7 @@ export function EditKoiModal({ isOpen, onOpenChange, koi }: EditKoiModalProps) {
           if (result?.url) {
             uploadedVideoUrls.push(result.url);
           }
-        } catch (error) {
-          console.error("Failed to upload video:", error);
-        }
+        } catch {}
       }
 
       // Filter existing images and videos (URLs from server, not base64)
@@ -258,8 +254,7 @@ export function EditKoiModal({ isOpen, onOpenChange, koi }: EditKoiModalProps) {
           },
         },
       );
-    } catch (error) {
-      console.error("Error updating koi:", error);
+    } catch {
       toast.error("Có lỗi xảy ra khi cập nhật cá");
     } finally {
       setIsSaving(false);
