@@ -9,10 +9,9 @@ import {
   HealthStatus,
   SaleStatus,
 } from "@/lib/api/services/fetchKoiFish";
-import { PondStatus } from "@/lib/api/services/fetchPond";
+import { PondStatus, PondTypeEnum } from "@/lib/api/services/fetchPond";
 import { OrderStatus } from "@/lib/api/services/fetchOrder";
 import { WorkScheduleStatusEnum } from "@/lib/api/services/fetchWorkSchedule";
-import { PondTypeEnum } from "@/lib/api/services/fetchPondType";
 import { Roles } from "@/lib/api/services/fetchAuth";
 import {
   IncidentSeverity,
@@ -184,27 +183,27 @@ const workScheduleStatusMeta: Record<WorkScheduleStatusEnum, Label> = {
 };
 
 const pondTypeMeta: Record<PondTypeEnum, Label> = {
-  [PondTypeEnum.Paring]: {
+  [PondTypeEnum.PARING]: {
     label: "Ghép Cặp",
     colorClass: "bg-indigo-100 text-indigo-800",
   },
-  [PondTypeEnum.EggBatch]: {
+  [PondTypeEnum.EGG_BATCH]: {
     label: "Ấp Trứng",
     colorClass: "bg-cyan-100 text-cyan-800",
   },
-  [PondTypeEnum.FryFish]: {
+  [PondTypeEnum.FRY_FISH]: {
     label: "Cá Con",
     colorClass: "bg-teal-100 text-teal-800",
   },
-  [PondTypeEnum.Classification]: {
+  [PondTypeEnum.CLASSIFICATION]: {
     label: "Tuyển Chọn",
     colorClass: "bg-purple-100 text-purple-800",
   },
-  [PondTypeEnum.MarketPond]: {
+  [PondTypeEnum.MARKET_POND]: {
     label: "Ao Thương Mại",
     colorClass: "bg-pink-100 text-pink-800",
   },
-  [PondTypeEnum.BroodStock]: {
+  [PondTypeEnum.BROOD_STOCK]: {
     label: "Cơ Sở Giống",
     colorClass: "bg-emerald-100 text-emerald-800",
   },

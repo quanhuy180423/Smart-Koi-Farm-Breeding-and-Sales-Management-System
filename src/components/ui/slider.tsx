@@ -5,14 +5,38 @@ import * as SliderPrimitive from "@radix-ui/react-slider";
 
 import { cn } from "@/lib/utils";
 
+interface SliderProps
+  extends React.ComponentProps<typeof SliderPrimitive.Root> {
+  className?: string;
+  min?: number;
+  max?: number;
+  step?: number;
+  value?: number[];
+  defaultValue?: number[];
+  onValueChange?: (value: number[]) => void;
+  onValueCommit?: (value: number[]) => void;
+  minStepsBetweenThumbs?: number;
+  disabled?: boolean;
+  orientation?: "horizontal" | "vertical";
+  inverted?: boolean;
+}
+
 function Slider({
   className,
-  defaultValue,
-  value,
   min = 0,
   max = 100,
+  step = 1,
+  value,
+  defaultValue,
+  onValueChange,
+  onValueCommit,
+  minStepsBetweenThumbs,
+  disabled,
+  orientation = "horizontal",
+  inverted,
   ...props
-}: React.ComponentProps<typeof SliderPrimitive.Root>) {
+}: SliderProps) {
+  // Determine the number of thumbs based on the value or defaultValue array
   const _values = React.useMemo(
     () =>
       Array.isArray(value)
@@ -26,14 +50,21 @@ function Slider({
   return (
     <SliderPrimitive.Root
       data-slot="slider"
-      defaultValue={defaultValue}
-      value={value}
-      min={min}
-      max={max}
       className={cn(
         "relative flex w-full touch-none items-center select-none data-[disabled]:opacity-50 data-[orientation=vertical]:h-full data-[orientation=vertical]:min-h-44 data-[orientation=vertical]:w-auto data-[orientation=vertical]:flex-col",
         className,
       )}
+      min={min}
+      max={max}
+      step={step}
+      value={value}
+      defaultValue={defaultValue}
+      onValueChange={onValueChange}
+      onValueCommit={onValueCommit}
+      minStepsBetweenThumbs={minStepsBetweenThumbs}
+      disabled={disabled}
+      orientation={orientation}
+      inverted={inverted}
       {...props}
     >
       <SliderPrimitive.Track
@@ -61,3 +92,4 @@ function Slider({
 }
 
 export { Slider };
+export type { SliderProps };
