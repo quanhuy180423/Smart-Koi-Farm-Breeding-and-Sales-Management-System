@@ -40,15 +40,15 @@ import { getRoleLabel } from "@/lib/utils/enum";
 interface StaffSelectionModalProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
-  selectedStaffId: number | null;
-  onSelectStaff: (staffId: number) => void;
+  selectedStaffIds: Set<number>;
+  onToggleStaff: (staffId: number) => void;
 }
 
 export default function StaffSelectionModal({
   isOpen,
   onOpenChange,
-  selectedStaffId,
-  onSelectStaff,
+  selectedStaffIds,
+  onToggleStaff,
 }: StaffSelectionModalProps) {
   const [roleFilter, setRoleFilter] = useState<Roles>(Roles.FarmStaff);
   const [staffSearchTerm, setStaffSearchTerm] = useState("");
@@ -171,10 +171,9 @@ export default function StaffSelectionModal({
                 <TableHeader>
                   <TableRow>
                     <TableHead className="w-[5%]">#</TableHead>
-                    <TableHead className="w-[25%]">Tên Nhân viên</TableHead>
+                    <TableHead className="w-[30%]">Tên Nhân viên</TableHead>
                     <TableHead className="w-[35%]">Email</TableHead>
-                    <TableHead className="w-[20%]">Loại</TableHead>
-                    <TableHead className="w-[15%]">Số điện thoại</TableHead>
+                    <TableHead className="w-[30%]">Loại</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -191,19 +190,18 @@ export default function StaffSelectionModal({
                     staffData.data.map((staff: User) => (
                       <TableRow
                         key={staff.id}
-                        onClick={() => onSelectStaff(staff.id)}
+                        onClick={() => onToggleStaff(staff.id)}
                         className={
-                          selectedStaffId === staff.id
+                          selectedStaffIds.has(staff.id)
                             ? "bg-blue-50/50 cursor-pointer"
                             : "hover:bg-gray-50 cursor-pointer"
                         }
                       >
                         <TableCell>
                           <input
-                            type="radio"
-                            name="staff-selection"
-                            checked={selectedStaffId === staff.id}
-                            onChange={() => onSelectStaff(staff.id)}
+                            type="checkbox"
+                            checked={selectedStaffIds.has(staff.id)}
+                            onChange={() => onToggleStaff(staff.id)}
                             className="text-blue-600 focus:ring-blue-500"
                           />
                         </TableCell>
@@ -220,9 +218,6 @@ export default function StaffSelectionModal({
                           >
                             {getRoleLabel(staff.role as Roles).label}
                           </Badge>
-                        </TableCell>
-                        <TableCell className="text-sm text-gray-500">
-                          {staff.email.substring(0, 3)}...
                         </TableCell>
                       </TableRow>
                     ))
@@ -264,9 +259,9 @@ export default function StaffSelectionModal({
           </Button>
           <Button
             onClick={handleConfirm}
-            disabled={selectedStaffId === null || isLoadingStaff}
+            disabled={selectedStaffIds.size === 0 || isLoadingStaff}
           >
-            Chọn nhân viên
+            Chọn ({selectedStaffIds.size})
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -47,6 +47,8 @@ export interface WeeklyScheduleTemplateRequest {
 export interface GenerateWorkScheduleRequest {
   weeklyScheduleTemplateId: number;
   startDate: string;
+  staffIds: number[];
+  pondIds: number[];
 }
 
 const baseUrl = "/api/WeeklyScheduleTemplate";

@@ -71,8 +71,8 @@ export default function EditWorkScheduleModal({
   const [notes, setNotes] = useState(workSchedule?.notes || "");
   const [startTime, setStartTime] = useState(workSchedule?.startTime || "");
   const [endTime, setEndTime] = useState(workSchedule?.endTime || "");
-  const [selectedStaffId, setSelectedStaffId] = useState<number | null>(
-    workSchedule?.staffAssignments?.[0]?.staffId || null,
+  const [selectedStaffIds, setSelectedStaffIds] = useState<Set<number>>(
+    new Set(workSchedule?.staffAssignments?.map((s) => s.staffId) || []),
   );
   const [selectedPondIds, setSelectedPondIds] = useState<Set<number>>(
     new Set(workSchedule?.pondAssignments.map((p) => p.pondId) || []),
@@ -120,7 +120,9 @@ export default function EditWorkScheduleModal({
       setNotes(workSchedule.notes || "");
       setStartTime(workSchedule.startTime || "");
       setEndTime(workSchedule.endTime || "");
-      setSelectedStaffId(workSchedule.staffAssignments?.[0]?.staffId || null);
+      setSelectedStaffIds(
+        new Set(workSchedule.staffAssignments?.map((s) => s.staffId) || []),
+      );
       setSelectedPondIds(
         new Set(workSchedule.pondAssignments.map((p) => p.pondId) || []),
       );
@@ -140,7 +142,7 @@ export default function EditWorkScheduleModal({
   const canEdit = isEditable(workSchedule);
 
   const handleSave = () => {
-    if (!workSchedule || !selectedStaffId) return;
+    if (!workSchedule || selectedStaffIds.size === 0) return;
 
     updateWorkSchedule(
       {
@@ -152,7 +154,7 @@ export default function EditWorkScheduleModal({
           startTime,
           endTime,
           notes,
-          staffIds: [selectedStaffId],
+          staffIds: Array.from(selectedStaffIds),
           pondIds: Array.from(selectedPondIds),
         },
       },
@@ -181,8 +183,14 @@ export default function EditWorkScheduleModal({
     });
   };
 
-  const handleSelectStaff = (staffId: number) => {
-    setSelectedStaffId(staffId);
+  const toggleStaffSelection = (staffId: number) => {
+    const newSelection = new Set(selectedStaffIds);
+    if (newSelection.has(staffId)) {
+      newSelection.delete(staffId);
+    } else {
+      newSelection.add(staffId);
+    }
+    setSelectedStaffIds(newSelection);
   };
 
   const togglePondSelection = (pondId: number) => {
@@ -203,7 +211,9 @@ export default function EditWorkScheduleModal({
   const handleCancelEdit = () => {
     // Reset all unsaved changes when canceling edit mode
     if (workSchedule) {
-      setSelectedStaffId(workSchedule.staffAssignments?.[0]?.staffId || null);
+      setSelectedStaffIds(
+        new Set(workSchedule.staffAssignments?.map((s) => s.staffId) || []),
+      );
       setSelectedPondIds(
         new Set(workSchedule.pondAssignments.map((p) => p.pondId) || []),
       );
@@ -372,10 +382,10 @@ export default function EditWorkScheduleModal({
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                 {isEditing && canEdit ? (
-                  // Show single selected staff in edit mode
-                  selectedStaffId ? (
+                  // Show multiple selected staff in edit mode
+                  Array.from(selectedStaffIds).length > 0 ? (
                     allStaffForDisplay
-                      ?.filter((staff: User) => staff.id === selectedStaffId)
+                      ?.filter((staff: User) => selectedStaffIds.has(staff.id))
                       .map((staff: User) => (
                         <Card
                           key={staff.id}
@@ -394,7 +404,7 @@ export default function EditWorkScheduleModal({
                               </div>
                               <button
                                 type="button"
-                                onClick={() => setSelectedStaffId(null)}
+                                onClick={() => toggleStaffSelection(staff.id)}
                                 className="text-red-600 hover:text-red-700 font-bold"
                                 title="Xóa nhân viên"
                               >
@@ -409,37 +419,37 @@ export default function EditWorkScheduleModal({
                       Chưa chọn nhân viên
                     </div>
                   )
-                ) : // Show saved staff assignment in view mode
-                workSchedule.staffAssignments[0] ? (
-                  <Card className="bg-blue-50 border-blue-200">
-                    <CardContent className="pt-4">
-                      <div className="space-y-3">
-                        <div className="flex items-start gap-3">
-                          <div className="flex-1">
-                            <Users className="h-5 w-5 text-blue-600 mb-2" />
-                            <p className="font-medium text-gray-900">
-                              {workSchedule.staffAssignments[0].staffName}
-                            </p>
-                            <p className="text-xs text-gray-500 mt-1">
-                              {
-                                getRoleLabel(
-                                  workSchedule.staffAssignments[0]
-                                    .role as Roles,
-                                ).label
-                              }
-                            </p>
+                ) : // Show saved staff assignments in view mode
+                workSchedule.staffAssignments.length > 0 ? (
+                  workSchedule.staffAssignments.map((assignment) => (
+                    <Card
+                      key={assignment.staffId}
+                      className="bg-blue-50 border-blue-200"
+                    >
+                      <CardContent className="pt-4">
+                        <div className="space-y-3">
+                          <div className="flex items-start gap-3">
+                            <div className="flex-1">
+                              <Users className="h-5 w-5 text-blue-600 mb-2" />
+                              <p className="font-medium text-gray-900">
+                                {assignment.staffName}
+                              </p>
+                              <p className="text-xs text-gray-500 mt-1">
+                                {getRoleLabel(assignment.role as Roles).label}
+                              </p>
+                            </div>
                           </div>
+                          {assignment.completedAt && (
+                            <div className="pt-2 border-t border-blue-200">
+                              <span className="text-xs text-green-600 font-medium">
+                                ✓ Đã hoàn thành
+                              </span>
+                            </div>
+                          )}
                         </div>
-                        {workSchedule.staffAssignments[0].completedAt && (
-                          <div className="pt-2 border-t border-blue-200">
-                            <span className="text-xs text-green-600 font-medium">
-                              ✓ Đã hoàn thành
-                            </span>
-                          </div>
-                        )}
-                      </div>
-                    </CardContent>
-                  </Card>
+                      </CardContent>
+                    </Card>
+                  ))
                 ) : (
                   <div className="col-span-2 text-center py-4 text-gray-500">
                     Không có nhân viên được gán
@@ -462,7 +472,7 @@ export default function EditWorkScheduleModal({
                     onClick={() => setIsPondModalOpen(true)}
                   >
                     <Plus className="h-4 w-4 mr-1" />
-                    Thêm hồ
+                    Chọn hồ
                   </Button>
                 )}
               </div>
@@ -579,8 +589,8 @@ export default function EditWorkScheduleModal({
       <StaffSelectionModal
         isOpen={isStaffModalOpen}
         onOpenChange={setIsStaffModalOpen}
-        selectedStaffId={selectedStaffId}
-        onSelectStaff={handleSelectStaff}
+        selectedStaffIds={selectedStaffIds}
+        onToggleStaff={toggleStaffSelection}
       />
 
       {/* Pond Selection Modal */}

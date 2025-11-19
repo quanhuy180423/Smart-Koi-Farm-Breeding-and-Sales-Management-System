@@ -20,11 +20,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  PondTypeResponse,
-  PondTypeEnum,
-} from "@/lib/api/services/fetchPondType";
+import { PondTypeResponse } from "@/lib/api/services/fetchPondType";
 import { getPondTypeLabel } from "@/lib/utils/enum/formatEnum";
+import { PondTypeEnum } from "@/lib/api/services/fetchPond";
 
 interface EditPondTypeModalProps {
   isOpen: boolean;

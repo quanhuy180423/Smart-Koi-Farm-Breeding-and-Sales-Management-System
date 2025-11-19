@@ -44,7 +44,9 @@ export default function CreateWorkScheduleModal({
   const [notes, setNotes] = useState("");
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
-  const [selectedStaffId, setSelectedStaffId] = useState<number | null>(null);
+  const [selectedStaffIds, setSelectedStaffIds] = useState<Set<number>>(
+    new Set(),
+  );
   const [selectedPondIds, setSelectedPondIds] = useState<Set<number>>(
     new Set(),
   );
@@ -88,7 +90,7 @@ export default function CreateWorkScheduleModal({
       setNotes("");
       setStartTime("");
       setEndTime("");
-      setSelectedStaffId(null);
+      setSelectedStaffIds(new Set());
       setSelectedPondIds(new Set());
     }
   }, [isOpen]);
@@ -99,8 +101,8 @@ export default function CreateWorkScheduleModal({
       return;
     }
 
-    if (!selectedStaffId) {
-      toast.error("Vui lòng chọn nhân viên");
+    if (selectedStaffIds.size === 0) {
+      toast.error("Vui lòng chọn ít nhất một nhân viên");
       return;
     }
 
@@ -111,7 +113,7 @@ export default function CreateWorkScheduleModal({
         startTime,
         endTime,
         notes,
-        staffIds: [selectedStaffId],
+        staffIds: Array.from(selectedStaffIds),
         pondIds: Array.from(selectedPondIds),
       },
       {
@@ -122,8 +124,14 @@ export default function CreateWorkScheduleModal({
     );
   };
 
-  const handleSelectStaff = (staffId: number) => {
-    setSelectedStaffId(staffId);
+  const toggleStaffSelection = (staffId: number) => {
+    const newSelection = new Set(selectedStaffIds);
+    if (newSelection.has(staffId)) {
+      newSelection.delete(staffId);
+    } else {
+      newSelection.add(staffId);
+    }
+    setSelectedStaffIds(newSelection);
   };
 
   const togglePondSelection = (pondId: number) => {
@@ -253,9 +261,9 @@ export default function CreateWorkScheduleModal({
                 </Button>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                {selectedStaffId ? (
+                {Array.from(selectedStaffIds).length > 0 ? (
                   allStaffForDisplay
-                    ?.filter((staff: User) => staff.id === selectedStaffId)
+                    ?.filter((staff: User) => selectedStaffIds.has(staff.id))
                     .map((staff: User) => (
                       <Card
                         key={staff.id}
@@ -274,7 +282,7 @@ export default function CreateWorkScheduleModal({
                             </div>
                             <button
                               type="button"
-                              onClick={() => setSelectedStaffId(null)}
+                              onClick={() => toggleStaffSelection(staff.id)}
                               className="text-red-600 hover:text-red-700 font-bold"
                               title="Xóa nhân viên"
                             >
@@ -305,7 +313,7 @@ export default function CreateWorkScheduleModal({
                   onClick={() => setIsPondModalOpen(true)}
                 >
                   <Plus className="h-4 w-4 mr-1" />
-                  Thêm hồ
+                  Chọn hồ
                 </Button>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
@@ -385,8 +393,8 @@ export default function CreateWorkScheduleModal({
       <StaffSelectionModal
         isOpen={isStaffModalOpen}
         onOpenChange={setIsStaffModalOpen}
-        selectedStaffId={selectedStaffId}
-        onSelectStaff={handleSelectStaff}
+        selectedStaffIds={selectedStaffIds}
+        onToggleStaff={toggleStaffSelection}
       />
 
       {/* Pond Selection Modal */}
