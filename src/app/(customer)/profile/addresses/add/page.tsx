@@ -34,7 +34,7 @@ interface NominatimResult {
 
 // Geocoding using Nominatim API
 async function geocodeAddress(
-  address: string
+  address: string,
 ): Promise<NominatimResult | null> {
   if (!address.trim()) return null;
 
@@ -45,7 +45,7 @@ async function geocodeAddress(
         headers: {
           Accept: "application/json",
         },
-      }
+      },
     );
 
     if (!response.ok) return null;
@@ -142,7 +142,7 @@ export default function AddAddressPage() {
     const phoneRegex = /^0\d{9}$/;
     if (!phoneRegex.test(formData.recipientPhone)) {
       toast.error(
-        "Số điện thoại không hợp lệ (cần có 10 chữ số, bắt đầu từ 0)"
+        "Số điện thoại không hợp lệ (cần có 10 chữ số, bắt đầu từ 0)",
       );
       return;
     }
@@ -154,7 +154,7 @@ export default function AddAddressPage() {
       },
       onError: (error) => {
         toast.error(
-          error instanceof Error ? error.message : "Không thể tạo địa chỉ"
+          error instanceof Error ? error.message : "Không thể tạo địa chỉ",
         );
       },
     });

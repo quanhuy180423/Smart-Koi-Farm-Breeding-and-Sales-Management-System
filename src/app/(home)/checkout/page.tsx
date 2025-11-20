@@ -67,7 +67,7 @@ const CheckoutMap = dynamic(
         <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
       </div>
     ),
-  }
+  },
 );
 
 export default function CheckoutPage() {
@@ -91,7 +91,7 @@ export default function CheckoutPage() {
 
   const [step, setStep] = useState(1);
   const [selectedAddressId, setSelectedAddressId] = useState<number | null>(
-    null
+    null,
   );
   const [showQuickAddModal, setShowQuickAddModal] = useState(false);
   const [quickAddForm, setQuickAddForm] = useState({
@@ -130,7 +130,7 @@ export default function CheckoutPage() {
   }, [addresses, selectedAddressId]);
 
   const handleQuickAddInputChange = (
-    e: React.ChangeEvent<HTMLInputElement>
+    e: React.ChangeEvent<HTMLInputElement>,
   ) => {
     const { name, value } = e.target;
     setQuickAddForm((prev) => ({
@@ -172,7 +172,7 @@ export default function CheckoutPage() {
     const phoneRegex = /^0\d{9}$/;
     if (!phoneRegex.test(quickAddForm.recipientPhone)) {
       toast.error(
-        "Số điện thoại không hợp lệ (cần có 10 chữ số, bắt đầu từ 0)"
+        "Số điện thoại không hợp lệ (cần có 10 chữ số, bắt đầu từ 0)",
       );
       return;
     }
@@ -201,7 +201,7 @@ export default function CheckoutPage() {
       },
       onError: (error) => {
         toast.error(
-          error instanceof Error ? error.message : "Không thể tạo địa chỉ"
+          error instanceof Error ? error.message : "Không thể tạo địa chỉ",
         );
       },
     });
@@ -250,7 +250,7 @@ export default function CheckoutPage() {
         setStep(2);
       } else {
         toast.error(
-          result?.message || "Không thể tính phí vận chuyển. Vui lòng thử lại"
+          result?.message || "Không thể tính phí vận chuyển. Vui lòng thử lại",
         );
       }
     } catch (error: Error | unknown) {
@@ -258,7 +258,7 @@ export default function CheckoutPage() {
         error instanceof Error ? error.message : "Unknown error";
       toast.error(
         errorMessage ||
-          "Có lỗi xảy ra khi tính phí vận chuyển. Vui lòng thử lại"
+          "Có lỗi xảy ra khi tính phí vận chuyển. Vui lòng thử lại",
       );
     }
   };
@@ -285,14 +285,14 @@ export default function CheckoutPage() {
         onError: () => {
           router.push("/checkout/failure");
         },
-      }
+      },
     );
   };
 
   const isStep1Valid = selectedAddressId && !isLoadingAddresses;
   const isStep2Valid = orderData.paymentMethod && orderData.agreeTerms;
   const selectedAddress = addresses?.find(
-    (addr) => addr.id === selectedAddressId
+    (addr) => addr.id === selectedAddressId,
   );
 
   // Loading state
@@ -896,7 +896,7 @@ export default function CheckoutPage() {
                       <span className="text-primary text-xl">
                         {formatPrice(
                           getTotalPrice() +
-                            (shippingFeeData?.totalShippingFee || 0)
+                            (shippingFeeData?.totalShippingFee || 0),
                         )}
                       </span>
                     </div>

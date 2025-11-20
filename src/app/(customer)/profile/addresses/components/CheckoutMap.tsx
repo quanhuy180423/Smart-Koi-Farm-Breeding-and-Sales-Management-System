@@ -51,7 +51,7 @@ interface CheckoutMapProps {
 
 // Geocoding using Nominatim API
 async function geocodeAddress(
-  address: string
+  address: string,
 ): Promise<NominatimResult | null> {
   if (!address.trim()) return null;
 
@@ -62,7 +62,7 @@ async function geocodeAddress(
         headers: {
           Accept: "application/json",
         },
-      }
+      },
     );
 
     if (!response.ok) return null;
