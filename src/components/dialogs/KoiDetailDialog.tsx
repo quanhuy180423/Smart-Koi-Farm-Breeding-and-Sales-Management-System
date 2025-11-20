@@ -336,12 +336,6 @@ export function KoiDetailDialog({
                       </p>
                     </div>
                   )}
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Tỷ lệ đột biến:</span>
-                    <span className="font-medium">
-                      {koi.mutationRate.toFixed(2)}%
-                    </span>
-                  </div>
                 </div>
               </div>
             )}

@@ -13,16 +13,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { InputNumber } from "@/components/ui/input-number";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Loader2,
-  Calendar as CalendarIcon,
-  X,
-  Upload,
-  Play,
-} from "lucide-react";
+import { Loader2, X, Upload, Play } from "lucide-react";
 import toast from "react-hot-toast";
-import { format } from "date-fns";
-import { vi } from "date-fns/locale";
 import {
   KoiFishResponse,
   KoiFishUpdateRequest,
@@ -42,12 +34,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { Calendar as CalendarComponent } from "@/components/ui/calendar";
+import { DatePickerFilter } from "@/components/ui/DatePickerFilter";
 import { ApiError } from "@/lib/api/apiClient";
 import VarietySelectionDialog from "@/components/manager/VarietySelectionDialog";
 import Image from "next/image";
@@ -61,7 +48,7 @@ interface EditKoiModalProps {
 
 export function EditKoiModal({ isOpen, onOpenChange, koi }: EditKoiModalProps) {
   const [formData, setFormData] = useState<Partial<KoiFishUpdateRequest>>({});
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>();
+  const [birthDateInput, setBirthDateInput] = useState<string>("");
   const [selectedVarietyName, setSelectedVarietyName] = useState<
     string | undefined
   >();
@@ -78,7 +65,7 @@ export function EditKoiModal({ isOpen, onOpenChange, koi }: EditKoiModalProps) {
   useEffect(() => {
     if (koi) {
       const birthDate = koi.birthDate ?? "";
-      setSelectedDate(birthDate ? new Date(birthDate) : undefined);
+      setBirthDateInput(birthDate);
       setSelectedVarietyName(koi.variety.varietyName);
       setImagePreviews(koi.images || []);
       setVideoPreviews(koi.videos || []);
@@ -107,12 +94,9 @@ export function EditKoiModal({ isOpen, onOpenChange, koi }: EditKoiModalProps) {
     }
   }, [koi, isOpen]);
 
-  const handleDateSelect = (date: Date | undefined) => {
-    setSelectedDate(date);
-    if (date) {
-      const isoDate = date.toISOString().split("T")[0];
-      setFormData((prev) => ({ ...prev, birthDate: isoDate }));
-    }
+  const handleBirthDateChange = (dateString: string) => {
+    setBirthDateInput(dateString);
+    setFormData((prev) => ({ ...prev, birthDate: dateString }));
   };
 
   const handleSelectVariety = (varietyId: number, varietyName: string) => {
@@ -308,31 +292,12 @@ export function EditKoiModal({ isOpen, onOpenChange, koi }: EditKoiModalProps) {
                 </Button>
               </div>
 
-              {/* Birth Date with Popover */}
-              <div className="space-y-2">
-                <Label className="text-sm font-semibold">Ngày sinh *</Label>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className="justify-start text-left font-normal w-full"
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {selectedDate
-                        ? format(selectedDate, "dd MMM yyyy", { locale: vi })
-                        : "Chọn ngày..."}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <CalendarComponent
-                      mode="single"
-                      selected={selectedDate}
-                      onSelect={handleDateSelect}
-                      disabled={(date) => date > new Date()}
-                    />
-                  </PopoverContent>
-                </Popover>
-              </div>
+              {/* Birth Date */}
+              <DatePickerFilter
+                label="Ngày sinh *"
+                value={birthDateInput}
+                onChange={handleBirthDateChange}
+              />
             </div>
 
             {/* Gender and Health Status */}

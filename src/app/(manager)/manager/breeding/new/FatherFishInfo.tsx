@@ -66,10 +66,6 @@ export default function FatherFishInfo({ selectedFish }: FatherFishInfoProps) {
       label: "Đặc tính đột biến",
       value: selectedFish.mutationDescription || "Không có",
     },
-    {
-      label: "Tỷ lệ đột biến",
-      value: `${selectedFish.mutationRate.toFixed(2)}%`,
-    },
   ];
 
   // const geneticData = [
@@ -258,7 +254,7 @@ export default function FatherFishInfo({ selectedFish }: FatherFishInfoProps) {
             </span>
             Đặc Tính Riêng Biệt Theo Giống
           </h3>
-          <div className="grid grid-cols-4 gap-4">
+          <div className={`grid grid-cols-${breedData.length} gap-4`}>
             {breedData.map((item, index) => (
               <Card
                 key={index}
