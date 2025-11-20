@@ -34,7 +34,6 @@ import {
   PondTypeResponse,
   PondTypeSearchParams,
   PondTypeRequest,
-  PondTypeEnum,
 } from "@/lib/api/services/fetchPondType";
 import {
   useGetPondTypes,
@@ -60,6 +59,7 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { getPondTypeLabel } from "@/lib/utils/enum/formatEnum";
+import { PondTypeEnum } from "@/lib/api/services/fetchPond";
 
 export interface PondTypeFormState {
   typeName: string;

@@ -4,17 +4,9 @@ import apiService, {
   PagedResponse,
   PagingRequest,
 } from "../apiClient";
+import { PondTypeEnum } from "./fetchPond";
 
 const baseUrl = "/api/PondType";
-
-export enum PondTypeEnum {
-  Paring = "Paring",
-  EggBatch = "EggBatch",
-  FryFish = "FryFish",
-  Classification = "Classification",
-  MarketPond = "MarketPond",
-  BroodStock = "BroodStock",
-}
 
 export interface PondTypeResponse {
   id: number;
