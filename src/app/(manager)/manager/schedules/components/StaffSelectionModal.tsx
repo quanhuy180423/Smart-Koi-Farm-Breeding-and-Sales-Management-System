@@ -31,15 +31,15 @@ import { getRoleLabel } from "@/lib/utils/enum";
 interface StaffSelectionModalProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
-  selectedStaffId: number | null;
-  onSelectStaff: (staffId: number) => void;
+  selectedStaffIds: Set<number>;
+  onToggleStaff: (staffId: number) => void;
 }
 
 export default function StaffSelectionModal({
   isOpen,
   onOpenChange,
-  selectedStaffId,
-  onSelectStaff,
+  selectedStaffIds,
+  onToggleStaff,
 }: StaffSelectionModalProps) {
   const [roleFilter, setRoleFilter] = useState<Roles>(Roles.FarmStaff);
   const [staffSearchTerm, setStaffSearchTerm] = useState("");
@@ -153,11 +153,11 @@ export default function StaffSelectionModal({
                   staffData.data.map((staff: User) => (
                     <div
                       key={staff.id}
-                      onClick={() => onSelectStaff(staff.id)}
+                      onClick={() => onToggleStaff(staff.id)}
                       className={`
                         relative p-4 rounded-lg border-2 cursor-pointer transition-all duration-200 hover:shadow-md
                         ${
-                          selectedStaffId === staff.id
+                          selectedStaffIds.has(staff.id)
                             ? "border-blue-500 bg-blue-50 shadow-md"
                             : "border-gray-200 hover:border-gray-300"
                         }
@@ -171,7 +171,7 @@ export default function StaffSelectionModal({
                               <h4 className="font-semibold text-gray-900 truncate">
                                 {staff.fullName}
                               </h4>
-                              {selectedStaffId === staff.id && (
+                              {selectedStaffIds.has(staff.id) && (
                                 <div className="w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center">
                                   <svg
                                     className="w-3 h-3 text-white"
@@ -227,10 +227,10 @@ export default function StaffSelectionModal({
           </Button>
           <Button
             onClick={handleConfirm}
-            disabled={selectedStaffId === null || isLoadingStaff}
+            disabled={selectedStaffIds.size === 0 || isLoadingStaff}
             className="flex-1"
           >
-            Chọn nhân viên
+            Chọn nhân viên ({selectedStaffIds.size})
           </Button>
         </SheetFooter>
       </SheetContent>
