@@ -1,5 +1,9 @@
 "use client";
 
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { ShoppingCart } from "lucide-react";
+
 import {
   Sheet,
   SheetContent,
@@ -10,37 +14,40 @@ import {
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
-import { ShoppingCart, Loader2 } from "lucide-react";
-import Link from "next/link";
+import { ScrollArea } from "@/components/ui/scroll-area"; // Cần thêm ScrollArea
+import { Skeleton } from "@/components/ui/skeleton";
+
+import { useGetCart } from "@/hooks/useCart";
 import { formatCurrency } from "@/lib/utils/numbers/formatCurrency";
-import { usePathname } from "next/navigation";
-import { useGetCart, useDeleteItem } from "@/hooks/useCart";
-import { useState } from "react";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { CartItemResponse } from "@/lib/api/services/fetchCart";
 import { CartItem } from "./CartItem";
+import { cn } from "@/lib/utils";
+
+// Component Skeleton cho lúc loading
+const CartSkeleton = () => (
+  <div className="space-y-4 p-1">
+    {[1, 2, 3].map((i) => (
+      <div key={i} className="flex gap-4 p-4 border rounded-xl">
+        <Skeleton className="w-20 h-20 rounded-lg" />
+        <div className="flex-1 space-y-2">
+          <Skeleton className="h-4 w-3/4" />
+          <Skeleton className="h-3 w-1/2" />
+          <div className="flex justify-between mt-4">
+            <Skeleton className="h-4 w-20" />
+            <Skeleton className="h-6 w-20" />
+          </div>
+        </div>
+      </div>
+    ))}
+  </div>
+);
 
 interface CartSheetProps {
-  isOpen: boolean;
-  onOpenChange: (isOpen: boolean) => void;
+  isOpen?: boolean; // Optional vì đôi khi chỉ dùng Trigger
+  onOpenChange?: (isOpen: boolean) => void;
 }
 
 export function CartSheet({ isOpen, onOpenChange }: CartSheetProps) {
   const { data: cartData, isLoading, isError, refetch } = useGetCart();
-  const { mutate: deleteItem, isPending: isDeleting } = useDeleteItem();
-
-  const [itemToDelete, setItemToDelete] = useState<CartItemResponse | null>(
-    null,
-  );
-
   const pathname = usePathname();
   const isProfilePage = pathname?.includes("/profile");
 
@@ -48,149 +55,109 @@ export function CartSheet({ isOpen, onOpenChange }: CartSheetProps) {
   const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
   const totalPrice = cartData?.totalPrice || 0;
 
-  const handleConfirmRemove = () => {
-    if (itemToDelete) {
-      deleteItem(itemToDelete.id, {
-        onSuccess: () => {
-          setItemToDelete(null);
-        },
-      });
-    }
-  };
-
   return (
-    <>
-      <Sheet open={isOpen} onOpenChange={onOpenChange}>
-        <SheetTrigger asChild>
-          <Button
-            variant={isProfilePage ? "ghost" : "outline"}
-            size="icon"
-            className={
-              isProfilePage
-                ? "relative rounded-full"
-                : "relative bg-transparent cursor-pointer hover:bg-primary/10 hover:border-primary/30 transition-all duration-200 group"
-            }
-          >
-            <ShoppingCart
-              className={
-                isProfilePage
-                  ? "h-5 w-5"
-                  : "h-4 w-4 text-foreground group-hover:text-primary transition-colors duration-200"
-              }
-            />
-            {totalItems > 0 && !isLoading && (
-              <Badge className="absolute -top-2 -right-2 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs bg-primary text-primary-foreground">
-                {totalItems}
-              </Badge>
+    <Sheet open={isOpen} onOpenChange={onOpenChange}>
+      <SheetTrigger asChild>
+        <Button
+          variant={isProfilePage ? "ghost" : "outline"}
+          size="icon"
+          className={cn(
+            "relative transition-all duration-200",
+            isProfilePage
+              ? "rounded-full"
+              : "hover:bg-primary/10 hover:border-primary/50 border-primary/20",
+          )}
+        >
+          <ShoppingCart
+            className={cn(
+              "transition-colors",
+              isProfilePage ? "h-5 w-5" : "h-4 w-4 text-foreground",
             )}
-          </Button>
-        </SheetTrigger>
-        <SheetContent className="w-full sm:max-w-lg rounded-l-lg flex flex-col">
-          <SheetHeader className="py-2">
-            <SheetTitle>
-              Giỏ hàng ({isLoading ? 0 : totalItems} sản phẩm)
-            </SheetTitle>
-          </SheetHeader>
+          />
+          {/* Chỉ hiện Badge khi đã load xong và có item */}
+          {!isLoading && totalItems > 0 && (
+            <Badge className="absolute -top-2 -right-2 h-5 w-5 rounded-full p-0 flex items-center justify-center text-[10px] bg-red-500 hover:bg-red-600 animate-in zoom-in duration-300">
+              {totalItems > 99 ? "99+" : totalItems}
+            </Badge>
+          )}
+        </Button>
+      </SheetTrigger>
 
+      <SheetContent className="w-full sm:max-w-md flex flex-col p-0 bg-slate-50/50">
+        <SheetHeader className="px-6 py-4 border-b bg-white">
+          <SheetTitle className="flex items-center gap-2">
+            <ShoppingCart className="h-5 w-5" />
+            Giỏ hàng{" "}
+            <span className="text-muted-foreground font-normal text-sm">
+              ({totalItems} sản phẩm)
+            </span>
+          </SheetTitle>
+        </SheetHeader>
+
+        {/* Content Area */}
+        <ScrollArea className="flex-1 px-6 py-4">
           {isLoading ? (
-            <div className="flex-1 flex items-center justify-center">
-              <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-            </div>
+            <CartSkeleton />
           ) : isError ? (
-            <div className="flex-1 flex flex-col items-center justify-center text-center">
-              <ShoppingCart className="h-12 w-12 text-muted-foreground mb-4" />
-              <p className="text-muted-foreground mb-4">
-                Lỗi khi tải giỏ hàng. Vui lòng thử lại.
-              </p>
-              <Button onClick={() => refetch()}>Tải lại</Button>
+            <div className="flex flex-col items-center justify-center h-[50vh] text-center space-y-4">
+              <p className="text-muted-foreground">Không thể tải giỏ hàng</p>
+              <Button onClick={() => refetch()} variant="outline">
+                Thử lại
+              </Button>
             </div>
           ) : items.length === 0 ? (
-            <div className="flex-1 flex flex-col items-center justify-center text-center">
-              <ShoppingCart className="h-12 w-12 text-muted-foreground mb-4" />
-              <p className="text-muted-foreground">Giỏ hàng trống</p>
-              <Button asChild className="mt-4">
-                <Link href="/catalog" onClick={() => onOpenChange(false)}>
-                  Xem danh mục cá
-                </Link>
+            <div className="flex flex-col items-center justify-center h-[60vh] text-center space-y-4">
+              <div className="bg-muted/50 p-6 rounded-full">
+                <ShoppingCart className="h-10 w-10 text-muted-foreground/50" />
+              </div>
+              <div>
+                <p className="font-medium text-lg">Giỏ hàng trống</p>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Hãy thêm vài chú cá vào đây nhé!
+                </p>
+              </div>
+              <Button
+                asChild
+                className="mt-4"
+                onClick={() => onOpenChange?.(false)}
+              >
+                <Link href="/catalog">Xem danh mục cá</Link>
               </Button>
             </div>
           ) : (
-            <>
-              <div className="flex-1 overflow-auto py-4 -mx-6 px-6">
-                <div className="space-y-4">
-                  {items.map((item, idx) => (
-                    <CartItem key={idx} item={item} />
-                  ))}
-                </div>
-              </div>
-              <SheetFooter className="flex-col pt-4 border-t mt-auto">
-                <div className="flex justify-between items-center">
-                  <span className="font-semibold">Tổng cộng:</span>
-                  <span className="font-bold text-lg text-primary">
-                    {formatCurrency(totalPrice)}
-                  </span>
-                </div>
-                <Separator className="my-2" />
-                <div className="space-y-2">
-                  <Button
-                    asChild
-                    className="w-full"
-                    size="lg"
-                    disabled={items.length === 0}
-                  >
-                    <Link href="/checkout" onClick={() => onOpenChange(false)}>
-                      Thanh toán
-                    </Link>
-                  </Button>
-                  <Button
-                    variant="outline"
-                    className="w-full bg-transparent"
-                    onClick={() => onOpenChange(false)}
-                  >
-                    Tiếp tục mua sắm
-                  </Button>
-                </div>
-              </SheetFooter>
-            </>
+            <div className="space-y-4 pb-4">
+              {items.map((item) => (
+                <CartItem key={item.id} item={item} />
+              ))}
+            </div>
           )}
-        </SheetContent>
-      </Sheet>
+        </ScrollArea>
 
-      <Dialog
-        open={!!itemToDelete}
-        onOpenChange={(open) => !open && setItemToDelete(null)}
-      >
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle>Xác nhận xóa sản phẩm</DialogTitle>
-            <DialogDescription>
-              Hành động này không thể hoàn tác.
-            </DialogDescription>
-          </DialogHeader>
-          <p>
-            Bạn có chắc chắn muốn xóa sản phẩm{" "}
-            <span className="font-semibold text-destructive">
-              {itemToDelete?.koiFish?.rfid || itemToDelete?.packetFish?.name}
-            </span>{" "}
-            khỏi giỏ hàng?
-          </p>
-          <DialogFooter className="mt-4">
-            <Button variant="outline" onClick={() => setItemToDelete(null)}>
-              Hủy
-            </Button>
-            <Button
-              variant="destructive"
-              onClick={handleConfirmRemove}
-              disabled={isDeleting}
-            >
-              {isDeleting ? (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              ) : null}
-              Xác nhận xóa
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </>
+        {/* Footer Area - Chỉ hiện khi có sản phẩm */}
+        {!isLoading && items.length > 0 && (
+          <SheetFooter className="p-6 bg-white border-t shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-10">
+            <div className="w-full space-y-4">
+              <div className="flex justify-between items-end">
+                <span className="text-muted-foreground text-sm">Tạm tính:</span>
+                <span className="font-bold text-2xl text-primary">
+                  {formatCurrency(totalPrice)}
+                </span>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <Button variant="outline" onClick={() => onOpenChange?.(false)}>
+                  Chọn thêm
+                </Button>
+                <Button asChild className="bg-[#0A3D62] hover:bg-[#0A3D62]/90">
+                  <Link href="/checkout" onClick={() => onOpenChange?.(false)}>
+                    Thanh toán
+                  </Link>
+                </Button>
+              </div>
+            </div>
+          </SheetFooter>
+        )}
+      </SheetContent>
+    </Sheet>
   );
 }

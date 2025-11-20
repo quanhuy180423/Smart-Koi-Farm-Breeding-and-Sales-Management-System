@@ -38,11 +38,9 @@ import { AreaResponse, AreaSearchParams } from "@/lib/api/services/fetchArea";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import toast from "react-hot-toast";
-import {
-  PAGE_SIZE_OPTIONS_DEFAULT,
-  PaginationSection,
-} from "@/components/common/PaginationSection";
+import { PAGE_SIZE_OPTIONS_DEFAULT } from "@/components/common/PaginationSection";
 import { useDebounce } from "@/hooks/useDebounce";
+import { PaginationWithLinks } from "@/components/pagination";
 
 export default function AreaManagement() {
   const [searchTerm, setSearchTerm] = useState<string>("");
@@ -116,7 +114,6 @@ export default function AreaManagement() {
 
   const areas = areasData?.data || [];
   const totalItems = areasData?.totalItems || 0;
-  const totalPages = areasData?.totalPages || 1;
 
   const { isPending: isAdding, mutateAsync: addAreaAsync } = useAddArea();
   const { isPending: isEditting, mutateAsync: updateAreaAsync } =
@@ -327,15 +324,12 @@ export default function AreaManagement() {
               </Table>
 
               {totalItems > 0 && (
-                <PaginationSection
-                  totalItems={totalItems}
-                  postsPerPage={searchParams.pageSize}
-                  currentPage={searchParams.pageIndex}
-                  setCurrentPage={handlePageChange}
-                  totalPages={totalPages}
-                  setPageSize={handlePageSizeChange}
-                  hasNextPage={areasData?.hasNextPage}
-                  hasPreviousPage={areasData?.hasPreviousPage}
+                <PaginationWithLinks
+                  totalCount={totalItems}
+                  pageSize={searchParams.pageSize}
+                  page={searchParams.pageIndex}
+                  onPageChange={handlePageChange}
+                  onPageSizeChange={handlePageSizeChange}
                 />
               )}
             </>

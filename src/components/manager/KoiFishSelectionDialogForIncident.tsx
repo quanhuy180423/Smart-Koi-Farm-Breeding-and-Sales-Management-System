@@ -14,7 +14,7 @@ import {
 import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import { PaginationSection } from "@/components/common/PaginationSection";
+import { PaginationWithLinks } from "@/components/pagination";
 import { getHealthStatusLabel } from "@/lib/utils/enum/formatEnum";
 
 interface KoiFishSelectionDialogForIncidentProps {
@@ -36,7 +36,7 @@ const KoiFishSelectionDialogForIncident = ({
     useState<KoiFishSearchParams>({
       pageIndex: 1,
       pageSize: PAGE_SIZE,
-      search: "",
+      Search: "",
     });
 
   useEffect(() => {
@@ -54,7 +54,6 @@ const KoiFishSelectionDialogForIncident = ({
     useGetKoiFishes(koiFishSearchParams);
   const koiFishes = koiFishesData?.data || [];
   const totalItems = koiFishesData?.totalItems || 0;
-  const totalPages = koiFishesData?.totalPages || 0;
 
   const handlePageChange = (page: number) =>
     setKoiFishSearchParams((prev) => ({ ...prev, pageIndex: page }));
@@ -199,14 +198,12 @@ const KoiFishSelectionDialogForIncident = ({
               {/* Pagination */}
               {totalItems > 0 && (
                 <div className="mt-6 pt-4 border-t">
-                  <PaginationSection
-                    totalItems={totalItems}
-                    postsPerPage={koiFishSearchParams.pageSize}
-                    currentPage={koiFishSearchParams.pageIndex}
-                    setCurrentPage={handlePageChange}
-                    totalPages={totalPages}
-                    hasNextPage={koiFishesData?.hasNextPage}
-                    hasPreviousPage={koiFishesData?.hasPreviousPage}
+                  <PaginationWithLinks
+                    totalCount={totalItems}
+                    pageSize={koiFishSearchParams.pageSize}
+                    page={koiFishSearchParams.pageIndex}
+                    onPageChange={handlePageChange}
+                    // onPageSizeChange={handlePageSizeChange}
                   />
                 </div>
               )}

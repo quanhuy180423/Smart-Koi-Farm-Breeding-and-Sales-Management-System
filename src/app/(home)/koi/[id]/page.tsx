@@ -385,14 +385,6 @@ export default function KoiDetailPage() {
                             {koi.mutationDescription || "Không xác định"}
                           </p>
                         </div>
-                        <div>
-                          <span className="text-sm text-muted-foreground">
-                            Tỷ lệ đột biến:
-                          </span>
-                          <p className="font-medium">
-                            {koi.mutationRate.toFixed(2)}%
-                          </p>
-                        </div>
                       </>
                     )}
                   </CardContent>

@@ -3,10 +3,6 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
-import {
-  redirectMultipleRestrictedRoles,
-  RoleRedirectRule,
-} from "@/lib/utils/authUtil";
 
 export const metadata: Metadata = {
   title: "Koi Farm Management - Cá Koi Chất Lượng Cao",
@@ -18,13 +14,6 @@ export default async function HomeLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const redirectRules: RoleRedirectRule[] = [
-    { role: "Manager", redirectPath: "/manager" },
-    { role: "SaleStaff", redirectPath: "/sale" },
-  ];
-
-  await redirectMultipleRestrictedRoles(redirectRules);
-
   return (
     <div>
       <Header />

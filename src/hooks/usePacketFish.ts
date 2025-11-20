@@ -8,10 +8,17 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ApiError } from "next/dist/server/api-utils";
 import toast from "react-hot-toast";
 
-export function useGetPacketFishes(request: PacketFishSearchParams) {
+export function useGetPacketFishes(params?: Partial<PacketFishSearchParams>) {
+  const defaultParams: PacketFishSearchParams = {
+    pageIndex: 1,
+    pageSize: 10,
+    isAvailable: true,
+    ...params,
+  };
+
   return useQuery({
-    queryKey: ["packet-fishes", request],
-    queryFn: () => packetFishService.getPacketFishes(request),
+    queryKey: ["packet-fishes", defaultParams],
+    queryFn: () => packetFishService.getPacketFishes(defaultParams),
     select: (
       data: BaseResponse<PagedResponse<PacketFishResponse>>,
     ): PagedResponse<PacketFishResponse> => data.result,

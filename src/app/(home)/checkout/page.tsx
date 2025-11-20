@@ -45,19 +45,8 @@ import {
   useGetCustomerAddresses,
   useCreateAddress,
 } from "@/hooks/useCustomerAddress";
-import { useDebounce } from "@/hooks/useDebounce";
 import { useCalculateShippingFee } from "@/hooks/useShippingFee";
 import { ShippingFeeCalculateResponse } from "@/lib/api/services/fetchShippingFee";
-import {
-  MapContainer,
-  TileLayer,
-  useMapEvents,
-  Marker,
-  Popup,
-  useMap,
-} from "react-leaflet";
-import L from "leaflet";
-import "leaflet/dist/leaflet.css";
 import { PaymentMethod } from "@/lib/api/services/fetchOrderPayment";
 import { formatCurrency } from "@/lib/utils/numbers/formatCurrency";
 import { getFishSizeLabel } from "@/lib/utils/enum";
@@ -65,76 +54,21 @@ import { ShippingFeeDetailDialog } from "@/components/checkout/ShippingFeeDetail
 import { LoadingState } from "@/components/common/LoadingState";
 import { ErrorState } from "@/components/common/ErrorState";
 import { EmptyState } from "@/components/common/EmptyState";
+// 1. Import dynamic from next/dynamic
+import dynamic from "next/dynamic";
 
-delete L.Icon.Default.prototype._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl:
-    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png",
-  iconUrl:
-    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png",
-  shadowUrl:
-    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
-});
-
-interface NominatimResult {
-  lat: string;
-  lon: string;
-  display_name: string;
-}
-
-interface MapClickEvent {
-  latlng: {
-    lat: number;
-    lng: number;
-  };
-}
-
-async function geocodeAddress(
-  address: string,
-): Promise<NominatimResult | null> {
-  if (!address.trim()) return null;
-
-  try {
-    const response = await fetch(
-      `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&limit=1`,
-      {
-        headers: {
-          Accept: "application/json",
-        },
-      },
-    );
-
-    if (!response.ok) return null;
-
-    const results: NominatimResult[] = await response.json();
-    return results.length > 0 ? results[0] : null;
-  } catch {
-    return null;
+// 2. Replace the static import with a dynamic import with ssr: false
+const CheckoutMap = dynamic(
+  () => import("@/app/(customer)/profile/addresses/components/CheckoutMap"),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="h-[400px] w-full flex items-center justify-center bg-muted/20 rounded-lg">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      </div>
+    ),
   }
-}
-
-function QuickAddMapClickHandler({
-  onMapClick,
-}: {
-  onMapClick: (lat: number, lng: number) => void;
-}) {
-  useMapEvents({
-    click: (e: MapClickEvent) => {
-      onMapClick(e.latlng.lat, e.latlng.lng);
-    },
-  });
-  return null;
-}
-
-function QuickAddMapMover({ lat, lng }: { lat: number; lng: number }) {
-  const map = useMap();
-
-  useEffect(() => {
-    map.setView([lat, lng], map.getZoom());
-  }, [lat, lng, map]);
-
-  return null;
-}
+);
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -157,7 +91,7 @@ export default function CheckoutPage() {
 
   const [step, setStep] = useState(1);
   const [selectedAddressId, setSelectedAddressId] = useState<number | null>(
-    null,
+    null
   );
   const [showQuickAddModal, setShowQuickAddModal] = useState(false);
   const [quickAddForm, setQuickAddForm] = useState({
@@ -171,9 +105,6 @@ export default function CheckoutPage() {
     recipientPhone: "",
     isDefault: false,
   });
-  const [quickAddMapSearch, setQuickAddMapSearch] = useState("");
-  const [isGeocoding, setIsGeocoding] = useState(false);
-  const [quickAddMapKey, setQuickAddMapKey] = useState(0);
   const [orderData, setOrderData] = useState({
     // Payment
     paymentMethod: "vnpay",
@@ -185,8 +116,6 @@ export default function CheckoutPage() {
   const [shippingFeeData, setShippingFeeData] =
     useState<ShippingFeeCalculateResponse | null>(null);
   const [showShippingFeeDialog, setShowShippingFeeDialog] = useState(false);
-
-  const debouncedQuickAddMapSearch = useDebounce(quickAddMapSearch, 1500);
 
   // Set default address when addresses are loaded
   useEffect(() => {
@@ -200,37 +129,8 @@ export default function CheckoutPage() {
     }
   }, [addresses, selectedAddressId]);
 
-  // Auto-geocode when user finishes typing in map search
-  useEffect(() => {
-    if (!debouncedQuickAddMapSearch.trim()) return;
-
-    const performGeocoding = async () => {
-      setIsGeocoding(true);
-      try {
-        const result = await geocodeAddress(debouncedQuickAddMapSearch);
-        if (result) {
-          setQuickAddForm((prev) => ({
-            ...prev,
-            latitude: parseFloat(result.lat),
-            longitude: parseFloat(result.lon),
-          }));
-          setQuickAddMapKey((prev) => prev + 1);
-          toast.success(`Tìm thấy: ${result.display_name}`);
-          setQuickAddMapSearch("");
-        } else {
-          toast.error("Không tìm thấy địa chỉ này");
-        }
-      } catch {
-      } finally {
-        setIsGeocoding(false);
-      }
-    };
-
-    performGeocoding();
-  }, [debouncedQuickAddMapSearch]);
-
   const handleQuickAddInputChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
+    e: React.ChangeEvent<HTMLInputElement>
   ) => {
     const { name, value } = e.target;
     setQuickAddForm((prev) => ({
@@ -244,12 +144,6 @@ export default function CheckoutPage() {
       ...prev,
       isDefault: checked,
     }));
-  };
-
-  const handleQuickAddMapSearchChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
-  ) => {
-    setQuickAddMapSearch(e.target.value);
   };
 
   const handleQuickAddMapClick = (lat: number, lng: number) => {
@@ -278,7 +172,7 @@ export default function CheckoutPage() {
     const phoneRegex = /^0\d{9}$/;
     if (!phoneRegex.test(quickAddForm.recipientPhone)) {
       toast.error(
-        "Số điện thoại không hợp lệ (cần có 10 chữ số, bắt đầu từ 0)",
+        "Số điện thoại không hợp lệ (cần có 10 chữ số, bắt đầu từ 0)"
       );
       return;
     }
@@ -299,7 +193,6 @@ export default function CheckoutPage() {
           recipientPhone: "",
           isDefault: false,
         });
-        setQuickAddMapSearch("");
         // Refetch addresses and select the new one
         refetchAddresses();
         if (data.result?.id) {
@@ -308,7 +201,7 @@ export default function CheckoutPage() {
       },
       onError: (error) => {
         toast.error(
-          error instanceof Error ? error.message : "Không thể tạo địa chỉ",
+          error instanceof Error ? error.message : "Không thể tạo địa chỉ"
         );
       },
     });
@@ -357,7 +250,7 @@ export default function CheckoutPage() {
         setStep(2);
       } else {
         toast.error(
-          result?.message || "Không thể tính phí vận chuyển. Vui lòng thử lại",
+          result?.message || "Không thể tính phí vận chuyển. Vui lòng thử lại"
         );
       }
     } catch (error: Error | unknown) {
@@ -365,7 +258,7 @@ export default function CheckoutPage() {
         error instanceof Error ? error.message : "Unknown error";
       toast.error(
         errorMessage ||
-          "Có lỗi xảy ra khi tính phí vận chuyển. Vui lòng thử lại",
+          "Có lỗi xảy ra khi tính phí vận chuyển. Vui lòng thử lại"
       );
     }
   };
@@ -392,14 +285,14 @@ export default function CheckoutPage() {
         onError: () => {
           router.push("/checkout/failure");
         },
-      },
+      }
     );
   };
 
   const isStep1Valid = selectedAddressId && !isLoadingAddresses;
   const isStep2Valid = orderData.paymentMethod && orderData.agreeTerms;
   const selectedAddress = addresses?.find(
-    (addr) => addr.id === selectedAddressId,
+    (addr) => addr.id === selectedAddressId
   );
 
   // Loading state
@@ -444,7 +337,7 @@ export default function CheckoutPage() {
               description="Bạn cần thêm sản phẩm vào giỏ hàng trước khi thanh toán."
               action={{
                 label: "Xem danh mục sản phẩm",
-                onClick: () => (window.location.href = "/catalog"),
+                onClick: () => router.push("/catalog"),
               }}
             />
           </div>
@@ -1003,7 +896,7 @@ export default function CheckoutPage() {
                       <span className="text-primary text-xl">
                         {formatPrice(
                           getTotalPrice() +
-                            (shippingFeeData?.totalShippingFee || 0),
+                            (shippingFeeData?.totalShippingFee || 0)
                         )}
                       </span>
                     </div>
@@ -1051,10 +944,6 @@ export default function CheckoutPage() {
         open={showQuickAddModal}
         onOpenChange={(open) => {
           setShowQuickAddModal(open);
-          if (!open) {
-            // Reset search when modal closes
-            setQuickAddMapSearch("");
-          }
         }}
       >
         <DialogContent className="sm:max-w-4xl max-h-[90vh] overflow-y-auto">
@@ -1185,58 +1074,12 @@ export default function CheckoutPage() {
 
             {/* Map */}
             <div className="flex flex-col gap-2">
-              <Label className="text-sm font-medium">
-                Tìm kiếm & Chọn vị trí
-              </Label>
-
-              {/* Search Box */}
-              <div className="relative">
-                <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
-                <Input
-                  placeholder="Tìm kiếm địa chỉ..."
-                  value={quickAddMapSearch}
-                  onChange={handleQuickAddMapSearchChange}
-                  disabled={isCreatingAddress}
-                  className="pl-10 h-9"
-                />
-                {isGeocoding && (
-                  <Loader2 className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 animate-spin text-primary" />
-                )}
-              </div>
-
-              {/* Map Container */}
-              <div className="w-full h-80 rounded-lg overflow-hidden border border-border flex-1">
-                <MapContainer
-                  key={quickAddMapKey}
-                  center={[quickAddForm.latitude, quickAddForm.longitude]}
-                  zoom={13}
-                  style={{ height: "100%", width: "100%" }}
-                >
-                  <TileLayer
-                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                  />
-                  <QuickAddMapMover
-                    lat={quickAddForm.latitude}
-                    lng={quickAddForm.longitude}
-                  />
-                  <QuickAddMapClickHandler
-                    onMapClick={handleQuickAddMapClick}
-                  />
-                  <Marker
-                    position={[quickAddForm.latitude, quickAddForm.longitude]}
-                  >
-                    <Popup>
-                      Vĩ độ: {quickAddForm.latitude.toFixed(6)}
-                      <br />
-                      Kinh độ: {quickAddForm.longitude.toFixed(6)}
-                    </Popup>
-                  </Marker>
-                </MapContainer>
-              </div>
-              <p className="text-xs text-muted-foreground">
-                💡 Tìm kiếm địa chỉ hoặc nhấp trên bản đồ để chọn vị trí
-              </p>
+              <CheckoutMap
+                latitude={quickAddForm.latitude}
+                longitude={quickAddForm.longitude}
+                onLocationChange={handleQuickAddMapClick}
+                // disabled={isPending}
+              />
             </div>
           </div>
 

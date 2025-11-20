@@ -1,21 +1,13 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import apiService from "@/lib/api/apiClient";
-import fetchAuth, { SignOutRequest } from "@/lib/api/services/fetchAuth";
-
-export enum UserRole {
-  MANAGER = "manager",
-  FARM_STAFF = "farm-staff",
-  SALE_STAFF = "sale-staff",
-  CUSTOMER = "customer",
-  GUEST = "guest",
-}
+import fetchAuth, { Roles, SignOutRequest } from "@/lib/api/services/fetchAuth";
 
 export interface User {
   id: string;
   email: string;
   username: string;
-  role: UserRole;
+  role: Roles;
   name?: string;
   avatar?: string;
 }
@@ -29,8 +21,8 @@ interface AuthState {
   updateUser: (user: Partial<User>) => void;
   setToken: (token: string | null) => void;
   logout: (refreshToken?: string) => Promise<void>;
-  getUserRole: () => UserRole;
-  hasRole: (role: UserRole) => boolean;
+  getUserRole: () => Roles;
+  hasRole: (role: Roles) => boolean;
   canAccessRoute: (route: string) => boolean;
 }
 
@@ -115,14 +107,14 @@ export const useAuthStore = create<AuthState>()(
 
           const rawRole = String(rawRoleValue ?? "Guest");
 
-          const mapRole = (r: string): UserRole => {
+          const mapRole = (r: string): Roles => {
             const rr = (r || "").toLowerCase();
-            if (rr.includes("manager")) return UserRole.MANAGER;
-            if (rr.includes("farm")) return UserRole.FARM_STAFF;
-            if (rr.includes("sale")) return UserRole.SALE_STAFF;
+            if (rr.includes("manager")) return Roles.Manager;
+            if (rr.includes("farm")) return Roles.FarmStaff;
+            if (rr.includes("sale")) return Roles.SaleStaff;
             if (rr.includes("customer") || rr.includes("cust"))
-              return UserRole.CUSTOMER;
-            return UserRole.GUEST;
+              return Roles.Customer;
+            return Roles.Customer;
           };
 
           const role = mapRole(rawRole);
@@ -192,20 +184,20 @@ export const useAuthStore = create<AuthState>()(
       },
 
       getUserRole: () => {
-        return get().user?.role || UserRole.GUEST;
+        return get().user?.role || Roles.Customer;
       },
 
-      hasRole: (role: UserRole) => {
+      hasRole: (role: Roles) => {
         return get().user?.role === role;
       },
 
       canAccessRoute: (route: string) => {
         const userRole = get().getUserRole();
 
-        const routePermissions: Record<string, UserRole[]> = {
-          "/manager": [UserRole.MANAGER],
-          "/sale": [UserRole.SALE_STAFF],
-          "/": [UserRole.CUSTOMER, UserRole.GUEST],
+        const routePermissions: Record<string, Roles[]> = {
+          "/manager": [Roles.Manager],
+          "/sale": [Roles.SaleStaff],
+          "/": [Roles.Customer, Roles.Customer],
         };
 
         for (const [protectedRoute, allowedRoles] of Object.entries(
@@ -228,132 +220,6 @@ export const useAuthStore = create<AuthState>()(
     },
   ),
 );
-
-// Helper functions for authentication
-export const authHelpers = {
-  // Initialize auth state from cookies (call this on app start)
-  initializeAuth: () => {
-    if (typeof window !== "undefined") {
-      const cookies = document.cookie.split(";");
-      const roleCookie = cookies.find((cookie) =>
-        cookie.trim().startsWith("user-role="),
-      );
-
-      if (roleCookie) {
-        const role = roleCookie.split("=")[1] as UserRole;
-        if (role && role !== UserRole.GUEST) {
-          // You might want to fetch user data from API here
-          // For now, create a basic user object
-          const user: User = {
-            id: "temp-id",
-            email: "temp@email.com",
-            username: "temp-user",
-            role: role,
-            name: "User",
-          };
-          useAuthStore.getState().login(user);
-        }
-      }
-    }
-  },
-
-  // Check if user is authenticated
-  isAuthenticated: () => {
-    return useAuthStore.getState().isAuthenticated;
-  },
-
-  // Get current user
-  getCurrentUser: () => {
-    return useAuthStore.getState().user;
-  },
-
-  // Get user role
-  getUserRole: () => {
-    return useAuthStore.getState().getUserRole();
-  },
-
-  // Check if user has specific role
-  hasRole: (role: UserRole) => {
-    return useAuthStore.getState().hasRole(role);
-  },
-
-  // Login helper
-  login: async (email: string, _password: string) => {
-    try {
-      useAuthStore.getState().setLoading(true);
-
-      // Mock login response based on email
-      let user: User;
-      if (email.includes("manager") || email.includes("admin")) {
-        user = {
-          id: "1",
-          email,
-          username: "manager",
-          role: UserRole.MANAGER,
-          name: "Manager User",
-        };
-      } else if (email.includes("farm")) {
-        user = {
-          id: "2",
-          email,
-          username: "farm-staff",
-          role: UserRole.FARM_STAFF,
-          name: "Farm Staff",
-        };
-      } else if (email.includes("sale")) {
-        user = {
-          id: "3",
-          email,
-          username: "sale-staff",
-          role: UserRole.SALE_STAFF,
-          name: "Sale Staff",
-        };
-      } else {
-        user = {
-          id: "4",
-          email,
-          username: "customer",
-          role: UserRole.CUSTOMER,
-          name: "Customer",
-        };
-      }
-
-      // use _password to avoid unused param lint (placeholder until real API)
-      void _password;
-      useAuthStore.getState().login(user);
-      return { success: true, user };
-    } catch {
-      return { success: false, error: "Login failed" };
-    } finally {
-      useAuthStore.getState().setLoading(false);
-    }
-  },
-
-  // Register helper
-  register: async (email: string, username: string, _password: string) => {
-    try {
-      useAuthStore.getState().setLoading(true);
-
-      // Mock register response - always create customer account
-      const user: User = {
-        id: Date.now().toString(),
-        email,
-        username,
-        role: UserRole.CUSTOMER,
-        name: username,
-      };
-
-      // use _password to avoid unused param lint (placeholder until real API)
-      void _password;
-      useAuthStore.getState().login(user);
-      return { success: true, user };
-    } catch {
-      return { success: false, error: "Registration failed" };
-    } finally {
-      useAuthStore.getState().setLoading(false);
-    }
-  },
-};
 
 // Listen to global logout events dispatched by the API client (e.g. on 401).
 // This lets the auth store control cookie clearing and backend sign-out in one place.

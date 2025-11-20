@@ -61,7 +61,7 @@ export function Header() {
   const handleSelectVariety = (value: number | null) => {
     setIsMenuOpen(false);
     if (value) {
-      router.push(`/catalog?variety=${value}`);
+      router.push(`/catalog?varietyId=${value}`);
     } else {
       router.push(`/catalog`);
     }

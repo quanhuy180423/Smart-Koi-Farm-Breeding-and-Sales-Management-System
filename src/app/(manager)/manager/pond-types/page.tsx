@@ -42,10 +42,8 @@ import {
   useUpdatePondType,
   useDeletePondType,
 } from "@/hooks/usePondType";
-import {
-  PAGE_SIZE_OPTIONS_DEFAULT,
-  PaginationSection,
-} from "@/components/common/PaginationSection";
+import { PAGE_SIZE_OPTIONS_DEFAULT } from "@/components/common/PaginationSection";
+import { PaginationWithLinks } from "@/components/pagination";
 import AddPondTypeModal from "./AddPondTypeModal";
 import EditPondTypeModal from "./EditPondTypeModal";
 import PondTypeDetailModal from "./PondTypeDetailModal";
@@ -115,7 +113,6 @@ export default function PondTypeManagement() {
 
   const pondTypes: PondTypeResponse[] = pondTypesData?.data || [];
   const totalCount = pondTypesData?.totalItems || 0;
-  const totalPages = pondTypesData?.totalPages || 1;
 
   const addPondTypeMutation = useAddPondType();
   const updatePondTypeMutation = useUpdatePondType();
@@ -420,15 +417,12 @@ export default function PondTypeManagement() {
               </Table>
 
               {totalCount > 0 && (
-                <PaginationSection
-                  totalItems={totalCount}
-                  postsPerPage={searchParams.pageSize}
-                  currentPage={searchParams.pageIndex}
-                  setCurrentPage={handleSetCurrentPage}
-                  totalPages={totalPages}
-                  setPageSize={handleSetPageSize}
-                  hasNextPage={pondTypesData?.hasNextPage}
-                  hasPreviousPage={pondTypesData?.hasPreviousPage}
+                <PaginationWithLinks
+                  totalCount={totalCount}
+                  pageSize={searchParams.pageSize}
+                  page={searchParams.pageIndex}
+                  onPageChange={handleSetCurrentPage}
+                  onPageSizeChange={handleSetPageSize}
                 />
               )}
             </>

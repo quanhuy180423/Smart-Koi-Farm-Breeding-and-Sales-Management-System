@@ -1,46 +1,30 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Loader2, MapPin, ArrowLeft, Search } from "lucide-react";
+import { Loader2, MapPin, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import CustomerLayout from "@/components/customer/CustomerLayout";
 import { useCreateAddress } from "@/hooks/useCustomerAddress";
 import { useDebounce } from "@/hooks/useDebounce";
-import {
-  MapContainer,
-  TileLayer,
-  useMapEvents,
-  Marker,
-  Popup,
-  useMap,
-} from "react-leaflet";
-import L from "leaflet";
-import "leaflet/dist/leaflet.css";
 
-// Fix leaflet icon issue
-type IconPrototype = { _getIconUrl?: unknown };
-delete (L.Icon.Default.prototype as unknown as IconPrototype)._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl:
-    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png",
-  iconUrl:
-    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png",
-  shadowUrl:
-    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
+// 1. Import dynamic from next/dynamic
+import dynamic from "next/dynamic";
+
+// 2. Replace the static import with a dynamic import with ssr: false
+const CheckoutMap = dynamic(() => import("../components/CheckoutMap"), {
+  ssr: false,
+  loading: () => (
+    <div className="h-[400px] w-full flex items-center justify-center bg-muted/20 rounded-lg">
+      <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+    </div>
+  ),
 });
-
-interface MapClickEvent {
-  latlng: {
-    lat: number;
-    lng: number;
-  };
-}
 
 interface NominatimResult {
   lat: string;
@@ -50,7 +34,7 @@ interface NominatimResult {
 
 // Geocoding using Nominatim API
 async function geocodeAddress(
-  address: string,
+  address: string
 ): Promise<NominatimResult | null> {
   if (!address.trim()) return null;
 
@@ -61,7 +45,7 @@ async function geocodeAddress(
         headers: {
           Accept: "application/json",
         },
-      },
+      }
     );
 
     if (!response.ok) return null;
@@ -71,29 +55,6 @@ async function geocodeAddress(
   } catch {
     return null;
   }
-}
-
-function MapClickHandler({
-  onMapClick,
-}: {
-  onMapClick: (lat: number, lng: number) => void;
-}) {
-  useMapEvents({
-    click: (e: MapClickEvent) => {
-      onMapClick(e.latlng.lat, e.latlng.lng);
-    },
-  });
-  return null;
-}
-
-function MapMover({ lat, lng }: { lat: number; lng: number }) {
-  const map = useMap();
-
-  useEffect(() => {
-    map.setView([lat, lng], map.getZoom());
-  }, [lat, lng, map]);
-
-  return null;
 }
 
 export default function AddAddressPage() {
@@ -112,24 +73,15 @@ export default function AddAddressPage() {
     isDefault: false,
   });
 
-  const [searchQuery, setSearchQuery] = useState("");
-  const [isSearching, setIsSearching] = useState(false);
-  const [mapKey, setMapKey] = useState(0);
-  const mapRef = useRef(null);
+  const debouncedFullAddress = useDebounce(formData.fullAddress, 1000);
 
-  const debouncedSearchQuery = useDebounce(searchQuery, 1000);
-
-  // Auto-geocode when user finishes typing in search or address fields
+  // Auto-geocode when user finishes typing in full address field
   useEffect(() => {
-    if (!debouncedSearchQuery.trim() && !formData.fullAddress.trim()) return;
-
-    const query = debouncedSearchQuery || formData.fullAddress;
-    if (!query.trim()) return;
+    if (!debouncedFullAddress.trim()) return;
 
     const performGeocoding = async () => {
-      setIsSearching(true);
       try {
-        const result = await geocodeAddress(query);
+        const result = await geocodeAddress(debouncedFullAddress);
         if (result) {
           const lat = parseFloat(result.lat);
           const lng = parseFloat(result.lon);
@@ -138,24 +90,14 @@ export default function AddAddressPage() {
             latitude: lat,
             longitude: lng,
           }));
-          setMapKey((prev) => prev + 1);
-          if (debouncedSearchQuery) {
-            toast.success(`Tìm thấy: ${result.display_name}`);
-            setSearchQuery("");
-          }
-        } else {
-          if (debouncedSearchQuery) {
-            toast.error("Không tìm thấy địa chỉ này");
-          }
         }
       } catch {
-      } finally {
-        setIsSearching(false);
+        // Silent fail for auto-geocoding
       }
     };
 
     performGeocoding();
-  }, [debouncedSearchQuery, formData.fullAddress]);
+  }, [debouncedFullAddress]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -172,17 +114,12 @@ export default function AddAddressPage() {
     }));
   };
 
-  const handleMapClick = (lat: number, lng: number) => {
+  const handleLocationChange = (lat: number, lng: number) => {
     setFormData((prev) => ({
       ...prev,
       latitude: lat,
       longitude: lng,
     }));
-  };
-
-  const handleSearchSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Trigger geocoding by setting debouncedSearchQuery
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -205,7 +142,7 @@ export default function AddAddressPage() {
     const phoneRegex = /^0\d{9}$/;
     if (!phoneRegex.test(formData.recipientPhone)) {
       toast.error(
-        "Số điện thoại không hợp lệ (cần có 10 chữ số, bắt đầu từ 0)",
+        "Số điện thoại không hợp lệ (cần có 10 chữ số, bắt đầu từ 0)"
       );
       return;
     }
@@ -217,7 +154,7 @@ export default function AddAddressPage() {
       },
       onError: (error) => {
         toast.error(
-          error instanceof Error ? error.message : "Không thể tạo địa chỉ",
+          error instanceof Error ? error.message : "Không thể tạo địa chỉ"
         );
       },
     });
@@ -390,65 +327,12 @@ export default function AddAddressPage() {
 
             {/* Map */}
             <div className="lg:col-span-2">
-              <Card className="h-full flex flex-col">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-lg">
-                    Chọn vị trí trên bản đồ
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="flex-1 flex flex-col p-4">
-                  {/* Search Box */}
-                  <form onSubmit={handleSearchSubmit} className="mb-3">
-                    <div className="relative">
-                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
-                      <Input
-                        placeholder="Tìm kiếm địa chỉ trên bản đồ..."
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        disabled={isSearching || isPending}
-                        className="pl-10 h-10"
-                      />
-                      {isSearching && (
-                        <Loader2 className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 animate-spin text-primary" />
-                      )}
-                    </div>
-                  </form>
-
-                  {/* Map Container */}
-                  <div className="w-full flex-1 rounded-lg overflow-hidden border border-border">
-                    <MapContainer
-                      key={mapKey}
-                      ref={mapRef}
-                      center={[formData.latitude, formData.longitude]}
-                      zoom={13}
-                      style={{ height: "100%", width: "100%" }}
-                    >
-                      <TileLayer
-                        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                      />
-                      <MapMover
-                        lat={formData.latitude}
-                        lng={formData.longitude}
-                      />
-                      <MapClickHandler onMapClick={handleMapClick} />
-                      <Marker
-                        position={[formData.latitude, formData.longitude]}
-                      >
-                        <Popup>
-                          Vĩ độ: {formData.latitude.toFixed(6)}
-                          <br />
-                          Kinh độ: {formData.longitude.toFixed(6)}
-                        </Popup>
-                      </Marker>
-                    </MapContainer>
-                  </div>
-
-                  <p className="text-xs text-muted-foreground mt-3">
-                    💡 Tìm kiếm địa chỉ hoặc nhấp trên bản đồ để đặt vị trí
-                  </p>
-                </CardContent>
-              </Card>
+              <CheckoutMap
+                latitude={formData.latitude}
+                longitude={formData.longitude}
+                onLocationChange={handleLocationChange}
+                disabled={isPending}
+              />
             </div>
           </div>
         </form>

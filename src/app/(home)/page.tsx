@@ -33,7 +33,7 @@ export default function HomePage() {
   const { data: koiFishesData, isLoading: isLoadingKoi } = useGetKoiFishes({
     pageIndex: 1,
     pageSize: 5,
-    saleStatus: SaleStatus.AVAILABLE,
+    SaleStatus: SaleStatus.AVAILABLE,
   });
 
   const koiFishes = koiFishesData?.data || [];

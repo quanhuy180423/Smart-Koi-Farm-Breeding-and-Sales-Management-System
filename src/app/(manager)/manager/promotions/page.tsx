@@ -70,10 +70,8 @@ import {
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import { vi } from "date-fns/locale";
-import {
-  PaginationSection,
-  PAGE_SIZE_OPTIONS_DEFAULT,
-} from "@/components/common/PaginationSection";
+import { PAGE_SIZE_OPTIONS_DEFAULT } from "@/components/common/PaginationSection";
+import { PaginationWithLinks } from "@/components/pagination";
 import formatCurrency from "@/lib/utils/numbers";
 import { useDebounce } from "@/hooks/useDebounce";
 import { LoadingState } from "@/components/common/LoadingState";
@@ -602,15 +600,12 @@ export default function PromotionManagement() {
               </div>
 
               {/* Pagination */}
-              <PaginationSection
-                currentPage={currentPage}
-                setCurrentPage={handlePageChange}
-                totalPages={promotionsData.totalPages}
-                setPageSize={handlePageSizeChange}
-                pageSizeOptions={PAGE_SIZE_OPTIONS_DEFAULT}
-                totalItems={promotionsData.totalItems}
-                hasNextPage={promotionsData.hasNextPage}
-                hasPreviousPage={promotionsData.hasPreviousPage}
+              <PaginationWithLinks
+                totalCount={promotionsData.totalItems}
+                pageSize={pageSize}
+                page={currentPage}
+                onPageChange={handlePageChange}
+                onPageSizeChange={handlePageSizeChange}
               />
             </>
           )}

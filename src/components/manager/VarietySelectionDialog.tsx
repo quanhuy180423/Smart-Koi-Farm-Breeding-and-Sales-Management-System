@@ -1,4 +1,4 @@
-import { PaginationSection } from "@/components/common/PaginationSection";
+import { PaginationWithLinks } from "@/components/pagination";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -67,7 +67,6 @@ const VarietySelectionDialog = ({
     useGetVarieties(varietySearchParams);
   const varieties = varietiesData?.data || [];
   const totalItems = varietiesData?.totalItems || 0;
-  const totalPages = varietiesData?.totalPages || 0;
 
   const handlePageChange = (page: number) =>
     setVarietySearchParams((prev) => ({ ...prev, pageIndex: page }));
@@ -164,16 +163,12 @@ const VarietySelectionDialog = ({
               </Table>
 
               {totalItems > 0 && (
-                <PaginationSection
-                  totalItems={totalItems}
-                  postsPerPage={varietySearchParams.pageSize}
-                  currentPage={varietySearchParams.pageIndex}
-                  setCurrentPage={handlePageChange}
-                  totalPages={totalPages}
-                  setPageSize={handlePageSizeChange}
-                  hasNextPage={varietiesData?.hasNextPage}
-                  hasPreviousPage={varietiesData?.hasPreviousPage}
-                  pageSizeOptions={[5, 10, 20]}
+                <PaginationWithLinks
+                  totalCount={totalItems}
+                  pageSize={varietySearchParams.pageSize}
+                  page={varietySearchParams.pageIndex}
+                  onPageChange={handlePageChange}
+                  onPageSizeChange={handlePageSizeChange}
                 />
               )}
             </>

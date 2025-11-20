@@ -46,17 +46,15 @@ import {
   useDeleteWeeklyScheduleTemplate,
 } from "@/hooks/useWeeklyScheduleTemplate";
 import { useGetWorkSchedules } from "@/hooks/useWorkSchedule";
-import {
-  PaginationSection,
-  PAGE_SIZE_OPTIONS_DEFAULT,
-} from "@/components/common/PaginationSection";
+import { PAGE_SIZE_OPTIONS_DEFAULT } from "@/components/common/PaginationSection";
+import { PaginationWithLinks } from "@/components/pagination";
 import { useDebounce } from "@/hooks/useDebounce";
-import DeleteTaskTemplateConfirmDialog from "./DeleteTaskTemplateConfirmDialog";
-import DeleteWeeklyScheduleConfirmDialog from "./DeleteWeeklyScheduleConfirmDialog";
-import TaskTemplateDetailModal from "./TaskTemplateDetailModal";
-import WeeklyScheduleCalendarView from "./WeeklyScheduleCalendarView";
-import WeeklyWorkScheduleView from "./WeeklyWorkScheduleView";
-import GenerateWorkScheduleModal from "./GenerateWorkScheduleModal";
+import DeleteTaskTemplateConfirmDialog from "./components/DeleteTaskTemplateConfirmDialog";
+import DeleteWeeklyScheduleConfirmDialog from "./components/DeleteWeeklyScheduleConfirmDialog";
+import TaskTemplateDetailModal from "./components/TaskTemplateDetailModal";
+import WeeklyScheduleCalendarView from "./components/WeeklyScheduleCalendarView";
+import WeeklyWorkScheduleView from "./components/WeeklyWorkScheduleView";
+import GenerateWorkScheduleModal from "./components/GenerateWorkScheduleModal";
 import toast from "react-hot-toast";
 
 interface TaskTemplateForm {
@@ -159,7 +157,6 @@ export default function ScheduleManagement() {
   const deleteWeeklyMutation = useDeleteWeeklyScheduleTemplate();
 
   const taskTemplates = pagedResponse?.data || [];
-  const totalPages = pagedResponse?.totalPages || 0;
   const totalItems = pagedResponse?.totalItems || 0;
   const isSaving =
     createMutation.isPending ||
@@ -433,15 +430,12 @@ export default function ScheduleManagement() {
 
               {/* Pagination */}
               {totalItems > 0 && (
-                <PaginationSection
-                  totalItems={totalItems}
-                  postsPerPage={searchParams.pageSize}
-                  currentPage={searchParams.pageIndex}
-                  setCurrentPage={handleSetCurrentPage}
-                  totalPages={totalPages}
-                  setPageSize={handleSetPageSize}
-                  hasNextPage={pagedResponse?.hasNextPage}
-                  hasPreviousPage={pagedResponse?.hasPreviousPage}
+                <PaginationWithLinks
+                  totalCount={totalItems}
+                  pageSize={searchParams.pageSize}
+                  page={searchParams.pageIndex}
+                  onPageChange={handleSetCurrentPage}
+                  onPageSizeChange={handleSetPageSize}
                 />
               )}
             </TabsContent>
