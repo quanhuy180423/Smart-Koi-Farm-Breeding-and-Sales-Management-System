@@ -72,7 +72,6 @@ export interface KoiFishResponse {
   origin: string;
   isMutated: boolean;
   mutationDescription: string | null;
-  mutationRate: number;
   createdAt: string;
   updatedAt: string | null;
   pond: PondBasicResponse;

@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import { Calendar as CalendarIcon, ChevronRight } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import AreaFilterSelectionDialog from "./AreaFilterSelectionDialog";
 import PondTypeFilterSelectionDialog from "./PondTypeFilterSelectionDialog";
 import {
@@ -25,14 +25,7 @@ import {
 } from "@/components/ui/select";
 import { useGetAreas } from "@/hooks/useArea";
 import { useGetPondTypes } from "@/hooks/usePondType";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
-import { format } from "date-fns";
-import { vi } from "date-fns/locale";
+import { DatePickerFilter } from "@/components/ui/DatePickerFilter";
 import { PondStatus, PondTypeEnum } from "@/lib/api/services/fetchPond";
 import { PondTypeEnum as PondTypeEnumLabel } from "@/lib/api/services/fetchPond";
 import { getPondStatusLabel, getPondTypeLabel } from "@/lib/utils/enum";
@@ -57,20 +50,6 @@ interface PondAdvancedFilterDialogProps {
   onFiltersChange: (filters: PondAdvancedFilterState) => void;
   onApply: () => void;
   onReset: () => void;
-}
-
-// Helper functions
-function getDateFromString(dateStr: string): Date | undefined {
-  if (!dateStr) return undefined;
-  const date = new Date(dateStr);
-  return isNaN(date.getTime()) ? undefined : date;
-}
-
-function formatDateToString(date: Date): string {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
 }
 
 export default function PondAdvancedFilterDialog({
@@ -194,25 +173,21 @@ export default function PondAdvancedFilterDialog({
   );
 
   const handleCreatedFromChange = useCallback(
-    (date: Date | undefined) => {
-      if (date) {
-        onFiltersChange({
-          ...filters,
-          createdFromInput: formatDateToString(date),
-        });
-      }
+    (dateString: string) => {
+      onFiltersChange({
+        ...filters,
+        createdFromInput: dateString,
+      });
     },
     [filters, onFiltersChange],
   );
 
   const handleCreatedToChange = useCallback(
-    (date: Date | undefined) => {
-      if (date) {
-        onFiltersChange({
-          ...filters,
-          createdToInput: formatDateToString(date),
-        });
-      }
+    (dateString: string) => {
+      onFiltersChange({
+        ...filters,
+        createdToInput: dateString,
+      });
     },
     [filters, onFiltersChange],
   );
@@ -445,60 +420,16 @@ export default function PondAdvancedFilterDialog({
               <p className="text-sm font-semibold col-span-full mb-[-8px] text-muted-foreground">
                 Lọc theo Ngày tạo
               </p>
-              <div className="space-y-2 col-span-2 md:col-span-1">
-                <Label htmlFor="createdFrom">Từ ngày</Label>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className="w-full justify-start text-left font-normal"
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {filters.createdFromInput
-                        ? format(
-                            getDateFromString(filters.createdFromInput)!,
-                            "dd MMM yyyy",
-                            { locale: vi },
-                          )
-                        : "Chọn ngày..."}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={getDateFromString(filters.createdFromInput)}
-                      onSelect={handleCreatedFromChange}
-                    />
-                  </PopoverContent>
-                </Popover>
-              </div>
-              <div className="space-y-2 col-span-2 md:col-span-1">
-                <Label htmlFor="createdTo">Đến ngày</Label>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className="w-full justify-start text-left font-normal"
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {filters.createdToInput
-                        ? format(
-                            getDateFromString(filters.createdToInput)!,
-                            "dd MMM yyyy",
-                            { locale: vi },
-                          )
-                        : "Chọn ngày..."}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={getDateFromString(filters.createdToInput)}
-                      onSelect={handleCreatedToChange}
-                    />
-                  </PopoverContent>
-                </Popover>
-              </div>
+              <DatePickerFilter
+                label="Từ ngày"
+                value={filters.createdFromInput}
+                onChange={handleCreatedFromChange}
+              />
+              <DatePickerFilter
+                label="Đến ngày"
+                value={filters.createdToInput}
+                onChange={handleCreatedToChange}
+              />
             </div>
           </div>
           <DialogFooter className="mt-4 flex justify-between sm:justify-between">

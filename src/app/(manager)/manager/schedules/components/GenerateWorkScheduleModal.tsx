@@ -12,7 +12,6 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
-  Calendar as CalendarIcon,
   Loader2,
   AlertCircle,
   Clock,
@@ -26,14 +25,7 @@ import { WeeklyScheduleTemplate } from "@/lib/api/services/fetchWeeklyScheduleTe
 import { DayOfWeekEnum } from "@/lib/api/services/fetchWeeklyScheduleTemplate";
 import { useGenerateWorkSchedules } from "@/hooks/useWeeklyScheduleTemplate";
 import { formatTimeToHHMM } from "@/lib/utils/formatTime";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
-import { format } from "date-fns";
-import { vi } from "date-fns/locale";
+import { DatePickerFilter } from "@/components/ui/DatePickerFilter";
 
 interface GenerateWorkScheduleModalProps {
   isOpen: boolean;
@@ -106,24 +98,6 @@ export default function GenerateWorkScheduleModal({
     setExpandedDays(newExpanded);
   };
 
-  // Helper functions for date handling
-  const getDateFromString = (dateString: string): Date | undefined => {
-    if (!dateString) return undefined;
-    const parts = dateString.split("T")[0].split("-");
-    return new Date(
-      parseInt(parts[0]),
-      parseInt(parts[1]) - 1,
-      parseInt(parts[2]),
-    );
-  };
-
-  const formatDateToString = (date: Date): string => {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const day = String(date.getDate()).padStart(2, "0");
-    return `${year}-${month}-${day}`;
-  };
-
   const handleGenerate = () => {
     if (!selectedTemplateId || !startDate) return;
 
@@ -159,37 +133,11 @@ export default function GenerateWorkScheduleModal({
 
           <div className="space-y-6">
             {/* Start Date Selection */}
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700">
-                Ngày bắt đầu
-              </label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className="w-full justify-start text-left font-normal"
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {startDate
-                      ? format(getDateFromString(startDate)!, "dd MMM yyyy", {
-                          locale: vi,
-                        })
-                      : "Chọn ngày..."}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={getDateFromString(startDate)}
-                    onSelect={(date) => {
-                      if (date) {
-                        setStartDate(formatDateToString(date));
-                      }
-                    }}
-                  />
-                </PopoverContent>
-              </Popover>
-            </div>
+            <DatePickerFilter
+              label="Ngày bắt đầu"
+              value={startDate}
+              onChange={setStartDate}
+            />
 
             {/* Staff Selection */}
             <div className="space-y-2">

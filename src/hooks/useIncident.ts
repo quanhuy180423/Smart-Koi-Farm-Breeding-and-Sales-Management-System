@@ -2,6 +2,7 @@ import { BaseResponse, PagedResponse } from "@/lib/api/apiClient";
 import incidentService, {
   IncidentResponse,
   IncidentSearchParams,
+  KoiIncidentHistory,
 } from "@/lib/api/services/fetchIncident";
 import { useQuery } from "@tanstack/react-query";
 
@@ -25,5 +26,16 @@ export function useGetIncidents(request: IncidentSearchParams) {
     },
   });
 }
+
+export const useKoiIncident = (koiFishId: number, enabled: boolean = true) => {
+  return useQuery<KoiIncidentHistory[]>({
+    queryKey: ["koiIncidentHistory", koiFishId],
+    queryFn: async () => {
+      const response = await incidentService.getKoiIncidentHistory(koiFishId);
+      return response.result || [];
+    },
+    enabled: enabled && !!koiFishId,
+  });
+};
 
 export default useGetIncidents;
