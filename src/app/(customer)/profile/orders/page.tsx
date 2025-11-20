@@ -25,12 +25,6 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Slider } from "@/components/ui/slider";
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
-import {
   Package,
   Search,
   Eye,
@@ -40,8 +34,8 @@ import {
   CreditCard,
   Filter,
   X,
-  Calendar as CalendarIcon,
 } from "lucide-react";
+import { DatePickerFilter } from "@/components/ui/DatePickerFilter";
 import { toast } from "sonner";
 import Image from "next/image";
 import { formatCurrency } from "@/lib/utils/numbers/formatCurrency";
@@ -54,7 +48,7 @@ import { OrderStatus, OrderSearchParams } from "@/lib/api/services/fetchOrder";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useCreatePayment } from "@/hooks/useOrderPayment";
 import { PaymentMethod } from "@/lib/api/services/fetchOrderPayment";
-import { PaginationSection } from "@/components/common/PaginationSection";
+import { PaginationWithLinks } from "@/components/pagination";
 import {
   getOrderStatusLabel,
   getOrderStatusText,
@@ -496,53 +490,23 @@ export default function OrdersPage() {
                     Khoảng thời gian
                   </label>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <Button
-                          variant="outline"
-                          className="justify-start text-left font-normal rounded-lg"
-                        >
-                          <CalendarIcon className="mr-2 h-4 w-4" />
-                          {createdFromDate
-                            ? createdFromDate.toLocaleDateString("vi-VN")
-                            : "Từ ngày"}
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar
-                          mode="single"
-                          selected={createdFromDate}
-                          onSelect={setCreatedFromDate}
-                          disabled={(date) =>
-                            createdToDate ? date > createdToDate : false
-                          }
-                        />
-                      </PopoverContent>
-                    </Popover>
+                    <DatePickerFilter
+                      label="Từ ngày"
+                      value={
+                        createdFromDate ? createdFromDate.toISOString() : ""
+                      }
+                      onChange={(value) =>
+                        setCreatedFromDate(value ? new Date(value) : undefined)
+                      }
+                    />
 
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <Button
-                          variant="outline"
-                          className="justify-start text-left font-normal rounded-lg"
-                        >
-                          <CalendarIcon className="mr-2 h-4 w-4" />
-                          {createdToDate
-                            ? createdToDate.toLocaleDateString("vi-VN")
-                            : "Đến ngày"}
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar
-                          mode="single"
-                          selected={createdToDate}
-                          onSelect={setCreatedToDate}
-                          disabled={(date) =>
-                            createdFromDate ? date < createdFromDate : false
-                          }
-                        />
-                      </PopoverContent>
-                    </Popover>
+                    <DatePickerFilter
+                      label="Đến ngày"
+                      value={createdToDate ? createdToDate.toISOString() : ""}
+                      onChange={(value) =>
+                        setCreatedToDate(value ? new Date(value) : undefined)
+                      }
+                    />
                   </div>
                 </div>
 
@@ -639,18 +603,15 @@ export default function OrdersPage() {
               {/* Pagination */}
               {ordersData.totalPages > 1 && (
                 <div className="mt-6">
-                  <PaginationSection
-                    currentPage={currentPage}
-                    setCurrentPage={setCurrentPage}
-                    totalPages={ordersData.totalPages || 1}
-                    totalItems={ordersData.totalItems || 0}
-                    postsPerPage={pageSize}
-                    setPageSize={(size) => {
+                  <PaginationWithLinks
+                    totalCount={ordersData.totalItems || 0}
+                    pageSize={pageSize}
+                    page={currentPage}
+                    onPageChange={setCurrentPage}
+                    onPageSizeChange={(size) => {
                       setPageSize(size);
                       setCurrentPage(1);
                     }}
-                    hasNextPage={ordersData.hasNextPage}
-                    hasPreviousPage={ordersData.hasPreviousPage}
                   />
                 </div>
               )}

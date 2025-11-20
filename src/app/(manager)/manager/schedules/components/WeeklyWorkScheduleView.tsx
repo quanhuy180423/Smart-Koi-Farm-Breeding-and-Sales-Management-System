@@ -31,28 +31,15 @@ import {
 import { WorkSchedule } from "@/lib/api/services/fetchWorkSchedule";
 import { Roles } from "@/lib/api/services/fetchAuth";
 import { formatTimeToHHMM } from "@/lib/utils/formatTime";
-import {
-  getWorkScheduleStatusText,
-  getWorkScheduleStatusColor,
-  getRoleText,
-} from "@/lib/utils/enum";
+import { getRoleText } from "@/lib/utils/enum";
 import EditWorkScheduleModal from "./EditWorkScheduleModal";
 import CreateWorkScheduleModal from "./CreateWorkScheduleModal";
 import { useGetPonds } from "@/hooks/usePond";
-import { PondResponse, PondSearchParams } from "@/lib/api/services/fetchPond";
+import { PondResponse } from "@/lib/api/services/fetchPond";
 import { Plus } from "lucide-react";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
-  PaginationSection,
-  PAGE_SIZE_OPTIONS_DEFAULT,
-} from "@/components/common/PaginationSection";
+import { PaginationWithLinks } from "@/components/pagination";
+
+const PAGE_SIZE_OPTIONS = [5, 10, 20];
 
 interface WeeklyWorkScheduleViewProps {
   workSchedules: WorkSchedule[];
@@ -94,14 +81,14 @@ export default function WeeklyWorkScheduleView({
   const [isPondModalOpen, setIsPondModalOpen] = useState(false);
   const [selectedPond, setSelectedPond] = useState<PondResponse | null>(null);
   const [pondSearchTerm, setPondSearchTerm] = useState<string>("");
-  const [pondSearchParams, setPondSearchParams] = useState<PondSearchParams>({
-    pageIndex: 1,
-    pageSize: PAGE_SIZE_OPTIONS_DEFAULT[0],
-    search: "",
-  });
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(PAGE_SIZE_OPTIONS[0]);
 
-  const { data: pondsResponse, isLoading: isLoadingPonds } =
-    useGetPonds(pondSearchParams);
+  const { data: pondsResponse, isLoading: isLoadingPonds } = useGetPonds({
+    pageIndex: currentPage,
+    pageSize: pageSize,
+    search: pondSearchTerm || undefined,
+  });
 
   const handleViewDetails = (schedule: WorkSchedule) => {
     setSelectedSchedule(schedule);
@@ -112,6 +99,26 @@ export default function WeeklyWorkScheduleView({
     setSelectedPond(pond);
     onPondChange?.(pond.id);
     setIsPondModalOpen(false);
+  };
+
+  const getStatusBorderColor = (status: string) => {
+    switch (status.toLowerCase()) {
+      case "completed":
+      case "hoàn thành":
+        return "border-l-green-500";
+      case "in_progress":
+      case "in progress":
+      case "đang thực hiện":
+        return "border-l-blue-500";
+      case "pending":
+      case "chờ thực hiện":
+        return "border-l-yellow-500";
+      case "cancelled":
+      case "hủy bỏ":
+        return "border-l-red-500";
+      default:
+        return "border-l-gray-400";
+    }
   };
 
   const handleClearPond = () => {
@@ -181,24 +188,34 @@ export default function WeeklyWorkScheduleView({
           )}
         </div>
         <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setIsPondModalOpen(true)}
-            className="whitespace-nowrap"
-          >
-            <Droplets className="h-4 w-4 mr-2" />
-            {selectedPond ? "Đổi hồ" : "Chọn hồ"}
-          </Button>
-          {selectedPond && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleClearPond}
-              className="text-red-600 hover:text-red-700"
+          {selectedPond ? (
+            <div className="flex items-center gap-2">
+              <Badge
+                variant="secondary"
+                className="px-3 py-1 bg-blue-50 text-blue-700 border border-blue-200 cursor-pointer hover:bg-blue-100"
+                onClick={() => setIsPondModalOpen(true)}
+              >
+                <Droplets className="h-3 w-3 mr-1" />
+                Hồ #{selectedPond.id}: {selectedPond.pondName}
+              </Badge>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleClearPond}
+                className="h-6 w-6 p-0 text-red-500 hover:text-red-700 hover:bg-red-50"
+              >
+                ✕
+              </Button>
+            </div>
+          ) : (
+            <Badge
+              variant="outline"
+              className="px-3 py-1 text-gray-600 border-gray-300 cursor-pointer hover:bg-gray-50"
+              onClick={() => setIsPondModalOpen(true)}
             >
-              ✕
-            </Button>
+              <Droplets className="h-3 w-3 mr-1" />
+              Tất cả hồ
+            </Badge>
           )}
         </div>
 
@@ -240,7 +257,7 @@ export default function WeeklyWorkScheduleView({
           return (
             <Card
               key={index}
-              className={`${isToday ? "border-2 border-blue-500" : "border border-gray-200"}`}
+              className={`transition-all duration-200 ${isToday ? "ring-2 ring-blue-500 border-blue-300 shadow-lg" : "border border-gray-200 hover:shadow-md"}`}
             >
               <CardHeader className="pb-3">
                 <div className="flex items-start justify-between gap-2">
@@ -282,71 +299,83 @@ export default function WeeklyWorkScheduleView({
                       <div
                         key={schedule.id}
                         onClick={() => handleViewDetails(schedule)}
-                        className="border border-gray-200 rounded-lg p-2 bg-gray-50 text-xs hover:bg-gray-100 transition-colors cursor-pointer"
+                        className={`
+                          border-l-[3px] bg-white rounded-lg p-3 text-xs 
+                          cursor-pointer transition-all duration-200 
+                          hover:shadow-md hover:-translate-y-0.5
+                          ${getStatusBorderColor(schedule.status)}
+                        `}
                       >
-                        {/* Status Badge */}
+                        {/* Task Name & Time */}
                         <div className="mb-2">
-                          <Badge
-                            variant="outline"
-                            className={`text-xs ${getWorkScheduleStatusColor(schedule.status)}`}
-                          >
-                            {getWorkScheduleStatusText(schedule.status)}
-                          </Badge>
+                          <p className="font-semibold text-gray-900 truncate text-sm mb-1">
+                            {schedule.taskTemplateName}
+                          </p>
+                          <div className="flex items-center gap-1 text-gray-600">
+                            <Clock className="h-3 w-3" />
+                            <span className="text-xs">
+                              {formatTimeToHHMM(schedule.startTime)} -{" "}
+                              {formatTimeToHHMM(schedule.endTime)}
+                            </span>
+                          </div>
                         </div>
 
-                        {/* Task Name */}
-                        <p className="font-medium text-gray-900 truncate mb-1">
-                          {schedule.taskTemplateName}
-                        </p>
-
-                        {/* Time */}
-                        <div className="flex items-center gap-1 text-gray-600 mb-2">
-                          <Clock className="h-3 w-3" />
-                          <span>
-                            {formatTimeToHHMM(schedule.startTime)} -{" "}
-                            {formatTimeToHHMM(schedule.endTime)}
-                          </span>
-                        </div>
-
-                        {/* Staff Assignments */}
+                        {/* Staff Avatars */}
                         {schedule.staffAssignments.length > 0 && (
-                          <div className="flex items-start gap-1 mb-2">
-                            <Users className="h-3 w-3 text-gray-600 mt-0.5 flex-shrink-0" />
-                            <div className="flex flex-wrap gap-1">
-                              {schedule.staffAssignments.map((staff) => (
-                                <span
-                                  key={staff.staffId}
-                                  className="bg-blue-50 text-blue-700 px-2 py-0.5 rounded text-xs"
-                                  title={`${staff.staffName} - ${getRoleText(staff.role)}`}
-                                >
-                                  {staff.staffName} ({getRoleText(staff.role)})
-                                </span>
-                              ))}
+                          <div className="flex items-center gap-1 mb-2">
+                            <Users className="h-3 w-3 text-gray-600" />
+                            <div className="flex -space-x-1">
+                              {schedule.staffAssignments
+                                .slice(0, 3)
+                                .map((staff) => (
+                                  <div
+                                    key={staff.staffId}
+                                    className="w-6 h-6 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white text-xs font-semibold border-2 border-white"
+                                    title={`${staff.staffName} - ${getRoleText(staff.role)}`}
+                                  >
+                                    {staff.staffName.charAt(0).toUpperCase()}
+                                  </div>
+                                ))}
+                              {schedule.staffAssignments.length > 3 && (
+                                <div className="w-6 h-6 bg-gray-400 rounded-full flex items-center justify-center text-white text-xs border-2 border-white">
+                                  +{schedule.staffAssignments.length - 3}
+                                </div>
+                              )}
                             </div>
                           </div>
                         )}
 
-                        {/* Pond Assignments */}
+                        {/* Pond Chips */}
                         {schedule.pondAssignments.length > 0 && (
-                          <div className="flex items-start gap-1">
-                            <Droplets className="h-3 w-3 text-gray-600 mt-0.5 flex-shrink-0" />
+                          <div className="flex items-center gap-1">
+                            <Droplets className="h-3 w-3 text-gray-600" />
                             <div className="flex flex-wrap gap-1">
-                              {schedule.pondAssignments.map((pond) => (
-                                <span
-                                  key={pond.pondId}
-                                  className="bg-green-50 text-green-700 px-2 py-0.5 rounded text-xs"
-                                >
-                                  {pond.pondName}
+                              {schedule.pondAssignments
+                                .slice(0, 2)
+                                .map((pond) => (
+                                  <span
+                                    key={pond.pondId}
+                                    className="bg-green-50 text-green-700 px-2 py-0.5 rounded-full text-xs font-medium"
+                                  >
+                                    {pond.pondName}
+                                  </span>
+                                ))}
+                              {schedule.pondAssignments.length > 2 && (
+                                <span className="bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full text-xs">
+                                  +{schedule.pondAssignments.length - 2}
                                 </span>
-                              ))}
+                              )}
                             </div>
                           </div>
                         )}
 
-                        {/* Notes */}
+                        {/* Notes - Shortened */}
                         {schedule.notes && (
-                          <p className="text-gray-600 text-xs mt-2 italic border-t pt-1">
-                            {schedule.notes}
+                          <p
+                            className="text-gray-500 text-xs mt-2 italic truncate"
+                            title={schedule.notes}
+                          >
+                            💡 {schedule.notes}
                           </p>
                         )}
                       </div>
@@ -396,11 +425,7 @@ export default function WeeklyWorkScheduleView({
               value={pondSearchTerm}
               onChange={(e) => {
                 setPondSearchTerm(e.target.value);
-                setPondSearchParams((prev) => ({
-                  ...prev,
-                  search: e.target.value,
-                  pageIndex: 1,
-                }));
+                setCurrentPage(1); // Reset to first page when searching
               }}
               className="w-full"
             />
@@ -412,81 +437,68 @@ export default function WeeklyWorkScheduleView({
               </div>
             ) : (
               <>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className="w-[5%]">#</TableHead>
-                      <TableHead className="w-[30%]">Tên Hồ</TableHead>
-                      <TableHead className="w-[35%]">Vị trí</TableHead>
-                      <TableHead className="w-[30%]">Loại Hồ</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {!pondsResponse?.data || pondsResponse.data.length === 0 ? (
-                      <TableRow>
-                        <TableCell
-                          colSpan={4}
-                          className="text-center text-gray-500 py-4"
-                        >
-                          Không tìm thấy hồ nào.
-                        </TableCell>
-                      </TableRow>
-                    ) : (
-                      pondsResponse.data.map((pond) => (
-                        <TableRow
-                          key={pond.id}
-                          onClick={() => handlePondSelect(pond)}
-                          className={
+                <div className="space-y-2">
+                  {!pondsResponse?.data || pondsResponse.data.length === 0 ? (
+                    <div className="text-center text-gray-500 py-8">
+                      Không tìm thấy hồ nào.
+                    </div>
+                  ) : (
+                    pondsResponse.data.map((pond) => (
+                      <div
+                        key={pond.id}
+                        onClick={() => handlePondSelect(pond)}
+                        className={`
+                          flex items-center gap-3 p-3 rounded-lg border-2 cursor-pointer transition-all duration-200
+                          ${
                             selectedPondId === pond.id
-                              ? "bg-green-50/50 cursor-pointer"
-                              : "hover:bg-gray-50 cursor-pointer"
+                              ? "border-blue-500 bg-blue-50 shadow-sm"
+                              : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
                           }
-                        >
-                          <TableCell>
-                            <input
-                              type="radio"
-                              checked={selectedPondId === pond.id}
-                              onChange={() => handlePondSelect(pond)}
-                              className="text-blue-600 focus:ring-blue-500"
-                            />
-                          </TableCell>
-                          <TableCell className="font-medium">
+                        `}
+                      >
+                        <input
+                          type="radio"
+                          checked={selectedPondId === pond.id}
+                          onChange={() => handlePondSelect(pond)}
+                          className="text-blue-600 focus:ring-blue-500"
+                        />
+
+                        {/* Icon/Avatar */}
+                        <div className="flex-shrink-0">
+                          <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-full flex items-center justify-center text-white font-semibold text-sm">
+                            {pond.pondName.charAt(0).toUpperCase()}
+                          </div>
+                        </div>
+
+                        {/* Content */}
+                        <div className="flex-1 min-w-0">
+                          <h4 className="font-semibold text-gray-900 truncate">
                             {pond.pondName}
-                          </TableCell>
-                          <TableCell className="text-sm text-gray-500">
-                            {pond.location}
-                          </TableCell>
-                          <TableCell className="text-sm text-gray-500">
-                            {pond.pondTypeName || "N/A"}
-                          </TableCell>
-                        </TableRow>
-                      ))
-                    )}
-                  </TableBody>
-                </Table>
+                          </h4>
+                          <p className="text-sm text-gray-600 truncate">
+                            📍 {pond.location}
+                          </p>
+                          {pond.pondTypeName && (
+                            <p className="text-xs text-gray-500">
+                              🏷️ {pond.pondTypeName}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
 
                 {pondsResponse && pondsResponse.totalItems > 0 && (
-                  <PaginationSection
-                    totalItems={pondsResponse.totalItems}
-                    postsPerPage={pondSearchParams.pageSize}
-                    currentPage={pondSearchParams.pageIndex}
-                    setCurrentPage={(page) =>
-                      setPondSearchParams((prev) => ({
-                        ...prev,
-                        pageIndex: page,
-                      }))
-                    }
-                    totalPages={pondsResponse.totalPages}
-                    setPageSize={(size) =>
-                      setPondSearchParams((prev) => ({
-                        ...prev,
-                        pageSize: size,
-                        pageIndex: 1,
-                      }))
-                    }
-                    hasNextPage={pondsResponse.hasNextPage}
-                    hasPreviousPage={pondsResponse.hasPreviousPage}
-                    pageSizeOptions={[5, 10, 20]}
+                  <PaginationWithLinks
+                    totalCount={pondsResponse.totalItems}
+                    pageSize={pageSize}
+                    page={currentPage}
+                    onPageChange={setCurrentPage}
+                    onPageSizeChange={(newSize) => {
+                      setPageSize(newSize);
+                      setCurrentPage(1);
+                    }}
                   />
                 )}
               </>

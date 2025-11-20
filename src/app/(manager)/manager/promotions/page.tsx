@@ -37,7 +37,6 @@ import {
   Plus,
   X,
   Upload,
-  Calendar as CalendarIcon,
   Edit,
   Trash2,
 } from "lucide-react";
@@ -62,18 +61,9 @@ import {
 } from "@/lib/api/services/fetchPromotion";
 import { useUploadImage } from "@/hooks/useUploadFile";
 import { InputNumber } from "@/components/ui/input-number";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
-import { format } from "date-fns";
-import { vi } from "date-fns/locale";
-import {
-  PaginationSection,
-  PAGE_SIZE_OPTIONS_DEFAULT,
-} from "@/components/common/PaginationSection";
+import { DatePickerFilter } from "@/components/ui/DatePickerFilter";
+import { PAGE_SIZE_OPTIONS_DEFAULT } from "@/components/common/PaginationSection";
+import { PaginationWithLinks } from "@/components/pagination";
 import formatCurrency from "@/lib/utils/numbers";
 import { useDebounce } from "@/hooks/useDebounce";
 import { LoadingState } from "@/components/common/LoadingState";
@@ -231,26 +221,6 @@ export default function PromotionManagement() {
     return type === DiscountType.Percentage
       ? `${value}%`
       : formatCurrency(value);
-  };
-
-  // Helper functions for date handling
-  const getDateFromString = (dateString: string): Date | undefined => {
-    if (!dateString) return undefined;
-    // Parse the date string and create a date in local timezone
-    const parts = dateString.split("T")[0].split("-");
-    return new Date(
-      parseInt(parts[0]),
-      parseInt(parts[1]) - 1,
-      parseInt(parts[2]),
-    );
-  };
-
-  const formatDateToString = (date: Date): string => {
-    // Format using local date methods to avoid timezone conversion
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const day = String(date.getDate()).padStart(2, "0");
-    return `${year}-${month}-${day}`;
   };
 
   const handleImageSelect = async (files: FileList) => {
@@ -602,15 +572,12 @@ export default function PromotionManagement() {
               </div>
 
               {/* Pagination */}
-              <PaginationSection
-                currentPage={currentPage}
-                setCurrentPage={handlePageChange}
-                totalPages={promotionsData.totalPages}
-                setPageSize={handlePageSizeChange}
-                pageSizeOptions={PAGE_SIZE_OPTIONS_DEFAULT}
-                totalItems={promotionsData.totalItems}
-                hasNextPage={promotionsData.hasNextPage}
-                hasPreviousPage={promotionsData.hasPreviousPage}
+              <PaginationWithLinks
+                totalCount={promotionsData.totalItems}
+                pageSize={pageSize}
+                page={currentPage}
+                onPageChange={handlePageChange}
+                onPageSizeChange={handlePageSizeChange}
               />
             </>
           )}
@@ -692,37 +659,11 @@ export default function PromotionManagement() {
             </div>
 
             {/* Available On Date Filter */}
-            <div className="space-y-2">
-              <Label>Ngày Có Sẵn</Label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className="w-full justify-start text-left font-normal"
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {availableOnDateInput
-                      ? format(
-                          getDateFromString(availableOnDateInput)!,
-                          "dd MMM yyyy",
-                          { locale: vi },
-                        )
-                      : "Chọn ngày..."}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={getDateFromString(availableOnDateInput)}
-                    onSelect={(date) => {
-                      if (date) {
-                        setAvailableOnDateInput(formatDateToString(date));
-                      }
-                    }}
-                  />
-                </PopoverContent>
-              </Popover>
-            </div>
+            <DatePickerFilter
+              label="Ngày Có Sẵn"
+              value={availableOnDateInput}
+              onChange={setAvailableOnDateInput}
+            />
           </div>
 
           <DialogFooter className="mt-4 flex justify-between sm:justify-between">
@@ -1000,75 +941,26 @@ export default function PromotionManagement() {
 
             {/* Date Range */}
             <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-2">
-                <Label>Ngày Bắt Đầu *</Label>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className="w-full justify-start text-left font-normal"
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {formData.validFrom
-                        ? format(
-                            getDateFromString(formData.validFrom)!,
-                            "dd MMM yyyy",
-                            { locale: vi },
-                          )
-                        : "Chọn ngày..."}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={getDateFromString(formData.validFrom)}
-                      onSelect={(date) => {
-                        if (date) {
-                          setFormData({
-                            ...formData,
-                            validFrom: `${formatDateToString(date)}T00:00:00.000Z`,
-                          });
-                        }
-                      }}
-                    />
-                  </PopoverContent>
-                </Popover>
-              </div>
-
-              <div className="space-y-2">
-                <Label>Ngày Kết Thúc *</Label>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className="w-full justify-start text-left font-normal"
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {formData.validTo
-                        ? format(
-                            getDateFromString(formData.validTo)!,
-                            "dd MMM yyyy",
-                            { locale: vi },
-                          )
-                        : "Chọn ngày..."}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={getDateFromString(formData.validTo)}
-                      onSelect={(date) => {
-                        if (date) {
-                          setFormData({
-                            ...formData,
-                            validTo: `${formatDateToString(date)}T23:59:59.999Z`,
-                          });
-                        }
-                      }}
-                    />
-                  </PopoverContent>
-                </Popover>
-              </div>
+              <DatePickerFilter
+                label="Ngày Bắt Đầu *"
+                value={formData.validFrom}
+                onChange={(dateString) =>
+                  setFormData({
+                    ...formData,
+                    validFrom: `${dateString}T00:00:00.000Z`,
+                  })
+                }
+              />
+              <DatePickerFilter
+                label="Ngày Kết Thúc *"
+                value={formData.validTo}
+                onChange={(dateString) =>
+                  setFormData({
+                    ...formData,
+                    validTo: `${dateString}T23:59:59.999Z`,
+                  })
+                }
+              />
             </div>
 
             {/* Image Upload */}
@@ -1295,75 +1187,26 @@ export default function PromotionManagement() {
 
             {/* Date Range */}
             <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-2">
-                <Label>Ngày Bắt Đầu *</Label>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className="w-full justify-start text-left font-normal"
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {formData.validFrom
-                        ? format(
-                            getDateFromString(formData.validFrom)!,
-                            "dd MMM yyyy",
-                            { locale: vi },
-                          )
-                        : "Chọn ngày..."}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={getDateFromString(formData.validFrom)}
-                      onSelect={(date) => {
-                        if (date) {
-                          setFormData({
-                            ...formData,
-                            validFrom: `${formatDateToString(date)}T00:00:00.000Z`,
-                          });
-                        }
-                      }}
-                    />
-                  </PopoverContent>
-                </Popover>
-              </div>
-
-              <div className="space-y-2">
-                <Label>Ngày Kết Thúc *</Label>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className="w-full justify-start text-left font-normal"
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {formData.validTo
-                        ? format(
-                            getDateFromString(formData.validTo)!,
-                            "dd MMM yyyy",
-                            { locale: vi },
-                          )
-                        : "Chọn ngày..."}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={getDateFromString(formData.validTo)}
-                      onSelect={(date) => {
-                        if (date) {
-                          setFormData({
-                            ...formData,
-                            validTo: `${formatDateToString(date)}T23:59:59.999Z`,
-                          });
-                        }
-                      }}
-                    />
-                  </PopoverContent>
-                </Popover>
-              </div>
+              <DatePickerFilter
+                label="Ngày Bắt Đầu *"
+                value={formData.validFrom}
+                onChange={(dateString) =>
+                  setFormData({
+                    ...formData,
+                    validFrom: `${dateString}T00:00:00.000Z`,
+                  })
+                }
+              />
+              <DatePickerFilter
+                label="Ngày Kết Thúc *"
+                value={formData.validTo}
+                onChange={(dateString) =>
+                  setFormData({
+                    ...formData,
+                    validTo: `${dateString}T23:59:59.999Z`,
+                  })
+                }
+              />
             </div>
 
             {/* Image Upload */}

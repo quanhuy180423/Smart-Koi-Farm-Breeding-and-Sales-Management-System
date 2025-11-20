@@ -23,10 +23,8 @@ import {
 } from "@/lib/api/services/fetchTaskTemplate";
 import { useGetTaskTemplates } from "@/hooks/useTaskTemplate";
 import { useDebounce } from "@/hooks/useDebounce";
-import {
-  PaginationSection,
-  PAGE_SIZE_OPTIONS_DEFAULT,
-} from "@/components/common/PaginationSection";
+import { PAGE_SIZE_OPTIONS_DEFAULT } from "@/components/common/PaginationSection";
+import { PaginationWithLinks } from "@/components/pagination";
 
 interface TaskSelectionPopupProps {
   isOpen: boolean;
@@ -59,7 +57,6 @@ export default function TaskSelectionPopup({
 
   const { data: pagedResponse, isLoading } = useGetTaskTemplates(searchParams);
   const taskTemplates = pagedResponse?.data || [];
-  const totalPages = pagedResponse?.totalPages || 0;
   const totalItems = pagedResponse?.totalItems || 0;
 
   const handleSetCurrentPage = (page: number) => {
@@ -189,15 +186,12 @@ export default function TaskSelectionPopup({
 
           {/* Pagination */}
           {totalItems > 0 && (
-            <PaginationSection
-              totalItems={totalItems}
-              postsPerPage={searchParams.pageSize}
-              currentPage={searchParams.pageIndex}
-              setCurrentPage={handleSetCurrentPage}
-              totalPages={totalPages}
-              setPageSize={handleSetPageSize}
-              hasNextPage={pagedResponse?.hasNextPage}
-              hasPreviousPage={pagedResponse?.hasPreviousPage}
+            <PaginationWithLinks
+              totalCount={totalItems}
+              pageSize={searchParams.pageSize}
+              page={searchParams.pageIndex}
+              onPageChange={handleSetCurrentPage}
+              onPageSizeChange={handleSetPageSize}
             />
           )}
         </div>

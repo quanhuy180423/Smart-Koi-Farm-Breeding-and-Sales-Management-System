@@ -22,11 +22,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -51,7 +46,6 @@ import {
   XCircle,
   User,
   Fish,
-  Calendar as CalendarIcon,
   DollarSign,
   Loader2,
   X,
@@ -62,17 +56,17 @@ import { useGetAllOrders, useUpdateOrderStatus } from "@/hooks/useOrder";
 import { OrderStatus, OrderSearchParams } from "@/lib/api/services/fetchOrder";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { PaginationSection } from "@/components/common/PaginationSection";
+import { PaginationWithLinks } from "@/components/pagination";
 import {
   getOrderStatusLabel,
   getOrderStatusText,
   getOrderStatusColor,
 } from "@/lib/utils/enum/formatEnum";
-import { Calendar } from "@/components/ui/calendar";
 import { DATE_FORMATS, formatDate } from "@/lib/utils/dates";
 import { LoadingState } from "@/components/common/LoadingState";
 import { ErrorState } from "@/components/common/ErrorState";
 import { EmptyState } from "@/components/common/EmptyState";
+import { DatePickerFilter } from "@/components/ui/DatePickerFilter";
 
 export default function OrdersPage() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -396,52 +390,22 @@ export default function OrdersPage() {
             </div>
 
             {/* Filters Row 2 - Date and Price Range */}
-            <div className="flex flex-col sm:flex-row gap-3">
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className="justify-start border border-gray-300 flex-1 sm:flex-none"
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {startDate
-                      ? startDate.toLocaleDateString("vi-VN")
-                      : "Từ ngày"}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={startDate}
-                    onSelect={setStartDate}
-                    disabled={(date: Date) =>
-                      endDate ? date > endDate : false
-                    }
-                  />
-                </PopoverContent>
-              </Popover>
+            <div className="flex flex-row lg:flex-row gap-4 items-center justify-between">
+              <DatePickerFilter
+                label="Từ ngày"
+                value={startDate ? startDate.toISOString() : ""}
+                onChange={(value) =>
+                  setStartDate(value ? new Date(value) : undefined)
+                }
+              />
 
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className="justify-start border border-gray-300 flex-1 sm:flex-none"
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {endDate ? endDate.toLocaleDateString("vi-VN") : "Đến ngày"}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={endDate}
-                    onSelect={setEndDate}
-                    disabled={(date: Date) =>
-                      startDate ? date < startDate : false
-                    }
-                  />
-                </PopoverContent>
-              </Popover>
+              <DatePickerFilter
+                label="Đến ngày"
+                value={endDate ? endDate.toISOString() : ""}
+                onChange={(value) =>
+                  setEndDate(value ? new Date(value) : undefined)
+                }
+              />
 
               <div className="relative flex-1 sm:flex-none">
                 <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -692,18 +656,15 @@ export default function OrdersPage() {
           {/* Pagination */}
           {!isLoading && ordersData && ordersData.data.length > 0 && (
             <div className="mt-6">
-              <PaginationSection
-                currentPage={currentPage}
-                setCurrentPage={setCurrentPage}
-                totalPages={ordersData.totalPages || 1}
-                totalItems={ordersData.totalItems || 0}
-                postsPerPage={pageSize}
-                setPageSize={(size) => {
+              <PaginationWithLinks
+                totalCount={ordersData.totalItems || 0}
+                pageSize={pageSize}
+                page={currentPage}
+                onPageChange={setCurrentPage}
+                onPageSizeChange={(size) => {
                   setPageSize(size);
                   setCurrentPage(1);
                 }}
-                hasNextPage={ordersData.hasNextPage}
-                hasPreviousPage={ordersData.hasPreviousPage}
               />
             </div>
           )}

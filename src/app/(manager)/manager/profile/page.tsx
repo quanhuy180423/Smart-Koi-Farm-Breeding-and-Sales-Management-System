@@ -16,7 +16,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import {
-  Calendar as CalendarIcon,
   Shield,
   Edit,
   Camera,
@@ -25,6 +24,7 @@ import {
   Loader2,
   Eye,
   EyeOff,
+  CalendarIcon,
 } from "lucide-react";
 import {
   Dialog,
@@ -49,14 +49,7 @@ import { Gender } from "@/lib/api/services/fetchKoiFish";
 import { getUserGenderLabelForPerson, getRoleLabel } from "@/lib/utils/enum";
 import { Roles } from "@/lib/api/services/fetchAuth";
 import toast from "react-hot-toast";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
-import { format } from "date-fns";
-import { vi } from "date-fns/locale";
+import { DatePickerFilter } from "@/components/ui/DatePickerFilter";
 
 interface ManagerProfile {
   id: number;
@@ -237,24 +230,6 @@ export default function ManagerProfile() {
       newPassword: passwordForm.newPassword,
       confirmedNewPassword: passwordForm.confirmedNewPassword,
     });
-  };
-
-  // Helper functions for date handling
-  const getDateFromString = (dateString: string): Date | undefined => {
-    if (!dateString) return undefined;
-    const parts = dateString.split("T")[0].split("-");
-    return new Date(
-      parseInt(parts[0]),
-      parseInt(parts[1]) - 1,
-      parseInt(parts[2]),
-    );
-  };
-
-  const formatDateToString = (date: Date): string => {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const day = String(date.getDate()).padStart(2, "0");
-    return `${year}-${month}-${day}`;
   };
 
   if (isLoading) {
@@ -496,46 +471,18 @@ export default function ManagerProfile() {
                 <div className="space-y-2">
                   <Label htmlFor="dateOfBirth">Ngày sinh</Label>
                   {isEditing ? (
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <Button
-                          variant="outline"
-                          className="w-full justify-start text-left font-normal border border-primary"
-                        >
-                          <CalendarIcon className="mr-2 h-4 w-4" />
-                          {editedProfile?.dateOfBirth
-                            ? format(
-                                getDateFromString(editedProfile.dateOfBirth)!,
-                                "dd MMM yyyy",
-                                { locale: vi },
-                              )
-                            : "Chọn ngày..."}
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar
-                          mode="single"
-                          selected={getDateFromString(
-                            editedProfile?.dateOfBirth || "",
-                          )}
-                          onSelect={(date) => {
-                            if (date) {
-                              handleInputChange(
-                                "dateOfBirth",
-                                formatDateToString(date),
-                              );
-                            }
-                          }}
-                        />
-                      </PopoverContent>
-                    </Popover>
+                    <DatePickerFilter
+                      label=""
+                      value={editedProfile?.dateOfBirth || ""}
+                      onChange={(value) =>
+                        handleInputChange("dateOfBirth", value)
+                      }
+                    />
                   ) : (
                     <div className="bg-muted/50 border border-gray-200 rounded-md px-3 py-2 text-sm">
                       {profile.dateOfBirth
-                        ? format(
-                            getDateFromString(profile.dateOfBirth)!,
-                            "dd MMM yyyy",
-                            { locale: vi },
+                        ? new Date(profile.dateOfBirth).toLocaleDateString(
+                            "vi-VN",
                           )
                         : "Chưa có"}
                     </div>

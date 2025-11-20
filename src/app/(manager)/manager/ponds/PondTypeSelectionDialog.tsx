@@ -1,4 +1,4 @@
-import { PaginationSection } from "@/components/common/PaginationSection";
+import { PaginationWithLinks } from "@/components/pagination";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -65,7 +65,6 @@ const PondTypeSelectionDialog = ({
     useGetPondTypes(typeSearchParams);
   const pondTypes = typesData?.data || [];
   const totalItems = typesData?.totalItems || 0;
-  const totalPages = typesData?.totalPages || 1;
 
   const handlePageChange = (page: number) =>
     setTypeSearchParams((prev) => ({ ...prev, pageIndex: page }));
@@ -157,16 +156,12 @@ const PondTypeSelectionDialog = ({
               </Table>
 
               {totalItems > 0 && (
-                <PaginationSection
-                  totalItems={totalItems}
-                  postsPerPage={typeSearchParams.pageSize}
-                  currentPage={typeSearchParams.pageIndex}
-                  setCurrentPage={handlePageChange}
-                  totalPages={totalPages}
-                  setPageSize={handlePageSizeChange}
-                  hasNextPage={typesData?.hasNextPage}
-                  hasPreviousPage={typesData?.hasPreviousPage}
-                  pageSizeOptions={[5, 10, 20]}
+                <PaginationWithLinks
+                  totalCount={totalItems}
+                  pageSize={typeSearchParams.pageSize}
+                  page={typeSearchParams.pageIndex}
+                  onPageChange={handlePageChange}
+                  onPageSizeChange={handlePageSizeChange}
                 />
               )}
             </>

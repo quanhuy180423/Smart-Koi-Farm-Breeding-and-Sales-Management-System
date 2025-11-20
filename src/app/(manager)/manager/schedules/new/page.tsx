@@ -22,7 +22,7 @@ import {
 } from "@/lib/api/services/fetchWeeklyScheduleTemplate";
 import { useCreateWeeklyScheduleTemplate } from "@/hooks/useWeeklyScheduleTemplate";
 import { formatTimeToHHMM } from "@/lib/utils/formatTime";
-import TaskSelectionPopup from "../TaskSelectionPopup";
+import TaskSelectionPopup from "../components/TaskSelectionPopup";
 import toast from "react-hot-toast";
 
 interface TemplateItemWithTask extends TemplateItemRequest {

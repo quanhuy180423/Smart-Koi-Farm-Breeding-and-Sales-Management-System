@@ -345,14 +345,14 @@ export default function OrderDetailPage() {
 
       {/* Action Buttons */}
       <div className="flex flex-col sm:flex-row gap-3">
-        <Button
+        {/* <Button
           onClick={() => router.back()}
           variant="outline"
           className="flex-1"
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
           Quay lại danh sách
-        </Button>
+        </Button> */}
 
         {/* Show action buttons only for PAID status */}
         {order && canUpdateOrder(order.status) && (

@@ -1,5 +1,12 @@
+// components/manager/ManagerHeader.tsx
 "use client";
 
+import Link from "next/link";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { User, LogOut, Settings, CircleUserRound } from "lucide-react";
+
+// Components UI
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -10,132 +17,132 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { User, LogOut, Settings, CircleUserRound } from "lucide-react";
-import Link from "next/link";
-import { NotificationDropdown } from "@/components/manager/NotificationDropdown";
-import Image from "next/image";
-import logo from "@/assets/images/Logo_ZenKoi.png";
-import { useRouter } from "next/navigation";
+
+// Custom Hooks & Contexts (Giữ nguyên logic của bạn)
 import { useAuthStore } from "@/store/auth-store";
 import { useFishSchool } from "@/lib/context/FishSchoolContext";
 import { useNotification } from "@/hooks/useNotification";
+import { NotificationDropdown } from "@/components/manager/NotificationDropdown"; // Giả định bạn đã có
+import logo from "@/assets/images/Logo_ZenKoi.png"; // Đường dẫn logo
+import { cn } from "@/lib/utils";
 
 export function ManagerHeader() {
   const router = useRouter();
   const { user } = useAuthStore();
   const { isEnabled, toggleFishSchool } = useFishSchool();
 
-  // Connect to real-time notifications
-  useNotification({
-    autoConnect: true,
-  });
+  // Logic notification
+  useNotification({ autoConnect: true });
 
   return (
-    <header className="fixed top-0 right-0 left-0 lg:left-10 z-20 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
-      <div className="flex h-16 items-center justify-between pl-2 pr-4 lg:pl-4 lg:pr-8">
-        <Link
-          href="/manager"
-          className="flex items-center space-x-2 group ml-12"
-        >
-          <div className="relative">
-            <div className="absolute inset-0 bg-primary/20 rounded-full blur-xl group-hover:bg-primary/30 transition-all duration-300"></div>
-            <Image
-              src={logo}
-              alt="ZenKoi Logo"
-              width={44}
-              height={44}
-              className="w-11 h-11 object-contain relative z-10 group-hover:scale-105 transition-transform duration-300"
-            />
-          </div>
-          <div className="hidden sm:block">
-            <h1 className="font-bold text-lg bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-              ZenKoi Manager
-            </h1>
-            <p className="text-xs text-muted-foreground leading-tight">
-              Quản lý trang trại
-            </p>
-          </div>
-        </Link>
+    <header className="fixed top-0 left-0 right-0 z-50 h-16 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="flex h-full items-center justify-between px-4 lg:px-6">
+        {/* Logo Section - Thêm margin-left cho mobile để tránh nút hamburger */}
+        <div className="flex items-center gap-2 ml-12 lg:ml-0">
+          <Link href="/" className="flex items-center space-x-2 group">
+            <div className="relative w-8 h-8 lg:w-10 lg:h-10">
+              <Image
+                src={logo}
+                alt="ZenKoi Logo"
+                fill
+                className="object-contain transition-transform duration-300 group-hover:scale-110"
+              />
+            </div>
+            <div className="hidden sm:block">
+              <h1 className="font-bold text-lg leading-none bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                ZenKoi Manager
+              </h1>
+            </div>
+          </Link>
+        </div>
 
-        <div className="flex items-center gap-4">
-          {/* Notifications */}
+        {/* Right Actions Section */}
+        <div className="flex items-center gap-2 sm:gap-4">
+          {/* Notification Component */}
           <NotificationDropdown />
 
-          {/* User Dropdown */}
+          {/* User Menu */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
                 variant="ghost"
-                className="flex items-center gap-2 p-2 hover:bg-gray-100"
+                className="flex items-center gap-2 pl-2 pr-1 h-10 rounded-full lg:rounded-md hover:bg-muted"
               >
-                <Avatar className="h-8 w-8">
-                  <AvatarImage src="/user.png" alt="Avatar" />
+                <Avatar className="h-8 w-8 border border-border">
+                  <AvatarImage
+                    src={user?.avatar || "/user.png"}
+                    alt={user?.name}
+                  />
                   <AvatarFallback>
                     <CircleUserRound className="h-5 w-5" />
                   </AvatarFallback>
                 </Avatar>
-                <div className="hidden sm:block text-left">
-                  <p className="text-sm font-medium text-muted-foreground">
-                    {user?.name}
+                <div className="hidden lg:block text-left mr-2">
+                  <p className="text-sm font-medium leading-none">
+                    {user?.name || "User"}
                   </p>
-                  <p className="text-xs text-muted-foreground">
-                    Quản lý trang trại
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Quản lý
                   </p>
                 </div>
               </Button>
             </DropdownMenuTrigger>
+
             <DropdownMenuContent align="end" className="w-56">
-              <DropdownMenuLabel>Tài khoản của tôi</DropdownMenuLabel>
+              <DropdownMenuLabel>Tài khoản</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem asChild>
-                <Link
-                  href="/manager/profile"
-                  className="flex items-center cursor-pointer"
-                >
-                  <User className="mr-2 h-4 w-4 group-hover:text-white" />
-                  Thông tin cá nhân
+                <Link href="/manager/profile" className="cursor-pointer w-full">
+                  <User className="mr-2 h-4 w-4" /> Thông tin cá nhân
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
                 <Link
                   href="/manager/settings"
-                  className="flex items-center cursor-pointer"
+                  className="cursor-pointer w-full"
                 >
-                  <Settings className="mr-2 h-4 w-4 group-hover:text-white" />
-                  Cài đặt
+                  <Settings className="mr-2 h-4 w-4" /> Cài đặt
                 </Link>
               </DropdownMenuItem>
+
               <DropdownMenuSeparator />
-              <DropdownMenuItem asChild>
+
+              {/* Fish Effect Toggle */}
+              <DropdownMenuItem
+                onClick={(e) => {
+                  e.preventDefault();
+                  toggleFishSchool();
+                }}
+                className="cursor-pointer flex items-center justify-between"
+              >
+                <div className="flex items-center">
+                  <span className="mr-2 text-lg">🐠</span> Hiệu ứng cá
+                </div>
                 <div
-                  className="flex items-center gap-2 cursor-pointer px-2 py-1.5 hover:bg-accent/10 rounded transition-colors"
-                  onClick={toggleFishSchool}
+                  className={cn(
+                    "w-8 h-4 rounded-full relative transition-colors ml-2",
+                    isEnabled ? "bg-primary" : "bg-muted",
+                  )}
                 >
-                  <div className="flex items-center justify-center w-4 h-4">
-                    <span>🐠</span>
-                  </div>
-                  <span>Hiệu ứng cá</span>
-                  <div className="ml-auto">
-                    <div
-                      className={`w-8 h-5 rounded-full flex items-center relative transition-colors ${isEnabled ? "bg-primary/40" : "bg-muted/40"}`}
-                    >
-                      <div
-                        className={`w-4 h-4 rounded-full absolute transition-all ${isEnabled ? "bg-primary left-3.5" : "bg-muted left-0.5"}`}
-                      ></div>
-                    </div>
-                  </div>
+                  <div
+                    className={cn(
+                      "absolute top-0.5 w-3 h-3 bg-white rounded-full transition-all",
+                      isEnabled ? "left-4.5" : "left-0.5",
+                    )}
+                  />
                 </div>
               </DropdownMenuItem>
+
               <DropdownMenuSeparator />
+
               <DropdownMenuItem
-                className="flex items-center text-red-600 cursor-pointer hover:bg-red-600 hover:text-white focus:bg-red-600 focus:text-white transition-colors group"
+                className="text-red-600 focus:bg-red-50 focus:text-red-600 cursor-pointer"
                 onClick={async () => {
                   await useAuthStore.getState().logout();
                   router.push("/login");
                 }}
               >
-                <LogOut className="mr-2 h-4 w-4 group-hover:text-white" />
-                Đăng xuất
+                <LogOut className="mr-2 h-4 w-4" /> Đăng xuất
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

@@ -1,4 +1,4 @@
-import { PaginationSection } from "@/components/common/PaginationSection";
+import { PaginationWithLinks } from "@/components/pagination";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -62,7 +62,7 @@ const KoiFishSelectionDialogForBreeding = ({
     {
       pageIndex: 1,
       pageSize: PAGE_SIZE_OPTIONS[1], // 10 per page
-      search: "",
+      Search: "",
     },
   );
 
@@ -85,7 +85,6 @@ const KoiFishSelectionDialogForBreeding = ({
     useGetKoiFishes(fishSearchParams);
   const fishes = fishesData?.data || [];
   const totalItems = fishesData?.totalItems || 0;
-  const totalPages = fishesData?.totalPages || 0;
 
   const handlePageChange = (page: number) =>
     setFishSearchParams((prev) => ({ ...prev, pageIndex: page }));
@@ -199,16 +198,12 @@ const KoiFishSelectionDialogForBreeding = ({
               </Table>
 
               {totalItems > 0 && (
-                <PaginationSection
-                  totalItems={totalItems}
-                  postsPerPage={fishSearchParams.pageSize}
-                  currentPage={fishSearchParams.pageIndex}
-                  setCurrentPage={handlePageChange}
-                  totalPages={totalPages}
-                  setPageSize={handlePageSizeChange}
-                  hasNextPage={fishesData?.hasNextPage}
-                  hasPreviousPage={fishesData?.hasPreviousPage}
-                  pageSizeOptions={[5, 10, 20]}
+                <PaginationWithLinks
+                  totalCount={totalItems}
+                  pageSize={fishSearchParams.pageSize}
+                  page={fishSearchParams.pageIndex}
+                  onPageChange={handlePageChange}
+                  onPageSizeChange={handlePageSizeChange}
                 />
               )}
             </>

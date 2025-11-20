@@ -2,16 +2,7 @@
 
 import * as React from "react";
 import { useState, useMemo, useEffect } from "react";
-import {
-  Plus,
-  Search,
-  Edit,
-  Trash2,
-  Eye,
-  Loader2,
-  Filter,
-  Calendar as CalendarIcon,
-} from "lucide-react";
+import { Plus, Search, Edit, Trash2, Eye, Loader2, Filter } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -21,7 +12,6 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { InputNumber } from "@/components/ui/input-number";
 import { Badge } from "@/components/ui/badge";
 import {
   Table,
@@ -31,19 +21,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { formatDate } from "@/lib/utils/dates";
 import {
   PondResponse,
   PondStatus,
   PondSearchParams,
   PondRequest,
+  PondTypeEnum,
 } from "@/lib/api/services/fetchPond";
 import {
   useGetPonds,
@@ -53,10 +37,8 @@ import {
 } from "@/hooks/usePond";
 import { AreaResponse } from "@/lib/api/services/fetchArea";
 import { useGetAreas } from "@/hooks/useArea";
-import {
-  PAGE_SIZE_OPTIONS_DEFAULT,
-  PaginationSection,
-} from "@/components/common/PaginationSection";
+import { PAGE_SIZE_OPTIONS_DEFAULT } from "@/components/common/PaginationSection";
+import { PaginationWithLinks } from "@/components/pagination";
 import { getPondStatusLabel } from "@/lib/utils/enum";
 import AreaSelectionDialog from "./AreaSelectionDialog";
 import PondDetailModal from "./PondDetailModal";
@@ -67,23 +49,9 @@ import { PondTypeResponse } from "@/lib/api/services/fetchPondType";
 import PondTypeSelectionDialog from "./PondTypeSelectionDialog";
 import DeletePondConfirmDialog from "./DeletePondConfirmDialog";
 import { useDebounce } from "@/hooks/useDebounce";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
-import { format } from "date-fns";
-import { vi } from "date-fns/locale";
+import PondAdvancedFilterDialog, {
+  PondAdvancedFilterState,
+} from "@/components/manager/PondAdvancedFilterDialog";
 
 export interface PondFormState {
   pondName: string;
@@ -99,7 +67,6 @@ export interface PondFormState {
 
 export default function PondManagement() {
   const [searchTerm, setSearchTerm] = useState<string>("");
-  const [statusFilter, setStatusFilter] = useState<string>("all");
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
 
   const [selectedPond, setSelectedPond] = useState<PondResponse | null>(null);
@@ -120,14 +87,18 @@ export default function PondManagement() {
     useState<"new" | "edit" | null>(null);
 
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
-  const [areaIdInput, setAreaIdInput] = useState<string>("");
-  const [pondTypeIdInput, setPondTypeIdInput] = useState<string>("");
-  const [minCapacityInput, setMinCapacityInput] = useState<string>("");
-  const [maxCapacityInput, setMaxCapacityInput] = useState<string>("");
-  const [minDepthInput, setMinDepthInput] = useState<string>("");
-  const [maxDepthInput, setMaxDepthInput] = useState<string>("");
-  const [createdFromInput, setCreatedFromInput] = useState<string>("");
-  const [createdToInput, setCreatedToInput] = useState<string>("");
+  const [filters, setFilters] = useState<PondAdvancedFilterState>({
+    statusFilter: "all",
+    areaIdInput: "",
+    pondTypeIdInput: "",
+    pondTypeEnumInput: "all",
+    minCapacityInput: "",
+    maxCapacityInput: "",
+    minDepthInput: "",
+    maxDepthInput: "",
+    createdFromInput: "",
+    createdToInput: "",
+  });
 
   const [searchParams, setSearchParams] = useState<PondSearchParams>({
     pageIndex: 1,
@@ -136,6 +107,7 @@ export default function PondManagement() {
     status: undefined,
     areaId: undefined,
     pondTypeId: undefined,
+    pondTypeEnum: undefined,
     minCapacityLiters: undefined,
     maxCapacityLiters: undefined,
     minDepthMeters: undefined,
@@ -178,24 +150,6 @@ export default function PondManagement() {
     return type ? type.typeName : id ? `ID: ${id}` : "Không xác định";
   };
 
-  // Helper functions for date handling
-  const getDateFromString = (dateString: string): Date | undefined => {
-    if (!dateString) return undefined;
-    const parts = dateString.split("T")[0].split("-");
-    return new Date(
-      parseInt(parts[0]),
-      parseInt(parts[1]) - 1,
-      parseInt(parts[2]),
-    );
-  };
-
-  const formatDateToString = (date: Date): string => {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const day = String(date.getDate()).padStart(2, "0");
-    return `${year}-${month}-${day}`;
-  };
-
   useEffect(() => {
     setSearchParams((prev) => ({
       ...prev,
@@ -208,7 +162,6 @@ export default function PondManagement() {
 
   const ponds: PondResponse[] = pondsData?.data || [];
   const totalCount = pondsData?.totalItems || 0;
-  const totalPages = pondsData?.totalPages || 0;
 
   const addPondMutation = useAddPond();
   const updatePondMutation = useUpdatePond();
@@ -395,50 +348,70 @@ export default function PondManagement() {
   };
 
   const handleApplyFilters = () => {
-    const areaId = areaIdInput ? Number(areaIdInput) : undefined;
-    const pondTypeId = pondTypeIdInput ? Number(pondTypeIdInput) : undefined;
-    const minCapacityLiters = minCapacityInput
-      ? Number(minCapacityInput)
+    const areaId = filters.areaIdInput
+      ? Number(filters.areaIdInput)
       : undefined;
-    const maxCapacityLiters = maxCapacityInput
-      ? Number(maxCapacityInput)
+    const pondTypeId = filters.pondTypeIdInput
+      ? Number(filters.pondTypeIdInput)
       : undefined;
-    const minDepthMeters = minDepthInput ? Number(minDepthInput) : undefined;
-    const maxDepthMeters = maxDepthInput ? Number(maxDepthInput) : undefined;
+    const minCapacityLiters = filters.minCapacityInput
+      ? Number(filters.minCapacityInput)
+      : undefined;
+    const maxCapacityLiters = filters.maxCapacityInput
+      ? Number(filters.maxCapacityInput)
+      : undefined;
+    const minDepthMeters = filters.minDepthInput
+      ? Number(filters.minDepthInput)
+      : undefined;
+    const maxDepthMeters = filters.maxDepthInput
+      ? Number(filters.maxDepthInput)
+      : undefined;
     const status =
-      statusFilter === "all" ? undefined : (statusFilter as PondStatus);
+      filters.statusFilter === "all"
+        ? undefined
+        : ((filters.statusFilter.charAt(0).toUpperCase() +
+            filters.statusFilter.slice(1)) as PondStatus);
+    const pondTypeEnum =
+      filters.pondTypeEnumInput && filters.pondTypeEnumInput !== "all"
+        ? (filters.pondTypeEnumInput as PondTypeEnum)
+        : undefined;
 
     setSearchParams((prev) => ({
       ...prev,
       status: status,
       areaId: areaId,
       pondTypeId: pondTypeId,
+      pondTypeEnum: pondTypeEnum,
       minCapacityLiters: minCapacityLiters,
       maxCapacityLiters: maxCapacityLiters,
       minDepthMeters: minDepthMeters,
       maxDepthMeters: maxDepthMeters,
-      createdFrom: createdFromInput || undefined,
-      createdTo: createdToInput || undefined,
+      createdFrom: filters.createdFromInput || undefined,
+      createdTo: filters.createdToInput || undefined,
       pageIndex: 1,
     }));
     setIsFilterModalOpen(false);
   };
 
   const handleResetFilters = () => {
-    setAreaIdInput("");
-    setPondTypeIdInput("");
-    setMinCapacityInput("");
-    setMaxCapacityInput("");
-    setMinDepthInput("");
-    setMaxDepthInput("");
-    setCreatedFromInput("");
-    setCreatedToInput("");
-    setStatusFilter("all");
+    setFilters({
+      statusFilter: "all",
+      areaIdInput: "",
+      pondTypeIdInput: "",
+      pondTypeEnumInput: "all",
+      minCapacityInput: "",
+      maxCapacityInput: "",
+      minDepthInput: "",
+      maxDepthInput: "",
+      createdFromInput: "",
+      createdToInput: "",
+    });
     setSearchParams((prev) => ({
       ...prev,
       status: undefined,
       areaId: undefined,
       pondTypeId: undefined,
+      pondTypeEnum: undefined,
       minCapacityLiters: undefined,
       maxCapacityLiters: undefined,
       minDepthMeters: undefined,
@@ -500,43 +473,38 @@ export default function PondManagement() {
             <Button
               variant={isFilterActive ? "default" : "outline"}
               onClick={() => {
-                setStatusFilter(
-                  searchParams.status
+                setFilters({
+                  statusFilter: searchParams.status
                     ? searchParams.status.toLowerCase()
                     : "all",
-                );
-                setAreaIdInput(
-                  searchParams.areaId !== undefined
-                    ? String(searchParams.areaId)
-                    : "",
-                );
-                setPondTypeIdInput(
-                  searchParams.pondTypeId !== undefined
-                    ? String(searchParams.pondTypeId)
-                    : "",
-                );
-                setMinCapacityInput(
-                  searchParams.minCapacityLiters !== undefined
-                    ? String(searchParams.minCapacityLiters)
-                    : "",
-                );
-                setMaxCapacityInput(
-                  searchParams.maxCapacityLiters !== undefined
-                    ? String(searchParams.maxCapacityLiters)
-                    : "",
-                );
-                setMinDepthInput(
-                  searchParams.minDepthMeters !== undefined
-                    ? String(searchParams.minDepthMeters)
-                    : "",
-                );
-                setMaxDepthInput(
-                  searchParams.maxDepthMeters !== undefined
-                    ? String(searchParams.maxDepthMeters)
-                    : "",
-                );
-                setCreatedFromInput(searchParams.createdFrom || "");
-                setCreatedToInput(searchParams.createdTo || "");
+                  areaIdInput:
+                    searchParams.areaId !== undefined
+                      ? String(searchParams.areaId)
+                      : "",
+                  pondTypeIdInput:
+                    searchParams.pondTypeId !== undefined
+                      ? String(searchParams.pondTypeId)
+                      : "",
+                  pondTypeEnumInput: searchParams.pondTypeEnum || "all",
+                  minCapacityInput:
+                    searchParams.minCapacityLiters !== undefined
+                      ? String(searchParams.minCapacityLiters)
+                      : "",
+                  maxCapacityInput:
+                    searchParams.maxCapacityLiters !== undefined
+                      ? String(searchParams.maxCapacityLiters)
+                      : "",
+                  minDepthInput:
+                    searchParams.minDepthMeters !== undefined
+                      ? String(searchParams.minDepthMeters)
+                      : "",
+                  maxDepthInput:
+                    searchParams.maxDepthMeters !== undefined
+                      ? String(searchParams.maxDepthMeters)
+                      : "",
+                  createdFromInput: searchParams.createdFrom || "",
+                  createdToInput: searchParams.createdTo || "",
+                });
                 setIsFilterModalOpen(true);
               }}
               className={
@@ -665,15 +633,12 @@ export default function PondManagement() {
               </Table>
 
               {totalCount > 0 && (
-                <PaginationSection
-                  totalItems={totalCount}
-                  postsPerPage={searchParams.pageSize}
-                  currentPage={searchParams.pageIndex}
-                  setCurrentPage={handleSetCurrentPage}
-                  totalPages={totalPages}
-                  setPageSize={handleSetPageSize}
-                  hasNextPage={pondsData?.hasNextPage}
-                  hasPreviousPage={pondsData?.hasPreviousPage}
+                <PaginationWithLinks
+                  totalCount={totalCount}
+                  pageSize={searchParams.pageSize}
+                  page={searchParams.pageIndex}
+                  onPageChange={handleSetCurrentPage}
+                  onPageSizeChange={handleSetPageSize}
                 />
               )}
             </>
@@ -681,186 +646,14 @@ export default function PondManagement() {
         </CardContent>
       </Card>
 
-      <Dialog open={isFilterModalOpen} onOpenChange={setIsFilterModalOpen}>
-        <DialogContent className="max-w-3xl">
-          <DialogHeader>
-            <DialogTitle>Bộ lọc Hồ Cá Nâng cao</DialogTitle>
-            <DialogDescription>
-              Lọc danh sách hồ cá theo tiêu chí.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-6">
-            <div className="grid grid-cols-3 gap-4">
-              <div className="space-y-2 col-span-2 md:col-span-1">
-                <Label htmlFor="pondStatus">Trạng thái</Label>
-                <Select value={statusFilter} onValueChange={setStatusFilter}>
-                  <SelectTrigger className="border-2 w-full border-gray-400">
-                    <SelectValue placeholder="Chọn trạng thái" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Tất cả trạng thái</SelectItem>
-                    {Object.values(PondStatus).map((s) => (
-                      <SelectItem key={s} value={s.toLowerCase()}>
-                        {getPondStatusLabel(s).label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2 col-span-2 md:col-span-1">
-                <Label htmlFor="areaId">ID Khu vực</Label>
-                <InputNumber
-                  value={areaIdInput ? Number(areaIdInput) : undefined}
-                  onChange={(value) =>
-                    setAreaIdInput(value ? String(value) : "")
-                  }
-                  placeholder="ID Khu vực"
-                />
-              </div>
-
-              <div className="space-y-2 col-span-2 md:col-span-1">
-                <Label htmlFor="pondTypeId">ID Loại Hồ</Label>
-                <InputNumber
-                  value={pondTypeIdInput ? Number(pondTypeIdInput) : undefined}
-                  onChange={(value) =>
-                    setPondTypeIdInput(value ? String(value) : "")
-                  }
-                  placeholder="ID Loại Hồ"
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4 border-t pt-4">
-              <p className="text-sm font-semibold col-span-full mb-[-8px] text-muted-foreground">
-                Lọc theo Sức chứa (Lít)
-              </p>
-              <div className="space-y-2 col-span-2 md:col-span-1">
-                <Label htmlFor="minCapacity">Tối thiểu</Label>
-                <InputNumber
-                  value={
-                    minCapacityInput ? Number(minCapacityInput) : undefined
-                  }
-                  onChange={(value) =>
-                    setMinCapacityInput(value ? String(value) : "")
-                  }
-                  placeholder="Sức chứa min"
-                />
-              </div>
-              <div className="space-y-2 col-span-2 md:col-span-1">
-                <Label htmlFor="maxCapacity">Tối đa</Label>
-                <InputNumber
-                  value={
-                    maxCapacityInput ? Number(maxCapacityInput) : undefined
-                  }
-                  onChange={(value) =>
-                    setMaxCapacityInput(value ? String(value) : "")
-                  }
-                  placeholder="Sức chứa max"
-                />
-              </div>
-
-              <p className="text-sm font-semibold col-span-full md:col-span-2 mb-[-8px] text-muted-foreground">
-                Lọc theo Độ sâu (Mét)
-              </p>
-              <div className="space-y-2 col-span-2 md:col-span-1">
-                <Label htmlFor="minDepth">Tối thiểu</Label>
-                <InputNumber
-                  value={minDepthInput ? Number(minDepthInput) : undefined}
-                  onChange={(value) =>
-                    setMinDepthInput(value ? String(value) : "")
-                  }
-                  placeholder="Độ sâu min"
-                />
-              </div>
-              <div className="space-y-2 col-span-2 md:col-span-1">
-                <Label htmlFor="maxDepth">Tối đa</Label>
-                <InputNumber
-                  value={maxDepthInput ? Number(maxDepthInput) : undefined}
-                  onChange={(value) =>
-                    setMaxDepthInput(value ? String(value) : "")
-                  }
-                  placeholder="Độ sâu max"
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4 border-t pt-4">
-              <p className="text-sm font-semibold col-span-full mb-[-8px] text-muted-foreground">
-                Lọc theo Ngày tạo
-              </p>
-              <div className="space-y-2 col-span-2 md:col-span-1">
-                <Label htmlFor="createdFrom">Từ ngày</Label>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className="w-full justify-start text-left font-normal"
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {createdFromInput
-                        ? format(
-                            getDateFromString(createdFromInput)!,
-                            "dd MMM yyyy",
-                            { locale: vi },
-                          )
-                        : "Chọn ngày..."}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={getDateFromString(createdFromInput)}
-                      onSelect={(date) => {
-                        if (date) {
-                          setCreatedFromInput(formatDateToString(date));
-                        }
-                      }}
-                    />
-                  </PopoverContent>
-                </Popover>
-              </div>
-              <div className="space-y-2 col-span-2 md:col-span-1">
-                <Label htmlFor="createdTo">Đến ngày</Label>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className="w-full justify-start text-left font-normal"
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {createdToInput
-                        ? format(
-                            getDateFromString(createdToInput)!,
-                            "dd MMM yyyy",
-                            { locale: vi },
-                          )
-                        : "Chọn ngày..."}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={getDateFromString(createdToInput)}
-                      onSelect={(date) => {
-                        if (date) {
-                          setCreatedToInput(formatDateToString(date));
-                        }
-                      }}
-                    />
-                  </PopoverContent>
-                </Popover>
-              </div>
-            </div>
-          </div>
-          <DialogFooter className="mt-4 flex justify-between sm:justify-between">
-            <Button variant="outline" onClick={handleResetFilters}>
-              Đặt lại
-            </Button>
-            <Button onClick={handleApplyFilters}>Áp dụng bộ lọc</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <PondAdvancedFilterDialog
+        isOpen={isFilterModalOpen}
+        onOpenChange={setIsFilterModalOpen}
+        filters={filters}
+        onFiltersChange={setFilters}
+        onApply={handleApplyFilters}
+        onReset={handleResetFilters}
+      />
 
       <AreaSelectionDialog
         isOpen={isAreaSelectionOpen}

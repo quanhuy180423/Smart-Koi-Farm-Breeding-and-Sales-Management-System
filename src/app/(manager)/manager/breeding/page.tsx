@@ -1,15 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import {
-  Eye,
-  X,
-  Plus,
-  Loader2,
-  Search,
-  Filter,
-  Calendar as CalendarIcon,
-} from "lucide-react";
+import { Eye, X, Plus, Loader2, Search, Filter } from "lucide-react";
 import { useEffect, useState } from "react";
 import {
   Card,
@@ -41,10 +33,8 @@ import {
   useGetBreedingProcesses,
 } from "@/hooks/useBreedingProcess";
 import { useCompleteClassification } from "@/hooks/useClassificationStage";
-import {
-  PAGE_SIZE_OPTIONS_DEFAULT,
-  PaginationSection,
-} from "@/components/common/PaginationSection";
+import { PAGE_SIZE_OPTIONS_DEFAULT } from "@/components/common/PaginationSection";
+import { PaginationWithLinks } from "@/components/pagination";
 import {
   BreedingProcessResponse,
   BreedingProcessSearchParams,
@@ -69,14 +59,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
-import { format } from "date-fns";
-import { vi } from "date-fns/locale";
+import { DatePickerFilter } from "@/components/ui/DatePickerFilter";
 import KoiFishSelectionDialogForBreeding from "@/components/manager/KoiFishSelectionDialogForBreeding";
 import PondSelectionDialog from "@/components/manager/PondSelectionDialog";
 
@@ -180,7 +163,6 @@ export default function BreedingManagement() {
     useCompleteClassification();
   const breedingProcesses = data?.data || [];
   const totalItems = data?.totalItems || 0;
-  const totalPages = data?.totalPages || 0;
 
   useEffect(() => {
     setSearchParams((prev) => ({
@@ -189,24 +171,6 @@ export default function BreedingManagement() {
       pageIndex: 1,
     }));
   }, [debouncedSearchTerm]);
-
-  // Helper functions for date handling
-  const getDateFromString = (dateString: string): Date | undefined => {
-    if (!dateString) return undefined;
-    const parts = dateString.split("T")[0].split("-");
-    return new Date(
-      parseInt(parts[0]),
-      parseInt(parts[1]) - 1,
-      parseInt(parts[2]),
-    );
-  };
-
-  const formatDateToString = (date: Date): string => {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const day = String(date.getDate()).padStart(2, "0");
-    return `${year}-${month}-${day}`;
-  };
 
   const handleSelectMale = (fishId: number, fishName: string) => {
     setMaleKoiIdInput(String(fishId));
@@ -593,15 +557,12 @@ export default function BreedingManagement() {
               </Table>
 
               {totalItems > 0 && (
-                <PaginationSection
-                  totalItems={totalItems}
-                  postsPerPage={searchParams.pageSize}
-                  currentPage={searchParams.pageIndex}
-                  setCurrentPage={handlePageChange}
-                  totalPages={totalPages}
-                  setPageSize={handlePageSizeChange}
-                  hasNextPage={data?.hasNextPage}
-                  hasPreviousPage={data?.hasPreviousPage}
+                <PaginationWithLinks
+                  totalCount={totalItems}
+                  pageSize={searchParams.pageSize}
+                  page={searchParams.pageIndex}
+                  onPageChange={handlePageChange}
+                  onPageSizeChange={handlePageSizeChange}
                 />
               )}
             </>
@@ -935,134 +896,30 @@ export default function BreedingManagement() {
               <p className="text-sm font-semibold col-span-full mb-[-6px] text-muted-foreground">
                 Lọc theo Thời gian BẮT ĐẦU
               </p>
-              <div className="space-y-2 col-span-2 md:col-span-1">
-                <Label htmlFor="startDateFrom">Từ ngày</Label>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className="w-full justify-start text-left font-normal"
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {startDateFromInput
-                        ? format(
-                            getDateFromString(startDateFromInput)!,
-                            "dd MMM yyyy",
-                            { locale: vi },
-                          )
-                        : "Chọn ngày..."}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={getDateFromString(startDateFromInput)}
-                      onSelect={(date) => {
-                        if (date) {
-                          setStartDateFromInput(formatDateToString(date));
-                        }
-                      }}
-                    />
-                  </PopoverContent>
-                </Popover>
-              </div>
-              <div className="space-y-2 col-span-2 md:col-span-1">
-                <Label htmlFor="startDateTo">Đến ngày</Label>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className="w-full justify-start text-left font-normal"
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {startDateToInput
-                        ? format(
-                            getDateFromString(startDateToInput)!,
-                            "dd MMM yyyy",
-                            { locale: vi },
-                          )
-                        : "Chọn ngày..."}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={getDateFromString(startDateToInput)}
-                      onSelect={(date) => {
-                        if (date) {
-                          setStartDateToInput(formatDateToString(date));
-                        }
-                      }}
-                    />
-                  </PopoverContent>
-                </Popover>
-              </div>
+              <DatePickerFilter
+                label="Từ ngày"
+                value={startDateFromInput}
+                onChange={setStartDateFromInput}
+              />
+              <DatePickerFilter
+                label="Đến ngày"
+                value={startDateToInput}
+                onChange={setStartDateToInput}
+              />
 
               <p className="text-sm font-semibold col-span-full md:col-span-2 mb-[-6px] text-muted-foreground">
                 Lọc theo Thời gian KẾT THÚC
               </p>
-              <div className="space-y-2 col-span-2 md:col-span-1">
-                <Label htmlFor="endDateFrom">Từ ngày</Label>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className="w-full justify-start text-left font-normal"
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {endDateFromInput
-                        ? format(
-                            getDateFromString(endDateFromInput)!,
-                            "dd MMM yyyy",
-                            { locale: vi },
-                          )
-                        : "Chọn ngày..."}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={getDateFromString(endDateFromInput)}
-                      onSelect={(date) => {
-                        if (date) {
-                          setEndDateFromInput(formatDateToString(date));
-                        }
-                      }}
-                    />
-                  </PopoverContent>
-                </Popover>
-              </div>
-              <div className="space-y-2 col-span-2 md:col-span-1">
-                <Label htmlFor="endDateTo">Đến ngày</Label>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className="w-full justify-start text-left font-normal"
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {endDateToInput
-                        ? format(
-                            getDateFromString(endDateToInput)!,
-                            "dd MMM yyyy",
-                            { locale: vi },
-                          )
-                        : "Chọn ngày..."}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={getDateFromString(endDateToInput)}
-                      onSelect={(date) => {
-                        if (date) {
-                          setEndDateToInput(formatDateToString(date));
-                        }
-                      }}
-                    />
-                  </PopoverContent>
-                </Popover>
-              </div>
+              <DatePickerFilter
+                label="Từ ngày"
+                value={endDateFromInput}
+                onChange={setEndDateFromInput}
+              />
+              <DatePickerFilter
+                label="Đến ngày"
+                value={endDateToInput}
+                onChange={setEndDateToInput}
+              />
             </div>
           </div>
           <DialogFooter className="mt-3 flex justify-between sm:justify-between sticky bottom-0 bg-white pt-2 border-t">

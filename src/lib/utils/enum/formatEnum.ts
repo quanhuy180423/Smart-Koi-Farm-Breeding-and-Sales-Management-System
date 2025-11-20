@@ -9,10 +9,9 @@ import {
   HealthStatus,
   SaleStatus,
 } from "@/lib/api/services/fetchKoiFish";
-import { PondStatus } from "@/lib/api/services/fetchPond";
+import { PondStatus, PondTypeEnum } from "@/lib/api/services/fetchPond";
 import { OrderStatus } from "@/lib/api/services/fetchOrder";
 import { WorkScheduleStatusEnum } from "@/lib/api/services/fetchWorkSchedule";
-import { PondTypeEnum } from "@/lib/api/services/fetchPondType";
 import { Roles } from "@/lib/api/services/fetchAuth";
 import {
   IncidentSeverity,
@@ -30,13 +29,19 @@ import {
   Droplets,
   Wrench,
   Activity,
+  Mars,
+  Venus,
+  LucideIcon,
 } from "lucide-react";
 
 // Giao diện chung cho các nhãn
 export interface Label {
   label: string;
   colorClass: string;
-  icon?: React.ReactNode | React.ComponentType<{ className?: string }>;
+  icon?:
+    | React.ReactNode
+    | React.ComponentType<{ className?: string }>
+    | LucideIcon;
 }
 
 // --- METADATA CHO CÁC ENUM ---
@@ -67,8 +72,8 @@ const genderMeta: Record<Gender, Label> = {
 };
 
 const userGenderMeta: Record<Gender, Label> = {
-  [Gender.MALE]: { label: "Nam", colorClass: "text-blue-600" },
-  [Gender.FEMALE]: { label: "Nữ", colorClass: "text-pink-600" },
+  [Gender.MALE]: { label: "Nam", colorClass: "text-blue-600", icon: Mars },
+  [Gender.FEMALE]: { label: "Nữ", colorClass: "text-pink-600", icon: Venus },
   [Gender.UNKNOWN]: { label: "Khác", colorClass: "text-gray-500" },
 };
 
@@ -76,10 +81,6 @@ const saleStatusMeta: Record<SaleStatus, Label> = {
   [SaleStatus.AVAILABLE]: {
     label: "Có sẵn",
     colorClass: "bg-green-100 text-green-800",
-  },
-  [SaleStatus.RESERVED]: {
-    label: "Đã cọc",
-    colorClass: "bg-yellow-100 text-yellow-800",
   },
   [SaleStatus.SOLD]: { label: "Đã bán", colorClass: "bg-red-100 text-red-800" },
   [SaleStatus.NOT_FOR_SALE]: {
@@ -184,27 +185,27 @@ const workScheduleStatusMeta: Record<WorkScheduleStatusEnum, Label> = {
 };
 
 const pondTypeMeta: Record<PondTypeEnum, Label> = {
-  [PondTypeEnum.Paring]: {
+  [PondTypeEnum.PARING]: {
     label: "Ghép Cặp",
     colorClass: "bg-indigo-100 text-indigo-800",
   },
-  [PondTypeEnum.EggBatch]: {
+  [PondTypeEnum.EGG_BATCH]: {
     label: "Ấp Trứng",
     colorClass: "bg-cyan-100 text-cyan-800",
   },
-  [PondTypeEnum.FryFish]: {
+  [PondTypeEnum.FRY_FISH]: {
     label: "Cá Con",
     colorClass: "bg-teal-100 text-teal-800",
   },
-  [PondTypeEnum.Classification]: {
+  [PondTypeEnum.CLASSIFICATION]: {
     label: "Tuyển Chọn",
     colorClass: "bg-purple-100 text-purple-800",
   },
-  [PondTypeEnum.MarketPond]: {
+  [PondTypeEnum.MARKET_POND]: {
     label: "Ao Thương Mại",
     colorClass: "bg-pink-100 text-pink-800",
   },
-  [PondTypeEnum.BroodStock]: {
+  [PondTypeEnum.BROOD_STOCK]: {
     label: "Cơ Sở Giống",
     colorClass: "bg-emerald-100 text-emerald-800",
   },

@@ -72,7 +72,6 @@ export interface KoiFishResponse {
   origin: string;
   isMutated: boolean;
   mutationDescription: string | null;
-  mutationRate: number;
   createdAt: string;
   updatedAt: string | null;
   pond: PondBasicResponse;
@@ -83,21 +82,21 @@ export interface KoiFishResponse {
 export enum SaleStatus {
   NOT_FOR_SALE = "NotForSale",
   AVAILABLE = "Available",
-  RESERVED = "Reserved",
   SOLD = "Sold",
 }
 
 export interface KoiFishSearchParams extends PagingRequest {
-  search?: string;
-  gender?: Gender;
-  health?: HealthStatus;
-  varietyId?: number;
-  fishSize?: FishSize;
-  pondId?: number;
-  origin?: string;
-  minPrice?: number;
-  maxPrice?: number;
-  saleStatus?: SaleStatus;
+  Search?: string;
+  Gender?: Gender;
+  Health?: HealthStatus;
+  VarietyId?: number;
+  MinSize?: number;
+  MaxSize?: number;
+  PondId?: number;
+  Origin?: string;
+  MinPrice?: number;
+  MaxPrice?: number;
+  SaleStatus?: SaleStatus;
 }
 
 export interface KoiFishFamilyResponse {

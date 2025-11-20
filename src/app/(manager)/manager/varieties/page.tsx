@@ -31,10 +31,8 @@ import {
   useDeleteVariety,
   useUpdateVariety,
 } from "@/hooks/useVariety";
-import {
-  PAGE_SIZE_OPTIONS_DEFAULT,
-  PaginationSection,
-} from "@/components/common/PaginationSection";
+import { PAGE_SIZE_OPTIONS_DEFAULT } from "@/components/common/PaginationSection";
+import { PaginationWithLinks } from "@/components/pagination";
 import toast from "react-hot-toast";
 import AddVarietyModal from "./AddVarietyModal";
 import EditVarietyModal from "./EditVarietyModal";
@@ -100,7 +98,6 @@ export default function VarietyManagement() {
 
   const varieties: VarietyResponse[] = varietiesData?.data || [];
   const totalCount = varietiesData?.totalItems || 0;
-  const totalPages = varietiesData?.totalPages || 0;
 
   const addVarietyMutation = useAddVariety();
   const updateVarietyMutation = useUpdateVariety();
@@ -372,15 +369,12 @@ export default function VarietyManagement() {
               </Table>
 
               {totalCount > 0 && (
-                <PaginationSection
-                  totalItems={totalCount}
-                  postsPerPage={searchParams.pageSize}
-                  currentPage={searchParams.pageIndex}
-                  setCurrentPage={handleSetCurrentPage}
-                  totalPages={totalPages}
-                  setPageSize={handleSetPageSize}
-                  hasNextPage={varietiesData?.hasNextPage}
-                  hasPreviousPage={varietiesData?.hasPreviousPage}
+                <PaginationWithLinks
+                  totalCount={totalCount}
+                  pageSize={searchParams.pageSize}
+                  page={searchParams.pageIndex}
+                  onPageChange={handleSetCurrentPage}
+                  onPageSizeChange={handleSetPageSize}
                 />
               )}
             </>

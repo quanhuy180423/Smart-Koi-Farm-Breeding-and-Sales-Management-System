@@ -1,4 +1,4 @@
-import { PaginationSection } from "@/components/common/PaginationSection";
+import { PaginationWithLinks } from "@/components/pagination";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -64,7 +64,6 @@ const AreaSelectionDialog = ({
     useGetAreas(areaSearchParams);
   const areas = areasData?.data || [];
   const totalItems = areasData?.totalItems || 0;
-  const totalPages = areasData?.totalPages || 0;
 
   const handlePageChange = (page: number) =>
     setAreaSearchParams((prev) => ({ ...prev, pageIndex: page }));
@@ -154,16 +153,12 @@ const AreaSelectionDialog = ({
               </Table>
 
               {totalItems > 0 && (
-                <PaginationSection
-                  totalItems={totalItems}
-                  postsPerPage={areaSearchParams.pageSize}
-                  currentPage={areaSearchParams.pageIndex}
-                  setCurrentPage={handlePageChange}
-                  totalPages={totalPages}
-                  setPageSize={handlePageSizeChange}
-                  hasNextPage={areasData?.hasNextPage}
-                  hasPreviousPage={areasData?.hasPreviousPage}
-                  pageSizeOptions={[5, 10, 20]}
+                <PaginationWithLinks
+                  totalCount={totalItems}
+                  pageSize={areaSearchParams.pageSize}
+                  page={areaSearchParams.pageIndex}
+                  onPageChange={handlePageChange}
+                  onPageSizeChange={handlePageSizeChange}
                 />
               )}
             </>

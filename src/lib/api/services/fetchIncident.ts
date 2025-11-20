@@ -75,6 +75,32 @@ export interface IncidentSearchParams extends PagingRequest {
   koiFishId?: number;
 }
 
+export interface KoiIncidentHistory {
+  id: number;
+  incidentId: number;
+  koiFishId: number;
+  koiFishRFID: string;
+  affectedStatus: AffectedStatus;
+  specificSymptoms: string;
+  requiresTreatment: boolean;
+  isIsolated: boolean;
+  affectedFrom: string;
+  recoveredAt: string | null;
+  treatmentNotes: string;
+  incident?: {
+    id: number;
+    incidentTypeId: number;
+    incidentTypeName: string;
+    incidentTitle: string;
+    description: string;
+    severity: string;
+    status: string;
+    occurredAt: string;
+    createdAt: string;
+    resolutionNotes: string | null;
+  };
+}
+
 const baseUrl = "/api/Incident";
 
 export const incidentService = {
@@ -85,6 +111,14 @@ export const incidentService = {
     const response = await apiService.get<
       BaseResponse<PagedResponse<IncidentResponse>>
     >(`${baseUrl}`, { ...filter });
+    return response.data;
+  },
+  getKoiIncidentHistory: async (
+    koiFishId: number,
+  ): Promise<BaseResponse<KoiIncidentHistory[]>> => {
+    const response = await apiService.get<BaseResponse<KoiIncidentHistory[]>>(
+      `${baseUrl}/koi/${koiFishId}/history`,
+    );
     return response.data;
   },
 };

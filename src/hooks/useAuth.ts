@@ -4,6 +4,7 @@ import {
   RegisterRequest,
   RegisterResponse,
   ResetPasswordRequest,
+  Roles,
 } from "@/lib/api/services/fetchAuth";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
@@ -15,7 +16,7 @@ import toast from "react-hot-toast";
 import { ApiError, BaseResponse } from "@/lib/api/apiClient";
 import { setCookie } from "cookies-next";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useAuthStore, UserRole } from "@/store/auth-store";
+import { useAuthStore } from "@/store/auth-store";
 
 export function useRegister() {
   // const router = useRouter();
@@ -136,13 +137,13 @@ export function useLogin() {
             const role = useAuthStore.getState().getUserRole();
             let destination = "/";
             switch (role) {
-              case UserRole.MANAGER:
+              case Roles.Manager:
                 destination = "/manager";
                 break;
-              case UserRole.SALE_STAFF:
+              case Roles.SaleStaff:
                 destination = "/sale";
                 break;
-              case UserRole.CUSTOMER:
+              case Roles.Customer:
                 destination = "/";
                 break;
               default:
@@ -258,13 +259,13 @@ export function useGoogleLogin() {
           const role = useAuthStore.getState().getUserRole();
           let destination = "/";
           switch (role) {
-            case UserRole.MANAGER:
+            case Roles.Manager:
               destination = "/manager";
               break;
-            case UserRole.SALE_STAFF:
+            case Roles.SaleStaff:
               destination = "/sale";
               break;
-            case UserRole.CUSTOMER:
+            case Roles.Customer:
               destination = "/";
               break;
             default:

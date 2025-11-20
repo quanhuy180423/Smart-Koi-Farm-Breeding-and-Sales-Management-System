@@ -65,7 +65,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import { PaginationSection } from "@/components/common/PaginationSection";
+import { PaginationWithLinks } from "@/components/pagination";
 import { useAuthStore } from "@/store/auth-store";
 
 const PAGE_SIZE_OPTIONS = [10, 20, 50];
@@ -188,7 +188,6 @@ export default function AccountManagement() {
 
   const userList = userData?.data || [];
   const totalItems = userData?.totalItems || 0;
-  const totalPages = userData?.totalPages || 0;
 
   const handleAddAccount = async () => {
     // Validation: Only FarmStaff and SaleStaff are allowed for new staff accounts
@@ -501,15 +500,12 @@ export default function AccountManagement() {
               {/* Pagination */}
               {totalItems > 0 && (
                 <div className="pt-4 border-t">
-                  <PaginationSection
-                    currentPage={currentPage}
-                    setCurrentPage={setCurrentPage}
-                    totalItems={totalItems}
-                    postsPerPage={pageSize}
-                    setPageSize={setPageSize}
-                    pageSizeOptions={PAGE_SIZE_OPTIONS}
-                    hasNextPage={currentPage < totalPages}
-                    hasPreviousPage={currentPage > 1}
+                  <PaginationWithLinks
+                    totalCount={totalItems}
+                    pageSize={pageSize}
+                    page={currentPage}
+                    onPageChange={setCurrentPage}
+                    onPageSizeChange={setPageSize}
                   />
                 </div>
               )}

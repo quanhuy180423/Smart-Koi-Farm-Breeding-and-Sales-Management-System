@@ -1,123 +1,122 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-// // Define user roles
-// export enum UserRole {
-//   MANAGER = "manager",
-//   FARM_STAFF = "farm-staff",
-//   SALE_STAFF = "sale-staff",
-//   CUSTOMER = "customer",
-//   GUEST = "guest",
-// }
-
-// // Define route protection rules (only protected routes are listed)
-// const routeProtection: Record<string, UserRole[]> = {
-//   "/manager": [UserRole.MANAGER, UserRole.FARM_STAFF],
-//   "/sale": [UserRole.SALE_STAFF],
-//   // add other protected routes here as needed
-// };
-
-// // Auth routes (login, register, etc.)
-// const authRoutes = [
-//   "/login",
-//   "/register",
-//   "/auth/sign-in",
-//   "/auth/sign-up",
-//   "/auth/forgot-password",
-// ];
-
-// export function middleware(request: NextRequest) {
-//   const { pathname } = request.nextUrl;
-
-//   // Skip middleware for static files, API routes, and Next.js internals
-//   if (
-//     pathname.startsWith("/_next/") ||
-//     pathname.startsWith("/api/") ||
-//     pathname.includes(".") ||
-//     pathname.startsWith("/favicon.ico")
-//   ) {
-//     return NextResponse.next();
-//   }
-
-//   // Get user role from cookies (client writes `user-role` cookie)
-//   const userRole =
-//     (request.cookies.get("user-role")?.value as UserRole) || UserRole.GUEST;
-//   const isAuthenticated = userRole !== UserRole.GUEST;
-
-//   // Check if current route is auth route
-//   const isAuthRoute = authRoutes.some(
-//     (route) => pathname === route || pathname.startsWith(`${route}/`),
-//   );
-
-//   // Handle authentication logic
-//   if (isAuthRoute) {
-//     // If user is already authenticated, redirect to appropriate dashboard
-//     if (isAuthenticated) {
-//       const redirectUrl = getDashboardUrl(userRole);
-//       return NextResponse.redirect(new URL(redirectUrl, request.url));
-//     }
-//     // Allow guests to access auth pages
-//     return NextResponse.next();
-//   }
-
-//   // Check route protection
-//   for (const [route, allowedRoles] of Object.entries(routeProtection)) {
-//     if (pathname.startsWith(route)) {
-//       // If user is not authenticated, redirect to login
-//       if (!isAuthenticated) {
-//         const loginUrl = `/login?redirect=${encodeURIComponent(pathname)}`;
-//         return NextResponse.redirect(new URL(loginUrl, request.url));
-//       }
-
-//       // Check if user has required role
-//       if (!allowedRoles.includes(userRole)) {
-//         // Redirect to appropriate dashboard based on user role
-//         const redirectUrl = getDashboardUrl(userRole);
-//         return NextResponse.redirect(new URL(redirectUrl, request.url));
-//       }
-
-//       // User has access, continue
-//       return NextResponse.next();
-//     }
-//   }
-
-//   // For public routes or other routes, allow access
-//   return NextResponse.next();
-// }
-
-// // Helper function to get dashboard URL based on user role
-// function getDashboardUrl(role: UserRole): string {
-//   switch (role) {
-//     case UserRole.MANAGER:
-//       return "/manager";
-//     case UserRole.SALE_STAFF:
-//       return "/sale";
-//     case UserRole.CUSTOMER:
-//       return "/";
-//     default:
-//       return "/";
-//   }
-// }
-
-// // Configure which paths the middleware should run on
-// export const config = {
-//   matcher: [
-//     /*
-//      * Match all request paths except for the ones starting with:
-//      * - api (API routes)
-//      * - _next/static (static files)
-//      * - _next/image (image optimization files)
-//      * - favicon.ico (favicon file)
-//      */
-//     "/((?!api|_next/static|_next/image|favicon.ico).*)",
-//   ],
-// };
-
-export function middleware(request: NextRequest) {
-  console.log("middleware hit:", request.nextUrl.pathname);
-  return NextResponse.redirect(new URL("/", request.url));
+// 1. Định nghĩa Role giống hệt trong fetchAuth/authStore
+// (Khai báo lại ở đây để tránh import file chứa logic client gây lỗi Edge Runtime)
+enum Roles {
+  Manager = "Manager",
+  FarmStaff = "FarmStaff",
+  SaleStaff = "SaleStaff",
+  Customer = "Customer",
+  Guest = "Guest",
 }
 
+// 2. Định nghĩa Dashboard mặc định cho từng Role
+const ROLE_DASHBOARD: Record<string, string> = {
+  [Roles.Manager]: "/manager",
+  [Roles.FarmStaff]: "/manager", // FarmStaff dùng chung layout manager (theo logic cũ của bạn)
+  [Roles.SaleStaff]: "/sale",
+  [Roles.Customer]: "/",
+};
+
+// 3. Định nghĩa các Route được bảo vệ và Role được phép truy cập
+const PROTECTED_ROUTES = {
+  "/manager": [Roles.Manager, Roles.FarmStaff],
+  "/sale": [Roles.SaleStaff],
+  // Thêm các route khác nếu cần, ví dụ: "/profile": [Roles.Customer, Roles.Manager...]
+};
+
+// 4. Định nghĩa các Route Auth (Login/Register)
+const AUTH_ROUTES = [
+  "/login",
+  "/register",
+  "/auth/sign-in",
+  "/auth/sign-up",
+  "/auth/forgot-password",
+];
+
+export function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+
+  // === BƯỚC 1: BỎ QUA CÁC FILE TĨNH VÀ API ===
+  if (
+    pathname.startsWith("/_next") ||
+    pathname.startsWith("/api") ||
+    pathname.startsWith("/static") ||
+    pathname.includes(".") || // file có đuôi mở rộng (ảnh, css...)
+    pathname === "/favicon.ico"
+  ) {
+    return NextResponse.next();
+  }
+
+  // === BƯỚC 2: LẤY THÔNG TIN TỪ COOKIE ===
+  // Token để xác định đã đăng nhập hay chưa (AuthStore của bạn cần đảm bảo set cookie này)
+  // Trong AuthStore tôi thấy có logic apiService.setAuthToken nhưng chưa rõ có set cookie 'accessToken' không.
+  // Tuy nhiên, đoạn logout có xóa 'auth-token', nên tôi giả định cookie tên là 'auth-token' hoặc 'accessToken'.
+  const token =
+    request.cookies.get("accessToken")?.value ||
+    request.cookies.get("auth-token")?.value;
+
+  // Role được AuthStore set vào cookie 'user-role'
+  const userRole = request.cookies.get("user-role")?.value || Roles.Guest;
+
+  const isAuthenticated = !!token;
+
+  // === BƯỚC 3: XỬ LÝ TRANG AUTH (LOGIN/REGISTER) ===
+  // Nếu User ĐÃ login mà cố vào trang Login -> Đá về Dashboard của họ
+  if (AUTH_ROUTES.some((route) => pathname.startsWith(route))) {
+    if (isAuthenticated && userRole !== Roles.Guest) {
+      const dashboardUrl = ROLE_DASHBOARD[userRole] || "/";
+      return NextResponse.redirect(new URL(dashboardUrl, request.url));
+    }
+    // Chưa login thì cho phép ở lại trang Login
+    return NextResponse.next();
+  }
+
+  // === BƯỚC 4: XỬ LÝ CÁC TRANG ĐƯỢC BẢO VỆ (PROTECTED ROUTES) ===
+  // Tìm xem URL hiện tại có khớp với route nào trong PROTECTED_ROUTES không
+  const matchedRoute = Object.keys(PROTECTED_ROUTES).find((route) =>
+    pathname.startsWith(route),
+  );
+
+  if (matchedRoute) {
+    // 4.1: Nếu chưa đăng nhập -> Đá về Login
+    if (!isAuthenticated) {
+      const loginUrl = new URL("/login", request.url);
+      // Lưu lại trang họ đang muốn vào để redirect lại sau khi login xong
+      loginUrl.searchParams.set("redirect", pathname);
+      return NextResponse.redirect(loginUrl);
+    }
+
+    // 4.2: Kiểm tra quyền (Role)
+    const allowedRoles =
+      PROTECTED_ROUTES[matchedRoute as keyof typeof PROTECTED_ROUTES];
+
+    // Chuyển userRole từ cookie về dạng Enum để so sánh chính xác
+    // Lưu ý: Cookie là string, cần đảm bảo so sánh đúng (Case sensitive)
+    const hasPermission = allowedRoles.some(
+      (role) => role.toLowerCase() === userRole.toLowerCase(),
+    );
+
+    if (!hasPermission) {
+      // Sai quyền -> Đá về Dashboard đúng của họ
+      const correctDashboard = ROLE_DASHBOARD[userRole] || "/";
+
+      // Tránh redirect loop: Nếu dashboard của họ chính là trang họ đang đứng thì không redirect nữa (hiếm khi xảy ra ở đây nhưng nên cẩn thận)
+      if (pathname !== correctDashboard) {
+        return NextResponse.redirect(new URL(correctDashboard, request.url));
+      }
+    }
+
+    // Đúng quyền -> Cho qua
+    return NextResponse.next();
+  }
+
+  // === BƯỚC 5: CÁC TRANG CÔNG KHAI (HOME, ETC.) ===
+  return NextResponse.next();
+}
+
+// Cấu hình matcher tối ưu
 export const config = {
-  matcher: ["/((?!_next|api|static|favicon.ico).*)"],
+  matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
 };

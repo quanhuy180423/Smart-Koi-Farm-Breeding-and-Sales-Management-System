@@ -1,4 +1,4 @@
-# Hướng dẫn Copilot cho Smart Koi Farm Management System
+# ZenKoi - Smart Koi Farm Management System
 
 ## Vai trò: Expert Software Engineer
 
@@ -6,161 +6,145 @@ Bạn là chuyên gia phát triển phần mềm với chuyên môn về Next.js
 
 ## Tổng quan Dự án
 
-- **Tên dự án:** Smart Koi Farm Breeding and Sales Management System
-- **Architecture:** Frontend (Next.js 15.x) + Backend API riêng biệt
-- **Tech Stack:** Next.js 15.x, React 19, TypeScript, Tailwind CSS 4.x, React Query, Zustand
-- **Mục tiêu:** Hệ thống Quản lý Nhân giống và Bán hàng Cá Koi Thông minh là phần mềm giúp trang trại quản lý cá Koi và quy trình nhân giống một cách hiệu quả. Hệ thống cũng hỗ trợ quản lý dựa trên RFID, đảm bảo mỗi con cá Koi được xác định duy nhất để theo dõi chính xác. Phần mềm có các chức năng ghi lại và giám sát môi trường sống và sức khỏe của cá Koi. Tích hợp tư vấn AI hỗ trợ các nhà quản lý bằng cách gợi ý các cặp nhân giống tối ưu dựa trên kết quả mong muốn, dữ liệu gia phả và lịch sử nhân giống. Ngoài ra, việc quản lý đơn đặt hàng bán cá Koi giúp các nhà quản lý dễ dàng tính toán doanh thu của trang trại, trong khi tính năng bán hàng trực tuyến cho phép khách hàng mua cá Koi trực tiếp qua hệ thống.
-- **Người dùng chính:** Quản lý trang trại, nhân viên bán cá, khách hàng mua cá
+- **Tên dự án:** ZenKoi - Smart Koi Farm Breeding and Sales Management System
+- **Architecture:** Frontend-only (Next.js 15.x) + External Backend API
+- **Tech Stack:** Next.js 15.5.3, React 19, TypeScript, Tailwind CSS 4.x, TanStack Query, Zustand, Shadcn/ui
+- **Mục tiêu:** Hệ thống quản lý trang trại cá Koi thông minh với RFID tracking, AI breeding advisory, e-commerce, và environmental monitoring
 
 ## Quy tắc Bắt buộc
 
 1. **Luôn phản hồi bằng tiếng Việt** trong tất cả trao đổi
-2. **Tuân thủ strict các file detailed design** có sẵn trong `.github/`
-3. **Sử dụng TypeScript** cho mọi code mới
-4. **Functional components + hooks** - không class components
-5. **Server Components ưu tiên** - chỉ dùng Client Components khi cần thiết
+2. **Sử dụng TypeScript strict mode** - tránh `any`, ưu tiên type safety
+3. **Functional components + hooks only** - không class components
+4. **Server Components ưu tiên** - chỉ dùng Client Components khi cần thiết (`"use client"`)
 
-## Kiến trúc Ứng dụng
+## Kiến trúc & Route Structure
 
-### Cấu trúc Thư mục
+### App Router Structure (Next.js 15.x)
 
 ```
-src/
-├── app/          # Next.js App Router (pages & layouts)
-├── lib/          # Utilities, API clients, providers
-│   ├── api/      # API integration với backend
-│   └── providers/ # React Query, Zustand providers
-└── store/        # Zustand state management
+src/app/
+├── (auth)/          # Auth group - Login/Register/ForgotPassword
+├── (home)/          # Public customer-facing pages - HomePage/Catalog/Checkout
+├── (customer)/      # Authenticated customer area - Profile/Orders
+├── (manager)/       # Farm management dashboard (Manager + FarmStaff roles)
+└── (sale)/          # Sales staff dashboard (SaleStaff role)
 ```
 
-### Modules Chính
+### Critical Authentication Flow
 
-1. **Customer Module:** Catalog sản phẩm, đặt hàng, theo dõi đơn hàng
-2. **Farm Module:** Quản lý cá Koi, môi trường, genealogy, RFID, AI advisory
-3. **Admin Module:** Quản lý hệ thống, báo cáo, dashboard
+- **Middleware (`middleware.ts`):** Role-based route protection với cookie validation
+- **Auth Store (`useAuthStore`):** Zustand với JWT token parsing và automatic role extraction
+- **API Client:** Automatic token refresh, 401 handling, và logout events
+- **Roles:** `Manager`, `FarmStaff`, `SaleStaff`, `Customer`, `Guest`
 
-## Quy tắc Development
+## Core Patterns & Standards
 
-### Data Fetching
+### API Integration - TanStack Query Pattern
 
-- **Bắt buộc:** Sử dụng React Query + Axios qua custom hooks
-- **Pattern:** `useQuery` cho GET, `useMutation` cho POST/PUT/DELETE
-- **Location:** Tất cả API calls trong `src/lib/api/`
-- **Chất lượng mã nguồn:**
-  - Sử dụng TypeScript an toàn, ưu tiên các kiểu dữ liệu mạnh và tránh `any` nếu có thể.
-  - Áp dụng các quy tắc về `clean code` và `DRY` (Don't Repeat Yourself).
-  - Viết mã nguồn có cấu trúc rõ ràng, dễ đọc, và dễ bảo trì.
-  - Tạo các hàm và component có trách nhiệm đơn lẻ (Single Responsibility Principle).
-- **Tối ưu hiệu năng:**
-  - Luôn xem xét hiệu năng khi viết mã, đặc biệt là việc tối ưu hóa `re-renders` trong React và sử dụng các hook như `useCallback`, `useMemo` khi cần thiết.
-  - Sử dụng các tính năng mới của Next.js 15 và React 19 để tối ưu hóa hiệu năng phía server và client.
+**Custom Hook Convention:**
 
-### State Management
+```typescript
+// src/hooks/useKoiFish.ts
+export function useGetKoiFishes(params: KoiFishSearchParams) {
+  return useQuery({
+    queryKey: ["koi-fishes", params],
+    queryFn: () => koiFishService.getKoiFishes(params),
+    select: (data: BaseResponse<PagedResponse<KoiFishResponse>>) => data.result,
+    retry: (failureCount, error) => {
+      if (error?.status === 401) return false;
+      return failureCount < 2;
+    },
+  });
+}
+```
 
-- **Global state:** Zustand store trong `src/store/`
-- **Local state:** `useState`, `useContext` chuẩn React
-- **Form state:** React Hook Form (nếu cần)
+### API Service Architecture
 
-### Styling
+- **Base Client:** `src/lib/api/apiClient.ts` - Axios wrapper with automatic token refresh
+- **Service Layer:** `src/lib/api/services/` - Domain-specific API calls
+- **Error Handling:** Standardized `ApiError` interface với toast notifications
+- **File Uploads:** Built-in progress tracking và FormData handling
 
-- **Primary:** Tailwind CSS 4.x với utility-first
-- **Components:** Class Variance Authority (CVA) cho component variants
-- **Animations:** tw-animate-css
-- **Icons:** Lucide React
+### State Management Strategy
 
-### TypeScript Guidelines
+- **Global Auth:** `useAuthStore` (Zustand + persist middleware)
+- **Cart Management:** `useCartStore` (Zustand)
+- **API State:** TanStack Query (server state)
+- **Local UI State:** React hooks (`useState`, `useContext`)
+- **Form State:** React Hook Form + Zod validation
 
-- Interface cho data structures, type definitions
-- Functional programming principles
-- Optional chaining (?.) và nullish coalescing (??)
-- Strict mode enabled
+### UI Component System
 
-## Patterns Cụ thể cho Koi Farm
+- **Base:** Radix UI primitives with CVA variants
+- **Design System:** CSS variables cho theming, HSL color palette
+- **Icons:** Lucide React exclusively
+- **Styling:** Tailwind CSS 4.x utility-first
+- **Animations:** Framer Motion cho complex animations, CSS cho simple transitions
+
+## Business Logic Patterns
 
 ### Koi Fish Management
 
 ```typescript
-interface KoiProfile {
-  id: string;
+interface KoiFishResponse {
+  id: number;
   name: string;
   variety: string;
   gender: "male" | "female";
-  birthDate: Date;
-  parentIds?: [string, string];
+  birthDate: string;
   rfidTag?: string;
   healthStatus: "healthy" | "sick" | "quarantine";
+  // RFID tracking + genealogy data
 }
 ```
 
-### Environment Monitoring
+### Multi-Role Dashboard Architecture
 
-- Real-time data tracking (pH, temperature)
-- Schedule management cho feeding/cleaning
-- Alert system cho parameters ngoài range
-
-### AI Advisory Integration
-
-- API calls cho breeding suggestions
-- UI components hiển thị recommendations
-- User feedback loop cho AI improvement
+- **Middleware Protection:** Route access based on JWT role claims
+- **Layout Inheritance:** Shared components trong role-specific layouts
+- **Dashboard Variants:** Manager (farm operations), Sale (order management), Customer (shopping)
 
 ## Development Workflows
 
-### Khởi chạy Dev Environment
+### Environment Setup
 
 ```bash
-npm run dev --turbopack  # Sử dụng Turbopack cho faster builds
+npm run dev                    # Development với Turbopack
+npm run build                  # Production build
+npm run lint && npm run type-check  # Code quality checks
 ```
 
-### Build & Deploy
+### Code Quality Rules
 
-```bash
-npm run build --turbopack
-npm run start
-```
+- **TypeScript:** Strict mode enabled, no implicit any
+- **Components:** Single responsibility principle
+- **Error Handling:** React Error Boundaries + react-hot-toast
+- **Performance:** `useCallback`/`useMemo` cho expensive operations
+- **Accessibility:** ARIA labels, keyboard navigation support
 
-### Code Quality
+## Critical Integration Points
 
-- ESLint với config Next.js 15
-- TypeScript strict mode
-- Component documentation bằng JSDoc
+### External API Communication
 
-## Ví dụ Implementation
+- **Base URL:** `process.env.NEXT_PUBLIC_API_URL_BACKEND`
+- **Authentication:** JWT Bearer tokens với automatic refresh
+- **File Handling:** Cloudinary integration cho image uploads
+- **Response Format:** Standardized `BaseResponse<T>` wrapper
 
-### Custom Hook cho API
+### Image & Media Handling
 
-```typescript
-// src/lib/api/useKoiData.ts
-export const useKoiList = () => {
-  return useQuery({
-    queryKey: ["koi", "list"],
-    queryFn: () => koiApi.getAll(),
-  });
-};
-```
+- **Next.js Image:** Configured remote patterns cho Cloudinary, Pixabay, và legacy sources
+- **Upload Flow:** FormData upload qua `apiService.upload()` method
+- **Optimization:** Automatic WebP conversion và responsive sizing
 
-### Component Pattern
+## Deployment & Production
 
-```typescript
-// src/app/farm/koi/components/KoiCard.tsx
-interface KoiCardProps {
-  koi: KoiProfile;
-  onSelect?: (id: string) => void;
-}
-
-export const KoiCard: React.FC<KoiCardProps> = ({ koi, onSelect }) => {
-  // Component logic
-};
-```
-
-## Lưu ý Quan trọng
-
-- **Performance:** Sử dụng Suspense cho loading states
-- **Accessibility:** ARIA labels, keyboard navigation
-- **Responsive:** Mobile-first design với Tailwind breakpoints
-- **Error Handling:** React Error Boundaries + toast notifications
-- **Security:** Input validation, sanitization
+- **Platform:** Vercel với automatic GitHub deployments
+- **Build Optimization:** Turbopack để improve build performance
+- **Environment:** Production/Preview branches với environment-specific configs
+- **Monitoring:** Built-in error boundaries và performance tracking
 
 ---
 
-**Ghi nhớ:** Mọi response phải bằng tiếng Việt và tuân thủ strict design specifications trong `.github/` folder.
+**Lưu ý quan trọng:** Luôn kiểm tra role permissions trước khi render admin features, sử dụng error boundaries cho API calls, và đảm bảo responsive design cho mobile users.

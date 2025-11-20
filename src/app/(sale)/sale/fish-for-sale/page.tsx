@@ -55,7 +55,7 @@ import {
   getHealthStatusLabel,
   getSaleStatusLabel,
 } from "@/lib/utils/enum";
-import { PaginationSection } from "@/components/common/PaginationSection";
+import { PaginationWithLinks } from "@/components/pagination";
 import Image from "next/image";
 import { AddFishDialog } from "./AddFishDialog";
 import { KoiDetailDialog } from "@/components/dialogs/KoiDetailDialog";
@@ -72,7 +72,7 @@ export default function FishForSalePage() {
   const [searchParams, setSearchParams] = useState<KoiFishSearchParams>({
     pageIndex: 1,
     pageSize: PAGE_SIZE_OPTIONS[0],
-    saleStatus: SaleStatus.AVAILABLE,
+    SaleStatus: SaleStatus.AVAILABLE,
   });
   const [isAddFishDialogOpen, setIsAddFishDialogOpen] = useState(false);
   const [selectedKoi, setSelectedKoi] = useState<KoiFishResponse | null>(null);
@@ -366,15 +366,12 @@ export default function FishForSalePage() {
 
               {koiData && koiData.totalItems > 0 && (
                 <div className="mt-8">
-                  <PaginationSection
-                    currentPage={searchParams.pageIndex}
-                    setCurrentPage={handlePageChange}
-                    totalItems={koiData.totalItems}
-                    postsPerPage={searchParams.pageSize}
-                    setPageSize={handlePageSizeChange}
-                    pageSizeOptions={PAGE_SIZE_OPTIONS}
-                    hasNextPage={koiData.hasNextPage}
-                    hasPreviousPage={koiData.hasPreviousPage}
+                  <PaginationWithLinks
+                    totalCount={koiData.totalItems}
+                    pageSize={searchParams.pageSize}
+                    page={searchParams.pageIndex}
+                    onPageChange={handlePageChange}
+                    onPageSizeChange={handlePageSizeChange}
                   />
                 </div>
               )}
