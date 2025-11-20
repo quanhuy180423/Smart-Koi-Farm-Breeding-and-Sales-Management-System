@@ -26,10 +26,8 @@ import {
 import { Loader2, Filter, X } from "lucide-react";
 import { formatDate } from "@/lib/utils/dates/formatDate";
 import { EmptyState } from "@/components/common/EmptyState";
-import {
-  PAGE_SIZE_OPTIONS_DEFAULT,
-  PaginationSection,
-} from "@/components/common/PaginationSection";
+import { PAGE_SIZE_OPTIONS_DEFAULT } from "@/components/common/PaginationSection";
+import { PaginationWithLinks } from "@/components/pagination";
 import PondSelectionDialogForIncident from "./PondSelectionDialogForIncident";
 import KoiFishSelectionDialogForIncident from "./KoiFishSelectionDialogForIncident";
 import {
@@ -77,7 +75,6 @@ export function IncidentList() {
 
   const dataToDisplay = incidentsData?.data || [];
   const totalItems = incidentsData?.totalItems || 0;
-  const totalPages = incidentsData?.totalPages || 0;
 
   // Auto-apply filters when filter values change
   useEffect(() => {
@@ -362,15 +359,12 @@ export function IncidentList() {
           </div>
 
           {totalItems > 0 && (
-            <PaginationSection
-              totalItems={totalItems}
-              postsPerPage={searchParams.pageSize}
-              currentPage={searchParams.pageIndex}
-              setCurrentPage={handlePageChange}
-              totalPages={totalPages}
-              setPageSize={handlePageSizeChange}
-              hasNextPage={incidentsData?.hasNextPage}
-              hasPreviousPage={incidentsData?.hasPreviousPage}
+            <PaginationWithLinks
+              totalCount={totalItems}
+              pageSize={searchParams.pageSize}
+              page={searchParams.pageIndex}
+              onPageChange={handlePageChange}
+              onPageSizeChange={handlePageSizeChange}
             />
           )}
         </>

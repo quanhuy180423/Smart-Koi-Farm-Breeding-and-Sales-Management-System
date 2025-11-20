@@ -37,10 +37,8 @@ import {
 } from "@/hooks/usePond";
 import { AreaResponse } from "@/lib/api/services/fetchArea";
 import { useGetAreas } from "@/hooks/useArea";
-import {
-  PAGE_SIZE_OPTIONS_DEFAULT,
-  PaginationSection,
-} from "@/components/common/PaginationSection";
+import { PAGE_SIZE_OPTIONS_DEFAULT } from "@/components/common/PaginationSection";
+import { PaginationWithLinks } from "@/components/pagination";
 import { getPondStatusLabel } from "@/lib/utils/enum";
 import AreaSelectionDialog from "./AreaSelectionDialog";
 import PondDetailModal from "./PondDetailModal";
@@ -164,7 +162,6 @@ export default function PondManagement() {
 
   const ponds: PondResponse[] = pondsData?.data || [];
   const totalCount = pondsData?.totalItems || 0;
-  const totalPages = pondsData?.totalPages || 0;
 
   const addPondMutation = useAddPond();
   const updatePondMutation = useUpdatePond();
@@ -636,15 +633,12 @@ export default function PondManagement() {
               </Table>
 
               {totalCount > 0 && (
-                <PaginationSection
-                  totalItems={totalCount}
-                  postsPerPage={searchParams.pageSize}
-                  currentPage={searchParams.pageIndex}
-                  setCurrentPage={handleSetCurrentPage}
-                  totalPages={totalPages}
-                  setPageSize={handleSetPageSize}
-                  hasNextPage={pondsData?.hasNextPage}
-                  hasPreviousPage={pondsData?.hasPreviousPage}
+                <PaginationWithLinks
+                  totalCount={totalCount}
+                  pageSize={searchParams.pageSize}
+                  page={searchParams.pageIndex}
+                  onPageChange={handleSetCurrentPage}
+                  onPageSizeChange={handleSetPageSize}
                 />
               )}
             </>

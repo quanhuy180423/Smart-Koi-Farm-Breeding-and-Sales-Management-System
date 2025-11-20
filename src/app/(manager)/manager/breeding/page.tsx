@@ -41,10 +41,8 @@ import {
   useGetBreedingProcesses,
 } from "@/hooks/useBreedingProcess";
 import { useCompleteClassification } from "@/hooks/useClassificationStage";
-import {
-  PAGE_SIZE_OPTIONS_DEFAULT,
-  PaginationSection,
-} from "@/components/common/PaginationSection";
+import { PAGE_SIZE_OPTIONS_DEFAULT } from "@/components/common/PaginationSection";
+import { PaginationWithLinks } from "@/components/pagination";
 import {
   BreedingProcessResponse,
   BreedingProcessSearchParams,
@@ -180,7 +178,6 @@ export default function BreedingManagement() {
     useCompleteClassification();
   const breedingProcesses = data?.data || [];
   const totalItems = data?.totalItems || 0;
-  const totalPages = data?.totalPages || 0;
 
   useEffect(() => {
     setSearchParams((prev) => ({
@@ -593,15 +590,12 @@ export default function BreedingManagement() {
               </Table>
 
               {totalItems > 0 && (
-                <PaginationSection
-                  totalItems={totalItems}
-                  postsPerPage={searchParams.pageSize}
-                  currentPage={searchParams.pageIndex}
-                  setCurrentPage={handlePageChange}
-                  totalPages={totalPages}
-                  setPageSize={handlePageSizeChange}
-                  hasNextPage={data?.hasNextPage}
-                  hasPreviousPage={data?.hasPreviousPage}
+                <PaginationWithLinks
+                  totalCount={totalItems}
+                  pageSize={searchParams.pageSize}
+                  page={searchParams.pageIndex}
+                  onPageChange={handlePageChange}
+                  onPageSizeChange={handlePageSizeChange}
                 />
               )}
             </>

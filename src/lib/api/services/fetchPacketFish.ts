@@ -4,7 +4,6 @@ import apiService, {
   PagedResponse,
   PagingRequest,
 } from "../apiClient";
-import { FishSize } from "./fetchKoiFish";
 import { VarietyResponse } from "./fetchVariety";
 
 export interface PacketFishResponse {
@@ -27,7 +26,8 @@ export interface PacketFishResponse {
 export interface PacketFishSearchParams extends PagingRequest {
   search?: string;
   isAvailable?: boolean;
-  size?: FishSize;
+  minSize?: number;
+  maxSize?: number;
   minPrice?: number;
   maxPrice?: number;
   minAgeMonths?: number;

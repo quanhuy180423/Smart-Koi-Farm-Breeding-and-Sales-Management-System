@@ -26,10 +26,8 @@ import {
 import { Loader2, Filter, X } from "lucide-react";
 import { formatDate } from "@/lib/utils/dates/formatDate";
 import { EmptyState } from "@/components/common/EmptyState";
-import {
-  PAGE_SIZE_OPTIONS_DEFAULT,
-  PaginationSection,
-} from "@/components/common/PaginationSection";
+import { PAGE_SIZE_OPTIONS_DEFAULT } from "@/components/common/PaginationSection";
+import { PaginationWithLinks } from "@/components/pagination";
 import PondSelectionDialog from "./PondSelectionDialog";
 import {
   getWaterAlertSeverityColor,
@@ -64,7 +62,6 @@ export function WaterAlertList({ pondId }: WaterAlertListProps) {
 
   const dataToDisplay = alertsData?.data || [];
   const totalItems = alertsData?.totalItems || 0;
-  const totalPages = alertsData?.totalPages || 0;
 
   // Auto-apply filters when filter values change
   useEffect(() => {
@@ -284,15 +281,12 @@ export function WaterAlertList({ pondId }: WaterAlertListProps) {
           </div>
 
           {totalItems > 0 && (
-            <PaginationSection
-              totalItems={totalItems}
-              postsPerPage={searchParams.pageSize}
-              currentPage={searchParams.pageIndex}
-              setCurrentPage={handlePageChange}
-              totalPages={totalPages}
-              setPageSize={handlePageSizeChange}
-              hasNextPage={alertsData?.hasNextPage}
-              hasPreviousPage={alertsData?.hasPreviousPage}
+            <PaginationWithLinks
+              totalCount={totalItems}
+              pageSize={searchParams.pageSize}
+              page={searchParams.pageIndex}
+              onPageChange={handlePageChange}
+              onPageSizeChange={handlePageSizeChange}
             />
           )}
         </>

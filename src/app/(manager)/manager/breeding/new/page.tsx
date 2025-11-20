@@ -28,10 +28,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  PaginationSection,
-  PAGE_SIZE_OPTIONS_DEFAULT,
-} from "@/components/common/PaginationSection";
+import { PAGE_SIZE_OPTIONS_DEFAULT } from "@/components/common/PaginationSection";
+import { PaginationWithLinks } from "@/components/pagination";
 
 import {
   PondResponse,
@@ -157,27 +155,23 @@ function PondSelectionList({
           </Table>
 
           {pondsData && pondsData.totalItems > 0 && (
-            <PaginationSection
-              totalItems={pondsData.totalItems}
-              postsPerPage={pondSearchParams.pageSize}
-              currentPage={pondSearchParams.pageIndex}
-              setCurrentPage={(page) =>
+            <PaginationWithLinks
+              totalCount={pondsData.totalItems}
+              pageSize={pondSearchParams.pageSize}
+              page={pondSearchParams.pageIndex}
+              onPageChange={(page) =>
                 setPondSearchParams((prev) => ({
                   ...prev,
                   pageIndex: page,
                 }))
               }
-              totalPages={pondsData.totalPages}
-              setPageSize={(size) =>
+              onPageSizeChange={(size) =>
                 setPondSearchParams((prev) => ({
                   ...prev,
                   pageSize: size,
                   pageIndex: 1,
                 }))
               }
-              hasNextPage={pondsData.hasNextPage}
-              hasPreviousPage={pondsData.hasPreviousPage}
-              pageSizeOptions={[5, 10, 20]}
             />
           )}
         </>

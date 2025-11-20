@@ -62,7 +62,7 @@ import { useGetAllOrders, useUpdateOrderStatus } from "@/hooks/useOrder";
 import { OrderStatus, OrderSearchParams } from "@/lib/api/services/fetchOrder";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { PaginationSection } from "@/components/common/PaginationSection";
+import { PaginationWithLinks } from "@/components/pagination";
 import {
   getOrderStatusLabel,
   getOrderStatusText,
@@ -396,7 +396,7 @@ export default function OrdersPage() {
             </div>
 
             {/* Filters Row 2 - Date and Price Range */}
-            <div className="flex flex-col sm:flex-row gap-3">
+            <div className="flex flex-row lg:flex-row gap-4 items-center justify-between">
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
@@ -692,18 +692,15 @@ export default function OrdersPage() {
           {/* Pagination */}
           {!isLoading && ordersData && ordersData.data.length > 0 && (
             <div className="mt-6">
-              <PaginationSection
-                currentPage={currentPage}
-                setCurrentPage={setCurrentPage}
-                totalPages={ordersData.totalPages || 1}
-                totalItems={ordersData.totalItems || 0}
-                postsPerPage={pageSize}
-                setPageSize={(size) => {
+              <PaginationWithLinks
+                totalCount={ordersData.totalItems || 0}
+                pageSize={pageSize}
+                page={currentPage}
+                onPageChange={setCurrentPage}
+                onPageSizeChange={(size) => {
                   setPageSize(size);
                   setCurrentPage(1);
                 }}
-                hasNextPage={ordersData.hasNextPage}
-                hasPreviousPage={ordersData.hasPreviousPage}
               />
             </div>
           )}

@@ -29,13 +29,19 @@ import {
   Droplets,
   Wrench,
   Activity,
+  Mars,
+  Venus,
+  LucideIcon,
 } from "lucide-react";
 
 // Giao diện chung cho các nhãn
 export interface Label {
   label: string;
   colorClass: string;
-  icon?: React.ReactNode | React.ComponentType<{ className?: string }>;
+  icon?:
+    | React.ReactNode
+    | React.ComponentType<{ className?: string }>
+    | LucideIcon;
 }
 
 // --- METADATA CHO CÁC ENUM ---
@@ -66,8 +72,8 @@ const genderMeta: Record<Gender, Label> = {
 };
 
 const userGenderMeta: Record<Gender, Label> = {
-  [Gender.MALE]: { label: "Nam", colorClass: "text-blue-600" },
-  [Gender.FEMALE]: { label: "Nữ", colorClass: "text-pink-600" },
+  [Gender.MALE]: { label: "Nam", colorClass: "text-blue-600", icon: Mars },
+  [Gender.FEMALE]: { label: "Nữ", colorClass: "text-pink-600", icon: Venus },
   [Gender.UNKNOWN]: { label: "Khác", colorClass: "text-gray-500" },
 };
 
@@ -75,10 +81,6 @@ const saleStatusMeta: Record<SaleStatus, Label> = {
   [SaleStatus.AVAILABLE]: {
     label: "Có sẵn",
     colorClass: "bg-green-100 text-green-800",
-  },
-  [SaleStatus.RESERVED]: {
-    label: "Đã cọc",
-    colorClass: "bg-yellow-100 text-yellow-800",
   },
   [SaleStatus.SOLD]: { label: "Đã bán", colorClass: "bg-red-100 text-red-800" },
   [SaleStatus.NOT_FOR_SALE]: {

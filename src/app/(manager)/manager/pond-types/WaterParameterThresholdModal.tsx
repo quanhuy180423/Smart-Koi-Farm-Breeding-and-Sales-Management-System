@@ -38,7 +38,7 @@ import {
   WaterParameterName,
   WaterParameterThreshold,
 } from "@/lib/api/services/fetchWaterParameterThreshold";
-import { PaginationSection } from "@/components/common/PaginationSection";
+import { PaginationWithLinks } from "@/components/pagination";
 
 interface WaterParameterThresholdModalProps {
   isOpen: boolean;
@@ -605,14 +605,12 @@ export default function WaterParameterThresholdModal({
 
               {/* Pagination */}
               {totalPages > 1 && (
-                <PaginationSection
-                  currentPage={currentPage}
-                  setCurrentPage={handlePageChange}
-                  totalPages={totalPages}
-                  setPageSize={handlePageSizeChange}
-                  pageSizeOptions={[10, 20, 50]}
-                  hasNextPage={currentPage < totalPages}
-                  hasPreviousPage={currentPage > 1}
+                <PaginationWithLinks
+                  // totalCount={totalItems}
+                  pageSize={pageSize}
+                  page={currentPage}
+                  onPageChange={handlePageChange}
+                  onPageSizeChange={handlePageSizeChange}
                 />
               )}
             </>

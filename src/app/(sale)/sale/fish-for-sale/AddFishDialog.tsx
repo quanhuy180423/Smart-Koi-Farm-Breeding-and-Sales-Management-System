@@ -19,7 +19,7 @@ import {
 } from "@/lib/api/services/fetchKoiFish";
 import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
-import { PaginationSection } from "@/components/common/PaginationSection";
+import { PaginationWithLinks } from "@/components/pagination";
 import { getFishSizeLabel, getGenderLabel } from "@/lib/utils/enum";
 import { formatCurrency } from "@/lib/utils/numbers/formatCurrency";
 import { KoiDetailDialog } from "@/components/dialogs/KoiDetailDialog";
@@ -38,7 +38,7 @@ export function AddFishDialog({ onClose }: AddFishDialogProps) {
   const [searchParams, setSearchParams] = useState<KoiFishSearchParams>({
     pageIndex: 1,
     pageSize: PAGE_SIZE_OPTIONS[0],
-    saleStatus: SaleStatus.NOT_FOR_SALE,
+    SaleStatus: SaleStatus.NOT_FOR_SALE,
   });
 
   const { data: koiData, isLoading } = useGetKoiFishes(searchParams);
@@ -173,19 +173,17 @@ export function AddFishDialog({ onClose }: AddFishDialogProps) {
 
       {koiData && koiData.totalItems > 0 && (
         <div className="pt-4 border-t">
-          <PaginationSection
-            currentPage={searchParams.pageIndex}
-            setCurrentPage={(page) =>
+          <PaginationWithLinks
+            totalCount={koiData.totalItems}
+            pageSize={searchParams.pageSize}
+            page={searchParams.pageIndex}
+            onPageChange={(page) =>
               setSearchParams((p) => ({ ...p, pageIndex: page }))
             }
-            totalItems={koiData.totalItems}
-            postsPerPage={searchParams.pageSize}
-            setPageSize={(size) =>
+            onPageSizeChange={(size) =>
               setSearchParams((p) => ({ ...p, pageSize: size, pageIndex: 1 }))
             }
-            pageSizeOptions={[6, 12, 18]}
-            hasNextPage={koiData.hasNextPage}
-            hasPreviousPage={koiData.hasPreviousPage}
+            // pageSizeOptions={[6, 12, 18]}
           />
         </div>
       )}

@@ -22,7 +22,7 @@ import { Loader2 } from "lucide-react";
 import { getPondStatusLabel } from "@/lib/utils/enum";
 import { formatDate } from "@/lib/utils/dates";
 import { useGetWaterParameterRecords } from "@/hooks/useWaterParameterRecord";
-import { PaginationSection } from "@/components/common/PaginationSection";
+import { PaginationWithLinks } from "@/components/pagination";
 
 interface PondDetailModalProps {
   isOpen: boolean;
@@ -236,14 +236,12 @@ const PondDetailModal = ({
 
                   {/* Pagination */}
                   {totalPages > 1 && (
-                    <PaginationSection
-                      currentPage={currentPage}
-                      setCurrentPage={handlePageChange}
-                      totalPages={totalPages}
-                      setPageSize={handlePageSizeChange}
-                      pageSizeOptions={[10, 20, 50]}
-                      hasNextPage={currentPage < totalPages}
-                      hasPreviousPage={currentPage > 1}
+                    <PaginationWithLinks
+                      // totalCount={totalItems}
+                      pageSize={pageSize}
+                      page={currentPage}
+                      onPageChange={handlePageChange}
+                      onPageSizeChange={handlePageSizeChange}
                     />
                   )}
                 </>

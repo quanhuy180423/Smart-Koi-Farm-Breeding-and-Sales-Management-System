@@ -54,7 +54,7 @@ import { OrderStatus, OrderSearchParams } from "@/lib/api/services/fetchOrder";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useCreatePayment } from "@/hooks/useOrderPayment";
 import { PaymentMethod } from "@/lib/api/services/fetchOrderPayment";
-import { PaginationSection } from "@/components/common/PaginationSection";
+import { PaginationWithLinks } from "@/components/pagination";
 import {
   getOrderStatusLabel,
   getOrderStatusText,
@@ -639,18 +639,15 @@ export default function OrdersPage() {
               {/* Pagination */}
               {ordersData.totalPages > 1 && (
                 <div className="mt-6">
-                  <PaginationSection
-                    currentPage={currentPage}
-                    setCurrentPage={setCurrentPage}
-                    totalPages={ordersData.totalPages || 1}
-                    totalItems={ordersData.totalItems || 0}
-                    postsPerPage={pageSize}
-                    setPageSize={(size) => {
+                  <PaginationWithLinks
+                    totalCount={ordersData.totalItems || 0}
+                    pageSize={pageSize}
+                    page={currentPage}
+                    onPageChange={setCurrentPage}
+                    onPageSizeChange={(size) => {
                       setPageSize(size);
                       setCurrentPage(1);
                     }}
-                    hasNextPage={ordersData.hasNextPage}
-                    hasPreviousPage={ordersData.hasPreviousPage}
                   />
                 </div>
               )}

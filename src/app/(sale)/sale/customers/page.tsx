@@ -45,10 +45,7 @@ import { Customer } from "@/lib/api/services/fetchCustomer";
 import { LoadingState } from "@/components/common/LoadingState";
 import { ErrorState } from "@/components/common/ErrorState";
 import { EmptyState } from "@/components/common/EmptyState";
-import {
-  PaginationSection,
-  PAGE_SIZE_OPTIONS_DEFAULT,
-} from "@/components/common/PaginationSection";
+import { PAGE_SIZE_OPTIONS_DEFAULT } from "@/components/common/PaginationSection";
 import formatCurrency from "@/lib/utils/numbers";
 import { getOrderStatusLabel } from "@/lib/utils/enum";
 import { useDebounce } from "@/hooks/useDebounce";
@@ -61,6 +58,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import { vi } from "date-fns/locale";
 import { formatDate, DATE_FORMATS } from "@/lib/utils/dates";
+import { PaginationWithLinks } from "@/components/pagination";
 
 const defaultCustomerData = {
   pageIndex: 1,
@@ -342,14 +340,12 @@ export default function CustomersPage() {
               </div>
 
               {/* Pagination */}
-              <PaginationSection
-                currentPage={currentPage}
-                setCurrentPage={handlePageChange}
-                totalPages={customersData.totalPages}
-                setPageSize={handlePageSizeChange}
-                pageSizeOptions={PAGE_SIZE_OPTIONS_DEFAULT}
-                hasNextPage={customersData.hasNextPage}
-                hasPreviousPage={customersData.hasPreviousPage}
+              <PaginationWithLinks
+                totalCount={customersData.totalItems}
+                pageSize={pageSize}
+                page={currentPage}
+                onPageChange={handlePageChange}
+                onPageSizeChange={handlePageSizeChange}
               />
             </>
           )}

@@ -8,6 +8,16 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -81,6 +91,7 @@ export default function EditWorkScheduleModal({
   const [isPondModalOpen, setIsPondModalOpen] = useState(false);
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
+  const [timeError, setTimeError] = useState<string | null>(null);
   const [selectedTaskForEditing, setSelectedTaskForEditing] =
     useState<TaskTemplateResponse | null>(null);
   const { mutate: updateWorkSchedule, isPending } = useUpdateWorkSchedule();
@@ -141,8 +152,28 @@ export default function EditWorkScheduleModal({
 
   const canEdit = isEditable(workSchedule);
 
+  const validateTime = () => {
+    if (!startTime || !endTime) {
+      setTimeError("Vui lòng nhập đầy đủ giờ bắt đầu và kết thúc");
+      return false;
+    }
+
+    const start = new Date(`1970-01-01T${startTime}`);
+    const end = new Date(`1970-01-01T${endTime}`);
+
+    if (start >= end) {
+      setTimeError("Giờ bắt đầu phải nhỏ hơn giờ kết thúc");
+      return false;
+    }
+
+    setTimeError(null);
+    return true;
+  };
+
   const handleSave = () => {
     if (!workSchedule || selectedStaffIds.size === 0) return;
+
+    if (!validateTime()) return;
 
     updateWorkSchedule(
       {
@@ -228,8 +259,8 @@ export default function EditWorkScheduleModal({
   return (
     <>
       <Dialog open={isOpen} onOpenChange={handleDialogOpenChange}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
+        <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col">
+          <DialogHeader className="flex-shrink-0">
             <div className="flex items-start justify-between gap-4">
               <div className="flex-1">
                 <DialogTitle className="text-2xl font-bold text-gray-800">
@@ -287,7 +318,7 @@ export default function EditWorkScheduleModal({
             </div>
           </DialogHeader>
 
-          <div className="space-y-6 py-4">
+          <div className="flex-1 overflow-y-auto space-y-6 py-4">
             <Card>
               <CardContent className="pt-6 space-y-4">
                 {/* Time Section */}
@@ -296,30 +327,43 @@ export default function EditWorkScheduleModal({
                     Giờ thực hiện
                   </p>
                   {isEditing && canEdit ? (
-                    <div className="flex items-center gap-3">
-                      <div className="flex-1">
-                        <label className="text-xs text-gray-500 block mb-1">
-                          Giờ bắt đầu
-                        </label>
-                        <Input
-                          type="time"
-                          value={startTime}
-                          onChange={(e) => setStartTime(e.target.value)}
-                          className="w-full"
-                        />
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-3">
+                        <div className="flex-1">
+                          <label className="text-xs text-gray-500 block mb-1">
+                            Giờ bắt đầu
+                          </label>
+                          <Input
+                            type="time"
+                            value={startTime}
+                            onChange={(e) => {
+                              setStartTime(e.target.value);
+                              if (timeError) setTimeError(null);
+                            }}
+                            className={`w-full ${timeError ? "border-red-500" : ""}`}
+                          />
+                        </div>
+                        <span className="text-gray-400 mt-6">-</span>
+                        <div className="flex-1">
+                          <label className="text-xs text-gray-500 block mb-1">
+                            Giờ kết thúc
+                          </label>
+                          <Input
+                            type="time"
+                            value={endTime}
+                            onChange={(e) => {
+                              setEndTime(e.target.value);
+                              if (timeError) setTimeError(null);
+                            }}
+                            className={`w-full ${timeError ? "border-red-500" : ""}`}
+                          />
+                        </div>
                       </div>
-                      <span className="text-gray-400 mt-6">-</span>
-                      <div className="flex-1">
-                        <label className="text-xs text-gray-500 block mb-1">
-                          Giờ kết thúc
-                        </label>
-                        <Input
-                          type="time"
-                          value={endTime}
-                          onChange={(e) => setEndTime(e.target.value)}
-                          className="w-full"
-                        />
-                      </div>
+                      {timeError && (
+                        <div className="text-red-600 text-sm bg-red-50 border border-red-200 rounded p-2">
+                          {timeError}
+                        </div>
+                      )}
                     </div>
                   ) : (
                     <div className="flex items-center gap-3">
@@ -562,7 +606,7 @@ export default function EditWorkScheduleModal({
           </div>
 
           {isEditing && canEdit && (
-            <div className="flex justify-end gap-2 pt-4 border-t">
+            <div className="flex-shrink-0 flex justify-end gap-2 pt-4 border-t bg-white">
               <Button
                 variant="outline"
                 onClick={handleCancelEdit}
@@ -608,69 +652,80 @@ export default function EditWorkScheduleModal({
         onSelect={handleTaskSelect}
       />
 
-      {/* Delete Confirmation Dialog */}
-      <Dialog open={isDeleteConfirmOpen} onOpenChange={setIsDeleteConfirmOpen}>
-        <DialogContent className="max-w-md">
-          <div className="flex items-center justify-center w-12 h-12 mx-auto bg-red-100 rounded-full mb-4">
-            <AlertTriangle className="h-6 w-6 text-red-600" />
-          </div>
-          <DialogHeader>
-            <DialogTitle className="text-center text-lg font-semibold">
-              Xóa công việc
-            </DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-              <p className="text-sm text-red-800">
-                <span className="font-semibold">Công việc:</span>{" "}
-                {workSchedule?.taskTemplateName}
-              </p>
-              <p className="text-sm text-red-800 mt-2">
-                <span className="font-semibold">Ngày:</span>{" "}
-                {workSchedule?.scheduledDate}
-              </p>
-              <p className="text-sm text-red-800 mt-2">
-                <span className="font-semibold">Giờ:</span>{" "}
-                {formatTimeToHHMM(workSchedule?.startTime || "")}{" "}
-                {workSchedule?.endTime
-                  ? `- ${formatTimeToHHMM(workSchedule.endTime)}`
-                  : ""}
-              </p>
+      {/* Delete Confirmation AlertDialog */}
+      <AlertDialog
+        open={isDeleteConfirmOpen}
+        onOpenChange={setIsDeleteConfirmOpen}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <div className="flex items-center justify-center w-12 h-12 mx-auto bg-red-100 rounded-full mb-4">
+              <AlertTriangle className="h-6 w-6 text-red-600" />
             </div>
-            <p className="text-sm text-gray-600 text-center">
-              Bạn có chắc chắn muốn xóa công việc này? Hành động này không thể
-              hoàn tác.
-            </p>
-          </div>
-          <div className="flex gap-3 pt-4 border-t">
-            <Button
-              variant="outline"
-              onClick={() => setIsDeleteConfirmOpen(false)}
-              disabled={isDeleting}
-              className="flex-1"
-            >
-              Hủy
-            </Button>
-            <Button
+            <AlertDialogTitle className="text-center">
+              Xóa công việc
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-center">
+              <div className="space-y-3">
+                <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-left">
+                  <p className="text-sm text-red-800">
+                    ⚠️ <strong>Cảnh báo:</strong> Việc xóa công việc sẽ xóa vĩnh
+                    viễn tất cả thông tin liên quan.
+                  </p>
+                  <p className="text-sm text-red-800 mt-2">
+                    📅 <strong>Bị ảnh hưởng:</strong> Lịch làm việc của nhân
+                    viên được phân công.
+                  </p>
+                  <p className="text-sm text-red-800 mt-2">
+                    🚫 <strong>Không thể hoàn tác:</strong> Hành động này là
+                    vĩnh viễn và không thể được khôi phục.
+                  </p>
+                </div>
+                <div className="bg-gray-50 border border-gray-200 rounded-lg p-3 text-left">
+                  <p className="text-sm text-gray-700">
+                    <span className="font-semibold">Công việc:</span>{" "}
+                    {workSchedule?.taskTemplateName}
+                  </p>
+                  <p className="text-sm text-gray-700 mt-1">
+                    <span className="font-semibold">Ngày:</span>{" "}
+                    {workSchedule?.scheduledDate}
+                  </p>
+                  <p className="text-sm text-gray-700 mt-1">
+                    <span className="font-semibold">Giờ:</span>{" "}
+                    {formatTimeToHHMM(workSchedule?.startTime || "")}{" "}
+                    {workSchedule?.endTime
+                      ? `- ${formatTimeToHHMM(workSchedule.endTime)}`
+                      : ""}
+                  </p>
+                </div>
+                <p className="text-sm text-gray-600">
+                  Bạn có chắc chắn muốn tiếp tục?
+                </p>
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeleting}>Hủy</AlertDialogCancel>
+            <AlertDialogAction
               onClick={handleConfirmDelete}
               disabled={isDeleting}
-              className="flex-1 bg-red-600 hover:bg-red-700"
+              className="bg-red-600 hover:bg-red-700"
             >
               {isDeleting ? (
                 <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                   Đang xóa...
                 </>
               ) : (
                 <>
-                  <Trash2 className="h-4 w-4 mr-2" />
+                  <Trash2 className="w-4 h-4 mr-2" />
                   Xóa công việc
                 </>
               )}
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }
