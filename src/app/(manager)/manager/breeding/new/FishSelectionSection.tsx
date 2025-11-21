@@ -832,16 +832,6 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
                             <Badge className="bg-blue-500 mt-1 text-xs">
                               Đực
                             </Badge>
-                            {pair.maleIsMutated && (
-                              <div className="mt-2 text-xs bg-blue-50 p-1 rounded border border-blue-200">
-                                <p className="text-blue-700 font-medium">
-                                  {pair.maleMutationDescription}
-                                </p>
-                                <p className="text-blue-600">
-                                  {pair.maleMutationRate}%
-                                </p>
-                              </div>
-                            )}
                           </div>
 
                           {/* Cá cái */}
@@ -859,16 +849,6 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
                             <Badge className="bg-pink-500 mt-1 text-xs">
                               Cái
                             </Badge>
-                            {pair.femaleIsMutated && (
-                              <div className="mt-2 text-xs bg-pink-50 p-1 rounded border border-pink-200">
-                                <p className="text-pink-700 font-medium">
-                                  {pair.femaleMutationDescription}
-                                </p>
-                                <p className="text-pink-600">
-                                  {pair.femaleMutationRate}%
-                                </p>
-                              </div>
-                            )}
                           </div>
                         </div>
                         <div className="mt-4 border-t pt-4">
@@ -876,6 +856,25 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
                           <p className="text-sm text-gray-600 mb-2">
                             {pair.reason}
                           </p>
+                          {(pair.maleIsMutated || pair.femaleIsMutated) && (
+                            <div className="mb-3 p-2 bg-purple-50 rounded border border-purple-200">
+                              <p className="text-xs font-semibold text-purple-900 mb-1">
+                                Đặc tính đột biến:
+                              </p>
+                              {pair.maleIsMutated && (
+                                <p className="text-xs text-purple-800">
+                                  <strong>Cá đực:</strong>{" "}
+                                  {pair.maleMutationDescription}
+                                </p>
+                              )}
+                              {pair.femaleIsMutated && (
+                                <p className="text-xs text-purple-800">
+                                  <strong>Cá cái:</strong>{" "}
+                                  {pair.femaleMutationDescription}
+                                </p>
+                              )}
+                            </div>
+                          )}
                           <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
                             <span>
                               Tỷ lệ thụ tinh:{" "}

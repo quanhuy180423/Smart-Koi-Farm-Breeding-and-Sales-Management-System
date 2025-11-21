@@ -93,7 +93,6 @@ export interface BreedingParentHistoryResponse {
   participationCount: number;
   failCount: number;
   fertilizationRate: number | null;
-  averageMutationRate: number;
   mutationDescription: string | null;
   hatchRate: number | null;
   survivalRate: number | null;
@@ -115,13 +114,11 @@ export interface RecommendedPair {
   maleImage: string;
   maleIsMutated: boolean;
   maleMutationDescription: string;
-  maleMutationRate: number;
   femaleId: number;
   femaleRFID: string;
   femaleImage: string;
   femaleIsMutated: boolean;
   femaleMutationDescription: string;
-  femaleMutationRate: number;
   reason: string;
   predictedFertilizationRate: number;
   predictedHatchRate: number;
