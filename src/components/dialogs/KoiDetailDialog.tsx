@@ -82,7 +82,14 @@ export function KoiDetailDialog({
   return (
     <>
       <Dialog open={isOpen} onOpenChange={onOpenChange}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent
+          className="max-w-2xl max-h-[90vh] overflow-y-auto"
+          onPointerDownOutside={(e) => {
+            if (isImageViewerOpen) {
+              e.preventDefault();
+            }
+          }}
+        >
           <DialogHeader className="flex flex-row items-center justify-between">
             <div>
               <DialogTitle className="text-lg font-semibold">
@@ -149,6 +156,7 @@ export function KoiDetailDialog({
                             alt={`Thumbnail ${idx + 1}`}
                             fill
                             className="object-cover"
+                            unoptimized
                           />
                         ) : (
                           <>

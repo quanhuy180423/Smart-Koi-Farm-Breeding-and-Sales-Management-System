@@ -112,17 +112,6 @@ export default function MotherFishInfo({ selectedFish }: MotherFishInfoProps) {
           ? `${breedingParentHistory?.highQualifiedRate.toFixed(2)}%`
           : "Chưa có",
     },
-    {
-      label: "Tỷ lệ đột biến trung bình",
-      value:
-        breedingParentHistory?.averageMutationRate !== null
-          ? `${breedingParentHistory?.averageMutationRate.toFixed(2)}%`
-          : "Chưa có",
-    },
-    {
-      label: "Loại đột biến phổ biến",
-      value: breedingParentHistory?.mutationDescription || "Không có",
-    },
   ];
 
   return (
@@ -279,7 +268,7 @@ export default function MotherFishInfo({ selectedFish }: MotherFishInfoProps) {
             </span>
             Dữ Liệu Lịch Sử Sinh Sản
           </h3>
-          <div className={`grid grid-cols-4 gap-4`}>
+          <div className={`grid grid-cols-3 gap-4`}>
             {breedingHistoryData.map((item, index) => (
               <Card
                 key={index}
