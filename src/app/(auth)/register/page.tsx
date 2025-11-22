@@ -23,8 +23,7 @@ import { RegisterRequest, Roles } from "@/lib/api/services/fetchAuth";
 import { useRegister } from "@/hooks/useAuth";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
-import { GoogleLogin, CredentialResponse } from "@react-oauth/google";
-import { useGoogleLogin } from "@/hooks/useAuth";
+import LoginGoogle from "../../../components/LoginGoogle";
 
 const registerSchema = z
   .object({
@@ -54,7 +53,6 @@ export default function SignUpPage() {
   const router = useRouter() as unknown as {
     push: (to: string | { pathname: string }) => void;
   };
-  const { mutate: googleLogin } = useGoogleLogin();
 
   useEffect(() => {
     if (registerSuccess) {
@@ -87,16 +85,6 @@ export default function SignUpPage() {
     } catch {
       toast.error("Đã có lỗi xảy ra khi đăng ký. Vui lòng thử lại sau.");
     }
-  };
-
-  const onLoginWithGoogle = (credentialResponse: CredentialResponse) => {
-    const idToken = credentialResponse?.credential;
-    if (!idToken) {
-      toast.error("Không lấy được token từ Google");
-      return;
-    }
-
-    googleLogin({ idToken, rememberMe: false });
   };
 
   return (
@@ -333,17 +321,7 @@ export default function SignUpPage() {
               </form>
 
               {/* Google Login */}
-              <div className="mt-4 flex justify-center w-full">
-                <div className="w-full [&_button]:w-full">
-                  <GoogleLogin
-                    onSuccess={onLoginWithGoogle}
-                    onError={() => {
-                      toast.error("Đăng nhập Google thất bại");
-                    }}
-                    useOneTap={false}
-                  />
-                </div>
-              </div>
+              <LoginGoogle />
 
               {/* Decorative divider */}
               <div className="relative my-5">

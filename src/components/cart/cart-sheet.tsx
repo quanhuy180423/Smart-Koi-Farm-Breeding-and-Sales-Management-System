@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { ShoppingCart } from "lucide-react";
 
 import {
@@ -20,7 +19,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useGetCart } from "@/hooks/useCart";
 import { formatCurrency } from "@/lib/utils/numbers/formatCurrency";
 import { CartItem } from "./CartItem";
-import { cn } from "@/lib/utils";
 
 // Component Skeleton cho lúc loading
 const CartSkeleton = () => (
@@ -48,8 +46,6 @@ interface CartSheetProps {
 
 export function CartSheet({ isOpen, onOpenChange }: CartSheetProps) {
   const { data: cartData, isLoading, isError, refetch } = useGetCart();
-  const pathname = usePathname();
-  const isProfilePage = pathname?.includes("/profile");
 
   const items = cartData?.cartItems || [];
   const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
@@ -59,20 +55,14 @@ export function CartSheet({ isOpen, onOpenChange }: CartSheetProps) {
     <Sheet open={isOpen} onOpenChange={onOpenChange}>
       <SheetTrigger asChild>
         <Button
-          variant={isProfilePage ? "ghost" : "outline"}
+          variant={"outline"}
           size="icon"
-          className={cn(
-            "relative transition-all duration-200",
-            isProfilePage
-              ? "rounded-full"
-              : "hover:bg-primary/10 hover:border-primary/50 border-primary/20",
-          )}
+          className={
+            "relative transition-all duration-200 hover:bg-primary/10 hover:border-primary/50 border-primary/20"
+          }
         >
           <ShoppingCart
-            className={cn(
-              "transition-colors",
-              isProfilePage ? "h-5 w-5" : "h-4 w-4 text-foreground",
-            )}
+            className={"transition-colors h-4 w-4 text-foreground"}
           />
           {/* Chỉ hiện Badge khi đã load xong và có item */}
           {!isLoading && totalItems > 0 && (

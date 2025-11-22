@@ -64,7 +64,7 @@ export default function CartPage() {
           </div>
 
           <div className="lg:col-span-1 mt-6 lg:mt-0">
-            <Card className="lg:sticky lg:top-4">
+            <Card className="sticky top-24">
               <CardHeader className="pb-3 md:pb-4">
                 <CardTitle className="text-lg md:text-xl">
                   Tóm tắt đơn hàng
