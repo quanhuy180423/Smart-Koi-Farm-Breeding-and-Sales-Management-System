@@ -3,10 +3,10 @@ import { useState } from "react";
 import {
   ChevronDown,
   ChevronRight,
-  CheckCircle,
-  Clock,
-  Dot,
-  XCircle,
+  CheckCircle2,
+  Zap,
+  AlertCircle,
+  Circle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -30,82 +30,150 @@ export const BreedingStageCard = ({
   className,
 }: BreedingStageCardProps) => {
   const [isOpen, setIsOpen] = useState(defaultOpen);
+
   let statusIcon: React.ReactNode;
   let statusTextColor: string;
+  let statusBgColor: string;
   let timelineLineColor: string;
+  let borderColor: string;
+  let headerBgGradient: string;
 
   switch (status) {
     case "Hoàn thành":
       statusIcon = (
-        <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+        <CheckCircle2 className="h-5 w-5 text-green-600 flex-shrink-0" />
       );
-      statusTextColor = "text-green-600";
-      timelineLineColor = "bg-green-200";
+      statusTextColor = "text-green-700";
+      statusBgColor = "bg-green-100";
+      timelineLineColor = "bg-gradient-to-b from-green-300 to-green-100";
+      borderColor = "border-green-300";
+      headerBgGradient = "bg-gradient-to-r from-green-50 to-emerald-50";
       break;
     case "Đang diễn ra":
       statusIcon = (
-        <Clock className="h-4 w-4 text-blue-500 animate-pulse flex-shrink-0" />
+        <Zap className="h-5 w-5 text-blue-600 flex-shrink-0 animate-pulse" />
       );
-      statusTextColor = "text-blue-600";
-      timelineLineColor = "bg-blue-200";
+      statusTextColor = "text-blue-700";
+      statusBgColor = "bg-blue-100";
+      timelineLineColor = "bg-gradient-to-b from-blue-300 to-blue-100";
+      borderColor = "border-blue-300";
+      headerBgGradient = "bg-gradient-to-r from-blue-50 to-cyan-50";
       break;
     case "Thất bại":
-      statusIcon = <XCircle className="h-4 w-4 text-red-500 flex-shrink-0" />;
-      statusTextColor = "text-red-600";
-      timelineLineColor = "bg-red-200";
+      statusIcon = (
+        <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0" />
+      );
+      statusTextColor = "text-red-700";
+      statusBgColor = "bg-red-100";
+      timelineLineColor = "bg-gradient-to-b from-red-300 to-red-100";
+      borderColor = "border-red-300";
+      headerBgGradient = "bg-gradient-to-r from-red-50 to-pink-50";
       break;
     case "Sắp tới":
     default:
-      statusIcon = <Dot className="h-5 w-5 text-gray-400 flex-shrink-0" />;
-      statusTextColor = "text-gray-500";
-      timelineLineColor = "bg-gray-200";
+      statusIcon = <Circle className="h-5 w-5 text-gray-500 flex-shrink-0" />;
+      statusTextColor = "text-gray-600";
+      statusBgColor = "bg-gray-100";
+      timelineLineColor = "bg-gradient-to-b from-gray-300 to-gray-100";
+      borderColor = "border-gray-300";
+      headerBgGradient = "bg-gradient-to-r from-gray-50 to-slate-50";
       break;
   }
 
+  const statusBadgeColor = {
+    "Hoàn thành": "bg-green-500",
+    "Đang diễn ra": "bg-blue-500",
+    "Thất bại": "bg-red-500",
+    "Sắp tới": "bg-gray-400",
+  };
+
   return (
     <div className={cn("relative group", className)}>
+      {/* Timeline line */}
       {!isLast && (
         <div
           className={cn(
-            "absolute left-[11px] top-6 bottom-0 w-0.5",
+            "absolute left-6 top-12 bottom-0 w-1",
             timelineLineColor,
-            "group-hover:bg-gray-300 transition-colors duration-200",
+            "transition-all duration-300",
           )}
         />
       )}
 
+      {/* Main card */}
       <div
-        className="flex items-start cursor-pointer p-2 -ml-2 rounded-md transition-all duration-200 hover:bg-gray-50"
-        onClick={() => setIsOpen(!isOpen)}
+        className={cn(
+          "relative bg-white border-2 rounded-xl overflow-hidden shadow-sm transition-all duration-300",
+          borderColor,
+          "hover:shadow-md hover:border-opacity-100",
+        )}
       >
-        <div className="flex-shrink-0 pt-1 relative z-10">{statusIcon}</div>
+        {/* Header with gradient */}
+        <div
+          className={cn(
+            "px-4 py-3",
+            headerBgGradient,
+            "cursor-pointer transition-colors duration-200",
+          )}
+          onClick={() => setIsOpen(!isOpen)}
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              {/* Status icon in circle */}
+              <div
+                className={cn(
+                  "p-2 rounded-full",
+                  statusBgColor,
+                  "relative z-10 flex items-center justify-center",
+                )}
+              >
+                {statusIcon}
+              </div>
 
-        <div className="flex-1 ml-4 pr-2">
-          <div className="flex justify-between items-center">
-            <div className="flex flex-col gap-0.5">
-              <h3 className="text-base font-medium text-gray-800">{title}</h3>
-              <p className={cn("text-xs", statusTextColor)}>
-                {date} - {status}
-              </p>
+              <div className="flex-1">
+                <h3 className="font-semibold text-gray-900 text-base">
+                  {title}
+                </h3>
+                <div className="flex items-center gap-2 mt-1">
+                  <p className={cn("text-xs font-medium", statusTextColor)}>
+                    {date}
+                  </p>
+                  <span
+                    className={cn(
+                      "px-2.5 py-0.5 rounded-full text-xs font-medium text-white inline-block",
+                      statusBadgeColor[status],
+                    )}
+                  >
+                    {status}
+                  </span>
+                </div>
+              </div>
             </div>
 
-            {/* Icon mở rộng */}
-            <div className="p-1">
+            {/* Expand icon */}
+            <button
+              className="p-1 hover:bg-white/50 rounded-lg transition-colors"
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsOpen(!isOpen);
+              }}
+            >
               {isOpen ? (
-                <ChevronDown className="h-4 w-4 text-gray-500 transition-transform duration-200" />
+                <ChevronDown className="h-5 w-5 text-gray-600" />
               ) : (
-                <ChevronRight className="h-4 w-4 text-gray-500 transition-transform duration-200" />
+                <ChevronRight className="h-5 w-5 text-gray-600" />
               )}
-            </div>
+            </button>
           </div>
         </div>
-      </div>
 
-      {isOpen && (
-        <div className="pl-9 pb-4 pt-1 text-sm text-gray-600 animate-in fade-in slide-in-from-top-2 duration-300">
-          {children}
-        </div>
-      )}
+        {/* Content */}
+        {isOpen && (
+          <div className="px-4 py-4 bg-white border-t border-gray-100 text-sm text-gray-700 animate-in fade-in slide-in-from-top-2 duration-300">
+            <div className="space-y-3">{children}</div>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

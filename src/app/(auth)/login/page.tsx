@@ -17,10 +17,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { toast } from "react-hot-toast";
-import { useGoogleLogin, useLogin } from "@/hooks/useAuth";
+import { useLogin } from "@/hooks/useAuth";
 import Logo from "@/assets/images/Logo_ZenKoi.png";
-import { CredentialResponse, GoogleLogin } from "@react-oauth/google";
+import LoginGoogle from "../../../components/LoginGoogle";
 
 const loginSchema = z.object({
   userNameOrEmail: z.string().min(1, "Vui lòng nhập email hoặc username"),
@@ -33,8 +32,6 @@ type LoginForm = z.infer<typeof loginSchema>;
 export default function SignInPage() {
   const [showPassword, setShowPassword] = useState(false);
   const { login, isLoading } = useLogin();
-
-  const { mutate: googleLogin } = useGoogleLogin();
 
   const {
     register,
@@ -50,16 +47,6 @@ export default function SignInPage() {
       password: data.password,
       rememberMe: data.rememberMe,
     });
-  };
-
-  const handleGoogleLogin = (credentialResponse: CredentialResponse) => {
-    const idToken = credentialResponse?.credential;
-    if (!idToken) {
-      toast.error("Không lấy được token từ Google");
-      return;
-    }
-
-    googleLogin({ idToken, rememberMe: false });
   };
 
   return (
@@ -213,17 +200,7 @@ export default function SignInPage() {
               </form>
 
               {/* Google Login */}
-              <div className="mt-4 flex justify-center w-full">
-                <div className="w-full [&_button]:w-full">
-                  <GoogleLogin
-                    onSuccess={handleGoogleLogin}
-                    onError={() => {
-                      toast.error("Đăng nhập Google thất bại");
-                    }}
-                    useOneTap={false}
-                  />
-                </div>
-              </div>
+              <LoginGoogle />
 
               {/* Decorative divider */}
               <div className="relative my-5">

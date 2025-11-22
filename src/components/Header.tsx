@@ -103,7 +103,7 @@ export function Header() {
               <div className="absolute inset-0 bg-primary/10 rounded-lg opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 transition-all duration-200"></div>
             </Link>
 
-            <div className="px-4">
+            <div>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button
