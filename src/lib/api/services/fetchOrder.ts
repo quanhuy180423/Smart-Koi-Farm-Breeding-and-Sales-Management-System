@@ -20,15 +20,17 @@ export interface OrderDetailResponse {
 }
 
 export enum OrderStatus {
-  PENDING_PAYMENT = "PendingPayment",
-  PAID = "Paid",
-  CONFIRMED = "Confirmed",
+  PENDING = "Pending",
+  PROCESSING = "Processing",
+  UNSHIPPING = "UnShiping",
   SHIPPED = "Shipped",
   CANCELLED = "Cancelled",
-  COMPLETED = "Completed",
+  REJECTED = "Rejected",
+  DELIVERED = "Delivered",
+  REFUND = "Refund",
 }
 
-export interface OrderRespponse {
+export interface OrderResponse {
   id: number;
   orderNumber: string;
   customerId: number;
@@ -40,7 +42,11 @@ export interface OrderRespponse {
   discountAmount: number;
   totalAmount: number;
   promotionId?: number;
-  promotionName?: string;
+  promotion?: {
+    id: number;
+    code: string;
+    discountPercent: number;
+  } | null;
   orderDetails: OrderDetailResponse[];
 }
 
@@ -66,26 +72,26 @@ const baseUrl = "/api/Order";
 export const orderService = {
   getAllOrders: async (
     request: OrderSearchParams,
-  ): Promise<BaseResponse<PagedResponse<OrderRespponse>>> => {
+  ): Promise<BaseResponse<PagedResponse<OrderResponse>>> => {
     const filter = toRequestParams(request);
     const response = await apiService.get<
-      BaseResponse<PagedResponse<OrderRespponse>>
+      BaseResponse<PagedResponse<OrderResponse>>
     >(`${baseUrl}/all`, { ...filter });
     return response.data;
   },
 
   getCustomerOrders: async (
     request: OrderSearchParams,
-  ): Promise<BaseResponse<PagedResponse<OrderRespponse>>> => {
+  ): Promise<BaseResponse<PagedResponse<OrderResponse>>> => {
     const filter = toRequestParams(request);
     const response = await apiService.get<
-      BaseResponse<PagedResponse<OrderRespponse>>
+      BaseResponse<PagedResponse<OrderResponse>>
     >(`${baseUrl}/customer/me`, { ...filter });
     return response.data;
   },
 
-  getOrderById: async (id: number): Promise<BaseResponse<OrderRespponse>> => {
-    const response = await apiService.get<BaseResponse<OrderRespponse>>(
+  getOrderById: async (id: number): Promise<BaseResponse<OrderResponse>> => {
+    const response = await apiService.get<BaseResponse<OrderResponse>>(
       `${baseUrl}/${id}`,
     );
     return response.data;
@@ -94,9 +100,9 @@ export const orderService = {
   updateOrderStatus: async (
     orderId: number,
     request: UpdateOrderStatusRequest,
-  ): Promise<BaseResponse<OrderRespponse>> => {
+  ): Promise<BaseResponse<OrderResponse>> => {
     const response = await apiService.put<
-      BaseResponse<OrderRespponse>,
+      BaseResponse<OrderResponse>,
       Record<string, unknown>
     >(
       `${baseUrl}/${orderId}/status`,

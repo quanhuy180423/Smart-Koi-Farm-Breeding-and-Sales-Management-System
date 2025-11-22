@@ -1,6 +1,6 @@
 import apiService, { BaseResponse } from "../apiClient";
 import { KoiFishResponse } from "./fetchKoiFish";
-import { OrderRespponse } from "./fetchOrder";
+import { OrderResponse } from "./fetchOrder";
 import { PacketFishResponse } from "./fetchPacketFish";
 
 const baseUrl = "/api/Cart";
@@ -77,9 +77,9 @@ export const cartService = {
   },
   converCartToOrder: async (
     request: Partial<ConvertCartToOrderRequest>,
-  ): Promise<BaseResponse<OrderRespponse>> => {
+  ): Promise<BaseResponse<OrderResponse>> => {
     const response = await apiService.post<
-      BaseResponse<OrderRespponse>,
+      BaseResponse<OrderResponse>,
       Partial<ConvertCartToOrderRequest>
     >(`${baseUrl}/convert-to-order`, request);
     return response.data;

@@ -32,6 +32,7 @@ import {
   Mars,
   Venus,
   LucideIcon,
+  RotateCcw,
 } from "lucide-react";
 
 // Giao diện chung cho các nhãn
@@ -550,19 +551,24 @@ export interface OrderStatusLabel extends Label {
 }
 
 const orderStatusMeta: Record<OrderStatus, OrderStatusLabel> = {
-  [OrderStatus.CONFIRMED]: {
-    label: "Đã xác nhận",
-    colorClass: "bg-blue-100 text-blue-800",
-    icon: Clock,
-  },
-  [OrderStatus.PENDING_PAYMENT]: {
+  [OrderStatus.PENDING]: {
     label: "Chờ thanh toán",
     colorClass: "bg-orange-100 text-orange-800",
     icon: AlertCircle,
   },
+  [OrderStatus.PROCESSING]: {
+    label: "Đang xử lý",
+    colorClass: "bg-blue-100 text-blue-800",
+    icon: Clock,
+  },
+  [OrderStatus.UNSHIPPING]: {
+    label: "Không thể giao",
+    colorClass: "bg-red-100 text-red-800",
+    icon: XCircle,
+  },
   [OrderStatus.SHIPPED]: {
     label: "Đang giao",
-    colorClass: "bg-blue-100 text-blue-800",
+    colorClass: "bg-cyan-100 text-cyan-800",
     icon: Clock,
   },
   [OrderStatus.CANCELLED]: {
@@ -570,15 +576,20 @@ const orderStatusMeta: Record<OrderStatus, OrderStatusLabel> = {
     colorClass: "bg-red-100 text-red-800",
     icon: XCircle,
   },
-  [OrderStatus.COMPLETED]: {
-    label: "Hoàn thành",
+  [OrderStatus.REJECTED]: {
+    label: "Từ chối",
+    colorClass: "bg-red-100 text-red-800",
+    icon: XCircle,
+  },
+  [OrderStatus.DELIVERED]: {
+    label: "Đã giao",
     colorClass: "bg-green-100 text-green-800",
     icon: CheckCircle,
   },
-  [OrderStatus.PAID]: {
-    label: "Đã thanh toán",
-    colorClass: "bg-emerald-100 text-emerald-800",
-    icon: CheckCircle,
+  [OrderStatus.REFUND]: {
+    label: "Hoàn tiền",
+    colorClass: "bg-purple-100 text-purple-800",
+    icon: RotateCcw,
   },
 };
 
@@ -634,10 +645,10 @@ export function getOrderStatusIcon(
 /**
  * Check if order is in a completed state
  * @param status The order status
- * @returns true if order is completed
+ * @returns true if order is delivered or refunded
  */
 export function isOrderCompleted(status?: OrderStatus | string): boolean {
-  return status === OrderStatus.COMPLETED;
+  return status === OrderStatus.DELIVERED || status === OrderStatus.REFUND;
 }
 
 /**
@@ -654,8 +665,8 @@ export function getOrderStatusTimeline(
 }> {
   const timeline = [
     {
-      status: OrderStatus.CONFIRMED,
-      text: "Đã xác nhận",
+      status: OrderStatus.PROCESSING,
+      text: "Đang xử lý",
       active: false,
     },
     {
@@ -664,21 +675,21 @@ export function getOrderStatusTimeline(
       active: false,
     },
     {
-      status: OrderStatus.COMPLETED,
-      text: "Hoàn thành",
+      status: OrderStatus.DELIVERED,
+      text: "Đã giao",
       active: false,
     },
   ];
 
   let activeIndex = -1;
   switch (currentStatus) {
-    case OrderStatus.CONFIRMED:
+    case OrderStatus.PROCESSING:
       activeIndex = 0;
       break;
     case OrderStatus.SHIPPED:
       activeIndex = 1;
       break;
-    case OrderStatus.COMPLETED:
+    case OrderStatus.DELIVERED:
       activeIndex = 2;
       break;
   }

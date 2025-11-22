@@ -15,7 +15,14 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Loader2, MapPin, ArrowLeft, Search, Trash2, Maximize2 } from "lucide-react";
+import {
+  Loader2,
+  MapPin,
+  ArrowLeft,
+  Search,
+  Trash2,
+  Maximize2,
+} from "lucide-react";
 import { toast } from "sonner";
 import CustomerLayout from "@/components/customer/CustomerLayout";
 import {
@@ -533,7 +540,9 @@ export default function EditAddressPage() {
                           placeholder="Tìm kiếm địa chỉ trên bản đồ..."
                           value={searchQuery}
                           onChange={(e) => setSearchQuery(e.target.value)}
-                          disabled={isUpdating || isDeleting || isGettingLocation}
+                          disabled={
+                            isUpdating || isDeleting || isGettingLocation
+                          }
                           className="pl-10 h-10"
                         />
                         {isSearching && (
