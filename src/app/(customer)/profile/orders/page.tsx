@@ -22,18 +22,19 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
 import { Slider } from "@/components/ui/slider";
 import {
   Package,
   Search,
   Eye,
-  Star,
   Loader2,
   CheckCircle,
   CreditCard,
   Filter,
   X,
+  XCircle,
 } from "lucide-react";
 import { DatePickerFilter } from "@/components/ui/DatePickerFilter";
 import { toast } from "sonner";
@@ -75,6 +76,10 @@ export default function OrdersPage() {
   const [isCompleteDialogOpen, setIsCompleteDialogOpen] = useState(false);
   const [selectedOrderId, setSelectedOrderId] = useState<number | null>(null);
 
+  // Cancel order dialog state
+  const [isCancelDialogOpen, setIsCancelDialogOpen] = useState(false);
+  const [cancelReason, setCancelReason] = useState<string>("");
+
   // Update order status mutation
   const updateStatusMutation = useUpdateOrderStatus();
 
@@ -92,7 +97,7 @@ export default function OrdersPage() {
       {
         orderId: selectedOrderId,
         request: {
-          status: OrderStatus.COMPLETED,
+          status: OrderStatus.DELIVERED,
           note: "đã nhận được hàng",
         },
       },
@@ -119,6 +124,37 @@ export default function OrdersPage() {
       orderId,
       method: PaymentMethod.VNPAY,
     });
+  };
+
+  // Handler for cancelling order (PENDING -> CANCELLED)
+  const handleCancelOrder = () => {
+    if (!selectedOrderId) {
+      toast.error("Không tìm thấy đơn hàng");
+      return;
+    }
+
+    updateStatusMutation.mutate(
+      {
+        orderId: selectedOrderId,
+        request: {
+          status: OrderStatus.CANCELLED,
+          note: cancelReason || undefined,
+        },
+      },
+      {
+        onSuccess: () => {
+          toast.success("Đơn hàng đã được hủy");
+          setIsCancelDialogOpen(false);
+          setCancelReason("");
+          setSelectedOrderId(null);
+        },
+        onError: (error) => {
+          toast.error(
+            error instanceof Error ? error.message : "Không thể hủy đơn hàng",
+          );
+        },
+      },
+    );
   };
 
   // Debounce search term and price range
@@ -364,25 +400,39 @@ export default function OrdersPage() {
                   <OrderDetailsModal orderId={order.id} />
                 </DialogContent>
               </Dialog>
-              {order.status === OrderStatus.PENDING_PAYMENT && (
-                <Button
-                  size="sm"
-                  className="w-full md:w-auto bg-blue-600 hover:bg-blue-700"
-                  onClick={() => handlePayOrder(order.id)}
-                  disabled={paymentMutation.isPending}
-                >
-                  {paymentMutation.isPending ? (
-                    <>
-                      <Loader2 className="w-4 h-4 mr-1 animate-spin" />
-                      Đang xử lý...
-                    </>
-                  ) : (
-                    <>
-                      <CreditCard className="w-4 h-4 mr-1" />
-                      Thanh toán
-                    </>
-                  )}
-                </Button>
+              {order.status === OrderStatus.PENDING && (
+                <>
+                  <Button
+                    size="sm"
+                    className="w-full md:w-auto bg-blue-600 hover:bg-blue-700"
+                    onClick={() => handlePayOrder(order.id)}
+                    disabled={paymentMutation.isPending}
+                  >
+                    {paymentMutation.isPending ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-1 animate-spin" />
+                        Đang xử lý...
+                      </>
+                    ) : (
+                      <>
+                        <CreditCard className="w-4 h-4 mr-1" />
+                        Thanh toán
+                      </>
+                    )}
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="destructive"
+                    className="w-full md:w-auto"
+                    onClick={() => {
+                      setSelectedOrderId(order.id);
+                      setIsCancelDialogOpen(true);
+                    }}
+                  >
+                    <XCircle className="w-4 h-4 mr-1" />
+                    Hủy đơn hàng
+                  </Button>
+                </>
               )}
               {order.status === OrderStatus.SHIPPED && (
                 <Button
@@ -395,14 +445,6 @@ export default function OrdersPage() {
                 >
                   <CheckCircle className="w-4 h-4 mr-1" />
                   Xác nhận đã nhận hàng
-                </Button>
-              )}
-              {[OrderStatus.COMPLETED].includes(
-                order.status as OrderStatus,
-              ) && (
-                <Button size="sm" className="w-full md:w-auto">
-                  <Star className="w-4 h-4 mr-1" />
-                  Đánh giá
                 </Button>
               )}
             </div>
@@ -677,6 +719,62 @@ export default function OrdersPage() {
                   </>
                 ) : (
                   "Xác nhận hoàn thành"
+                )}
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Cancel Order Dialog */}
+        <Dialog open={isCancelDialogOpen} onOpenChange={setIsCancelDialogOpen}>
+          <DialogContent className="sm:max-w-[500px]">
+            <DialogHeader>
+              <DialogTitle>Hủy đơn hàng</DialogTitle>
+              <DialogDescription>
+                Hủy đơn hàng và chuyển sang trạng thái &quot;Đã hủy&quot;
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="space-y-4">
+              <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+                <p className="text-sm text-red-900">
+                  ⚠️ Sau khi hủy, không thể hoàn tác. Vui lòng chắc chắn trước
+                  khi tiếp tục.
+                </p>
+              </div>
+
+              <div>
+                <label className="text-sm font-medium mb-2 block">
+                  Lý do hủy đơn (tùy chọn)
+                </label>
+                <Textarea
+                  placeholder="Nhập lý do hủy đơn hàng (tùy chọn)..."
+                  value={cancelReason}
+                  onChange={(e) => setCancelReason(e.target.value)}
+                  rows={4}
+                />
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-3">
+              <Button
+                variant="outline"
+                onClick={() => setIsCancelDialogOpen(false)}
+              >
+                Không hủy
+              </Button>
+              <Button
+                onClick={handleCancelOrder}
+                disabled={updateStatusMutation.isPending}
+                className="bg-red-600 hover:bg-red-700"
+              >
+                {updateStatusMutation.isPending ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Đang hủy...
+                  </>
+                ) : (
+                  "Xác nhận hủy đơn"
                 )}
               </Button>
             </div>

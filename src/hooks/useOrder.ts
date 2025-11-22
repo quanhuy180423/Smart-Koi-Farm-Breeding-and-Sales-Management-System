@@ -1,16 +1,17 @@
 import { BaseResponse, PagedResponse } from "@/lib/api/apiClient";
 import orderService, {
-  OrderRespponse,
+  OrderResponse,
   OrderSearchParams,
   UpdateOrderStatusRequest,
 } from "@/lib/api/services/fetchOrder";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import toast from "react-hot-toast";
 
 export function useGetAllOrders(request: OrderSearchParams) {
   return useQuery({
     queryKey: ["orders", request],
     queryFn: () => orderService.getAllOrders(request),
-    select: (data: BaseResponse<PagedResponse<OrderRespponse>>) => data.result,
+    select: (data: BaseResponse<PagedResponse<OrderResponse>>) => data.result,
     retry: (failureCount, error: unknown) => {
       if (
         error &&
@@ -29,7 +30,7 @@ export function useGetCustomerOrders(request: OrderSearchParams) {
   return useQuery({
     queryKey: ["customer-orders", request],
     queryFn: () => orderService.getCustomerOrders(request),
-    select: (data: BaseResponse<PagedResponse<OrderRespponse>>) => data.result,
+    select: (data: BaseResponse<PagedResponse<OrderResponse>>) => data.result,
     retry: (failureCount, error: unknown) => {
       if (
         error &&
@@ -49,7 +50,7 @@ export function useGetOrderById(id?: number) {
     queryKey: ["orders", id],
     queryFn: () => orderService.getOrderById(id!),
     enabled: id !== undefined && id !== 0,
-    select: (data: BaseResponse<OrderRespponse>) => data.result,
+    select: (data: BaseResponse<OrderResponse>) => data.result,
     retry: (failureCount, error: unknown) => {
       if (
         error &&
@@ -82,6 +83,7 @@ export function useUpdateOrderStatus() {
       queryClient.invalidateQueries({
         queryKey: ["orders", variables.orderId],
       });
+      toast.success(data.message);
     },
   });
 }

@@ -82,17 +82,21 @@ export default function OrdersPage() {
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
   const [confirmNote, setConfirmNote] = useState<string>("");
 
-  // Cancel order dialog state
-  const [isCancelDialogOpen, setIsCancelDialogOpen] = useState(false);
-  const [cancelReason, setCancelReason] = useState<string>("");
+  // UnShip order dialog state
+  const [isUnShipDialogOpen, setIsUnShipDialogOpen] = useState(false);
+  const [unShipNote, setUnShipNote] = useState<string>("");
 
-  // Ship order dialog state
-  const [isShipDialogOpen, setIsShipDialogOpen] = useState(false);
-  const [shipNote, setShipNote] = useState<string>("");
+  // Deliver order dialog state
+  const [isDeliverDialogOpen, setIsDeliverDialogOpen] = useState(false);
+  const [deliverNote, setDeliverNote] = useState<string>("");
 
-  // Complete order dialog state
-  const [isCompleteDialogOpen, setIsCompleteDialogOpen] = useState(false);
-  const [completeNote, setCompleteNote] = useState<string>("");
+  // Reject order dialog state
+  const [isRejectDialogOpen, setIsRejectDialogOpen] = useState(false);
+  const [rejectReason, setRejectReason] = useState<string>("");
+
+  // Refund order dialog state
+  const [isRefundDialogOpen, setIsRefundDialogOpen] = useState(false);
+  const [refundNote, setRefundNote] = useState<string>("");
 
   // Selected order for actions
   const [selectedOrderId, setSelectedOrderId] = useState<number | null>(null);
@@ -103,9 +107,10 @@ export default function OrdersPage() {
   // Check if order can be updated
   const canUpdateOrder = (status: string): boolean => {
     return (
-      status === OrderStatus.PAID ||
-      status === OrderStatus.CONFIRMED ||
-      status === OrderStatus.SHIPPED
+      status === OrderStatus.PROCESSING ||
+      status === OrderStatus.SHIPPED ||
+      status === OrderStatus.REJECTED ||
+      status === OrderStatus.UNSHIPPING
     );
   };
 
@@ -114,15 +119,18 @@ export default function OrdersPage() {
     status: string,
   ): {
     canConfirm: boolean;
-    canCancel: boolean;
-    canShip: boolean;
-    canComplete: boolean;
+    canUnShip: boolean;
+    canDeliver: boolean;
+    canReject: boolean;
+    canRefund: boolean;
   } => {
     return {
-      canConfirm: status === OrderStatus.PAID,
-      canCancel: status === OrderStatus.PAID,
-      canShip: status === OrderStatus.CONFIRMED,
-      canComplete: status === OrderStatus.SHIPPED,
+      canConfirm: status === OrderStatus.PROCESSING,
+      canUnShip: status === OrderStatus.PROCESSING,
+      canDeliver: status === OrderStatus.SHIPPED,
+      canReject: status === OrderStatus.SHIPPED,
+      canRefund:
+        status === OrderStatus.REJECTED || status === OrderStatus.UNSHIPPING,
     };
   };
 
@@ -133,14 +141,7 @@ export default function OrdersPage() {
     setIsConfirmDialogOpen(true);
   };
 
-  // Handler for opening cancel dialog
-  const handleOpenCancelDialog = (orderId: number) => {
-    setSelectedOrderId(orderId);
-    setCancelReason("");
-    setIsCancelDialogOpen(true);
-  };
-
-  // Handler for confirming order (PAID -> CONFIRMED)
+  // Handler for confirming order (PROCESSING -> SHIPPED)
   const handleConfirmOrder = () => {
     if (!selectedOrderId) {
       toast.error("Không tìm thấy đơn hàng");
@@ -151,7 +152,7 @@ export default function OrdersPage() {
       {
         orderId: selectedOrderId,
         request: {
-          status: OrderStatus.CONFIRMED,
+          status: OrderStatus.SHIPPED,
           note: confirmNote || undefined,
         },
       },
@@ -173,51 +174,15 @@ export default function OrdersPage() {
     );
   };
 
-  // Handler for cancelling order (PAID -> CANCELLED)
-  const handleCancelOrder = () => {
-    if (!selectedOrderId) {
-      toast.error("Không tìm thấy đơn hàng");
-      return;
-    }
-
-    if (!cancelReason.trim()) {
-      toast.error("Vui lòng nhập lý do hủy đơn");
-      return;
-    }
-
-    updateStatusMutation.mutate(
-      {
-        orderId: selectedOrderId,
-        request: {
-          status: OrderStatus.CANCELLED,
-          note: cancelReason,
-        },
-      },
-      {
-        onSuccess: () => {
-          toast.success("Đơn hàng đã được hủy");
-          setIsCancelDialogOpen(false);
-          setSelectedOrderId(null);
-          setCancelReason("");
-        },
-        onError: (error) => {
-          toast.error(
-            error instanceof Error ? error.message : "Không thể hủy đơn hàng",
-          );
-        },
-      },
-    );
-  };
-
-  // Handler for opening ship dialog
-  const handleOpenShipDialog = (orderId: number) => {
+  // Handler for opening UnShip dialog
+  const handleOpenUnShipDialog = (orderId: number) => {
     setSelectedOrderId(orderId);
-    setShipNote("");
-    setIsShipDialogOpen(true);
+    setUnShipNote("");
+    setIsUnShipDialogOpen(true);
   };
 
-  // Handler for shipping order (CONFIRMED -> SHIPPED)
-  const handleShipOrder = () => {
+  // Handler for unshipping order (PROCESSING -> UNSHIPPING or SHIPPED -> UNSHIPPING)
+  const handleUnShipOrder = () => {
     if (!selectedOrderId) {
       toast.error("Không tìm thấy đơn hàng");
       return;
@@ -227,60 +192,145 @@ export default function OrdersPage() {
       {
         orderId: selectedOrderId,
         request: {
-          status: OrderStatus.SHIPPED,
-          note: shipNote || undefined,
+          status: OrderStatus.UNSHIPPING,
+          note: unShipNote || undefined,
         },
       },
       {
         onSuccess: () => {
-          toast.success("Đơn hàng đã được gửi đi");
-          setIsShipDialogOpen(false);
+          toast.success("Đơn hàng đã được chuyển sang không giao");
+          setIsUnShipDialogOpen(false);
           setSelectedOrderId(null);
-          setShipNote("");
-        },
-        onError: (error) => {
-          toast.error(
-            error instanceof Error ? error.message : "Không thể gửi đơn hàng",
-          );
-        },
-      },
-    );
-  };
-
-  // Handler for opening complete dialog
-  const handleOpenCompleteDialog = (orderId: number) => {
-    setSelectedOrderId(orderId);
-    setCompleteNote("");
-    setIsCompleteDialogOpen(true);
-  };
-
-  // Handler for completing order (SHIPPED -> COMPLETED)
-  const handleCompleteOrder = () => {
-    if (!selectedOrderId) {
-      toast.error("Không tìm thấy đơn hàng");
-      return;
-    }
-
-    updateStatusMutation.mutate(
-      {
-        orderId: selectedOrderId,
-        request: {
-          status: OrderStatus.COMPLETED,
-          note: completeNote || undefined,
-        },
-      },
-      {
-        onSuccess: () => {
-          toast.success("Đơn hàng đã hoàn thành");
-          setIsCompleteDialogOpen(false);
-          setSelectedOrderId(null);
-          setCompleteNote("");
+          setUnShipNote("");
         },
         onError: (error) => {
           toast.error(
             error instanceof Error
               ? error.message
-              : "Không thể hoàn thành đơn hàng",
+              : "Không thể cập nhật đơn hàng",
+          );
+        },
+      },
+    );
+  };
+
+  // Handler for opening deliver dialog
+  const handleOpenDeliverDialog = (orderId: number) => {
+    setSelectedOrderId(orderId);
+    setDeliverNote("");
+    setIsDeliverDialogOpen(true);
+  };
+
+  // Handler for delivering order (SHIPPED -> DELIVERED)
+  const handleDeliverOrder = () => {
+    if (!selectedOrderId) {
+      toast.error("Không tìm thấy đơn hàng");
+      return;
+    }
+
+    updateStatusMutation.mutate(
+      {
+        orderId: selectedOrderId,
+        request: {
+          status: OrderStatus.DELIVERED,
+          note: deliverNote || undefined,
+        },
+      },
+      {
+        onSuccess: () => {
+          toast.success("Đơn hàng đã được giao thành công");
+          setIsDeliverDialogOpen(false);
+          setSelectedOrderId(null);
+          setDeliverNote("");
+        },
+        onError: (error) => {
+          toast.error(
+            error instanceof Error ? error.message : "Không thể giao đơn hàng",
+          );
+        },
+      },
+    );
+  };
+
+  // Handler for opening reject dialog
+  const handleOpenRejectDialog = (orderId: number) => {
+    setSelectedOrderId(orderId);
+    setRejectReason("");
+    setIsRejectDialogOpen(true);
+  };
+
+  // Handler for rejecting order (SHIPPED -> REJECTED)
+  const handleRejectOrder = () => {
+    if (!selectedOrderId) {
+      toast.error("Không tìm thấy đơn hàng");
+      return;
+    }
+
+    if (!rejectReason.trim()) {
+      toast.error("Vui lòng nhập lý do từ chối");
+      return;
+    }
+
+    updateStatusMutation.mutate(
+      {
+        orderId: selectedOrderId,
+        request: {
+          status: OrderStatus.REJECTED,
+          note: rejectReason,
+        },
+      },
+      {
+        onSuccess: () => {
+          toast.success("Đơn hàng đã được từ chối");
+          setIsRejectDialogOpen(false);
+          setSelectedOrderId(null);
+          setRejectReason("");
+        },
+        onError: (error) => {
+          toast.error(
+            error instanceof Error
+              ? error.message
+              : "Không thể từ chối đơn hàng",
+          );
+        },
+      },
+    );
+  };
+
+  // Handler for opening refund dialog
+  const handleOpenRefundDialog = (orderId: number) => {
+    setSelectedOrderId(orderId);
+    setRefundNote("");
+    setIsRefundDialogOpen(true);
+  };
+
+  // Handler for refunding order (REJECTED/UNSHIPPING -> REFUND)
+  const handleRefundOrder = () => {
+    if (!selectedOrderId) {
+      toast.error("Không tìm thấy đơn hàng");
+      return;
+    }
+
+    updateStatusMutation.mutate(
+      {
+        orderId: selectedOrderId,
+        request: {
+          status: OrderStatus.REFUND,
+          note: refundNote || undefined,
+        },
+      },
+      {
+        onSuccess: () => {
+          toast.success("Đơn hàng đã được hoàn tiền");
+          setIsRefundDialogOpen(false);
+          setSelectedOrderId(null);
+          setRefundNote("");
+        },
+        onError: (error) => {
+          toast.error(
+            error instanceof Error
+              ? error.message
+              : "Không thể hoàn tiền đơn hàng",
           );
         },
       },
@@ -594,45 +644,52 @@ export default function OrdersPage() {
                           <>
                             <DropdownMenuSeparator />
                             {getAvailableActions(order.status).canConfirm && (
-                              <>
-                                <DropdownMenuItem
-                                  onClick={() =>
-                                    handleOpenConfirmDialog(order.id)
-                                  }
-                                  className="text-green-600"
-                                >
-                                  <CheckCircle className="mr-2 h-4 w-4" />
-                                  Xác nhận đơn
-                                </DropdownMenuItem>
-                                <DropdownMenuItem
-                                  onClick={() =>
-                                    handleOpenCancelDialog(order.id)
-                                  }
-                                  className="text-red-600"
-                                >
-                                  <XCircle className="mr-2 h-4 w-4" />
-                                  Hủy đơn hàng
-                                </DropdownMenuItem>
-                              </>
-                            )}
-                            {getAvailableActions(order.status).canShip && (
-                              <DropdownMenuItem
-                                onClick={() => handleOpenShipDialog(order.id)}
-                                className="text-blue-600"
-                              >
-                                <Truck className="mr-2 h-4 w-4" />
-                                Gửi đơn hàng
-                              </DropdownMenuItem>
-                            )}
-                            {getAvailableActions(order.status).canComplete && (
                               <DropdownMenuItem
                                 onClick={() =>
-                                  handleOpenCompleteDialog(order.id)
+                                  handleOpenConfirmDialog(order.id)
                                 }
-                                className="text-emerald-600"
+                                className="text-green-600 hover:text-green-700 hover:bg-green-50 cursor-pointer transition-colors duration-150"
                               >
                                 <CheckCircle className="mr-2 h-4 w-4" />
-                                Hoàn thành đơn
+                                Xác nhận đơn
+                              </DropdownMenuItem>
+                            )}
+                            {getAvailableActions(order.status).canUnShip && (
+                              <DropdownMenuItem
+                                onClick={() => handleOpenUnShipDialog(order.id)}
+                                className="text-orange-600 hover:text-orange-700 hover:bg-orange-50 cursor-pointer transition-colors duration-150"
+                              >
+                                <Truck className="mr-2 h-4 w-4" />
+                                Không giao
+                              </DropdownMenuItem>
+                            )}
+                            {getAvailableActions(order.status).canDeliver && (
+                              <DropdownMenuItem
+                                onClick={() =>
+                                  handleOpenDeliverDialog(order.id)
+                                }
+                                className="text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 cursor-pointer transition-colors duration-150"
+                              >
+                                <CheckCircle className="mr-2 h-4 w-4" />
+                                Đã giao hàng
+                              </DropdownMenuItem>
+                            )}
+                            {getAvailableActions(order.status).canReject && (
+                              <DropdownMenuItem
+                                onClick={() => handleOpenRejectDialog(order.id)}
+                                className="text-red-600 hover:text-red-700 hover:bg-red-50 cursor-pointer transition-colors duration-150"
+                              >
+                                <XCircle className="mr-2 h-4 w-4" />
+                                Khách hàng từ chối
+                              </DropdownMenuItem>
+                            )}
+                            {getAvailableActions(order.status).canRefund && (
+                              <DropdownMenuItem
+                                onClick={() => handleOpenRefundDialog(order.id)}
+                                className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 cursor-pointer transition-colors duration-150"
+                              >
+                                <DollarSign className="mr-2 h-4 w-4" />
+                                Hoàn tiền
                               </DropdownMenuItem>
                             )}
                           </>
@@ -728,83 +785,21 @@ export default function OrdersPage() {
         </DialogContent>
       </Dialog>
 
-      {/* Cancel Order Dialog */}
-      <Dialog open={isCancelDialogOpen} onOpenChange={setIsCancelDialogOpen}>
+      {/* UnShip Order Dialog */}
+      <Dialog open={isUnShipDialogOpen} onOpenChange={setIsUnShipDialogOpen}>
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
-            <DialogTitle>Hủy đơn hàng</DialogTitle>
+            <DialogTitle>Không giao đơn hàng</DialogTitle>
             <DialogDescription>
-              Hủy đơn hàng và chuyển sang trạng thái &quot;Đã hủy&quot;
+              Chuyển đơn hàng sang trạng thái &quot;Không giao&quot;
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4">
-            <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
-              <p className="text-sm text-red-900">
-                ⚠️ Sau khi hủy, không thể hoàn tác. Vui lòng chắc chắn trước khi
-                tiếp tục.
-              </p>
-            </div>
-
-            <div>
-              <label className="text-sm font-medium mb-2 block text-red-600">
-                Lý do hủy đơn *
-              </label>
-              <Textarea
-                placeholder="Nhập lý do hủy đơn hàng (bắt buộc)..."
-                value={cancelReason}
-                onChange={(e) => setCancelReason(e.target.value)}
-                rows={4}
-                className="border-red-300 focus:border-red-500"
-              />
-              {!cancelReason.trim() && (
-                <p className="text-xs text-red-600 mt-1">
-                  Lý do hủy là bắt buộc
-                </p>
-              )}
-            </div>
-          </div>
-
-          <div className="flex justify-end gap-3">
-            <Button
-              variant="outline"
-              onClick={() => setIsCancelDialogOpen(false)}
-            >
-              Không hủy
-            </Button>
-            <Button
-              onClick={handleCancelOrder}
-              disabled={updateStatusMutation.isPending || !cancelReason.trim()}
-              className="bg-red-600 hover:bg-red-700"
-            >
-              {updateStatusMutation.isPending ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Đang hủy...
-                </>
-              ) : (
-                "Xác nhận hủy đơn"
-              )}
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* Ship Order Dialog */}
-      <Dialog open={isShipDialogOpen} onOpenChange={setIsShipDialogOpen}>
-        <DialogContent className="sm:max-w-[500px]">
-          <DialogHeader>
-            <DialogTitle>Gửi đơn hàng</DialogTitle>
-            <DialogDescription>
-              Chuyển đơn hàng sang trạng thái &quot;Đang giao&quot;
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="space-y-4">
-            <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-              <p className="text-sm text-blue-900">
-                Sau khi gửi, đơn hàng sẽ chuyển sang trạng thái &quot;Đang
-                giao&quot; và có thể được hoàn thành sau khi giao hàng.
+            <div className="p-4 bg-orange-50 border border-orange-200 rounded-lg">
+              <p className="text-sm text-orange-900">
+                Đơn hàng sẽ chuyển sang trạng thái &quot;Không giao&quot; và sẽ
+                được xử lý hoàn trả.
               </p>
             </div>
 
@@ -813,9 +808,9 @@ export default function OrdersPage() {
                 Ghi chú (tùy chọn)
               </label>
               <Textarea
-                placeholder="Thêm ghi chú khi gửi đơn hàng..."
-                value={shipNote}
-                onChange={(e) => setShipNote(e.target.value)}
+                placeholder="Thêm ghi chú khi không giao đơn hàng..."
+                value={unShipNote}
+                onChange={(e) => setUnShipNote(e.target.value)}
                 rows={3}
               />
             </div>
@@ -824,36 +819,33 @@ export default function OrdersPage() {
           <div className="flex justify-end gap-3">
             <Button
               variant="outline"
-              onClick={() => setIsShipDialogOpen(false)}
+              onClick={() => setIsUnShipDialogOpen(false)}
             >
               Hủy
             </Button>
             <Button
-              onClick={handleShipOrder}
+              onClick={handleUnShipOrder}
               disabled={updateStatusMutation.isPending}
-              className="bg-blue-600 hover:bg-blue-700"
+              className="bg-orange-600 hover:bg-orange-700"
             >
               {updateStatusMutation.isPending ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Đang gửi...
+                  Đang cập nhật...
                 </>
               ) : (
-                "Gửi đơn hàng"
+                "Không giao"
               )}
             </Button>
           </div>
         </DialogContent>
       </Dialog>
 
-      {/* Complete Order Dialog */}
-      <Dialog
-        open={isCompleteDialogOpen}
-        onOpenChange={setIsCompleteDialogOpen}
-      >
+      {/* Deliver Order Dialog */}
+      <Dialog open={isDeliverDialogOpen} onOpenChange={setIsDeliverDialogOpen}>
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
-            <DialogTitle>Hoàn thành đơn hàng</DialogTitle>
+            <DialogTitle>Giao hàng thành công</DialogTitle>
             <DialogDescription>
               Xác nhận rằng đơn hàng đã được giao thành công
             </DialogDescription>
@@ -862,8 +854,8 @@ export default function OrdersPage() {
           <div className="space-y-4">
             <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
               <p className="text-sm text-green-900">
-                Sau khi hoàn thành, đơn hàng sẽ chuyển sang trạng thái
-                &quot;Hoàn thành&quot; và khách hàng có thể đánh giá sản phẩm.
+                Sau khi xác nhận, đơn hàng sẽ chuyển sang trạng thái &quot;Đã
+                giao&quot; và khách hàng có thể đánh giá sản phẩm.
               </p>
             </div>
 
@@ -872,9 +864,9 @@ export default function OrdersPage() {
                 Ghi chú (tùy chọn)
               </label>
               <Textarea
-                placeholder="Thêm ghi chú khi hoàn thành đơn hàng..."
-                value={completeNote}
-                onChange={(e) => setCompleteNote(e.target.value)}
+                placeholder="Thêm ghi chú khi giao hàng thành công..."
+                value={deliverNote}
+                onChange={(e) => setDeliverNote(e.target.value)}
                 rows={3}
               />
             </div>
@@ -883,22 +875,141 @@ export default function OrdersPage() {
           <div className="flex justify-end gap-3">
             <Button
               variant="outline"
-              onClick={() => setIsCompleteDialogOpen(false)}
+              onClick={() => setIsDeliverDialogOpen(false)}
             >
               Hủy
             </Button>
             <Button
-              onClick={handleCompleteOrder}
+              onClick={handleDeliverOrder}
               disabled={updateStatusMutation.isPending}
               className="bg-green-600 hover:bg-green-700"
             >
               {updateStatusMutation.isPending ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Đang hoàn thành...
+                  Đang cập nhật...
                 </>
               ) : (
-                "Hoàn thành đơn hàng"
+                "Xác nhận giao hàng"
+              )}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Reject Order Dialog */}
+      <Dialog open={isRejectDialogOpen} onOpenChange={setIsRejectDialogOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Từ chối đơn hàng</DialogTitle>
+            <DialogDescription>
+              Từ chối giao hàng và chuyển sang trạng thái &quot;Từ chối&quot;
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+              <p className="text-sm text-red-900">
+                ⚠️ Sau khi từ chối, đơn hàng sẽ chuyển sang trạng thái từ chối
+                và được xử lý hoàn trả.
+              </p>
+            </div>
+
+            <div>
+              <label className="text-sm font-medium mb-2 block text-red-600">
+                Lý do từ chối *
+              </label>
+              <Textarea
+                placeholder="Nhập lý do từ chối đơn hàng (bắt buộc)..."
+                value={rejectReason}
+                onChange={(e) => setRejectReason(e.target.value)}
+                rows={4}
+                className="border-red-300 focus:border-red-500"
+              />
+              {!rejectReason.trim() && (
+                <p className="text-xs text-red-600 mt-1">
+                  Lý do từ chối là bắt buộc
+                </p>
+              )}
+            </div>
+          </div>
+
+          <div className="flex justify-end gap-3">
+            <Button
+              variant="outline"
+              onClick={() => setIsRejectDialogOpen(false)}
+            >
+              Hủy
+            </Button>
+            <Button
+              onClick={handleRejectOrder}
+              disabled={updateStatusMutation.isPending || !rejectReason.trim()}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              {updateStatusMutation.isPending ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Đang cập nhật...
+                </>
+              ) : (
+                "Xác nhận từ chối"
+              )}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Refund Order Dialog */}
+      <Dialog open={isRefundDialogOpen} onOpenChange={setIsRefundDialogOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Hoàn tiền đơn hàng</DialogTitle>
+            <DialogDescription>
+              Xác nhận hoàn tiền và chuyển sang trạng thái &quot;Đã hoàn
+              tiền&quot;
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+              <p className="text-sm text-blue-900">
+                Đơn hàng sẽ chuyển sang trạng thái &quot;Đã hoàn tiền&quot; và
+                khách hàng sẽ được hoàn lại số tiền.
+              </p>
+            </div>
+
+            <div>
+              <label className="text-sm font-medium mb-2 block">
+                Ghi chú (tùy chọn)
+              </label>
+              <Textarea
+                placeholder="Thêm ghi chú khi hoàn tiền..."
+                value={refundNote}
+                onChange={(e) => setRefundNote(e.target.value)}
+                rows={3}
+              />
+            </div>
+          </div>
+
+          <div className="flex justify-end gap-3">
+            <Button
+              variant="outline"
+              onClick={() => setIsRefundDialogOpen(false)}
+            >
+              Hủy
+            </Button>
+            <Button
+              onClick={handleRefundOrder}
+              disabled={updateStatusMutation.isPending}
+              className="bg-blue-600 hover:bg-blue-700"
+            >
+              {updateStatusMutation.isPending ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Đang xử lý...
+                </>
+              ) : (
+                "Xác nhận hoàn tiền"
               )}
             </Button>
           </div>
