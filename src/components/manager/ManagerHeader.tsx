@@ -66,7 +66,7 @@ export function ManagerHeader() {
             <DropdownMenuTrigger asChild>
               <Button
                 variant="ghost"
-                className="flex items-center gap-2 pl-2 pr-1 h-10 rounded-full lg:rounded-md hover:bg-muted"
+                className="flex items-center gap-2 pl-2 pr-1 h-10 rounded-full lg:rounded-md hover:bg-slate-100/50 dark:hover:bg-slate-800/50 transition-colors"
               >
                 <Avatar className="h-8 w-8 border border-border">
                   <AvatarImage
@@ -78,7 +78,7 @@ export function ManagerHeader() {
                   </AvatarFallback>
                 </Avatar>
                 <div className="hidden lg:block text-left mr-2">
-                  <p className="text-sm font-medium leading-none">
+                  <p className="text-sm font-medium leading-none text-foreground">
                     {user?.name || "User"}
                   </p>
                   <p className="text-xs text-muted-foreground mt-0.5">

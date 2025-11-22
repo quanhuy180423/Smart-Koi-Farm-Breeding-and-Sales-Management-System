@@ -194,37 +194,41 @@ export function CartPageItem({ item }: CartPageItemProps) {
               </Dialog>
             </div>
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pt-2 border-t">
-              <div className="flex items-center gap-2 sm:gap-3">
-                <Button
-                  variant="outline"
-                  size="icon"
-                  className="h-8 w-8 bg-transparent"
-                  onClick={() =>
-                    setLocalQuantity((prev) => Math.max(0, prev - 1))
-                  }
-                  disabled={
-                    isMutating || localQuantity <= 1 || item.koiFishId != null
-                  }
-                >
-                  <Minus className="h-3 w-3" />
-                </Button>
-                <span className="w-12 text-center font-medium bg-muted px-2 py-1 rounded text-sm">
-                  {isUpdating ? (
-                    <Loader2 className="h-3 w-3 mx-auto animate-spin" />
-                  ) : (
-                    localQuantity
-                  )}
-                </span>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  className="h-8 w-8 bg-transparent"
-                  onClick={() => setLocalQuantity((prev) => prev + 1)}
-                  disabled={isMutating || item.koiFishId != null}
-                >
-                  <Plus className="h-3 w-3" />
-                </Button>
-              </div>
+              {item.koiFishId ? (
+                <div className="text-sm text-muted-foreground">
+                  <span className="font-medium">Số lượng:</span> {localQuantity}
+                </div>
+              ) : (
+                <div className="flex items-center gap-2 sm:gap-3">
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    className="h-8 w-8 bg-transparent"
+                    onClick={() =>
+                      setLocalQuantity((prev) => Math.max(0, prev - 1))
+                    }
+                    disabled={isMutating || localQuantity <= 1}
+                  >
+                    <Minus className="h-3 w-3" />
+                  </Button>
+                  <span className="w-12 text-center font-medium bg-muted px-2 py-1 rounded text-sm">
+                    {isUpdating ? (
+                      <Loader2 className="h-3 w-3 mx-auto animate-spin" />
+                    ) : (
+                      localQuantity
+                    )}
+                  </span>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    className="h-8 w-8 bg-transparent"
+                    onClick={() => setLocalQuantity((prev) => prev + 1)}
+                    disabled={isMutating}
+                  >
+                    <Plus className="h-3 w-3" />
+                  </Button>
+                </div>
+              )}
               <div className="text-right">
                 <p className="font-bold text-lg sm:text-base md:text-lg text-primary">
                   {formatCurrency(item.itemTotalPrice || 0)}

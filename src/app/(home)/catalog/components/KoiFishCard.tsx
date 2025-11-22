@@ -23,6 +23,7 @@ import {
   getUserGenderLabelForPerson,
 } from "@/lib/utils/enum";
 import { cn } from "@/lib/utils";
+import { useRouter } from "next/navigation";
 
 interface KoiFishCardProps {
   koi: KoiFishResponse;
@@ -37,9 +38,12 @@ export const KoiFishCard = ({
 }: KoiFishCardProps) => {
   const genderInfo = getUserGenderLabelForPerson(koi.gender);
   const isMale = koi.gender === Gender.MALE;
-
+  const router = useRouter();
   return (
-    <Card className="group overflow-hidden border-border/60 hover:shadow-xl hover:border-primary/30 transition-all duration-300 flex flex-col h-full bg-white">
+    <Card
+      className="group overflow-hidden border-border/60 hover:shadow-xl hover:border-primary/30 transition-all duration-300 flex flex-col h-full bg-white py-0"
+      onClick={() => router.push(`/koi/${koi.id}`)}
+    >
       {/* Image Area */}
       <div className="relative aspect-[4/3] overflow-hidden bg-gray-100">
         <Link href={`/koi/${koi.id}`}>
@@ -155,7 +159,7 @@ export const KoiFishCard = ({
           ) : (
             <ShoppingCart className="h-4 w-4 mr-2" />
           )}
-          {addingId === koi.id ? "Đang xử lý..." : "Mua ngay"}
+          {addingId === koi.id ? "Đang xử lý..." : "Thêm vào giỏ hàng"}
         </Button>
       </CardFooter>
     </Card>
