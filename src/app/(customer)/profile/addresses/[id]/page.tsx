@@ -15,7 +15,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Loader2, MapPin, ArrowLeft, Search, Trash2 } from "lucide-react";
+import { Loader2, MapPin, ArrowLeft, Search, Trash2, Maximize2 } from "lucide-react";
 import { toast } from "sonner";
 import CustomerLayout from "@/components/customer/CustomerLayout";
 import {
@@ -34,6 +34,7 @@ import {
 } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+import MapPicker from "@/components/dialogs/MapPicker";
 
 // Fix leaflet icon issue
 type IconPrototype = { _getIconUrl?: unknown };
@@ -121,7 +122,6 @@ export default function EditAddressPage() {
   const [formData, setFormData] = useState({
     fullAddress: "",
     city: "",
-    district: "",
     ward: "",
     streetAddress: "",
     latitude: 21.0285,
@@ -136,11 +136,12 @@ export default function EditAddressPage() {
 
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearching, setIsSearching] = useState(false);
-  const [mapKey, setMapKey] = useState(0);
+  const [isGettingLocation, setIsGettingLocation] = useState(false);
+  const [isMapPickerOpen, setIsMapPickerOpen] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const mapRef = useRef(null);
 
-  const debouncedSearchQuery = useDebounce(searchQuery, 1000);
+  const debouncedSearchQuery = useDebounce(searchQuery, 1500);
 
   // Load address data
   useEffect(() => {
@@ -150,7 +151,6 @@ export default function EditAddressPage() {
         setFormData({
           fullAddress: address.fullAddress,
           city: address.city,
-          district: address.district,
           ward: address.ward,
           streetAddress: address.streetAddress,
           latitude: address.latitude || 21.0285,
@@ -165,17 +165,14 @@ export default function EditAddressPage() {
     }
   }, [addresses, addressId]);
 
-  // Auto-geocode when user finishes typing in search or address fields
+  // Geocode when user searches in search box
   useEffect(() => {
-    if (!debouncedSearchQuery.trim() && !formData.fullAddress.trim()) return;
-
-    const query = debouncedSearchQuery || formData.fullAddress;
-    if (!query.trim()) return;
+    if (!debouncedSearchQuery.trim()) return;
 
     const performGeocoding = async () => {
       setIsSearching(true);
       try {
-        const result = await geocodeAddress(query);
+        const result = await geocodeAddress(debouncedSearchQuery);
         if (result) {
           const lat = parseFloat(result.lat);
           const lng = parseFloat(result.lon);
@@ -184,15 +181,10 @@ export default function EditAddressPage() {
             latitude: lat,
             longitude: lng,
           }));
-          setMapKey((prev) => prev + 1);
-          if (debouncedSearchQuery) {
-            toast.success(`Tìm thấy: ${result.display_name}`);
-            setSearchQuery("");
-          }
+          toast.success(`Tìm thấy: ${result.display_name}`);
+          setSearchQuery("");
         } else {
-          if (debouncedSearchQuery) {
-            toast.error("Không tìm thấy địa chỉ này");
-          }
+          toast.error("Không tìm thấy địa chỉ này");
         }
       } catch {
       } finally {
@@ -201,14 +193,27 @@ export default function EditAddressPage() {
     };
 
     performGeocoding();
-  }, [debouncedSearchQuery, formData.fullAddress]);
+  }, [debouncedSearchQuery]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setFormData((prev) => {
+      const updated = {
+        ...prev,
+        [name]: value,
+      };
+      // Auto-generate fullAddress from other fields
+      if (name !== "fullAddress") {
+        updated.fullAddress = [
+          updated.streetAddress,
+          updated.ward,
+          updated.city,
+        ]
+          .filter((v) => v && v.trim())
+          .join(", ");
+      }
+      return updated;
+    });
   };
 
   const handleCheckboxChange = (checked: boolean) => {
@@ -230,14 +235,51 @@ export default function EditAddressPage() {
     e.preventDefault();
   };
 
+  // Get current location
+  const handleGetCurrentLocation = () => {
+    if (!navigator.geolocation) {
+      toast.error("Trình duyệt của bạn không hỗ trợ vị trí hiện tại");
+      return;
+    }
+
+    setIsGettingLocation(true);
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        setFormData((prev) => ({
+          ...prev,
+          latitude,
+          longitude,
+        }));
+        toast.success("Đã lấy vị trí hiện tại");
+        setIsGettingLocation(false);
+      },
+      (error) => {
+        setIsGettingLocation(false);
+        if (error.code === error.PERMISSION_DENIED) {
+          toast.error("Vui lòng cấp quyền truy cập vị trí");
+        } else if (error.code === error.POSITION_UNAVAILABLE) {
+          toast.error("Không thể lấy vị trí hiện tại");
+        } else if (error.code === error.TIMEOUT) {
+          toast.error("Timeout khi lấy vị trí");
+        } else {
+          toast.error("Lỗi khi lấy vị trí hiện tại");
+        }
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0,
+      },
+    );
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
     // Validate required fields
     if (
-      !formData.fullAddress ||
       !formData.city ||
-      !formData.district ||
       !formData.ward ||
       !formData.streetAddress ||
       !formData.recipientPhone
@@ -338,19 +380,17 @@ export default function EditAddressPage() {
                   <CardTitle className="text-lg">Thông tin địa chỉ</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3 p-4">
-                  {/* Full Address */}
+                  {/* Full Address - Read Only */}
                   <div className="space-y-1">
                     <Label htmlFor="fullAddress" className="text-sm">
                       Địa chỉ đầy đủ
                     </Label>
                     <Input
                       id="fullAddress"
-                      name="fullAddress"
-                      placeholder="VD: 123 Đường ABC, Hà Nội"
                       value={formData.fullAddress}
-                      onChange={handleInputChange}
-                      disabled={isUpdating || isDeleting}
-                      className="h-9"
+                      disabled
+                      className="h-9 bg-muted/30 text-black font-semibold cursor-not-allowed"
+                      placeholder="Tự động điền..."
                     />
                   </div>
 
@@ -364,22 +404,6 @@ export default function EditAddressPage() {
                       name="city"
                       placeholder="VD: Hà Nội"
                       value={formData.city}
-                      onChange={handleInputChange}
-                      disabled={isUpdating || isDeleting}
-                      className="h-9"
-                    />
-                  </div>
-
-                  {/* District */}
-                  <div className="space-y-1">
-                    <Label htmlFor="district" className="text-sm">
-                      Quận/Huyện
-                    </Label>
-                    <Input
-                      id="district"
-                      name="district"
-                      placeholder="VD: Hoàn Kiếm"
-                      value={formData.district}
                       onChange={handleInputChange}
                       disabled={isUpdating || isDeleting}
                       className="h-9"
@@ -500,27 +524,53 @@ export default function EditAddressPage() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="flex-1 flex flex-col p-4">
-                  {/* Search Box */}
-                  <form onSubmit={handleSearchSubmit} className="mb-3">
-                    <div className="relative">
-                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
-                      <Input
-                        placeholder="Tìm kiếm địa chỉ trên bản đồ..."
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        disabled={isSearching || isUpdating || isDeleting}
-                        className="pl-10 h-10"
-                      />
-                      {isSearching && (
-                        <Loader2 className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 animate-spin text-primary" />
+                  {/* Search Box and Buttons */}
+                  <div className="flex gap-2 mb-3">
+                    <form onSubmit={handleSearchSubmit} className="flex-1">
+                      <div className="relative">
+                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+                        <Input
+                          placeholder="Tìm kiếm địa chỉ trên bản đồ..."
+                          value={searchQuery}
+                          onChange={(e) => setSearchQuery(e.target.value)}
+                          disabled={isUpdating || isDeleting || isGettingLocation}
+                          className="pl-10 h-10"
+                        />
+                        {isSearching && (
+                          <Loader2 className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 animate-spin text-primary" />
+                        )}
+                      </div>
+                    </form>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={handleGetCurrentLocation}
+                      disabled={isUpdating || isDeleting || isGettingLocation}
+                      className="px-3 h-10"
+                      title="Lấy vị trí hiện tại"
+                    >
+                      {isGettingLocation ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <MapPin className="h-4 w-4" />
                       )}
-                    </div>
-                  </form>
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setIsMapPickerOpen(true)}
+                      className="px-3 h-10"
+                      title="Mở toàn màn hình"
+                    >
+                      <Maximize2 className="h-4 w-4" />
+                    </Button>
+                  </div>
 
                   {/* Map Container */}
-                  <div className="w-full flex-1 rounded-lg overflow-hidden border border-border">
+                  <div className="w-full flex-1 rounded-lg overflow-hidden border border-border relative">
                     <MapContainer
-                      key={mapKey}
                       ref={mapRef}
                       center={[formData.latitude, formData.longitude]}
                       zoom={13}
@@ -592,6 +642,21 @@ export default function EditAddressPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Map Picker Fullscreen */}
+      <MapPicker
+        isOpen={isMapPickerOpen}
+        onOpenChange={setIsMapPickerOpen}
+        latitude={formData.latitude}
+        longitude={formData.longitude}
+        onLocationChange={(lat, lng) =>
+          setFormData((prev) => ({
+            ...prev,
+            latitude: lat,
+            longitude: lng,
+          }))
+        }
+      />
     </CustomerLayout>
   );
 }

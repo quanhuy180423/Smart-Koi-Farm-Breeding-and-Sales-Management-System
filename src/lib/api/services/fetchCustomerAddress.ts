@@ -6,7 +6,6 @@ export interface CustomerAddressResponse {
   customerName: string;
   fullAddress: string;
   city: string;
-  district: string;
   ward: string;
   streetAddress: string;
   latitude?: number;
@@ -25,7 +24,6 @@ const baseUrl = "/api/CustomerAddress";
 export interface CreateAddressRequest {
   fullAddress: string;
   city: string;
-  district: string;
   ward: string;
   streetAddress: string;
   latitude: number;
@@ -37,7 +35,6 @@ export interface CreateAddressRequest {
 export interface UpdateAddressRequest {
   fullAddress: string;
   city: string;
-  district: string;
   ward: string;
   streetAddress: string;
   latitude: number;
