@@ -22,9 +22,11 @@ import {
   DollarSign,
   Package,
   CheckCircle,
-  XCircle,
   User,
   Fish,
+  Truck,
+  Ban,
+  PackageX,
 } from "lucide-react";
 import Image from "next/image";
 import { OrderStatus } from "@/lib/api/services/fetchOrder";
@@ -46,19 +48,26 @@ export default function OrderDetailPage() {
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
   const [confirmNote, setConfirmNote] = useState<string>("");
 
-  // Cancel order dialog state
-  const [isCancelDialogOpen, setIsCancelDialogOpen] = useState(false);
-  const [cancelReason, setCancelReason] = useState<string>("");
+  // UnShip order dialog state
+  const [isUnShipDialogOpen, setIsUnShipDialogOpen] = useState(false);
+  const [unShipReason, setUnShipReason] = useState<string>("");
+
+  // Deliver order dialog state
+  const [isDeliverDialogOpen, setIsDeliverDialogOpen] = useState(false);
+  const [deliverNote, setDeliverNote] = useState<string>("");
+
+  // Reject order dialog state
+  const [isRejectDialogOpen, setIsRejectDialogOpen] = useState(false);
+  const [rejectReason, setRejectReason] = useState<string>("");
+
+  // Refund order dialog state
+  const [isRefundDialogOpen, setIsRefundDialogOpen] = useState(false);
+  const [refundNote, setRefundNote] = useState<string>("");
 
   // Update order status mutation
   const updateStatusMutation = useUpdateOrderStatus();
 
-  // Check if order can be updated
-  const canUpdateOrder = (status: string): boolean => {
-    return status === OrderStatus.PAID;
-  };
-
-  // Handler for confirming order (PAID -> CONFIRMED)
+  // Handler for confirming order (PROCESSING -> SHIPPED)
   const handleConfirmOrder = () => {
     if (!orderId) {
       toast.error("Không tìm thấy đơn hàng");
@@ -69,7 +78,7 @@ export default function OrderDetailPage() {
       {
         orderId: orderId,
         request: {
-          status: OrderStatus.CONFIRMED,
+          status: OrderStatus.SHIPPED,
           note: confirmNote || undefined,
         },
       },
@@ -90,15 +99,15 @@ export default function OrderDetailPage() {
     );
   };
 
-  // Handler for cancelling order (PAID -> CANCELLED)
-  const handleCancelOrder = () => {
+  // Handler for unshipping order (PROCESSING/SHIPPED -> UNSHIPPING)
+  const handleUnShipOrder = () => {
     if (!orderId) {
       toast.error("Không tìm thấy đơn hàng");
       return;
     }
 
-    if (!cancelReason.trim()) {
-      toast.error("Vui lòng nhập lý do hủy đơn");
+    if (!unShipReason.trim()) {
+      toast.error("Vui lòng nhập lý do hoàn trả");
       return;
     }
 
@@ -106,19 +115,122 @@ export default function OrderDetailPage() {
       {
         orderId: orderId,
         request: {
-          status: OrderStatus.CANCELLED,
-          note: cancelReason,
+          status: OrderStatus.UNSHIPPING,
+          note: unShipReason,
         },
       },
       {
         onSuccess: () => {
-          toast.success("Đơn hàng đã được hủy");
-          setIsCancelDialogOpen(false);
-          setCancelReason("");
+          toast.success("Đơn hàng đã chuyển sang trạng thái hoàn trả");
+          setIsUnShipDialogOpen(false);
+          setUnShipReason("");
         },
         onError: (error) => {
           toast.error(
-            error instanceof Error ? error.message : "Không thể hủy đơn hàng",
+            error instanceof Error
+              ? error.message
+              : "Không thể chuyển trạng thái hoàn trả",
+          );
+        },
+      },
+    );
+  };
+
+  // Handler for delivering order (SHIPPED -> DELIVERED)
+  const handleDeliverOrder = () => {
+    if (!orderId) {
+      toast.error("Không tìm thấy đơn hàng");
+      return;
+    }
+
+    updateStatusMutation.mutate(
+      {
+        orderId: orderId,
+        request: {
+          status: OrderStatus.DELIVERED,
+          note: deliverNote || undefined,
+        },
+      },
+      {
+        onSuccess: () => {
+          toast.success("Đơn hàng đã được giao thành công");
+          setIsDeliverDialogOpen(false);
+          setDeliverNote("");
+        },
+        onError: (error) => {
+          toast.error(
+            error instanceof Error
+              ? error.message
+              : "Không thể xác nhận giao hàng",
+          );
+        },
+      },
+    );
+  };
+
+  // Handler for rejecting order (SHIPPED -> REJECTED)
+  const handleRejectOrder = () => {
+    if (!orderId) {
+      toast.error("Không tìm thấy đơn hàng");
+      return;
+    }
+
+    if (!rejectReason.trim()) {
+      toast.error("Vui lòng nhập lý do từ chối");
+      return;
+    }
+
+    updateStatusMutation.mutate(
+      {
+        orderId: orderId,
+        request: {
+          status: OrderStatus.REJECTED,
+          note: rejectReason,
+        },
+      },
+      {
+        onSuccess: () => {
+          toast.success("Đơn hàng đã bị từ chối");
+          setIsRejectDialogOpen(false);
+          setRejectReason("");
+        },
+        onError: (error) => {
+          toast.error(
+            error instanceof Error
+              ? error.message
+              : "Không thể từ chối đơn hàng",
+          );
+        },
+      },
+    );
+  };
+
+  // Handler for refunding order (REJECTED/CANCELLED/UNSHIPPING -> REFUND)
+  const handleRefundOrder = () => {
+    if (!orderId) {
+      toast.error("Không tìm thấy đơn hàng");
+      return;
+    }
+
+    updateStatusMutation.mutate(
+      {
+        orderId: orderId,
+        request: {
+          status: OrderStatus.REFUND,
+          note: refundNote || undefined,
+        },
+      },
+      {
+        onSuccess: () => {
+          toast.success("Đơn hàng đã được hoàn tiền");
+          setIsRefundDialogOpen(false);
+          setRefundNote("");
+        },
+        onError: (error) => {
+          toast.error(
+            error instanceof Error
+              ? error.message
+              : "Không thể hoàn tiền đơn hàng",
           );
         },
       },
@@ -327,10 +439,10 @@ export default function OrderDetailPage() {
                 </span>
               </div>
             )}
-            {order.promotionName && (
+            {order.promotion?.code && (
               <div className="flex justify-between items-center pt-2 border-t">
                 <span className="text-muted-foreground">Mã khuyến mãi:</span>
-                <Badge variant="secondary">{order.promotionName}</Badge>
+                <Badge variant="secondary">{order.promotion?.code}</Badge>
               </div>
             )}
             <div className="flex justify-between items-center pt-3 border-t-2 text-lg font-bold">
@@ -345,17 +457,8 @@ export default function OrderDetailPage() {
 
       {/* Action Buttons */}
       <div className="flex flex-col sm:flex-row gap-3">
-        {/* <Button
-          onClick={() => router.back()}
-          variant="outline"
-          className="flex-1"
-        >
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Quay lại danh sách
-        </Button> */}
-
-        {/* Show action buttons only for PAID status */}
-        {order && canUpdateOrder(order.status) && (
+        {/* Show action buttons for PROCESSING status */}
+        {order && order.status === OrderStatus.PROCESSING && (
           <>
             <Button
               onClick={() => setIsConfirmDialogOpen(true)}
@@ -365,22 +468,58 @@ export default function OrderDetailPage() {
               Xác nhận đơn
             </Button>
             <Button
-              onClick={() => setIsCancelDialogOpen(true)}
-              variant="destructive"
+              onClick={() => setIsUnShipDialogOpen(true)}
+              variant="outline"
               className="flex-1"
             >
-              <XCircle className="h-4 w-4 mr-2" />
-              Hủy đơn hàng
+              <PackageX className="h-4 w-4 mr-2" />
+              Không giao
             </Button>
           </>
         )}
 
-        {/*
-        <Button variant="outline" className="flex-1">
-          <Mail className="h-4 w-4 mr-2" />
-          Gửi thông báo khách hàng
-        </Button>
-        */}
+        {/* Show action buttons for SHIPPED status */}
+        {order && order.status === OrderStatus.SHIPPED && (
+          <>
+            <Button
+              onClick={() => setIsDeliverDialogOpen(true)}
+              className="flex-1 bg-green-600 hover:bg-green-700"
+            >
+              <Truck className="h-4 w-4 mr-2" />
+              Đã giao hàng
+            </Button>
+            <Button
+              onClick={() => setIsRejectDialogOpen(true)}
+              variant="destructive"
+              className="flex-1"
+            >
+              <Ban className="h-4 w-4 mr-2" />
+              Khách hàng từ chối
+            </Button>
+          </>
+        )}
+
+        {/* Show action buttons for REJECTED status */}
+        {order && order.status === OrderStatus.REJECTED && (
+          <Button
+            onClick={() => setIsRefundDialogOpen(true)}
+            className="flex-1 bg-blue-600 hover:bg-blue-700"
+          >
+            <DollarSign className="h-4 w-4 mr-2" />
+            Hoàn tiền
+          </Button>
+        )}
+
+        {/* Show action buttons for UNSHIPPING status */}
+        {order && order.status === OrderStatus.UNSHIPPING && (
+          <Button
+            onClick={() => setIsRefundDialogOpen(true)}
+            className="flex-1 bg-blue-600 hover:bg-blue-700"
+          >
+            <DollarSign className="h-4 w-4 mr-2" />
+            Hoàn tiền
+          </Button>
+        )}
       </div>
 
       {/* Confirm Order Dialog */}
@@ -445,39 +584,39 @@ export default function OrderDetailPage() {
         </Dialog>
       )}
 
-      {/* Cancel Order Dialog */}
+      {/* UnShip Order Dialog */}
       {order && (
-        <Dialog open={isCancelDialogOpen} onOpenChange={setIsCancelDialogOpen}>
+        <Dialog open={isUnShipDialogOpen} onOpenChange={setIsUnShipDialogOpen}>
           <DialogContent className="sm:max-w-[500px]">
             <DialogHeader>
-              <DialogTitle>Hủy đơn hàng</DialogTitle>
+              <DialogTitle>Hoàn trả đơn hàng</DialogTitle>
               <DialogDescription>
-                Hủy đơn hàng và chuyển sang trạng thái &quot;Đã hủy&quot;
+                Chuyển đơn hàng sang trạng thái &quot;Đang hoàn trả&quot;
               </DialogDescription>
             </DialogHeader>
 
             <div className="space-y-4">
-              <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
-                <p className="text-sm text-red-900">
-                  ⚠️ Sau khi hủy, không thể hoàn tác. Vui lòng chắc chắn trước
-                  khi tiếp tục.
+              <div className="p-4 bg-orange-50 border border-orange-200 rounded-lg">
+                <p className="text-sm text-orange-900">
+                  Đơn hàng sẽ được chuyển sang trạng thái hoàn trả. Vui lòng
+                  nhập lý do hoàn trả.
                 </p>
               </div>
 
               <div>
-                <label className="text-sm font-medium mb-2 block text-red-600">
-                  Lý do hủy đơn *
+                <label className="text-sm font-medium mb-2 block text-orange-600">
+                  Lý do hoàn trả *
                 </label>
                 <Textarea
-                  placeholder="Nhập lý do hủy đơn hàng (bắt buộc)..."
-                  value={cancelReason}
-                  onChange={(e) => setCancelReason(e.target.value)}
+                  placeholder="Nhập lý do hoàn trả đơn hàng (bắt buộc)..."
+                  value={unShipReason}
+                  onChange={(e) => setUnShipReason(e.target.value)}
                   rows={4}
-                  className="border-red-300 focus:border-red-500"
+                  className="border-orange-300 focus:border-orange-500"
                 />
-                {!cancelReason.trim() && (
-                  <p className="text-xs text-red-600 mt-1">
-                    Lý do hủy là bắt buộc
+                {!unShipReason.trim() && (
+                  <p className="text-xs text-orange-600 mt-1">
+                    Lý do hoàn trả là bắt buộc
                   </p>
                 )}
               </div>
@@ -486,24 +625,211 @@ export default function OrderDetailPage() {
             <div className="flex justify-end gap-3">
               <Button
                 variant="outline"
-                onClick={() => setIsCancelDialogOpen(false)}
+                onClick={() => setIsUnShipDialogOpen(false)}
               >
-                Không hủy
+                Hủy
               </Button>
               <Button
-                onClick={handleCancelOrder}
+                onClick={handleUnShipOrder}
                 disabled={
-                  updateStatusMutation.isPending || !cancelReason.trim()
+                  updateStatusMutation.isPending || !unShipReason.trim()
+                }
+                className="bg-orange-600 hover:bg-orange-700"
+              >
+                {updateStatusMutation.isPending ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Đang xử lý...
+                  </>
+                ) : (
+                  "Xác nhận hoàn trả"
+                )}
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {/* Deliver Order Dialog */}
+      {order && (
+        <Dialog
+          open={isDeliverDialogOpen}
+          onOpenChange={setIsDeliverDialogOpen}
+        >
+          <DialogContent className="sm:max-w-[500px]">
+            <DialogHeader>
+              <DialogTitle>Xác nhận giao hàng</DialogTitle>
+              <DialogDescription>
+                Xác nhận đơn hàng đã được giao thành công
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="space-y-4">
+              <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+                <p className="text-sm text-green-900">
+                  Sau khi xác nhận, đơn hàng sẽ chuyển sang trạng thái &quot;Đã
+                  giao hàng&quot;.
+                </p>
+              </div>
+
+              <div>
+                <label className="text-sm font-medium mb-2 block">
+                  Ghi chú (tùy chọn)
+                </label>
+                <Textarea
+                  placeholder="Thêm ghi chú khi giao hàng..."
+                  value={deliverNote}
+                  onChange={(e) => setDeliverNote(e.target.value)}
+                  rows={3}
+                />
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-3">
+              <Button
+                variant="outline"
+                onClick={() => setIsDeliverDialogOpen(false)}
+              >
+                Hủy
+              </Button>
+              <Button
+                onClick={handleDeliverOrder}
+                disabled={updateStatusMutation.isPending}
+                className="bg-green-600 hover:bg-green-700"
+              >
+                {updateStatusMutation.isPending ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Đang xác nhận...
+                  </>
+                ) : (
+                  "Xác nhận giao hàng"
+                )}
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {/* Reject Order Dialog */}
+      {order && (
+        <Dialog open={isRejectDialogOpen} onOpenChange={setIsRejectDialogOpen}>
+          <DialogContent className="sm:max-w-[500px]">
+            <DialogHeader>
+              <DialogTitle>Từ chối đơn hàng</DialogTitle>
+              <DialogDescription>
+                Từ chối đơn hàng và chuyển sang trạng thái &quot;Đã từ
+                chối&quot;
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="space-y-4">
+              <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+                <p className="text-sm text-red-900">
+                  ⚠️ Sau khi từ chối, không thể hoàn tác. Vui lòng chắc chắn
+                  trước khi tiếp tục.
+                </p>
+              </div>
+
+              <div>
+                <label className="text-sm font-medium mb-2 block text-red-600">
+                  Lý do từ chối *
+                </label>
+                <Textarea
+                  placeholder="Nhập lý do từ chối đơn hàng (bắt buộc)..."
+                  value={rejectReason}
+                  onChange={(e) => setRejectReason(e.target.value)}
+                  rows={4}
+                  className="border-red-300 focus:border-red-500"
+                />
+                {!rejectReason.trim() && (
+                  <p className="text-xs text-red-600 mt-1">
+                    Lý do từ chối là bắt buộc
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-3">
+              <Button
+                variant="outline"
+                onClick={() => setIsRejectDialogOpen(false)}
+              >
+                Hủy
+              </Button>
+              <Button
+                onClick={handleRejectOrder}
+                disabled={
+                  updateStatusMutation.isPending || !rejectReason.trim()
                 }
                 className="bg-red-600 hover:bg-red-700"
               >
                 {updateStatusMutation.isPending ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Đang hủy...
+                    Đang xử lý...
                   </>
                 ) : (
-                  "Xác nhận hủy đơn"
+                  "Xác nhận từ chối"
+                )}
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {/* Refund Order Dialog */}
+      {order && (
+        <Dialog open={isRefundDialogOpen} onOpenChange={setIsRefundDialogOpen}>
+          <DialogContent className="sm:max-w-[500px]">
+            <DialogHeader>
+              <DialogTitle>Hoàn tiền đơn hàng</DialogTitle>
+              <DialogDescription>
+                Xác nhận hoàn tiền và chuyển sang trạng thái &quot;Đã hoàn
+                tiền&quot;
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="space-y-4">
+              <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <p className="text-sm text-blue-900">
+                  Đơn hàng sẽ chuyển sang trạng thái &quot;Đã hoàn tiền&quot; và
+                  khách hàng sẽ được hoàn lại số tiền.
+                </p>
+              </div>
+
+              <div>
+                <label className="text-sm font-medium mb-2 block">
+                  Ghi chú (tùy chọn)
+                </label>
+                <Textarea
+                  placeholder="Thêm ghi chú khi hoàn tiền..."
+                  value={refundNote}
+                  onChange={(e) => setRefundNote(e.target.value)}
+                  rows={3}
+                />
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-3">
+              <Button
+                variant="outline"
+                onClick={() => setIsRefundDialogOpen(false)}
+              >
+                Hủy
+              </Button>
+              <Button
+                onClick={handleRefundOrder}
+                disabled={updateStatusMutation.isPending}
+                className="bg-blue-600 hover:bg-blue-700"
+              >
+                {updateStatusMutation.isPending ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Đang xử lý...
+                  </>
+                ) : (
+                  "Xác nhận hoàn tiền"
                 )}
               </Button>
             </div>

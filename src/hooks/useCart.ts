@@ -1,4 +1,4 @@
-import { OrderRespponse } from "@/lib/api/services/fetchOrder";
+import { OrderResponse } from "@/lib/api/services/fetchOrder";
 import {
   CartItemRequest,
   CartItemResponse,
@@ -110,7 +110,7 @@ export function useConverCartToOrder() {
   return useMutation({
     mutationFn: (request: Partial<ConvertCartToOrderRequest>) =>
       cartService.converCartToOrder(request),
-    onSuccess: (data: BaseResponse<OrderRespponse>) => {
+    onSuccess: (data: BaseResponse<OrderResponse>) => {
       if (data.isSuccess) {
         queryClient.invalidateQueries({ queryKey: ["cart"] });
       }

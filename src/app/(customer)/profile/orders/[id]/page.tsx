@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { useGetOrderById, useUpdateOrderStatus } from "@/hooks/useOrder";
 import { useCreatePayment } from "@/hooks/useOrderPayment";
@@ -16,9 +17,18 @@ import {
   CheckCircle,
   Clock,
   CreditCard,
+  XCircle,
 } from "lucide-react";
 import Image from "next/image";
 import { toast } from "sonner";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
 import CustomerLayout from "@/components/customer/CustomerLayout";
 import { OrderStatus } from "@/lib/api/services/fetchOrder";
 import { PaymentMethod } from "@/lib/api/services/fetchOrderPayment";
@@ -39,11 +49,44 @@ export default function OrderDetailPage() {
   const updateStatusMutation = useUpdateOrderStatus();
   const paymentMutation = useCreatePayment();
 
+  // Cancel order dialog state
+  const [isCancelDialogOpen, setIsCancelDialogOpen] = useState(false);
+  const [cancelReason, setCancelReason] = useState<string>("");
+
   const handlePayOrder = (orderId: number) => {
     paymentMutation.mutate({
       orderId,
       method: PaymentMethod.VNPAY,
     });
+  };
+
+  const handleCancelOrder = () => {
+    if (!orderId) {
+      toast.error("Không tìm thấy đơn hàng");
+      return;
+    }
+
+    updateStatusMutation.mutate(
+      {
+        orderId,
+        request: {
+          status: OrderStatus.CANCELLED,
+          note: cancelReason || undefined,
+        },
+      },
+      {
+        onSuccess: () => {
+          toast.success("Đơn hàng đã được hủy");
+          setIsCancelDialogOpen(false);
+          setCancelReason("");
+        },
+        onError: (error) => {
+          toast.error(
+            error instanceof Error ? error.message : "Không thể hủy đơn hàng",
+          );
+        },
+      },
+    );
   };
 
   const handleCompleteOrder = () => {
@@ -56,7 +99,7 @@ export default function OrderDetailPage() {
       {
         orderId,
         request: {
-          status: OrderStatus.COMPLETED,
+          status: OrderStatus.DELIVERED,
           note: "đã nhận được hàng",
         },
       },
@@ -315,10 +358,10 @@ export default function OrderDetailPage() {
                   </span>
                 </div>
               )}
-              {order.promotionName && (
+              {order.promotion?.code && (
                 <div className="flex justify-between items-center pt-2 border-t">
                   <span className="text-muted-foreground">Mã khuyến mãi:</span>
-                  <Badge variant="secondary">{order.promotionName}</Badge>
+                  <Badge variant="secondary">{order.promotion?.code}</Badge>
                 </div>
               )}
               <div className="flex justify-between items-center pt-3 border-t-2 text-lg font-bold">
@@ -341,24 +384,34 @@ export default function OrderDetailPage() {
             <ArrowLeft className="h-4 w-4 mr-2" />
             Quay lại danh sách
           </Button>
-          {order?.status === OrderStatus.PENDING_PAYMENT && (
-            <Button
-              onClick={() => handlePayOrder(order.id)}
-              disabled={paymentMutation.isPending}
-              className="flex-1 bg-blue-600 hover:bg-blue-700"
-            >
-              {paymentMutation.isPending ? (
-                <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Đang xử lý...
-                </>
-              ) : (
-                <>
-                  <CreditCard className="h-4 w-4 mr-2" />
-                  Thanh toán
-                </>
-              )}
-            </Button>
+          {order?.status === OrderStatus.PENDING && (
+            <>
+              <Button
+                onClick={() => handlePayOrder(order.id)}
+                disabled={paymentMutation.isPending}
+                className="flex-1 bg-blue-600 hover:bg-blue-700"
+              >
+                {paymentMutation.isPending ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Đang xử lý...
+                  </>
+                ) : (
+                  <>
+                    <CreditCard className="h-4 w-4 mr-2" />
+                    Thanh toán
+                  </>
+                )}
+              </Button>
+              <Button
+                onClick={() => setIsCancelDialogOpen(true)}
+                variant="destructive"
+                className="flex-1"
+              >
+                <XCircle className="h-4 w-4 mr-2" />
+                Hủy đơn hàng
+              </Button>
+            </>
           )}
           {order?.status === OrderStatus.SHIPPED && (
             <Button
@@ -384,6 +437,62 @@ export default function OrderDetailPage() {
             Liên hệ hỗ trợ
           </Button>
         </div>
+
+        {/* Cancel Order Dialog */}
+        <Dialog open={isCancelDialogOpen} onOpenChange={setIsCancelDialogOpen}>
+          <DialogContent className="sm:max-w-[500px]">
+            <DialogHeader>
+              <DialogTitle>Hủy đơn hàng</DialogTitle>
+              <DialogDescription>
+                Hủy đơn hàng và chuyển sang trạng thái &quot;Đã hủy&quot;
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="space-y-4">
+              <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+                <p className="text-sm text-red-900">
+                  ⚠️ Sau khi hủy, không thể hoàn tác. Vui lòng chắc chắn trước
+                  khi tiếp tục.
+                </p>
+              </div>
+
+              <div>
+                <label className="text-sm font-medium mb-2 block">
+                  Lý do hủy đơn (tùy chọn)
+                </label>
+                <Textarea
+                  placeholder="Nhập lý do hủy đơn hàng (tùy chọn)..."
+                  value={cancelReason}
+                  onChange={(e) => setCancelReason(e.target.value)}
+                  rows={4}
+                />
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-3">
+              <Button
+                variant="outline"
+                onClick={() => setIsCancelDialogOpen(false)}
+              >
+                Không hủy
+              </Button>
+              <Button
+                onClick={handleCancelOrder}
+                disabled={updateStatusMutation.isPending}
+                className="bg-red-600 hover:bg-red-700"
+              >
+                {updateStatusMutation.isPending ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Đang hủy...
+                  </>
+                ) : (
+                  "Xác nhận hủy đơn"
+                )}
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </CustomerLayout>
   );
