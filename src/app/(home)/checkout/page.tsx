@@ -97,7 +97,6 @@ export default function CheckoutPage() {
   const [quickAddForm, setQuickAddForm] = useState({
     fullAddress: "",
     city: "",
-    district: "",
     ward: "",
     streetAddress: "",
     latitude: 21.0285,
@@ -133,10 +132,23 @@ export default function CheckoutPage() {
     e: React.ChangeEvent<HTMLInputElement>,
   ) => {
     const { name, value } = e.target;
-    setQuickAddForm((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setQuickAddForm((prev) => {
+      const updated = {
+        ...prev,
+        [name]: value,
+      };
+      // Auto-generate fullAddress from other fields
+      if (name !== "fullAddress") {
+        updated.fullAddress = [
+          updated.streetAddress,
+          updated.ward,
+          updated.city,
+        ]
+          .filter((v) => v && v.trim())
+          .join(", ");
+      }
+      return updated;
+    });
   };
 
   const handleQuickAddCheckboxChange = (checked: boolean) => {
@@ -157,9 +169,7 @@ export default function CheckoutPage() {
   const handleQuickAddSubmit = () => {
     // Validate required fields
     if (
-      !quickAddForm.fullAddress ||
       !quickAddForm.city ||
-      !quickAddForm.district ||
       !quickAddForm.ward ||
       !quickAddForm.streetAddress ||
       !quickAddForm.recipientPhone
@@ -185,7 +195,6 @@ export default function CheckoutPage() {
         setQuickAddForm({
           fullAddress: "",
           city: "",
-          district: "",
           ward: "",
           streetAddress: "",
           latitude: 21.0285,
@@ -515,21 +524,13 @@ export default function CheckoutPage() {
                                     </div>
                                     <div>
                                       <p className="text-muted-foreground">
-                                        Quận/Huyện
-                                      </p>
-                                      <p className="font-medium">
-                                        {selectedAddress.district}
-                                      </p>
-                                    </div>
-                                    <div>
-                                      <p className="text-muted-foreground">
                                         Phường/Xã
                                       </p>
                                       <p className="font-medium">
                                         {selectedAddress.ward}
                                       </p>
                                     </div>
-                                    <div>
+                                    <div className="col-span-2">
                                       <p className="text-muted-foreground">
                                         Điện thoại
                                       </p>
@@ -958,19 +959,17 @@ export default function CheckoutPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Form Fields */}
             <div className="space-y-3">
-              {/* Full Address */}
+              {/* Full Address - Read Only */}
               <div className="space-y-1">
                 <Label htmlFor="qa-fullAddress" className="text-sm">
                   Địa chỉ đầy đủ
                 </Label>
                 <Input
                   id="qa-fullAddress"
-                  name="fullAddress"
-                  placeholder="VD: 123 Đường ABC, Hà Nội"
                   value={quickAddForm.fullAddress}
-                  onChange={handleQuickAddInputChange}
-                  disabled={isCreatingAddress}
-                  className="h-9"
+                  disabled
+                  className="h-9 bg-muted/30 text-black font-semibold cursor-not-allowed"
+                  placeholder="Tự động điền..."
                 />
               </div>
 
@@ -984,22 +983,6 @@ export default function CheckoutPage() {
                   name="city"
                   placeholder="VD: Hà Nội"
                   value={quickAddForm.city}
-                  onChange={handleQuickAddInputChange}
-                  disabled={isCreatingAddress}
-                  className="h-9"
-                />
-              </div>
-
-              {/* District */}
-              <div className="space-y-1">
-                <Label htmlFor="qa-district" className="text-sm">
-                  Quận/Huyện
-                </Label>
-                <Input
-                  id="qa-district"
-                  name="district"
-                  placeholder="VD: Hoàn Kiếm"
-                  value={quickAddForm.district}
                   onChange={handleQuickAddInputChange}
                   disabled={isCreatingAddress}
                   className="h-9"

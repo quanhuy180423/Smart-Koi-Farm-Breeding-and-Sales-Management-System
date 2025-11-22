@@ -47,7 +47,7 @@ export default function LoginGoogle() {
               toast.error("Đăng nhập Google thất bại");
             }}
             useOneTap={false}
-            width="100%"
+            width={1000}
           />
         </div>
       </div>
