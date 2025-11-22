@@ -11,7 +11,6 @@ import { Loader2, MapPin, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import CustomerLayout from "@/components/customer/CustomerLayout";
 import { useCreateAddress } from "@/hooks/useCustomerAddress";
-import { useDebounce } from "@/hooks/useDebounce";
 
 // 1. Import dynamic from next/dynamic
 import dynamic from "next/dynamic";
@@ -26,37 +25,6 @@ const CheckoutMap = dynamic(() => import("../components/CheckoutMap"), {
   ),
 });
 
-interface NominatimResult {
-  lat: string;
-  lon: string;
-  display_name: string;
-}
-
-// Geocoding using Nominatim API
-async function geocodeAddress(
-  address: string,
-): Promise<NominatimResult | null> {
-  if (!address.trim()) return null;
-
-  try {
-    const response = await fetch(
-      `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&limit=1`,
-      {
-        headers: {
-          Accept: "application/json",
-        },
-      },
-    );
-
-    if (!response.ok) return null;
-
-    const results: NominatimResult[] = await response.json();
-    return results.length > 0 ? results[0] : null;
-  } catch {
-    return null;
-  }
-}
-
 export default function AddAddressPage() {
   const router = useRouter();
   const { mutate: createAddress, isPending } = useCreateAddress();
@@ -64,7 +32,6 @@ export default function AddAddressPage() {
   const [formData, setFormData] = useState({
     fullAddress: "",
     city: "",
-    district: "",
     ward: "",
     streetAddress: "",
     latitude: 21.0285,
@@ -73,38 +40,26 @@ export default function AddAddressPage() {
     isDefault: false,
   });
 
-  const debouncedFullAddress = useDebounce(formData.fullAddress, 1000);
-
-  // Auto-geocode when user finishes typing in full address field
-  useEffect(() => {
-    if (!debouncedFullAddress.trim()) return;
-
-    const performGeocoding = async () => {
-      try {
-        const result = await geocodeAddress(debouncedFullAddress);
-        if (result) {
-          const lat = parseFloat(result.lat);
-          const lng = parseFloat(result.lon);
-          setFormData((prev) => ({
-            ...prev,
-            latitude: lat,
-            longitude: lng,
-          }));
-        }
-      } catch {
-        // Silent fail for auto-geocoding
-      }
-    };
-
-    performGeocoding();
-  }, [debouncedFullAddress]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setFormData((prev) => {
+      const updated = {
+        ...prev,
+        [name]: value,
+      };
+      // Auto-generate fullAddress from other fields
+      if (name !== "fullAddress") {
+        updated.fullAddress = [
+          updated.streetAddress,
+          updated.ward,
+          updated.city,
+        ]
+          .filter((v) => v && v.trim())
+          .join(", ");
+      }
+      return updated;
+    });
   };
 
   const handleCheckboxChange = (checked: boolean) => {
@@ -127,9 +82,7 @@ export default function AddAddressPage() {
 
     // Validate required fields
     if (
-      !formData.fullAddress ||
       !formData.city ||
-      !formData.district ||
       !formData.ward ||
       !formData.streetAddress ||
       !formData.recipientPhone
@@ -190,19 +143,17 @@ export default function AddAddressPage() {
                   <CardTitle className="text-lg">Thông tin địa chỉ</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3 p-4">
-                  {/* Full Address */}
+                  {/* Full Address - Read Only */}
                   <div className="space-y-1">
                     <Label htmlFor="fullAddress" className="text-sm">
                       Địa chỉ đầy đủ
                     </Label>
                     <Input
                       id="fullAddress"
-                      name="fullAddress"
-                      placeholder="VD: 123 Đường ABC, Hà Nội"
                       value={formData.fullAddress}
-                      onChange={handleInputChange}
-                      disabled={isPending}
-                      className="h-9"
+                      disabled
+                      className="h-9 bg-muted/30 text-black font-semibold cursor-not-allowed"
+                      placeholder="Tự động điền..."
                     />
                   </div>
 
@@ -216,22 +167,6 @@ export default function AddAddressPage() {
                       name="city"
                       placeholder="VD: Hà Nội"
                       value={formData.city}
-                      onChange={handleInputChange}
-                      disabled={isPending}
-                      className="h-9"
-                    />
-                  </div>
-
-                  {/* District */}
-                  <div className="space-y-1">
-                    <Label htmlFor="district" className="text-sm">
-                      Quận/Huyện
-                    </Label>
-                    <Input
-                      id="district"
-                      name="district"
-                      placeholder="VD: Hoàn Kiếm"
-                      value={formData.district}
                       onChange={handleInputChange}
                       disabled={isPending}
                       className="h-9"

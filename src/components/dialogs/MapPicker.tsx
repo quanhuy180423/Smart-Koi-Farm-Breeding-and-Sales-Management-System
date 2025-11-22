@@ -1,12 +1,8 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Loader2, Search, MapPin, Maximize2 } from "lucide-react";
+import { X, Search, MapPin, Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import MapPicker from "@/components/dialogs/MapPicker";
 import { useDebounce } from "@/hooks/useDebounce";
 import {
   MapContainer,
@@ -18,6 +14,8 @@ import {
 } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 // Fix leaflet icon issue
 type IconPrototype = { _getIconUrl?: unknown };
@@ -44,11 +42,12 @@ interface NominatimResult {
   display_name: string;
 }
 
-interface CheckoutMapProps {
+interface MapPickerProps {
+  isOpen: boolean;
+  onOpenChange: (open: boolean) => void;
   latitude: number;
   longitude: number;
   onLocationChange: (lat: number, lng: number) => void;
-  disabled?: boolean;
 }
 
 // Geocoding using Nominatim API
@@ -99,16 +98,16 @@ function MapMover({ lat, lng }: { lat: number; lng: number }) {
   return null;
 }
 
-export default function CheckoutMap({
+export default function MapPicker({
+  isOpen,
+  onOpenChange,
   latitude,
   longitude,
   onLocationChange,
-  disabled = false,
-}: CheckoutMapProps) {
+}: MapPickerProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearching, setIsSearching] = useState(false);
   const [isGettingLocation, setIsGettingLocation] = useState(false);
-  const [isMapPickerOpen, setIsMapPickerOpen] = useState(false);
   const mapRef = useRef(null);
 
   const debouncedSearchQuery = useDebounce(searchQuery, 1500);
@@ -148,7 +147,7 @@ export default function CheckoutMap({
     );
   };
 
-  // Auto-geocode only when user manually searches
+  // Auto-geocode when user finishes typing in search field
   useEffect(() => {
     if (!debouncedSearchQuery.trim()) return;
 
@@ -183,95 +182,95 @@ export default function CheckoutMap({
     e.preventDefault();
   };
 
+  if (!isOpen) return null;
+
   return (
-    <Card className="h-full flex flex-col">
-      <CardHeader className="pb-3">
-        <CardTitle className="text-lg">Chọn vị trí trên bản đồ</CardTitle>
-      </CardHeader>
-      <CardContent className="flex-1 flex flex-col p-4">
-        {/* Search Box and Buttons */}
-        <div className="flex gap-2 mb-3">
-          <form onSubmit={handleSearchSubmit} className="flex-1">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
-              <Input
-                placeholder="Tìm kiếm địa chỉ trên bản đồ..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                disabled={disabled || isGettingLocation}
-                className="pl-10 h-10"
-              />
-              {isSearching && (
-                <Loader2 className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 animate-spin text-primary" />
-              )}
-            </div>
-          </form>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={handleGetCurrentLocation}
-            disabled={disabled || isGettingLocation}
-            className="px-3 h-10"
-            title="Lấy vị trí hiện tại"
-          >
-            {isGettingLocation ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <MapPin className="h-4 w-4" />
+    <div
+      className="fixed inset-0 z-50 bg-black/70 pointer-events-none"
+      onClick={(e) => {
+        e.preventDefault();
+      }}
+    >
+      {/* Close Button */}
+      <Button
+        type="button"
+        variant="ghost"
+        size="icon"
+        onClick={(e) => {
+          e.stopPropagation();
+          onOpenChange(false);
+        }}
+        className="absolute top-6 right-6 h-10 w-10 rounded-full bg-white text-black hover:bg-slate-50 pointer-events-auto z-60 transition-colors"
+        title="Đóng"
+      >
+        <X className="h-5 w-5" />
+      </Button>
+
+      {/* Search Box and Current Location Button */}
+      <div className="absolute top-6 left-6 right-20 flex gap-2 pointer-events-auto z-60">
+        <form onSubmit={handleSearchSubmit} className="flex-1">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+            <Input
+              placeholder="Tìm kiếm địa chỉ..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              disabled={isGettingLocation}
+              className="pl-10 h-10 bg-white"
+            />
+            {isSearching && (
+              <Loader2 className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 animate-spin text-primary" />
             )}
-          </Button>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => setIsMapPickerOpen(true)}
-            className="px-3 h-10"
-            title="Mở toàn màn hình"
-          >
-            <Maximize2 className="h-4 w-4" />
-          </Button>
-        </div>
-
-        {/* Map Container - Hidden when MapPicker is open */}
-        {!isMapPickerOpen && (
-          <div className="w-full flex-1 rounded-lg overflow-hidden border border-border relative">
-            <MapContainer
-              ref={mapRef}
-              center={[latitude, longitude]}
-              zoom={13}
-              style={{ height: "100%", width: "100%" }}
-            >
-              <TileLayer
-                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-              />
-              <MapMover lat={latitude} lng={longitude} />
-              <MapClickHandler onMapClick={handleMapClick} />
-              <Marker position={[latitude, longitude]}>
-                <Popup>
-                  Vĩ độ: {latitude.toFixed(6)}
-                  <br />
-                  Kinh độ: {longitude.toFixed(6)}
-                </Popup>
-              </Marker>
-            </MapContainer>
           </div>
-        )}
+        </form>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={(e) => {
+            e.stopPropagation();
+            handleGetCurrentLocation();
+          }}
+          disabled={isGettingLocation}
+          className="px-3 h-10 bg-white"
+          title="Lấy vị trí hiện tại"
+        >
+          {isGettingLocation ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <MapPin className="h-4 w-4" />
+          )}
+        </Button>
+      </div>
 
-        <p className="text-xs text-muted-foreground mt-3">
-          💡 Tìm kiếm địa chỉ hoặc nhấp trên bản đồ để đặt vị trí
-        </p>
-      </CardContent>
+      {/* Map Container - Fullscreen */}
+      <div className="fixed inset-0 pointer-events-auto">
+        <MapContainer
+          ref={mapRef}
+          center={[latitude, longitude]}
+          zoom={13}
+          style={{ height: "100%", width: "100%" }}
+        >
+          <TileLayer
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          />
+          <MapMover lat={latitude} lng={longitude} />
+          <MapClickHandler onMapClick={handleMapClick} />
+          <Marker position={[latitude, longitude]}>
+            <Popup>
+              Vĩ độ: {latitude.toFixed(6)}
+              <br />
+              Kinh độ: {longitude.toFixed(6)}
+            </Popup>
+          </Marker>
+        </MapContainer>
+      </div>
 
-      {/* Map Picker Fullscreen */}
-      <MapPicker
-        isOpen={isMapPickerOpen}
-        onOpenChange={setIsMapPickerOpen}
-        latitude={latitude}
-        longitude={longitude}
-        onLocationChange={onLocationChange}
-      />
-    </Card>
+      {/* Help Text */}
+      <div className="absolute bottom-6 left-6 text-white text-xs pointer-events-auto z-60">
+        💡 Nhấp trên bản đồ để chọn vị trí hoặc dùng thanh tìm kiếm
+      </div>
+    </div>
   );
 }
