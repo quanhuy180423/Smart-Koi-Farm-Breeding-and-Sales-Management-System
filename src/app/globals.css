@@ -5,7 +5,7 @@
 
 :root {
   --background: oklch(1 0 0); /* #ffffff - clean white background */
-  --foreground: oklch(0.35 0 0); /* #4b5563 - primary text color */
+  --foreground: oklch(82.656% 0.00009 271.152); /* #4b5563 - primary text color */
   --card: oklch(0.98 0 0); /* #f9fafb - card background */
   --card-foreground: oklch(0.35 0 0); /* #4b5563 - card text */
   --popover: oklch(1 0 0); /* #ffffff - popover background */
@@ -23,7 +23,7 @@
   --destructive: oklch(0.5 0.25 15); /* #be123c - error color */
   --destructive-foreground: oklch(1 0 0); /* #ffffff - text on destructive */
   --border: oklch(0.92 0 0); /* #e5e7eb - border color */
-  --input: oklch(1 0 0); /* #ffffff - input background */
+  --input: oklch(92.191% 0.0001 271.152); /* #ffffff - input background */
   --ring: oklch(0.35 0.12 240 / 0.5); /* Primary color with opacity for focus */
   --chart-1: oklch(0.35 0.12 240); /* Primary navy */
   --chart-2: oklch(0.72 0.15 40); /* Gold secondary */
@@ -122,7 +122,7 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-secondary-foreground;
   }
 
   /* Hide scrollbar but keep functionality */

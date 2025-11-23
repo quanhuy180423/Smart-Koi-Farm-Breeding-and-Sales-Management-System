@@ -307,7 +307,7 @@ export default function ForgotPasswordPage() {
                 <div className="space-y-2">
                   <Label
                     htmlFor="email"
-                    className="text-foreground font-medium text-sm"
+                    className="text-secondary-foreground font-medium text-sm"
                   >
                     Địa chỉ Email
                   </Label>

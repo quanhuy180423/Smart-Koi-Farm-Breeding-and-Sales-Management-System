@@ -19,6 +19,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useGetCart } from "@/hooks/useCart";
 import { formatCurrency } from "@/lib/utils/numbers/formatCurrency";
 import { CartItem } from "./CartItem";
+import { useAuthStore } from "@/store/auth-store";
 
 // Component Skeleton cho lúc loading
 const CartSkeleton = () => (
@@ -46,6 +47,7 @@ interface CartSheetProps {
 
 export function CartSheet({ isOpen, onOpenChange }: CartSheetProps) {
   const { data: cartData, isLoading, isError, refetch } = useGetCart();
+  const { isAuthenticated } = useAuthStore();
 
   const items = cartData?.cartItems || [];
   const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
@@ -62,7 +64,7 @@ export function CartSheet({ isOpen, onOpenChange }: CartSheetProps) {
           }
         >
           <ShoppingCart
-            className={"transition-colors h-4 w-4 text-foreground"}
+            className={"transition-colors h-4 w-4 text-secondary-foreground"}
           />
           {/* Chỉ hiện Badge khi đã load xong và có item */}
           {!isLoading && totalItems > 0 && (
@@ -84,68 +86,100 @@ export function CartSheet({ isOpen, onOpenChange }: CartSheetProps) {
           </SheetTitle>
         </SheetHeader>
 
-        {/* Content Area */}
-        <ScrollArea className="flex-1 px-6 py-4">
-          {isLoading ? (
-            <CartSkeleton />
-          ) : isError ? (
-            <div className="flex flex-col items-center justify-center h-[50vh] text-center space-y-4">
-              <p className="text-muted-foreground">Không thể tải giỏ hàng</p>
-              <Button onClick={() => refetch()} variant="outline">
-                Thử lại
-              </Button>
+        {!isAuthenticated ? (
+          <div className="flex flex-col items-center justify-center flex-1 p-6 text-center space-y-4">
+            <div className="bg-muted/50 p-6 rounded-full">
+              <ShoppingCart className="h-10 w-10 text-muted-foreground/50" />
             </div>
-          ) : items.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-[60vh] text-center space-y-4">
-              <div className="bg-muted/50 p-6 rounded-full">
-                <ShoppingCart className="h-10 w-10 text-muted-foreground/50" />
-              </div>
-              <div>
-                <p className="font-medium text-lg">Giỏ hàng trống</p>
-                <p className="text-sm text-muted-foreground mt-1">
-                  Hãy thêm vài chú cá vào đây nhé!
-                </p>
-              </div>
-              <Button
-                asChild
-                className="mt-4"
-                onClick={() => onOpenChange?.(false)}
-              >
-                <Link href="/catalog">Xem danh mục cá</Link>
-              </Button>
+            <div>
+              <p className="font-medium text-lg">Vui lòng đăng nhập</p>
+              <p className="text-sm text-muted-foreground mt-1">
+                Để xem giỏ hàng của bạn
+              </p>
             </div>
-          ) : (
-            <div className="space-y-4 pb-4">
-              {items.map((item) => (
-                <CartItem key={item.id} item={item} />
-              ))}
-            </div>
-          )}
-        </ScrollArea>
+            <Button asChild onClick={() => onOpenChange?.(false)}>
+              <Link href="/login">Đăng nhập</Link>
+            </Button>
+          </div>
+        ) : (
+          <>
+            {/* Content Area */}
+            <ScrollArea className="flex-1 px-6 py-4">
+              {isLoading ? (
+                <CartSkeleton />
+              ) : isError ? (
+                <div className="flex flex-col items-center justify-center h-[50vh] text-center space-y-4">
+                  <p className="text-muted-foreground">
+                    Không thể tải giỏ hàng
+                  </p>
+                  <Button onClick={() => refetch()} variant="outline">
+                    Thử lại
+                  </Button>
+                </div>
+              ) : items.length === 0 ? (
+                <div className="flex flex-col items-center justify-center h-[60vh] text-center space-y-4">
+                  <div className="bg-muted/50 p-6 rounded-full">
+                    <ShoppingCart className="h-10 w-10 text-muted-foreground/50" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-lg">Giỏ hàng trống</p>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Hãy thêm vài chú cá vào đây nhé!
+                    </p>
+                  </div>
+                  <Button
+                    asChild
+                    className="mt-4"
+                    onClick={() => onOpenChange?.(false)}
+                  >
+                    <Link href="/catalog">Xem danh mục cá</Link>
+                  </Button>
+                </div>
+              ) : (
+                <div className="space-y-4 pb-4">
+                  {items.map((item) => (
+                    <CartItem key={item.id} item={item} />
+                  ))}
+                </div>
+              )}
+            </ScrollArea>
 
-        {/* Footer Area - Chỉ hiện khi có sản phẩm */}
-        {!isLoading && items.length > 0 && (
-          <SheetFooter className="p-6 bg-white border-t shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-10">
-            <div className="w-full space-y-4">
-              <div className="flex justify-between items-end">
-                <span className="text-muted-foreground text-sm">Tạm tính:</span>
-                <span className="font-bold text-2xl text-primary">
-                  {formatCurrency(totalPrice)}
-                </span>
-              </div>
+            {/* Footer Area - Chỉ hiện khi có sản phẩm */}
+            {!isLoading && items.length > 0 && (
+              <SheetFooter className="p-6 bg-white border-t shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-10">
+                <div className="w-full space-y-4">
+                  <div className="flex justify-between items-end">
+                    <span className="text-muted-foreground text-sm">
+                      Tạm tính:
+                    </span>
+                    <span className="font-bold text-2xl text-primary">
+                      {formatCurrency(totalPrice)}
+                    </span>
+                  </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <Button variant="outline" onClick={() => onOpenChange?.(false)}>
-                  Chọn thêm
-                </Button>
-                <Button asChild className="bg-[#0A3D62] hover:bg-[#0A3D62]/90">
-                  <Link href="/checkout" onClick={() => onOpenChange?.(false)}>
-                    Thanh toán
-                  </Link>
-                </Button>
-              </div>
-            </div>
-          </SheetFooter>
+                  <div className="grid grid-cols-2 gap-3">
+                    <Button
+                      variant="outline"
+                      onClick={() => onOpenChange?.(false)}
+                    >
+                      Chọn thêm
+                    </Button>
+                    <Button
+                      asChild
+                      className="bg-[#0A3D62] hover:bg-[#0A3D62]/90"
+                    >
+                      <Link
+                        href="/checkout"
+                        onClick={() => onOpenChange?.(false)}
+                      >
+                        Thanh toán
+                      </Link>
+                    </Button>
+                  </div>
+                </div>
+              </SheetFooter>
+            )}
+          </>
         )}
       </SheetContent>
     </Sheet>

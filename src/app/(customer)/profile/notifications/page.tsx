@@ -160,7 +160,7 @@ export default function NotificationsPage() {
             <div className="flex-1 min-w-0">
               <div className="flex items-start justify-between mb-2">
                 <h3
-                  className={`font-medium text-sm md:text-base leading-tight ${!notification.isRead ? "text-foreground" : "text-muted-foreground"}`}
+                  className={`font-medium text-sm md:text-base leading-tight ${!notification.isRead ? "text-secondary-foreground" : "text-muted-foreground"}`}
                 >
                   {notification.title}
                 </h3>

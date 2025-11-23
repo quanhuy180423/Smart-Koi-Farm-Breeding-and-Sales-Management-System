@@ -246,7 +246,7 @@ export default function OrderDetailPage() {
                       <p
                         className={`font-medium ${
                           step.active
-                            ? "text-foreground"
+                            ? "text-secondary-foreground"
                             : "text-muted-foreground"
                         }`}
                       >

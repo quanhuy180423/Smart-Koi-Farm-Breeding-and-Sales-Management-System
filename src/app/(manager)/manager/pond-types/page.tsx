@@ -43,11 +43,11 @@ import {
 } from "@/hooks/usePondType";
 import { PAGE_SIZE_OPTIONS_DEFAULT } from "@/components/common/PaginationSection";
 import { PaginationWithLinks } from "@/components/pagination";
-import AddPondTypeModal from "./AddPondTypeModal";
-import EditPondTypeModal from "./EditPondTypeModal";
-import PondTypeDetailModal from "./PondTypeDetailModal";
-import DeletePondTypeConfirmDialog from "./DeletePondTypeConfirmDialog";
-import WaterParameterThresholdModal from "./WaterParameterThresholdModal";
+import AddPondTypeModal from "./components/AddPondTypeModal";
+import EditPondTypeModal from "./components/EditPondTypeModal";
+import PondTypeDetailModal from "./components/PondTypeDetailModal";
+import DeletePondTypeConfirmDialog from "./components/DeletePondTypeConfirmDialog";
+import WaterParameterThresholdModal from "./components/WaterParameterThresholdModal";
 import { useDebounce } from "@/hooks/useDebounce";
 import {
   Dialog,
@@ -198,7 +198,7 @@ export default function PondTypeManagement() {
           setIsEditModalOpen(false);
           setEditingPondType(null);
         },
-      },
+      }
     );
   };
 
@@ -438,12 +438,12 @@ export default function PondTypeManagement() {
             setMinQuantityInput(
               searchParams.minRecommendedQuantity !== undefined
                 ? String(searchParams.minRecommendedQuantity)
-                : "",
+                : ""
             );
             setMaxQuantityInput(
               searchParams.maxRecommendedQuantity !== undefined
                 ? String(searchParams.maxRecommendedQuantity)
-                : "",
+                : ""
             );
           }
         }}

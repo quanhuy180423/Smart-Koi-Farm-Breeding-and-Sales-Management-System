@@ -34,10 +34,10 @@ import {
 import { PAGE_SIZE_OPTIONS_DEFAULT } from "@/components/common/PaginationSection";
 import { PaginationWithLinks } from "@/components/pagination";
 import toast from "react-hot-toast";
-import AddVarietyModal from "./AddVarietyModal";
-import EditVarietyModal from "./EditVarietyModal";
-import VarietyDetailModal from "./VarietyDetailModal";
-import DeleteVarietyConfirmDialog from "./DeleteVarietyConfirmDialogProps";
+import AddVarietyModal from "./components/AddVarietyModal";
+import EditVarietyModal from "./components/EditVarietyModal";
+import VarietyDetailModal from "./components/VarietyDetailModal";
+import DeleteVarietyConfirmDialog from "./components/DeleteVarietyConfirmDialogProps";
 import { useDebounce } from "@/hooks/useDebounce";
 import {
   Dialog,
@@ -65,7 +65,7 @@ export default function VarietyManagement() {
   const [isAddModalOpen, setIsAddModalOpen] = useState<boolean>(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false);
   const [editingVariety, setEditingVariety] = useState<VarietyResponse | null>(
-    null,
+    null
   );
 
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
@@ -198,7 +198,7 @@ export default function VarietyManagement() {
           setIsEditModalOpen(false);
           setEditingVariety(null);
         },
-      },
+      }
     );
   };
 

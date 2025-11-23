@@ -109,7 +109,7 @@ export default function AboutPage() {
               <Star className="w-4 h-4 mr-2" />
               Hệ thống quản lý trang trại cá Koi hàng đầu Việt Nam
             </Badge>
-            <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-6">
+            <h1 className="text-4xl md:text-6xl font-bold text-secondary-foreground mb-6">
               Về <span className="text-primary">ZenKoi</span>
             </h1>
             <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
@@ -180,7 +180,7 @@ export default function AboutPage() {
       <section className="py-16 px-4 bg-white/50">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+            <h2 className="text-3xl md:text-4xl font-bold text-secondary-foreground mb-4">
               Tính năng nổi bật
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
@@ -214,7 +214,7 @@ export default function AboutPage() {
       <section className="py-16 px-4">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+            <h2 className="text-3xl md:text-4xl font-bold text-secondary-foreground mb-4">
               Tại sao chọn ZenKoi?
             </h2>
           </div>
@@ -301,7 +301,7 @@ export default function AboutPage() {
       <section className="py-16 px-4 bg-white/50">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+            <h2 className="text-3xl md:text-4xl font-bold text-secondary-foreground mb-4">
               Đội ngũ của chúng tôi
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">

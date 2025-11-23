@@ -78,7 +78,7 @@ export function ManagerHeader() {
                   </AvatarFallback>
                 </Avatar>
                 <div className="hidden lg:block text-left mr-2">
-                  <p className="text-sm font-medium leading-none text-foreground">
+                  <p className="text-sm font-medium leading-none text-secondary-foreground">
                     {user?.name || "User"}
                   </p>
                   <p className="text-xs text-muted-foreground mt-0.5">

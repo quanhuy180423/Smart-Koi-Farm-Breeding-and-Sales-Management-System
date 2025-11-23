@@ -41,11 +41,11 @@ export default function ContactPage() {
           <div className="text-center space-y-4 max-w-3xl mx-auto">
             <Badge
               variant="secondary"
-              className="bg-primary/10 text-foreground border-primary/20"
+              className="bg-primary/10 text-secondary-foreground border-primary/20"
             >
               Hỗ trợ 24/7
             </Badge>
-            <h1 className="text-4xl lg:text-5xl font-bold text-foreground">
+            <h1 className="text-4xl lg:text-5xl font-bold text-secondary-foreground">
               Liên hệ với chúng tôi
             </h1>
             <p className="text-xl text-muted-foreground">
@@ -151,7 +151,7 @@ export default function ContactPage() {
                     <MapPin className="h-5 w-5 text-primary" />
                   </div>
                   <div>
-                    <h3 className="font-medium text-foreground">Địa chỉ</h3>
+                    <h3 className="font-medium text-secondary-foreground">Địa chỉ</h3>
                     <p className="text-muted-foreground text-sm">
                       123 Đường Nguyễn Văn Linh
                       <br />
@@ -166,7 +166,7 @@ export default function ContactPage() {
                     <Phone className="h-5 w-5 text-accent" />
                   </div>
                   <div>
-                    <h3 className="font-medium text-foreground">Điện thoại</h3>
+                    <h3 className="font-medium text-secondary-foreground">Điện thoại</h3>
                     <p className="text-muted-foreground text-sm">
                       Hotline:{" "}
                       <a href="tel:0123456789" className="hover:text-primary">
@@ -186,7 +186,7 @@ export default function ContactPage() {
                     <Mail className="h-5 w-5 text-primary" />
                   </div>
                   <div>
-                    <h3 className="font-medium text-foreground">Email</h3>
+                    <h3 className="font-medium text-secondary-foreground">Email</h3>
                     <p className="text-muted-foreground text-sm">
                       Tổng đài:{" "}
                       <a
@@ -212,7 +212,7 @@ export default function ContactPage() {
                     <Clock className="h-5 w-5 text-accent" />
                   </div>
                   <div>
-                    <h3 className="font-medium text-foreground">
+                    <h3 className="font-medium text-secondary-foreground">
                       Giờ làm việc
                     </h3>
                     <p className="text-muted-foreground text-sm">
@@ -328,7 +328,7 @@ export default function ContactPage() {
         {/* FAQ Section */}
         <div className="mt-16">
           <div className="text-center space-y-4 mb-12">
-            <h2 className="text-3xl font-bold text-foreground">
+            <h2 className="text-3xl font-bold text-secondary-foreground">
               Câu hỏi thường gặp
             </h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">

@@ -142,7 +142,7 @@ export function CustomerSidebar({ className }: CustomerSidebarProps) {
                   <p
                     className={cn(
                       "font-medium truncate",
-                      isActive ? "text-primary" : "text-foreground",
+                      isActive ? "text-primary" : "text-secondary-foreground",
                     )}
                   >
                     {item.title}

@@ -1,5 +1,5 @@
 import { PondResponse, PondStatus } from "@/lib/api/services/fetchPond";
-import { PondFormState } from "./page";
+import { PondFormState } from "../page";
 import {
   Dialog,
   DialogContent,
