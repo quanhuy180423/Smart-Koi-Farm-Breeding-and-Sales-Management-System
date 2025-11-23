@@ -198,7 +198,7 @@ export default function PondTypeManagement() {
           setIsEditModalOpen(false);
           setEditingPondType(null);
         },
-      }
+      },
     );
   };
 
@@ -438,12 +438,12 @@ export default function PondTypeManagement() {
             setMinQuantityInput(
               searchParams.minRecommendedQuantity !== undefined
                 ? String(searchParams.minRecommendedQuantity)
-                : ""
+                : "",
             );
             setMaxQuantityInput(
               searchParams.maxRecommendedQuantity !== undefined
                 ? String(searchParams.maxRecommendedQuantity)
-                : ""
+                : "",
             );
           }
         }}

@@ -119,7 +119,9 @@ export default function ProfilePage() {
 
         <Tabs defaultValue="profile" className="space-y-3">
           <TabsList className="grid w-full grid-cols-2 ">
-            <TabsTrigger className="text-secondary-foreground" value="profile">Thông tin</TabsTrigger>
+            <TabsTrigger className="text-secondary-foreground" value="profile">
+              Thông tin
+            </TabsTrigger>
             <TabsTrigger value="security">Bảo mật</TabsTrigger>
           </TabsList>
 

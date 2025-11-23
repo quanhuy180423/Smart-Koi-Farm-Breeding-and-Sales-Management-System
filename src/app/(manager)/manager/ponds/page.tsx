@@ -122,7 +122,7 @@ export default function PondManagement() {
       pageSize: PAGE_SIZE_OPTIONS_DEFAULT[0],
       search: "",
     }),
-    []
+    [],
   );
 
   const allPondTypeSearchParams = useMemo(
@@ -131,7 +131,7 @@ export default function PondManagement() {
       pageSize: PAGE_SIZE_OPTIONS_DEFAULT[0],
       search: "",
     }),
-    []
+    [],
   );
 
   const { data: areasData } = useGetAreas(allAreaSearchParams);
@@ -282,7 +282,7 @@ export default function PondManagement() {
           setIsEditModalOpen(false);
           setEditingPond(null);
         },
-      }
+      },
     );
   };
 
@@ -575,7 +575,7 @@ export default function PondManagement() {
                         <TableCell>
                           {(() => {
                             const statusInfo = getPondStatusLabel(
-                              pond.pondStatus
+                              pond.pondStatus,
                             );
                             const IconComponent = statusInfo.icon;
                             return (

@@ -151,7 +151,9 @@ export default function ContactPage() {
                     <MapPin className="h-5 w-5 text-primary" />
                   </div>
                   <div>
-                    <h3 className="font-medium text-secondary-foreground">Địa chỉ</h3>
+                    <h3 className="font-medium text-secondary-foreground">
+                      Địa chỉ
+                    </h3>
                     <p className="text-muted-foreground text-sm">
                       123 Đường Nguyễn Văn Linh
                       <br />
@@ -166,7 +168,9 @@ export default function ContactPage() {
                     <Phone className="h-5 w-5 text-accent" />
                   </div>
                   <div>
-                    <h3 className="font-medium text-secondary-foreground">Điện thoại</h3>
+                    <h3 className="font-medium text-secondary-foreground">
+                      Điện thoại
+                    </h3>
                     <p className="text-muted-foreground text-sm">
                       Hotline:{" "}
                       <a href="tel:0123456789" className="hover:text-primary">
@@ -186,7 +190,9 @@ export default function ContactPage() {
                     <Mail className="h-5 w-5 text-primary" />
                   </div>
                   <div>
-                    <h3 className="font-medium text-secondary-foreground">Email</h3>
+                    <h3 className="font-medium text-secondary-foreground">
+                      Email
+                    </h3>
                     <p className="text-muted-foreground text-sm">
                       Tổng đài:{" "}
                       <a
