@@ -107,7 +107,7 @@ export default function SignInPage() {
                 <div className="space-y-2">
                   <Label
                     htmlFor="userNameOrEmail"
-                    className="text-foreground font-medium text-sm"
+                    className="text-secondary-foreground font-medium text-sm"
                   >
                     Email hoặc Username
                   </Label>
@@ -128,7 +128,7 @@ export default function SignInPage() {
                 <div className="space-y-2">
                   <Label
                     htmlFor="password"
-                    className="text-foreground font-medium text-sm"
+                    className="text-secondary-foreground font-medium text-sm"
                   >
                     Mật khẩu
                   </Label>
@@ -168,7 +168,7 @@ export default function SignInPage() {
                       {...register("rememberMe")}
                       className="w-3.5 h-3.5 rounded border-border/60 text-primary focus:ring-primary/30 transition-all duration-200"
                     />
-                    <span className="text-muted-foreground group-hover:text-foreground transition-colors duration-200">
+                    <span className="text-muted-foreground group-hover:text-secondary-foreground transition-colors duration-200">
                       Ghi nhớ đăng nhập
                     </span>
                   </label>

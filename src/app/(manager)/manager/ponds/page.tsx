@@ -40,14 +40,14 @@ import { useGetAreas } from "@/hooks/useArea";
 import { PAGE_SIZE_OPTIONS_DEFAULT } from "@/components/common/PaginationSection";
 import { PaginationWithLinks } from "@/components/pagination";
 import { getPondStatusLabel } from "@/lib/utils/enum";
-import AreaSelectionDialog from "./AreaSelectionDialog";
-import PondDetailModal from "./PondDetailModal";
-import AddPondModal from "./AddPondModal";
-import EditPondModal from "./EditPondModal";
+import AreaSelectionDialog from "./components/AreaSelectionDialog";
+import PondDetailModal from "./components/PondDetailModal";
+import AddPondModal from "./components/AddPondModal";
+import EditPondModal from "./components/EditPondModal";
 import { useGetPondTypes } from "@/hooks/usePondType";
 import { PondTypeResponse } from "@/lib/api/services/fetchPondType";
-import PondTypeSelectionDialog from "./PondTypeSelectionDialog";
-import DeletePondConfirmDialog from "./DeletePondConfirmDialog";
+import PondTypeSelectionDialog from "./components/PondTypeSelectionDialog";
+import DeletePondConfirmDialog from "./components/DeletePondConfirmDialog";
 import { useDebounce } from "@/hooks/useDebounce";
 import PondAdvancedFilterDialog, {
   PondAdvancedFilterState,
