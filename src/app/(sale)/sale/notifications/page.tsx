@@ -345,7 +345,7 @@ export default function NotificationsPage() {
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-2">
                           <h3
-                            className={`text-sm sm:text-base lg:text-lg font-semibold ${!notification.isRead ? "text-foreground" : "text-muted-foreground"}`}
+                            className={`text-sm sm:text-base lg:text-lg font-semibold ${!notification.isRead ? "text-secondary-foreground" : "text-muted-foreground"}`}
                           >
                             {notification.title}
                           </h3>

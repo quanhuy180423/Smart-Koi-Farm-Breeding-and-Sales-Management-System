@@ -128,7 +128,7 @@ export function NotificationDropdown() {
                     <h4
                       className={`text-sm font-semibold line-clamp-1 group-hover:text-white transition-colors ${
                         !notification.isRead
-                          ? "text-foreground"
+                          ? "text-secondary-foreground"
                           : "text-muted-foreground"
                       }`}
                     >

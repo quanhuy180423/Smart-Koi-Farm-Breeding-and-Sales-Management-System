@@ -61,11 +61,11 @@ export default function HomePage() {
               <div className="space-y-4">
                 <Badge
                   variant="secondary"
-                  className="bg-primary/10 text-foreground border-primary/20"
+                  className="bg-primary/10   border-primary/20"
                 >
                   Công nghệ AI & RFID tiên tiến
                 </Badge>
-                <h1 className="text-4xl lg:text-6xl font-bold text-foreground text-balance">
+                <h1 className="text-4xl lg:text-6xl font-bold   text-balance">
                   Cá Koi Nhật Bản
                   <span className="text-primary block">Chất Lượng Cao</span>
                 </h1>
@@ -95,25 +95,19 @@ export default function HomePage() {
               </div>
               <div className="flex items-center justify-between sm:space-x-8 pt-4">
                 <div className="text-center">
-                  <div className="text-xl sm:text-2xl font-bold text-foreground">
-                    500+
-                  </div>
+                  <div className="text-xl sm:text-2xl font-bold  ">500+</div>
                   <div className="text-xs sm:text-sm text-muted-foreground">
                     Cá Koi chất lượng
                   </div>
                 </div>
                 <div className="text-center">
-                  <div className="text-xl sm:text-2xl font-bold text-foreground">
-                    15+
-                  </div>
+                  <div className="text-xl sm:text-2xl font-bold  ">15+</div>
                   <div className="text-xs sm:text-sm text-muted-foreground">
                     Năm kinh nghiệm
                   </div>
                 </div>
                 <div className="text-center">
-                  <div className="text-xl sm:text-2xl font-bold text-foreground">
-                    1000+
-                  </div>
+                  <div className="text-xl sm:text-2xl font-bold  ">1000+</div>
                   <div className="text-xs sm:text-sm text-muted-foreground">
                     Khách hàng hài lòng
                   </div>
@@ -156,11 +150,11 @@ export default function HomePage() {
           <div className="text-center space-y-4 mb-16">
             <Badge
               variant="secondary"
-              className="bg-primary/10 text-foreground border-primary/20"
+              className="bg-primary/10   border-primary/20"
             >
               Công nghệ tiên tiến
             </Badge>
-            <h2 className="text-3xl lg:text-4xl font-bold text-foreground text-balance">
+            <h2 className="text-3xl lg:text-4xl font-bold   text-balance">
               Hệ thống quản lý thông minh
             </h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto text-pretty">
@@ -214,7 +208,7 @@ export default function HomePage() {
       <section id="catalog" className="py-10">
         <div className="container mx-auto px-4">
           <div className="text-center space-y-4 mb-8">
-            <h2 className="text-3xl lg:text-4xl font-bold text-foreground text-balance">
+            <h2 className="text-3xl lg:text-4xl font-bold   text-balance">
               Bộ sưu tập cá Koi đặc biệt
             </h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto text-pretty">
@@ -288,7 +282,7 @@ export default function HomePage() {
                             </div>
                             <Badge
                               variant="secondary"
-                              className="bg-primary/10 text-foreground"
+                              className="bg-primary/10  "
                             >
                               Có sẵn
                             </Badge>
@@ -345,7 +339,7 @@ export default function HomePage() {
         <div className="container mx-auto px-4">
           <div className="bg-gradient-to-r from-primary/10 to-accent/10 rounded-2xl p-8 lg:p-16 text-center">
             <div className="space-y-6 max-w-3xl mx-auto">
-              <h2 className="text-3xl lg:text-4xl font-bold text-foreground text-balance">
+              <h2 className="text-3xl lg:text-4xl font-bold   text-balance">
                 Sẵn sàng sở hữu cá Koi chất lượng cao?
               </h2>
               <p className="text-xl text-muted-foreground text-pretty">

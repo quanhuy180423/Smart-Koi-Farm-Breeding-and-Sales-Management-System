@@ -6,7 +6,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { PondFormState } from "./page";
+import { PondFormState } from "../page";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { InputNumber } from "@/components/ui/input-number";

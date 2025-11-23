@@ -366,7 +366,7 @@ export default function CheckoutPage() {
               <span className="hidden sm:inline">Quay lại</span>
             </Button>
             <div className="flex-1">
-              <h1 className="text-2xl md:text-3xl font-bold text-foreground">
+              <h1 className="text-2xl md:text-3xl font-bold text-secondary-foreground">
                 Thanh toán
               </h1>
               <p className="text-muted-foreground text-sm md:text-base">
@@ -860,7 +860,7 @@ export default function CheckoutPage() {
                           <button
                             type="button"
                             onClick={() => setShowShippingFeeDialog(true)}
-                            className="inline-flex items-center justify-center w-4 h-4 rounded-full hover:bg-muted/50 transition-colors text-muted-foreground hover:text-foreground"
+                            className="inline-flex items-center justify-center w-4 h-4 rounded-full hover:bg-muted/50 transition-colors text-muted-foreground hover:text-secondary-foreground"
                             aria-label="Chi tiết phí vận chuyển"
                           >
                             <Info className="h-3.5 w-3.5" />

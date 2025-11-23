@@ -97,6 +97,7 @@ export interface KoiFishSearchParams extends PagingRequest {
   MinPrice?: number;
   MaxPrice?: number;
   SaleStatus?: SaleStatus;
+  IsFavorited?: boolean;
 }
 
 export interface KoiFishFamilyResponse {

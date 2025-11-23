@@ -97,7 +97,7 @@ export function Header() {
           <nav className="hidden lg:flex items-center space-x-1">
             <Link
               href="/"
-              className="px-4 py-2 text-md font-medium text-foreground/80 hover:text-primary hover:bg-primary/5 rounded-lg transition-all duration-200 relative group"
+              className="px-4 py-2 text-md font-medium text-secondary-foreground/80 hover:text-primary hover:bg-primary/5 rounded-lg transition-all duration-200 relative group"
             >
               <span className="relative z-10">Trang chủ</span>
               <div className="absolute inset-0 bg-primary/10 rounded-lg opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 transition-all duration-200"></div>
@@ -108,7 +108,7 @@ export function Header() {
                 <DropdownMenuTrigger asChild>
                   <Button
                     variant="ghost"
-                    className="w-full justify-between text-sm font-medium text-foreground hover:text-primary hover:bg-primary/5 rounded-lg"
+                    className="w-full justify-between text-sm font-medium text-secondary-foreground hover:text-primary hover:bg-primary/5 rounded-lg"
                   >
                     Danh mục <ChevronDown className="h-4 w-4" />
                   </Button>
@@ -133,21 +133,21 @@ export function Header() {
             </div>
             <Link
               href="/packet-fish"
-              className="px-4 py-2 text-md font-medium text-foreground/80 hover:text-primary hover:bg-primary/5 rounded-lg transition-all duration-200 relative group"
+              className="px-4 py-2 text-md font-medium text-secondary-foreground/80 hover:text-primary hover:bg-primary/5 rounded-lg transition-all duration-200 relative group"
             >
               <span className="relative z-10">Gói cá</span>
               <div className="absolute inset-0 bg-primary/10 rounded-lg opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 transition-all duration-200"></div>
             </Link>
             <Link
               href="/about"
-              className="px-4 py-2 text-md font-medium text-foreground/80 hover:text-primary hover:bg-primary/5 rounded-lg transition-all duration-200 relative group"
+              className="px-4 py-2 text-md font-medium text-secondary-foreground/80 hover:text-primary hover:bg-primary/5 rounded-lg transition-all duration-200 relative group"
             >
               <span className="relative z-10">Giới thiệu</span>
               <div className="absolute inset-0 bg-primary/10 rounded-lg opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 transition-all duration-200"></div>
             </Link>
             <Link
               href="/contact"
-              className="px-4 py-2 text-md font-medium text-foreground/80 hover:text-primary hover:bg-primary/5 rounded-lg transition-all duration-200 relative group"
+              className="px-4 py-2 text-md font-medium text-secondary-foreground/80 hover:text-primary hover:bg-primary/5 rounded-lg transition-all duration-200 relative group"
             >
               <span className="relative z-10">Liên hệ</span>
               <div className="absolute inset-0 bg-primary/10 rounded-lg opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 transition-all duration-200"></div>
@@ -179,7 +179,7 @@ export function Header() {
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="w-56">
                       <DropdownMenuItem onClick={() => router.push("/profile")}>
-                        <User className="mr-2 h-4 w-4" />
+                        <User className="mr-2 h-4 w-4 hover:text-secondary-foreground" />
                         <span>Thông tin cá nhân</span>
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
@@ -244,9 +244,9 @@ export function Header() {
               onClick={() => setIsMenuOpen(!isMenuOpen)}
             >
               {isMenuOpen ? (
-                <X className="h-5 w-5 text-foreground" />
+                <X className="h-5 w-5 text-secondary-foreground" />
               ) : (
-                <Menu className="h-5 w-5 text-foreground" />
+                <Menu className="h-5 w-5 text-secondary-foreground" />
               )}
             </Button>
           </div>
@@ -262,35 +262,35 @@ export function Header() {
               <nav className="flex flex-col space-y-1">
                 <Link
                   href="/"
-                  className="px-4 py-3 text-sm font-medium text-foreground hover:text-primary hover:bg-primary/5 rounded-lg transition-all duration-200 flex items-center gap-3"
+                  className="px-4 py-3 text-sm font-medium text-secondary-foreground hover:text-primary hover:bg-primary/5 rounded-lg transition-all duration-200 flex items-center gap-3"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   Trang chủ
                 </Link>
                 <Link
                   href="/catalog"
-                  className="px-4 py-3 text-sm font-medium text-foreground hover:text-primary hover:bg-primary/5 rounded-lg transition-all duration-200 flex items-center gap-3"
+                  className="px-4 py-3 text-sm font-medium text-secondary-foreground hover:text-primary hover:bg-primary/5 rounded-lg transition-all duration-200 flex items-center gap-3"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   Danh mục
                 </Link>
                 <Link
                   href="/packet-fish"
-                  className="px-4 py-3 text-sm font-medium text-foreground hover:text-primary hover:bg-primary/5 rounded-lg transition-all duration-200 flex items-center gap-3"
+                  className="px-4 py-3 text-sm font-medium text-secondary-foreground hover:text-primary hover:bg-primary/5 rounded-lg transition-all duration-200 flex items-center gap-3"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   Gói cá
                 </Link>
                 <Link
                   href="/about"
-                  className="px-4 py-3 text-sm font-medium text-foreground hover:text-primary hover:bg-primary/5 rounded-lg transition-all duration-200 flex items-center gap-3"
+                  className="px-4 py-3 text-sm font-medium text-secondary-foreground hover:text-primary hover:bg-primary/5 rounded-lg transition-all duration-200 flex items-center gap-3"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   Giới thiệu
                 </Link>
                 <Link
                   href="/contact"
-                  className="px-4 py-3 text-sm font-medium text-foreground hover:text-primary hover:bg-primary/5 rounded-lg transition-all duration-200 flex items-center gap-3"
+                  className="px-4 py-3 text-sm font-medium text-secondary-foreground hover:text-primary hover:bg-primary/5 rounded-lg transition-all duration-200 flex items-center gap-3"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   Liên hệ

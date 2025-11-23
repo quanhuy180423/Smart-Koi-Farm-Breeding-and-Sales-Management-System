@@ -27,14 +27,14 @@ export function Footer() {
           </div>
 
           <div className="space-y-3 sm:space-y-4">
-            <h3 className="font-semibold text-foreground text-sm sm:text-base">
+            <h3 className="font-semibold text-secondary-foreground text-sm sm:text-base">
               Sản phẩm
             </h3>
             <ul className="space-y-1.5 sm:space-y-2 text-muted-foreground text-sm sm:text-base">
               <li>
                 <Link
                   href="/catalog"
-                  className="hover:text-foreground transition-colors"
+                  className="hover:text-secondary-foreground transition-colors"
                 >
                   Cá Koi Nhật Bản
                 </Link>
@@ -42,7 +42,7 @@ export function Footer() {
               <li>
                 <Link
                   href="/catalog"
-                  className="hover:text-foreground transition-colors"
+                  className="hover:text-secondary-foreground transition-colors"
                 >
                   Gói cá giống
                 </Link>
@@ -50,7 +50,7 @@ export function Footer() {
               <li>
                 <Link
                   href="/catalog"
-                  className="hover:text-foreground transition-colors"
+                  className="hover:text-secondary-foreground transition-colors"
                 >
                   Cá giống
                 </Link>
@@ -59,14 +59,14 @@ export function Footer() {
           </div>
 
           <div className="space-y-3 sm:space-y-4">
-            <h3 className="font-semibold text-foreground text-sm sm:text-base">
+            <h3 className="font-semibold text-secondary-foreground text-sm sm:text-base">
               Dịch vụ
             </h3>
             <ul className="space-y-1.5 sm:space-y-2 text-muted-foreground text-sm sm:text-base">
               <li>
                 <Link
                   href="/about"
-                  className="hover:text-foreground transition-colors"
+                  className="hover:text-secondary-foreground transition-colors"
                 >
                   Tư vấn chọn cá
                 </Link>
@@ -74,7 +74,7 @@ export function Footer() {
               <li>
                 <Link
                   href="/polycies"
-                  className="hover:text-foreground transition-colors"
+                  className="hover:text-secondary-foreground transition-colors"
                 >
                   Chính sách
                 </Link>
@@ -82,7 +82,7 @@ export function Footer() {
               <li>
                 <Link
                   href="/about"
-                  className="hover:text-foreground transition-colors"
+                  className="hover:text-secondary-foreground transition-colors"
                 >
                   Bảo hành
                 </Link>
@@ -91,7 +91,7 @@ export function Footer() {
           </div>
 
           <div className="space-y-3 sm:space-y-4">
-            <h3 className="font-semibold text-foreground text-sm sm:text-base">
+            <h3 className="font-semibold text-secondary-foreground text-sm sm:text-base">
               Liên hệ
             </h3>
             <ul className="space-y-1.5 sm:space-y-2 text-muted-foreground text-sm sm:text-base">
@@ -103,9 +103,7 @@ export function Footer() {
         </div>
 
         <div className="border-t border-border mt-8 sm:mt-10 pt-4 text-center text-muted-foreground">
-          <p className="text-sm sm:text-base">
-            &copy; 2024 ZenKoi. Tất cả quyền được bảo lưu.
-          </p>
+          <p className="text-sm sm:text-base">&copy; 2025 ZenKoi.</p>
         </div>
       </div>
     </footer>

@@ -123,7 +123,7 @@ export default function RenewPasswordPage() {
                 <div className="space-y-2">
                   <Label
                     htmlFor="newPassword"
-                    className="text-foreground font-medium text-sm"
+                    className="text-secondary-foreground font-medium text-sm"
                   >
                     Mật khẩu mới
                   </Label>
@@ -155,7 +155,7 @@ export default function RenewPasswordPage() {
                 <div className="space-y-2">
                   <Label
                     htmlFor="confirmedNewPassword"
-                    className="text-foreground font-medium text-sm"
+                    className="text-secondary-foreground font-medium text-sm"
                   >
                     Xác nhận mật khẩu mới
                   </Label>
