@@ -146,7 +146,7 @@ export default function SignUpPage() {
                 <div className="space-y-2">
                   <Label
                     htmlFor="email"
-                    className="text-foreground font-medium text-sm"
+                    className="text-secondary-foreground font-medium text-sm"
                   >
                     Địa chỉ Email
                   </Label>
@@ -167,7 +167,7 @@ export default function SignUpPage() {
                 <div className="space-y-2">
                   <Label
                     htmlFor="userName"
-                    className="text-foreground font-medium text-sm"
+                    className="text-secondary-foreground font-medium text-sm"
                   >
                     Tên người dùng
                   </Label>
@@ -188,7 +188,7 @@ export default function SignUpPage() {
                 <div className="space-y-2">
                   <Label
                     htmlFor="fullName"
-                    className="text-foreground font-medium text-sm"
+                    className="text-secondary-foreground font-medium text-sm"
                   >
                     Họ và tên
                   </Label>
@@ -209,7 +209,7 @@ export default function SignUpPage() {
                 <div className="space-y-2">
                   <Label
                     htmlFor="phoneNumber"
-                    className="text-foreground font-medium text-sm"
+                    className="text-secondary-foreground font-medium text-sm"
                   >
                     Số điện thoại
                   </Label>
@@ -230,7 +230,7 @@ export default function SignUpPage() {
                 <div className="space-y-2">
                   <Label
                     htmlFor="password"
-                    className="text-foreground font-medium text-sm"
+                    className="text-secondary-foreground font-medium text-sm"
                   >
                     Mật khẩu
                   </Label>
@@ -266,7 +266,7 @@ export default function SignUpPage() {
                 <div className="space-y-2">
                   <Label
                     htmlFor="confirmPassword"
-                    className="text-foreground font-medium text-sm"
+                    className="text-secondary-foreground font-medium text-sm"
                   >
                     Xác nhận mật khẩu
                   </Label>

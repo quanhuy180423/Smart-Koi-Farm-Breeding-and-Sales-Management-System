@@ -75,10 +75,10 @@ import {
 } from "@/lib/utils/enum";
 import { useDebounce } from "@/hooks/useDebounce";
 import { Label } from "@/components/ui/label";
-import PedigreeModal from "./PedigreeModal";
+import PedigreeModal from "./components/PedigreeModal";
 import { KoiDetailDialog } from "@/components/dialogs/KoiDetailDialog";
 import { KoiIncidentHistoryDialog } from "@/components/dialogs/KoiIncidentHistoryDialog";
-import { EditKoiModal } from "./EditKoiModal";
+import { EditKoiModal } from "./components/EditKoiModal";
 import PondSelectionDialog from "@/components/manager/PondSelectionDialog";
 import VarietySelectionDialog from "@/components/manager/VarietySelectionDialog";
 

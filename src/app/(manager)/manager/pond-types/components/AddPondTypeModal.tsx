@@ -20,7 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { PondTypeFormState } from "./page";
+import { PondTypeFormState } from "../page";
 import { getPondTypeLabel } from "@/lib/utils/enum/formatEnum";
 import { PondTypeEnum } from "@/lib/api/services/fetchPond";
 

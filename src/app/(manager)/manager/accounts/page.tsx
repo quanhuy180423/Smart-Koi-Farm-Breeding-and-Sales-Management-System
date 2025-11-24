@@ -595,7 +595,7 @@ export default function AccountManagement() {
               <div className="space-y-2">
                 <Label
                   htmlFor="password"
-                  className="text-foreground font-medium text-sm"
+                  className="text-secondary-foreground font-medium text-sm"
                 >
                   Mật khẩu
                 </Label>
@@ -628,7 +628,7 @@ export default function AccountManagement() {
               <div className="space-y-2">
                 <Label
                   htmlFor="confirmPassword"
-                  className="text-foreground font-medium text-sm"
+                  className="text-secondary-foreground font-medium text-sm"
                 >
                   Xác nhận mật khẩu
                 </Label>
