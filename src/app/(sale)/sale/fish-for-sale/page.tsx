@@ -72,7 +72,7 @@ export default function FishForSalePage() {
   const [searchParams, setSearchParams] = useState<KoiFishSearchParams>({
     pageIndex: 1,
     pageSize: PAGE_SIZE_OPTIONS[0],
-    SaleStatus: SaleStatus.AVAILABLE,
+    saleStatus: SaleStatus.AVAILABLE,
   });
   const [isAddFishDialogOpen, setIsAddFishDialogOpen] = useState(false);
   const [selectedKoi, setSelectedKoi] = useState<KoiFishResponse | null>(null);

@@ -72,25 +72,25 @@ function CatalogContent() {
     const params: KoiFishSearchParams = {
       pageIndex: currentPage,
       pageSize: pageSize,
-      SaleStatus: SaleStatus.AVAILABLE,
+      saleStatus: SaleStatus.AVAILABLE,
     };
 
-    if (debouncedSearchTerm) params.Search = debouncedSearchTerm;
+    if (debouncedSearchTerm) params.search = debouncedSearchTerm;
     if (filters.selectedGender !== "Tất cả")
-      params.Gender = filters.selectedGender as Gender;
+      params.gender = filters.selectedGender as Gender;
     if (filters.selectedVariety !== "Tất cả")
-      params.VarietyId = Number(filters.selectedVariety);
+      params.varietyId = Number(filters.selectedVariety);
     if (filters.selectedOrigin !== "Tất cả")
-      params.Origin = filters.selectedOrigin;
+      params.origin = filters.selectedOrigin;
 
     if (filters.sizeRange[0] > 0 || filters.sizeRange[1] < 90) {
-      params.MinSize = filters.sizeRange[0];
-      params.MaxSize = filters.sizeRange[1];
+      params.minSize = filters.sizeRange[0];
+      params.maxSize = filters.sizeRange[1];
     }
 
     if (filters.priceRange[0] > 0 || filters.priceRange[1] < 100000000) {
-      params.MinPrice = filters.priceRange[0];
-      params.MaxPrice = filters.priceRange[1];
+      params.minPrice = filters.priceRange[0];
+      params.maxPrice = filters.priceRange[1];
     }
 
     return params;

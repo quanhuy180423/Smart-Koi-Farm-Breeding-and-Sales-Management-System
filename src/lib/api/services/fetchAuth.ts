@@ -21,10 +21,10 @@ export interface RegisterResponse {
   id: string;
   userName: string;
   emailAddress: string;
-  phoneNumBer: string;
+  phoneNumber: string;
 }
 
-export interface LogginGoogleRequest {
+export interface LoginGoogleRequest {
   idToken: string;
 }
 
@@ -105,12 +105,12 @@ export const fetchAuth = {
     }
   },
   authenGoogle: async (
-    data: LogginGoogleRequest,
+    data: LoginGoogleRequest,
   ): Promise<BaseResponse<LoginResponse>> => {
     try {
       const response = await apiService.post<
         BaseResponse<LoginResponse>,
-        LogginGoogleRequest
+        LoginGoogleRequest
       >(`${baseUrl}/authen-google`, data);
       return response.data;
     } catch (error) {
