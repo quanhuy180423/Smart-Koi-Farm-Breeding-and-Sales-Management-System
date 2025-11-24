@@ -86,17 +86,18 @@ export enum SaleStatus {
 }
 
 export interface KoiFishSearchParams extends PagingRequest {
-  Search?: string;
-  Gender?: Gender;
-  Health?: HealthStatus;
-  VarietyId?: number;
-  MinSize?: number;
-  MaxSize?: number;
-  PondId?: number;
-  Origin?: string;
-  MinPrice?: number;
-  MaxPrice?: number;
-  SaleStatus?: SaleStatus;
+  search?: string;
+  gender?: Gender;
+  health?: HealthStatus;
+  varietyId?: number;
+  minSize?: number;
+  maxSize?: number;
+  pondId?: number;
+  origin?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  saleStatus?: SaleStatus;
+  isBreeding?: boolean;
 }
 
 export interface KoiFishFamilyResponse {

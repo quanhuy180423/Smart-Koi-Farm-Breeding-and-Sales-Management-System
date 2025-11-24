@@ -117,16 +117,16 @@ export default function KoiManagement() {
   const [searchParams, setSearchParams] = useState<KoiFishSearchParams>({
     pageIndex: 1,
     pageSize: PAGE_SIZE_OPTIONS_DEFAULT[0],
-    Search: "",
-    Health: undefined,
-    Gender: undefined,
-    VarietyId: undefined,
-    MinSize: undefined,
-    MaxSize: undefined,
-    PondId: undefined,
-    Origin: undefined,
-    MinPrice: undefined,
-    MaxPrice: undefined,
+    search: "",
+    health: undefined,
+    gender: undefined,
+    varietyId: undefined,
+    minSize: undefined,
+    maxSize: undefined,
+    pondId: undefined,
+    origin: undefined,
+    minPrice: undefined,
+    maxPrice: undefined,
   });
 
   useEffect(() => {
@@ -595,34 +595,34 @@ export default function KoiManagement() {
         onOpenChange={(open) => {
           setIsFilterModalOpen(open);
           if (!open) {
-            setHealthFilterInput(searchParams.Health || "all");
-            setGenderFilterInput(searchParams.Gender || "all");
+            setHealthFilterInput(searchParams.health || "all");
+            setGenderFilterInput(searchParams.gender || "all");
             setFishSizeInput(
-              searchParams.MinSize !== undefined
-                ? String(searchParams.MinSize)
+              searchParams.minSize !== undefined
+                ? String(searchParams.minSize)
                 : "all",
             );
             setMinPriceInput(
-              searchParams.MinPrice !== undefined
-                ? String(searchParams.MinPrice)
+              searchParams.minPrice !== undefined
+                ? String(searchParams.minPrice)
                 : "",
             );
             setMaxPriceInput(
-              searchParams.MaxPrice !== undefined
-                ? String(searchParams.MaxPrice)
+              searchParams.maxPrice !== undefined
+                ? String(searchParams.maxPrice)
                 : "",
             );
             setVarietyIdInput(
-              searchParams.VarietyId !== undefined
-                ? String(searchParams.VarietyId)
+              searchParams.varietyId !== undefined
+                ? String(searchParams.varietyId)
                 : "",
             );
             setPondIdInput(
-              searchParams.PondId !== undefined
-                ? String(searchParams.PondId)
+              searchParams.pondId !== undefined
+                ? String(searchParams.pondId)
                 : "",
             );
-            setOriginInput(searchParams.Origin || "");
+            setOriginInput(searchParams.origin || "");
           }
         }}
       >
