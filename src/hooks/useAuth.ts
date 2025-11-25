@@ -1,10 +1,13 @@
 import {
   ChangePasswordRequest,
+  ConfirmEmailByOtpRequest,
   ForgotPasswordRequest,
   RegisterRequest,
   RegisterResponse,
   ResetPasswordRequest,
   Roles,
+  SendOtpRequest,
+  SendOtpResponse,
 } from "@/lib/api/services/fetchAuth";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
@@ -385,6 +388,50 @@ export function useChangePassword(onSuccessCallback?: () => void) {
       } else {
         toast.error(err?.message || "Đổi mật khẩu thất bại");
       }
+    },
+  });
+}
+
+export function useConfirmEmail(onSuccessCallback?: () => void) {
+  return useMutation({
+    mutationFn: async (data: ConfirmEmailByOtpRequest) => {
+      return await fetchAuth.confirmEmailByOtp(data);
+    },
+    onSuccess: (response: BaseResponse<string>) => {
+      if (response?.isSuccess) {
+        const message = response?.message || "Xác thực email thành công!";
+        toast.success(message);
+        onSuccessCallback?.();
+      } else {
+        toast.error(response?.message || "Xác thực email thất bại");
+      }
+    },
+    onError: (err: ApiError) => {
+      const errorMessage =
+        err?.error?.message || err?.message || "Xác thực email thất bại";
+      toast.error(errorMessage);
+    },
+  });
+}
+
+export function useSendOtp(onSuccessCallback?: () => void) {
+  return useMutation({
+    mutationFn: async (data: SendOtpRequest) => {
+      return await fetchAuth.sendOtp(data);
+    },
+    onSuccess: (response: BaseResponse<SendOtpResponse>) => {
+      if (response?.isSuccess) {
+        const message = response?.result?.message || "Gửi mã OTP thành công";
+        toast.success(message);
+        onSuccessCallback?.();
+      } else {
+        toast.error(response?.message || "Gửi mã OTP thất bại");
+      }
+    },
+    onError: (err: ApiError) => {
+      const errorMessage =
+        err?.error?.message || err?.message || "Gửi mã OTP thất bại";
+      toast.error(errorMessage);
     },
   });
 }
