@@ -38,7 +38,7 @@ export function AddFishDialog({ onClose }: AddFishDialogProps) {
   const [searchParams, setSearchParams] = useState<KoiFishSearchParams>({
     pageIndex: 1,
     pageSize: PAGE_SIZE_OPTIONS[0],
-    SaleStatus: SaleStatus.NOT_FOR_SALE,
+    saleStatus: SaleStatus.NOT_FOR_SALE,
   });
 
   const { data: koiData, isLoading } = useGetKoiFishes(searchParams);

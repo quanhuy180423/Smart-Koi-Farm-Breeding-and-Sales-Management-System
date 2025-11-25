@@ -14,17 +14,16 @@ export interface RegisterRequest {
   confirmPassword: string;
   fullName: string;
   phoneNumber: string;
-  role: Roles;
 }
 
 export interface RegisterResponse {
   id: string;
   userName: string;
   emailAddress: string;
-  phoneNumBer: string;
+  phoneNumber: string;
 }
 
-export interface LogginGoogleRequest {
+export interface LoginGoogleRequest {
   idToken: string;
 }
 
@@ -66,6 +65,20 @@ export interface ChangePasswordRequest {
   confirmedNewPassword: string;
 }
 
+export interface ConfirmEmailByOtpRequest {
+  email: string;
+  code: string;
+}
+
+export interface SendOtpRequest {
+  email: string;
+}
+
+export interface SendOtpResponse {
+  isSuccess: boolean;
+  message: string;
+}
+
 const baseUrl = "/api/Accounts";
 
 export const fetchAuth = {
@@ -105,12 +118,12 @@ export const fetchAuth = {
     }
   },
   authenGoogle: async (
-    data: LogginGoogleRequest,
+    data: LoginGoogleRequest,
   ): Promise<BaseResponse<LoginResponse>> => {
     try {
       const response = await apiService.post<
         BaseResponse<LoginResponse>,
-        LogginGoogleRequest
+        LoginGoogleRequest
       >(`${baseUrl}/authen-google`, data);
       return response.data;
     } catch (error) {
@@ -160,6 +173,32 @@ export const fetchAuth = {
         BaseResponse<LoginResponse>,
         ChangePasswordRequest
       >(`${baseUrl}/change-password`, data);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+  confirmEmailByOtp: async (
+    data: ConfirmEmailByOtpRequest,
+  ): Promise<BaseResponse<string>> => {
+    try {
+      const response = await apiService.post<
+        BaseResponse<string>,
+        ConfirmEmailByOtpRequest
+      >(`${baseUrl}/confirm-email-by-otp`, data);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+  sendOtp: async (
+    data: SendOtpRequest,
+  ): Promise<BaseResponse<SendOtpResponse>> => {
+    try {
+      const response = await apiService.post<
+        BaseResponse<SendOtpResponse>,
+        SendOtpRequest
+      >(`${baseUrl}/send-otp`, data);
       return response.data;
     } catch (error) {
       throw error;

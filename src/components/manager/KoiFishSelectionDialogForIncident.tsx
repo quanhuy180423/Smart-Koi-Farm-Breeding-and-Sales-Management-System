@@ -36,7 +36,7 @@ const KoiFishSelectionDialogForIncident = ({
     useState<KoiFishSearchParams>({
       pageIndex: 1,
       pageSize: PAGE_SIZE,
-      Search: "",
+      search: "",
     });
 
   useEffect(() => {

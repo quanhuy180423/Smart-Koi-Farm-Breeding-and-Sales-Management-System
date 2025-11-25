@@ -62,7 +62,7 @@ const KoiFishSelectionDialogForBreeding = ({
     {
       pageIndex: 1,
       pageSize: PAGE_SIZE_OPTIONS[1], // 10 per page
-      Search: "",
+      search: "",
     },
   );
 

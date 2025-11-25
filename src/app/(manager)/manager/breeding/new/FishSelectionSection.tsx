@@ -143,9 +143,10 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
   } = useGetKoiFishes({
     pageIndex: pageIndexMale,
     pageSize,
-    Gender: Gender.MALE,
-    Search: fatherSearch,
-    Health: HealthStatus.HEALTHY,
+    gender: Gender.MALE,
+    isBreeding: false,
+    search: fatherSearch,
+    health: HealthStatus.HEALTHY,
   });
   const {
     data: motherKoiResponse,
@@ -155,9 +156,10 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
   } = useGetKoiFishes({
     pageIndex: pageIndexFemale,
     pageSize,
-    Gender: Gender.FEMALE,
-    Search: motherSearch,
-    Health: HealthStatus.HEALTHY,
+    gender: Gender.FEMALE,
+    isBreeding: false,
+    search: motherSearch,
+    health: HealthStatus.HEALTHY,
   });
 
   // Debounce father search

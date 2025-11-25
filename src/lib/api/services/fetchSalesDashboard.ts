@@ -1,6 +1,6 @@
 import apiService, { BaseResponse } from "../apiClient";
 
-export interface MontlyRevenueData {
+export interface MonthlyRevenueData {
   current: number;
   changePercent: number;
 }
@@ -21,7 +21,7 @@ export interface FishInStockData {
 }
 
 export interface SalesDashboardStatistics {
-  monthlyRevenue: MontlyRevenueData;
+  monthlyRevenue: MonthlyRevenueData;
   totalOrders: TotalOrdersData;
   customerCount: CustomerCountData;
   fishInStock: FishInStockData;

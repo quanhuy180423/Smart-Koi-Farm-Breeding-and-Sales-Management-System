@@ -148,7 +148,7 @@ export function NotificationDropdown() {
   const handleNotificationMessage = useCallback(
     (notification: NotificationMessage) => {
       // Backend sends water alerts with PascalCase properties in notification.data
-      // Example: { PondId: 1, PondName: "Ao Chính Fuji", ParameterName: "PHLevel", Message: "...", CreatedAt: "2025-11-16T18:11:00Z", ... }
+      // Example: { pondId: 1, PondName: "Ao Chính Fuji", ParameterName: "PHLevel", Message: "...", CreatedAt: "2025-11-16T18:11:00Z", ... }
       const alertData = notification.data;
 
       if (!alertData || typeof alertData !== "object") {
