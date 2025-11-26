@@ -496,23 +496,6 @@ export default function CustomerProfilePage() {
                       </div>
                     )}
                   </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="address">Địa chỉ</Label>
-                    <Input
-                      id="address"
-                      value={
-                        isEditing ? editedProfile?.address : profile.address
-                      }
-                      onChange={(e) =>
-                        handleInputChange("address", e.target.value)
-                      }
-                      disabled={!isEditing}
-                      className={
-                        !isEditing ? "bg-muted/50" : "border border-primary"
-                      }
-                    />
-                  </div>
                 </CardContent>
               </Card>
             </div>

@@ -83,10 +83,10 @@ export function useDeleteArea() {
       if (data.isSuccess) {
         queryClient.invalidateQueries({ queryKey: ["area"] });
       }
-      toast.success(data.message || "Xóa sửa khu vực thành công");
+      toast.success(data.message || "Xóa khu vực thành công");
     },
     onError: (error: ApiError) => {
-      toast.error(error.message || "Có lỗi xảy ra khi cập nhật thông tin");
+      toast.error(error.message || "Có lỗi xảy ra khi xóa khu vực");
     },
   });
 }

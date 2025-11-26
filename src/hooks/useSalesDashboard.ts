@@ -13,9 +13,7 @@ export const useGetSalesDashboardStatistics = () => {
     queryFn: async () => {
       const response = await salesDashboardService.getStatistics();
       if (!response.isSuccess) {
-        throw new Error(
-          response.message || "Failed to fetch sales dashboard statistics",
-        );
+        throw new Error(response.message || "Không thể tải thống kê bán hàng");
       }
       return response.result;
     },
@@ -31,7 +29,7 @@ export const useGetSalesDashboardQuickInfo = () => {
       const response = await salesDashboardService.getQuickInfo();
       if (!response.isSuccess) {
         throw new Error(
-          response.message || "Failed to fetch sales dashboard quick info",
+          response.message || "Không thể tải thông tin nhanh bán hàng",
         );
       }
       return response.result;
@@ -47,7 +45,7 @@ export const useGetBestSellers = (top: number = 5) => {
     queryFn: async () => {
       const response = await salesDashboardService.getBestSellers(top);
       if (!response.isSuccess) {
-        throw new Error(response.message || "Failed to fetch best sellers");
+        throw new Error(response.message || "Không thể tải sản phẩm bán chạy");
       }
       return response.result;
     },
@@ -64,7 +62,7 @@ export const useGetSalesAnalysis = (
     queryFn: async () => {
       const response = await salesDashboardService.getSalesAnalysis(range);
       if (!response.isSuccess) {
-        throw new Error(response.message || "Failed to fetch sales analysis");
+        throw new Error(response.message || "Không thể tải phân tích bán hàng");
       }
       return response.result;
     },

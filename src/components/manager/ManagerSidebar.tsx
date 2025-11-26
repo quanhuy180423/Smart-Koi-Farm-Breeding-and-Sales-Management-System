@@ -102,13 +102,13 @@ export default function ManagerSidebar({ className }: ManagerSidebarProps) {
         className={cn(
           "flex items-center gap-3 rounded-lg py-2 transition-all duration-200 group hover:bg-accent hover:text-white",
           isActive ? "bg-primary/10 text-primary" : "text-muted-foreground",
-          isCollapsed && !isMobile ? "justify-center px-2" : "px-3",
+          isCollapsed && !isMobile ? "justify-center px-0" : "px-3",
         )}
       >
         <Icon
           className={cn(
-            "h-5 w-5 flex-shrink-0",
-            isActive && "text- hover:text-white",
+            "h-5 w-5 flex-shrink-2",
+            isActive && "text-primary hover:text-white",
           )}
         />
 
@@ -179,11 +179,11 @@ export default function ManagerSidebar({ className }: ManagerSidebarProps) {
             variant="ghost"
             size="icon"
             onClick={toggleSidebar}
-            className="h-8 w-8 text-muted-foreground hover:text-white bg-primary/10"
+            className="h-12 w-10 text-muted-foreground hover:text-white bg-primary/10"
           >
             <ChevronLeft
               className={cn(
-                "h-4 w-4 transition-transform duration-300",
+                "h-8 w-8 transition-transform duration-300",
                 isCollapsed && "rotate-180",
               )}
             />

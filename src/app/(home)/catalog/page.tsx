@@ -21,7 +21,7 @@ import {
   SaleStatus,
   Gender,
 } from "@/lib/api/services/fetchKoiFish";
-import { useAddItemToCart } from "@/hooks/useCart";
+import { useAddItemToCart, useGetCart } from "@/hooks/useCart";
 import { PaginationWithLinks } from "@/components/pagination";
 import { formatCurrency } from "@/lib/utils/numbers/formatCurrency";
 import { KoiFishCard } from "./components/KoiFishCard";
@@ -43,6 +43,14 @@ function CatalogContent() {
 
   const [addingId, setAddingId] = useState<number | null>(null);
   const { mutate: addToCard } = useAddItemToCart();
+  const { data: cart } = useGetCart();
+
+  // Check if item is in cart
+  const isInCart = (koiFishId: number) => {
+    return (
+      cart?.cartItems?.some((item) => item.koiFishId === koiFishId) || false
+    );
+  };
 
   // 2. Handle filter application - now just updates applied filters
   const handleApplyFilters = () => {
@@ -315,6 +323,7 @@ function CatalogContent() {
                     koi={koi}
                     onAddToCart={handleAddToCart}
                     addingId={addingId}
+                    isInCart={isInCart(koi.id)}
                   />
                 ))}
               </div>

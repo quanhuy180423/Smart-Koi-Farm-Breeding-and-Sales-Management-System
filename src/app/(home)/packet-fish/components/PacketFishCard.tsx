@@ -22,7 +22,7 @@ export const PacketFishCard = ({
   isAddPending = false,
 }: PacketFishCardProps) => {
   return (
-    <Card className="group overflow-hidden border-gray-200 hover:shadow-xl hover:border-primary/30 transition-all duration-300 flex flex-col h-full bg-white">
+    <Card className="group p-0 overflow-hidden border-gray-200 hover:shadow-xl hover:border-primary/30 transition-all duration-300 flex flex-col h-full bg-white">
       {/* Image Section */}
       <div className="relative overflow-hidden aspect-[4/3]">
         <Link href={`/packet-fish/${packet.id}`}>

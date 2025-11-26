@@ -83,7 +83,13 @@ export function useUpdateOrderStatus() {
       queryClient.invalidateQueries({
         queryKey: ["orders", variables.orderId],
       });
-      toast.success(data.message);
+      toast.success(data.message || "Cập nhật trạng thái đơn hàng thành công");
+    },
+    onError: (error: unknown) => {
+      const err = error as { message?: string };
+      toast.error(
+        err?.message || "Có lỗi xảy ra khi cập nhật trạng thái đơn hàng",
+      );
     },
   });
 }

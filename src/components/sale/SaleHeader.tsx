@@ -83,15 +83,6 @@ export function SaleHeader() {
                   Thông tin cá nhân
                 </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link
-                  href={"/sale/settings" as const}
-                  className="flex items-center cursor-pointer"
-                >
-                  <Settings className="mr-2 h-4 w-4 group-hover:text-white" />
-                  Cài đặt
-                </Link>
-              </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem asChild>
                 <div

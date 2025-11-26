@@ -1,10 +1,11 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { BaseResponse } from "@/lib/api/apiClient";
+import { ApiError, BaseResponse } from "@/lib/api/apiClient";
 import customerAddressService, {
   CustomerAddressResponse,
   CreateAddressRequest,
   UpdateAddressRequest,
 } from "@/lib/api/services/fetchCustomerAddress";
+import toast from "react-hot-toast";
 
 export function useGetCustomerAddresses() {
   return useQuery({
@@ -31,9 +32,16 @@ export function useCreateAddress() {
   return useMutation({
     mutationFn: (data: CreateAddressRequest) =>
       customerAddressService.createAddress(data),
-    onSuccess: () => {
-      // Invalidate and refetch addresses list
+    onSuccess: (data: BaseResponse<CustomerAddressResponse>) => {
       queryClient.invalidateQueries({ queryKey: ["customer-addresses"] });
+      toast.success(data.message || "Thêm địa chỉ thành công");
+    },
+    onError: (error: ApiError) => {
+      toast.error(
+        error.error?.result ||
+          error.message ||
+          "Có lỗi xảy ra khi thêm địa chỉ",
+      );
     },
   });
 }
@@ -49,9 +57,16 @@ export function useUpdateAddress() {
       addressId: number;
       data: UpdateAddressRequest;
     }) => customerAddressService.updateAddress(addressId, data),
-    onSuccess: () => {
-      // Invalidate and refetch addresses list
+    onSuccess: (data: BaseResponse<CustomerAddressResponse>) => {
       queryClient.invalidateQueries({ queryKey: ["customer-addresses"] });
+      toast.success(data.message || "Cập nhật địa chỉ thành công");
+    },
+    onError: (error: ApiError) => {
+      toast.error(
+        error.error?.result ||
+          error.message ||
+          "Có lỗi xảy ra khi cập nhật địa chỉ",
+      );
     },
   });
 }
@@ -62,9 +77,14 @@ export function useDeleteAddress() {
   return useMutation({
     mutationFn: (addressId: number) =>
       customerAddressService.deleteAddress(addressId),
-    onSuccess: () => {
-      // Invalidate and refetch addresses list
+    onSuccess: (data: BaseResponse<boolean>) => {
       queryClient.invalidateQueries({ queryKey: ["customer-addresses"] });
+      toast.success(data.message || "Xóa địa chỉ thành công");
+    },
+    onError: (error: ApiError) => {
+      toast.error(
+        error.error?.result || error.message || "Có lỗi xảy ra khi xóa địa chỉ",
+      );
     },
   });
 }
@@ -75,9 +95,16 @@ export function useSetDefaultAddress() {
   return useMutation({
     mutationFn: (addressId: number) =>
       customerAddressService.setDefaultAddress(addressId),
-    onSuccess: () => {
-      // Invalidate and refetch addresses list
+    onSuccess: (data: BaseResponse<CustomerAddressResponse>) => {
       queryClient.invalidateQueries({ queryKey: ["customer-addresses"] });
+      toast.success(data.message || "Đặt địa chỉ mặc định thành công");
+    },
+    onError: (error: ApiError) => {
+      toast.error(
+        error.error?.result ||
+          error.message ||
+          "Có lỗi xảy ra khi đặt địa chỉ mặc định",
+      );
     },
   });
 }
