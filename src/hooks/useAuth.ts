@@ -283,8 +283,8 @@ export function useGoogleLogin() {
       }
     },
     onError: (error: ApiError) => {
-      if (error?.error?.message) {
-        toast.error(error?.error?.message || "Đăng nhập thất bại");
+      if (error?.message) {
+        toast.error(error?.message || "Đăng nhập thất bại");
       }
     },
   });
