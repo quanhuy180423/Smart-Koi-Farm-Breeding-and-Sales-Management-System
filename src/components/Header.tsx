@@ -103,33 +103,32 @@ export function Header() {
               <div className="absolute inset-0 bg-primary/10 rounded-lg opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 transition-all duration-200"></div>
             </Link>
 
-            <div>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    className="w-full justify-between text-sm font-medium text-secondary-foreground hover:text-primary hover:bg-primary/5 rounded-lg"
-                  >
-                    Danh mục <ChevronDown className="h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-44">
-                  <DropdownMenuItem
-                    key={0}
+            <div className="relative group">
+              <Button
+                variant="ghost"
+                className="w-full justify-between text-sm font-medium text-secondary-foreground hover:text-primary hover:bg-primary/5 rounded-lg"
+              >
+                Danh mục
+              </Button>
+              <div className="absolute top-full left-0 pt-1 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                <div className="w-44 bg-popover border border-border rounded-md shadow-md p-1">
+                  <div
+                    className="px-2 py-1.5 text-sm cursor-pointer rounded-sm hover:bg-accent hover:text-accent-foreground"
                     onClick={() => handleSelectVariety(null)}
                   >
                     Tất cả
-                  </DropdownMenuItem>
+                  </div>
                   {koiVarieties?.data.map((koi) => (
-                    <DropdownMenuItem
+                    <div
                       key={koi.id}
+                      className="px-2 py-1.5 text-sm cursor-pointer rounded-sm hover:bg-accent hover:text-accent-foreground"
                       onClick={() => handleSelectVariety(koi.id)}
                     >
                       {koi.varietyName}
-                    </DropdownMenuItem>
+                    </div>
                   ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
+                </div>
+              </div>
             </div>
             <Link
               href="/packet-fish"

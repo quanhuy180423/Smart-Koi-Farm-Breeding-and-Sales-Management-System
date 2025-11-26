@@ -12,7 +12,7 @@ export const useGetFarmDashboardStatistics = () => {
       const response = await farmDashboardService.getStatistics();
       if (!response.isSuccess) {
         throw new Error(
-          response.message || "Failed to fetch farm dashboard statistics",
+          response.message || "Không thể tải thống kê trang trại",
         );
       }
       return response.result;
@@ -29,7 +29,7 @@ export const useGetFarmDashboardQuickStats = () => {
       const response = await farmDashboardService.getQuickStats();
       if (!response.isSuccess) {
         throw new Error(
-          response.message || "Failed to fetch farm dashboard quick stats",
+          response.message || "Không thể tải thống kê nhanh trang trại",
         );
       }
       return response.result;
@@ -45,7 +45,7 @@ export const useGetActivityFeed = (limit: number = 5) => {
     queryFn: async () => {
       const response = await farmDashboardService.getActivityFeed(limit);
       if (!response.isSuccess) {
-        throw new Error(response.message || "Failed to fetch activity feed");
+        throw new Error(response.message || "Không thể tải hoạt động gần đây");
       }
       return response.result;
     },

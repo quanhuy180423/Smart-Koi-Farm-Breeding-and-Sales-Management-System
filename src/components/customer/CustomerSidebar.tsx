@@ -64,18 +64,6 @@ const sidebarItems = [
     icon: Heart,
     description: "Cá Koi yêu thích",
   },
-  {
-    title: "Thông báo",
-    href: "/profile/notifications" as const,
-    icon: Bell,
-    description: "Thông báo & cập nhật",
-  },
-  {
-    title: "Cài đặt",
-    href: "/profile/settings" as const,
-    icon: Settings,
-    description: "Cài đặt tài khoản",
-  },
 ] as const;
 
 interface CustomerSidebarProps {
