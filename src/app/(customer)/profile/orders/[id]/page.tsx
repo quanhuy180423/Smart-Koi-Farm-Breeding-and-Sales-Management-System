@@ -14,10 +14,10 @@ import {
   DollarSign,
   Package,
   Calendar,
-  CheckCircle,
   Clock,
   CreditCard,
   XCircle,
+  CheckCircle,
 } from "lucide-react";
 import Image from "next/image";
 import { toast } from "sonner";
@@ -83,35 +83,6 @@ export default function OrderDetailPage() {
         onError: (error) => {
           toast.error(
             error instanceof Error ? error.message : "Không thể hủy đơn hàng",
-          );
-        },
-      },
-    );
-  };
-
-  const handleCompleteOrder = () => {
-    if (!orderId) {
-      toast.error("Không tìm thấy đơn hàng");
-      return;
-    }
-
-    updateStatusMutation.mutate(
-      {
-        orderId,
-        request: {
-          status: OrderStatus.DELIVERED,
-          note: "đã nhận được hàng",
-        },
-      },
-      {
-        onSuccess: () => {
-          toast.success("Đơn hàng đã hoàn thành");
-        },
-        onError: (error) => {
-          toast.error(
-            error instanceof Error
-              ? error.message
-              : "Không thể hoàn thành đơn hàng",
           );
         },
       },
@@ -412,25 +383,6 @@ export default function OrderDetailPage() {
                 Hủy đơn hàng
               </Button>
             </>
-          )}
-          {order?.status === OrderStatus.SHIPPED && (
-            <Button
-              onClick={handleCompleteOrder}
-              disabled={updateStatusMutation.isPending}
-              className="flex-1 bg-green-600 hover:bg-green-700"
-            >
-              {updateStatusMutation.isPending ? (
-                <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Đang xác nhận...
-                </>
-              ) : (
-                <>
-                  <CheckCircle className="h-4 w-4 mr-2" />
-                  Xác nhận đã nhận hàng
-                </>
-              )}
-            </Button>
           )}
           <Button className="flex-1">
             <Package className="h-4 w-4 mr-2" />

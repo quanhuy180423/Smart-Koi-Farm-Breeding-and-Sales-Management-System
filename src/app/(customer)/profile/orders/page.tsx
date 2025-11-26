@@ -30,7 +30,6 @@ import {
   Search,
   Eye,
   Loader2,
-  CheckCircle,
   CreditCard,
   Filter,
   X,
@@ -72,8 +71,7 @@ export default function OrdersPage() {
   ]);
   const [hasPromotion, setHasPromotion] = useState(false);
 
-  // Complete order dialog state
-  const [isCompleteDialogOpen, setIsCompleteDialogOpen] = useState(false);
+  // Selected order ID for cancel action
   const [selectedOrderId, setSelectedOrderId] = useState<number | null>(null);
 
   // Cancel order dialog state
@@ -85,38 +83,6 @@ export default function OrdersPage() {
 
   // Payment mutation
   const paymentMutation = useCreatePayment();
-
-  // Handler for completing order (SHIPPED -> COMPLETED)
-  const handleCompleteOrder = () => {
-    if (!selectedOrderId) {
-      toast.error("Không tìm thấy đơn hàng");
-      return;
-    }
-
-    updateStatusMutation.mutate(
-      {
-        orderId: selectedOrderId,
-        request: {
-          status: OrderStatus.DELIVERED,
-          note: "đã nhận được hàng",
-        },
-      },
-      {
-        onSuccess: () => {
-          toast.success("Đơn hàng đã hoàn thành");
-          setIsCompleteDialogOpen(false);
-          setSelectedOrderId(null);
-        },
-        onError: (error) => {
-          toast.error(
-            error instanceof Error
-              ? error.message
-              : "Không thể hoàn thành đơn hàng",
-          );
-        },
-      },
-    );
-  };
 
   // Handler for paying order (CREATED -> PENDING_PAYMENT)
   const handlePayOrder = (orderId: number) => {
@@ -434,19 +400,6 @@ export default function OrdersPage() {
                   </Button>
                 </>
               )}
-              {order.status === OrderStatus.SHIPPED && (
-                <Button
-                  size="sm"
-                  className="w-full md:w-auto bg-green-600 hover:bg-green-700"
-                  onClick={() => {
-                    setSelectedOrderId(order.id);
-                    setIsCompleteDialogOpen(true);
-                  }}
-                >
-                  <CheckCircle className="w-4 h-4 mr-1" />
-                  Xác nhận đã nhận hàng
-                </Button>
-              )}
             </div>
           </div>
         </CardContent>
@@ -676,54 +629,6 @@ export default function OrdersPage() {
             />
           )}
         </div>
-
-        {/* Complete Order Dialog */}
-        <Dialog
-          open={isCompleteDialogOpen}
-          onOpenChange={setIsCompleteDialogOpen}
-        >
-          <DialogContent className="sm:max-w-[500px]">
-            <DialogHeader>
-              <DialogTitle>Xác nhận hoàn thành đơn hàng</DialogTitle>
-              <DialogDescription>
-                Xác nhận rằng bạn đã nhận được hàng và đơn hàng sẽ chuyển sang
-                trạng thái &quot;Hoàn thành&quot;
-              </DialogDescription>
-            </DialogHeader>
-
-            <div className="space-y-4">
-              <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                <p className="text-sm text-blue-900">
-                  Sau khi xác nhận, đơn hàng sẽ chuyển sang trạng thái
-                  &quot;Hoàn thành&quot; và bạn có thể đánh giá sản phẩm.
-                </p>
-              </div>
-            </div>
-
-            <div className="flex justify-end gap-3">
-              <Button
-                variant="outline"
-                onClick={() => setIsCompleteDialogOpen(false)}
-              >
-                Hủy
-              </Button>
-              <Button
-                onClick={handleCompleteOrder}
-                disabled={updateStatusMutation.isPending}
-                className="bg-green-600 hover:bg-green-700"
-              >
-                {updateStatusMutation.isPending ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Đang xác nhận...
-                  </>
-                ) : (
-                  "Xác nhận hoàn thành"
-                )}
-              </Button>
-            </div>
-          </DialogContent>
-        </Dialog>
 
         {/* Cancel Order Dialog */}
         <Dialog open={isCancelDialogOpen} onOpenChange={setIsCancelDialogOpen}>

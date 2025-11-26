@@ -7,28 +7,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  Loader2,
-  MapPin,
-  ArrowLeft,
-  Search,
-  Trash2,
-  Maximize2,
-} from "lucide-react";
+import { Loader2, MapPin, ArrowLeft, Search, Maximize2 } from "lucide-react";
 import { toast } from "sonner";
 import CustomerLayout from "@/components/customer/CustomerLayout";
 import {
   useGetCustomerAddresses,
   useUpdateAddress,
-  useDeleteAddress,
 } from "@/hooks/useCustomerAddress";
 import { useDebounce } from "@/hooks/useDebounce";
 import {
@@ -124,7 +108,6 @@ export default function EditAddressPage() {
   const { data: addresses, isLoading: isLoadingAddresses } =
     useGetCustomerAddresses();
   const { mutate: updateAddress, isPending: isUpdating } = useUpdateAddress();
-  const { mutate: deleteAddress, isPending: isDeleting } = useDeleteAddress();
 
   const [formData, setFormData] = useState({
     fullAddress: "",
@@ -145,7 +128,6 @@ export default function EditAddressPage() {
   const [isSearching, setIsSearching] = useState(false);
   const [isGettingLocation, setIsGettingLocation] = useState(false);
   const [isMapPickerOpen, setIsMapPickerOpen] = useState(false);
-  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const mapRef = useRef(null);
 
   const debouncedSearchQuery = useDebounce(searchQuery, 1500);
@@ -328,25 +310,6 @@ export default function EditAddressPage() {
     );
   };
 
-  const handleDelete = () => {
-    setShowDeleteDialog(true);
-  };
-
-  const confirmDelete = () => {
-    deleteAddress(addressId, {
-      onSuccess: () => {
-        toast.success("Địa chỉ đã được xóa thành công");
-        router.push("/profile/addresses");
-      },
-      onError: (error) => {
-        toast.error(
-          error instanceof Error ? error.message : "Không thể xóa địa chỉ",
-        );
-      },
-    });
-    setShowDeleteDialog(false);
-  };
-
   if (isLoadingAddresses) {
     return (
       <CustomerLayout>
@@ -412,7 +375,7 @@ export default function EditAddressPage() {
                       placeholder="VD: Hà Nội"
                       value={formData.city}
                       onChange={handleInputChange}
-                      disabled={isUpdating || isDeleting}
+                      disabled={isUpdating}
                       className="h-9"
                     />
                   </div>
@@ -428,7 +391,7 @@ export default function EditAddressPage() {
                       placeholder="VD: Hàng Trống"
                       value={formData.ward}
                       onChange={handleInputChange}
-                      disabled={isUpdating || isDeleting}
+                      disabled={isUpdating}
                       className="h-9"
                     />
                   </div>
@@ -444,7 +407,7 @@ export default function EditAddressPage() {
                       placeholder="VD: 123 Đường ABC"
                       value={formData.streetAddress}
                       onChange={handleInputChange}
-                      disabled={isUpdating || isDeleting}
+                      disabled={isUpdating}
                       className="h-9"
                     />
                   </div>
@@ -460,7 +423,7 @@ export default function EditAddressPage() {
                       placeholder="VD: 0987654321"
                       value={formData.recipientPhone}
                       onChange={handleInputChange}
-                      disabled={isUpdating || isDeleting}
+                      disabled={isUpdating}
                       maxLength={10}
                       className="h-9"
                     />
@@ -474,7 +437,7 @@ export default function EditAddressPage() {
                       onCheckedChange={(checked) =>
                         handleCheckboxChange(checked as boolean)
                       }
-                      disabled={isUpdating || isDeleting}
+                      disabled={isUpdating}
                     />
                     <Label
                       htmlFor="isDefault"
@@ -488,7 +451,7 @@ export default function EditAddressPage() {
                   <div className="flex gap-2 pt-2">
                     <Button
                       type="submit"
-                      disabled={isUpdating || isDeleting}
+                      disabled={isUpdating}
                       className="flex-1"
                     >
                       {isUpdating ? (
@@ -501,20 +464,6 @@ export default function EditAddressPage() {
                           <MapPin className="h-4 w-4 mr-2" />
                           Cập nhật
                         </>
-                      )}
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="destructive"
-                      disabled={isUpdating || isDeleting}
-                      onClick={handleDelete}
-                    >
-                      {isDeleting ? (
-                        <>
-                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                        </>
-                      ) : (
-                        <Trash2 className="h-4 w-4" />
                       )}
                     </Button>
                   </div>
@@ -540,9 +489,7 @@ export default function EditAddressPage() {
                           placeholder="Tìm kiếm địa chỉ trên bản đồ..."
                           value={searchQuery}
                           onChange={(e) => setSearchQuery(e.target.value)}
-                          disabled={
-                            isUpdating || isDeleting || isGettingLocation
-                          }
+                          disabled={isUpdating || isGettingLocation}
                           className="pl-10 h-10"
                         />
                         {isSearching && (
@@ -555,7 +502,7 @@ export default function EditAddressPage() {
                       variant="outline"
                       size="sm"
                       onClick={handleGetCurrentLocation}
-                      disabled={isUpdating || isDeleting || isGettingLocation}
+                      disabled={isUpdating || isGettingLocation}
                       className="px-3 h-10"
                       title="Lấy vị trí hiện tại"
                     >
@@ -615,42 +562,6 @@ export default function EditAddressPage() {
           </div>
         </form>
       </div>
-
-      {/* Delete Confirmation Dialog */}
-      <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Xóa địa chỉ</DialogTitle>
-            <DialogDescription>
-              Bạn có chắc chắn muốn xóa địa chỉ này? Hành động này không thể
-              hoàn tác.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setShowDeleteDialog(false)}
-              disabled={isDeleting}
-            >
-              Hủy
-            </Button>
-            <Button
-              variant="destructive"
-              onClick={confirmDelete}
-              disabled={isDeleting}
-            >
-              {isDeleting ? (
-                <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Đang xóa...
-                </>
-              ) : (
-                "Xóa"
-              )}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
 
       {/* Map Picker Fullscreen */}
       <MapPicker
