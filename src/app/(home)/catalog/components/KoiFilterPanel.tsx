@@ -224,7 +224,9 @@ export const KoiFilterPanel = ({
             <div className="flex items-center gap-2">
               {/* Inputs size giữ nguyên như cũ */}
               <div className="space-y-1 flex-1">
-                <Label className="text-[10px] text-muted-foreground">Min</Label>
+                <Label className="text-[10px] text-muted-foreground">
+                  Thấp nhất
+                </Label>
                 <Input
                   className="h-8 text-xs px-2"
                   value={filters.sizeRange[0]}
@@ -233,7 +235,9 @@ export const KoiFilterPanel = ({
               </div>
               <span className="pt-4">-</span>
               <div className="space-y-1 flex-1">
-                <Label className="text-[10px] text-muted-foreground">Max</Label>
+                <Label className="text-[10px] text-muted-foreground">
+                  Cao nhất
+                </Label>
                 <Input
                   className="h-8 text-xs px-2"
                   value={filters.sizeRange[1]}

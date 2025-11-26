@@ -73,10 +73,10 @@ function PaginationPrevious({
     <PaginationLink
       aria-label="Đi đến trang trước"
       size="default"
-      className={cn("gap-1 px-2.5 sm:pl-2.5", className)}
+      className={cn("gap-1 px-2.5 sm:pl-2.5 text-center", className)}
       {...props}
     >
-      <ChevronLeftIcon />
+      <ChevronLeftIcon className="text-center" />
       <span className="hidden sm:block">Quay lại</span>
     </PaginationLink>
   );

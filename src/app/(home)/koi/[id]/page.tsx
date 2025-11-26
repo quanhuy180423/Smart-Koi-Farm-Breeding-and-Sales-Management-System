@@ -17,7 +17,6 @@ import {
 import {
   Heart,
   ShoppingCart,
-  Share2,
   Shield,
   Fish,
   Calendar,
@@ -30,7 +29,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { formatCurrency } from "@/lib/utils/numbers/formatCurrency";
 import { useGetKoiFishById } from "@/hooks/useKoiFish";
-import { useAddItemToCart } from "@/hooks/useCart";
+import { useAddItemToCart, useGetCart } from "@/hooks/useCart";
 import getAge from "@/lib/utils/dates/age";
 import {
   getSaleStatusLabel,
@@ -39,6 +38,8 @@ import {
   getHealthStatusLabel,
 } from "@/lib/utils/enum";
 import { DATE_FORMATS, formatDate } from "@/lib/utils/dates";
+import { useCheckFavorite, useToggleFavorite } from "@/hooks/useFavoriteKoi";
+import { useAuthStore } from "@/store/auth-store";
 
 export default function KoiDetailPage() {
   const params = useParams();
@@ -46,8 +47,17 @@ export default function KoiDetailPage() {
 
   const { data: koi, isLoading, isError } = useGetKoiFishById(koiId);
   const { mutate: addToCart, isPending: isAddPending } = useAddItemToCart();
+  const { data: cart } = useGetCart();
+
+  // Check if item is already in cart
+  const isInCart =
+    cart?.cartItems?.some((item) => item.koiFishId === koiId) || false;
   const [selectedImage, setSelectedImage] = useState(0);
-  const [isFavorite, setIsFavorite] = useState(false);
+
+  // Favorite hooks
+  const { isAuthenticated } = useAuthStore();
+  const { data: isFavorite } = useCheckFavorite(koiId);
+  const { toggleFavorite, isLoading: isFavoriteLoading } = useToggleFavorite();
 
   if (isLoading) {
     return (
@@ -164,23 +174,32 @@ export default function KoiDetailPage() {
                     {koi.variety?.varietyName}
                   </p>
                 </div>
+                {/* favorite button */}
                 <div className="flex gap-2">
                   <Button
                     variant="outline"
                     size="icon"
-                    onClick={() => setIsFavorite(!isFavorite)}
+                    onClick={() => {
+                      if (!isAuthenticated) {
+                        window.location.href = "/login";
+                        return;
+                      }
+                      toggleFavorite(koiId, !!isFavorite);
+                    }}
+                    disabled={isFavoriteLoading}
                     className={
                       isFavorite
                         ? "text-red-500 border-red-500 hover:bg-red-100 hover:text-red-600"
                         : ""
                     }
                   >
-                    <Heart
-                      className={`h-4 w-4 ${isFavorite ? "fill-current" : ""}`}
-                    />
-                  </Button>
-                  <Button variant="outline" size="icon">
-                    <Share2 className="h-4 w-4" />
+                    {isFavoriteLoading ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Heart
+                        className={`h-4 w-4 ${isFavorite ? "fill-current" : ""}`}
+                      />
+                    )}
                   </Button>
                 </div>
               </div>
@@ -266,24 +285,35 @@ export default function KoiDetailPage() {
             </Card>
 
             {/* Action Buttons */}
-            <Button
-              size="lg"
-              className="w-full bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-white"
-              disabled={isAddPending || koi.saleStatus === "Sold"}
-              onClick={() => addToCart({ koiFishId: koi.id, quantity: 1 })}
-            >
-              {isAddPending ? (
-                <>
-                  <Loader2 className="h-5 w-5 mr-2 animate-spin" />
-                  Đang thêm...
-                </>
-              ) : (
-                <>
-                  <ShoppingCart className="h-5 w-5 mr-2" />
-                  {koi.saleStatus === "Sold" ? "Hết hàng" : "Thêm vào giỏ hàng"}
-                </>
-              )}
-            </Button>
+            {isInCart ? (
+              <div className="w-full p-4 bg-green-50 border border-green-200 rounded-lg text-center">
+                <div className="flex items-center justify-center gap-2 text-green-700">
+                  <ShoppingCart className="h-5 w-5" />
+                  <span className="font-medium">Đã được thêm vào giỏ hàng</span>
+                </div>
+              </div>
+            ) : (
+              <Button
+                size="lg"
+                className="w-full bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-white"
+                disabled={isAddPending || koi.saleStatus === "Sold"}
+                onClick={() => addToCart({ koiFishId: koi.id, quantity: 1 })}
+              >
+                {isAddPending ? (
+                  <>
+                    <Loader2 className="h-5 w-5 mr-2 animate-spin" />
+                    Đang thêm...
+                  </>
+                ) : (
+                  <>
+                    <ShoppingCart className="h-5 w-5 mr-2" />
+                    {koi.saleStatus === "Sold"
+                      ? "Hết hàng"
+                      : "Thêm vào giỏ hàng"}
+                  </>
+                )}
+              </Button>
+            )}
           </div>
         </div>
 

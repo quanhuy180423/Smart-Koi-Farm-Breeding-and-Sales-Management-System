@@ -105,7 +105,7 @@ const FilterSection = ({
                 className="h-8 text-xs px-2 text-right"
               />
               <span className="absolute left-2 top-1/2 -translate-y-1/2 text-[10px] text-muted-foreground">
-                Min
+                Thấp nhất
               </span>
             </div>
             <span className="text-muted-foreground">-</span>
@@ -121,7 +121,7 @@ const FilterSection = ({
                 className="h-8 text-xs px-2 text-right"
               />
               <span className="absolute left-2 top-1/2 -translate-y-1/2 text-[10px] text-muted-foreground">
-                Max
+                Cao nhất
               </span>
             </div>
           </div>

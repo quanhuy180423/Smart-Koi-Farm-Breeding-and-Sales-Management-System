@@ -197,7 +197,7 @@ export default function MySchedulesPage() {
                   daySchedules.map((schedule) => (
                     <div
                       key={schedule.id}
-                      className="bg-blue-50 border border-blue-200 rounded-lg p-2 text-xs space-y-1"
+                      className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-xs space-y-1"
                     >
                       <div className="font-medium text-blue-900 line-clamp-2">
                         {schedule.taskTemplateName}
@@ -209,9 +209,9 @@ export default function MySchedulesPage() {
                           {formatTimeToHHMM(schedule.endTime)}
                         </span>
                       </div>
-                      <Badge variant="outline" className="text-xs">
+                      {/* <Badge variant="outline" className="text-xs">
                         {getWorkScheduleStatusLabel(schedule.status).label}
-                      </Badge>
+                      </Badge> */}
                     </div>
                   ))
                 )}
