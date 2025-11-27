@@ -5,6 +5,7 @@ import {
   PondSearchParams,
   pondService,
 } from "@/lib/api/services/fetchPond";
+import { KoiFishResponse } from "@/lib/api/services/fetchKoiFish";
 import { useAuthStore } from "@/store/auth-store";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ApiError } from "next/dist/server/api-utils";
@@ -87,6 +88,29 @@ export function useDeletePond() {
     },
     onError: (error: ApiError) => {
       toast.error(error.message || "Có lỗi xảy ra khi cập nhật thông tin");
+    },
+  });
+}
+
+export function useGetPondKoiFishes(pondId?: number) {
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+
+  return useQuery({
+    queryKey: ["pondKoiFishes", pondId],
+    queryFn: () => pondService.getPondKoiFishes(pondId!),
+    enabled: isAuthenticated && !!pondId,
+    select: (data: BaseResponse<KoiFishResponse[]>): KoiFishResponse[] =>
+      data?.result || [],
+    retry: (failureCount, error: unknown) => {
+      if (
+        error &&
+        typeof error === "object" &&
+        "status" in error &&
+        error.status === 401
+      ) {
+        return false;
+      }
+      return failureCount < 2;
     },
   });
 }
