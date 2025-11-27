@@ -4,6 +4,7 @@ import apiService, {
   PagedResponse,
   PagingRequest,
 } from "../apiClient";
+import { KoiFishResponse } from "./fetchKoiFish";
 
 export enum PondStatus {
   EMPTY = "Empty",
@@ -107,6 +108,14 @@ export const pondService = {
   deletePond: async (id: number): Promise<BaseResponse<string>> => {
     const response = await apiService.delete<BaseResponse<string>>(
       `${baseUrl}/${id}`,
+    );
+    return response.data;
+  },
+  getPondKoiFishes: async (
+    pondId: number,
+  ): Promise<BaseResponse<KoiFishResponse[]>> => {
+    const response = await apiService.get<BaseResponse<KoiFishResponse[]>>(
+      `${baseUrl}/${pondId}/koifish`,
     );
     return response.data;
   },
