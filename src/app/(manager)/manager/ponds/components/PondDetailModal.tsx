@@ -19,9 +19,15 @@ import {
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Loader2 } from "lucide-react";
-import { getPondStatusLabel } from "@/lib/utils/enum";
+import {
+  getPondStatusLabel,
+  getHealthStatusLabel,
+  getGenderLabel,
+  getSaleStatusLabel,
+} from "@/lib/utils/enum";
 import { formatDate } from "@/lib/utils/dates";
 import { useGetWaterParameterRecords } from "@/hooks/useWaterParameterRecord";
+import { useGetPondKoiFishes } from "@/hooks/usePond";
 import { PaginationWithLinks } from "@/components/pagination";
 
 interface PondDetailModalProps {
@@ -44,6 +50,9 @@ const PondDetailModal = ({
       pageIndex: currentPage,
       pageSize: pageSize,
     });
+
+  const { data: koiFishesData = [], isLoading: isLoadingKoiFishes } =
+    useGetPondKoiFishes(selectedPond?.id);
 
   const records = recordsData?.data || [];
   const totalPages = recordsData?.totalPages || 0;
@@ -68,8 +77,9 @@ const PondDetailModal = ({
         </DialogHeader>
         {selectedPond && (
           <Tabs defaultValue="info" className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
+            <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="info">Thông tin chung</TabsTrigger>
+              <TabsTrigger value="koi-fish">Danh sách cá</TabsTrigger>
               <TabsTrigger value="records">Bản ghi thông số</TabsTrigger>
             </TabsList>
 
@@ -86,10 +96,10 @@ const PondDetailModal = ({
                   </div>
                   <div>
                     <Label className="text-sm font-medium text-gray-600">
-                      Địa điểm
+                      Loại hồ
                     </Label>
                     <p className="text-base text-gray-800">
-                      {selectedPond.location}
+                      {selectedPond.pondTypeName || "-"}
                     </p>
                   </div>
                   <div>
@@ -100,30 +110,12 @@ const PondDetailModal = ({
                       {selectedPond.areaName}
                     </p>
                   </div>
-                </div>
-                <div className="space-y-4">
                   <div>
                     <Label className="text-sm font-medium text-gray-600">
-                      Kích thước (Dài x Rộng)
+                      Địa điểm
                     </Label>
                     <p className="text-base text-gray-800">
-                      {selectedPond.lengthMeters}m x {selectedPond.widthMeters}m
-                    </p>
-                  </div>
-                  <div>
-                    <Label className="text-sm font-medium text-gray-600">
-                      Độ sâu
-                    </Label>
-                    <p className="text-base text-gray-800">
-                      {selectedPond.depthMeters}m
-                    </p>
-                  </div>
-                  <div>
-                    <Label className="text-sm font-medium text-gray-600">
-                      Sức chứa (Lít)
-                    </Label>
-                    <p className="text-base text-gray-800">
-                      {selectedPond.capacityLiters} Lít
+                      {selectedPond.location}
                     </p>
                   </div>
                   <div>
@@ -139,6 +131,61 @@ const PondDetailModal = ({
                     </div>
                   </div>
                 </div>
+                <div className="space-y-4">
+                  <div>
+                    <Label className="text-sm font-medium text-gray-600">
+                      Kích thước (Dài x Rộng x Sâu)
+                    </Label>
+                    <p className="text-base text-gray-800">
+                      {selectedPond.lengthMeters}m x {selectedPond.widthMeters}m
+                      x {selectedPond.depthMeters}m
+                    </p>
+                  </div>
+                  <div>
+                    <Label className="text-sm font-medium text-gray-600">
+                      Sức chứa tối đa (Lít)
+                    </Label>
+                    <p className="text-base text-gray-800">
+                      {selectedPond.capacityLiters?.toLocaleString("vi-VN") ||
+                        0}{" "}
+                      Lít
+                    </p>
+                  </div>
+                  <div>
+                    <Label className="text-sm font-medium text-gray-600">
+                      Dung tích hiện tại (Lít)
+                    </Label>
+                    <p className="text-base text-gray-800">
+                      {selectedPond.currentCapacity?.toLocaleString("vi-VN") ||
+                        0}{" "}
+                      Lít
+                    </p>
+                  </div>
+                  <div>
+                    <Label className="text-sm font-medium text-gray-600">
+                      Số cá hiện tại / Tối đa
+                    </Label>
+                    <p className="text-base text-gray-800">
+                      {selectedPond.currentCount || 0} /{" "}
+                      {selectedPond.maxFishCount || 0}
+                    </p>
+                  </div>
+                  <div>
+                    <Label className="text-sm font-medium text-gray-600">
+                      Tình trạng
+                    </Label>
+                    <div className="mt-2">
+                      <Badge
+                        variant={
+                          selectedPond.available ? "default" : "secondary"
+                        }
+                        className="px-3 py-1 text-sm font-medium"
+                      >
+                        {selectedPond.available ? "Có sẵn" : "Không có sẵn"}
+                      </Badge>
+                    </div>
+                  </div>
+                </div>
               </div>
               <div>
                 <Label className="text-sm font-medium text-gray-600">
@@ -148,6 +195,85 @@ const PondDetailModal = ({
                   {formatDate(selectedPond.createdAt, "HH:mm dd/MM/yyyy")}
                 </p>
               </div>
+            </TabsContent>
+
+            <TabsContent value="koi-fish" className="space-y-4">
+              {isLoadingKoiFishes ? (
+                <div className="flex items-center justify-center py-12">
+                  <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                </div>
+              ) : koiFishesData.length > 0 ? (
+                <div className="border rounded-lg overflow-hidden">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="bg-muted/50">
+                        <TableHead>RFID</TableHead>
+                        <TableHead>Giống cá</TableHead>
+                        <TableHead>Giới tính</TableHead>
+                        <TableHead>Kích thước</TableHead>
+                        <TableHead>Tình trạng sức khỏe</TableHead>
+                        <TableHead>Hoa văn</TableHead>
+                        <TableHead>Trạng thái bán</TableHead>
+                        <TableHead className="text-right">
+                          Giá bán (₫)
+                        </TableHead>
+                        <TableHead>Ngày sinh</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {koiFishesData.map((koi) => {
+                        const healthLabel = getHealthStatusLabel(
+                          koi.healthStatus,
+                        );
+                        const genderLabel = getGenderLabel(koi.gender);
+                        const saleLabel = getSaleStatusLabel(koi.saleStatus);
+
+                        return (
+                          <TableRow key={koi.id} className="hover:bg-muted/50">
+                            <TableCell className="font-medium">
+                              {koi.rfid}
+                            </TableCell>
+                            <TableCell>
+                              {koi.variety?.varietyName || "-"}
+                            </TableCell>
+                            <TableCell>
+                              <Badge variant="outline">
+                                {genderLabel.label}
+                              </Badge>
+                            </TableCell>
+                            <TableCell>{koi.size} cm</TableCell>
+                            <TableCell>
+                              <Badge
+                                className={`${healthLabel.colorClass} px-2 py-1`}
+                              >
+                                {healthLabel.label}
+                              </Badge>
+                            </TableCell>
+                            <TableCell>{koi.pattern || "-"}</TableCell>
+                            <TableCell>
+                              <Badge
+                                className={`${saleLabel.colorClass} px-2 py-1`}
+                              >
+                                {saleLabel.label}
+                              </Badge>
+                            </TableCell>
+                            <TableCell className="text-right">
+                              {koi.sellingPrice?.toLocaleString("vi-VN") || "-"}
+                            </TableCell>
+                            <TableCell>
+                              {formatDate(koi.birthDate, "dd/MM/yyyy")}
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
+                    </TableBody>
+                  </Table>
+                </div>
+              ) : (
+                <div className="text-center py-12">
+                  <p className="text-muted-foreground">Không có cá trong hồ</p>
+                </div>
+              )}
             </TabsContent>
 
             <TabsContent value="records" className="space-y-4">
