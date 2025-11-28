@@ -68,7 +68,7 @@ const PondDetailModal = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="!max-w-6xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="min-w-6xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-xl font-semibold text-gray-800">
             Chi tiết hồ cá: {selectedPond?.pondName}

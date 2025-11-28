@@ -79,7 +79,7 @@ const AreaSelectionDialog = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="!max-w-4xl">
+      <DialogContent className="min-w-6xl">
         <DialogHeader>
           <DialogTitle>Chọn Khu vực</DialogTitle>
           <DialogDescription>

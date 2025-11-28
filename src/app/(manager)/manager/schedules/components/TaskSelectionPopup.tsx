@@ -74,7 +74,7 @@ export default function TaskSelectionPopup({
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="!max-w-fit max-h-[90vh] overflow-y-auto">
+      <DialogContent className="min-w-fit max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-xl font-semibold">
             Chọn công việc

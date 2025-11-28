@@ -122,7 +122,7 @@ export function KoiIncidentHistoryDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="!max-w-6xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="min-w-6xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-lg font-semibold">
             Lịch sử sự cố sức khỏe

@@ -101,7 +101,7 @@ export const BreedingDetailDialog = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="!max-w-6xl max-h-[90vh] overflow-y-auto rounded-xl">
+      <DialogContent className="min-w-6xl max-h-[90vh] overflow-y-auto rounded-xl">
         <DialogHeader>
           <DialogTitle>Chi tiết đợt lai</DialogTitle>
           <DialogDescription>Xem toàn bộ tiến trình sinh sản</DialogDescription>

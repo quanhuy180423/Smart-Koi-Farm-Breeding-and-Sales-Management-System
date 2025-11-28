@@ -418,7 +418,7 @@ export default function WaterParameterThresholdModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="!max-w-5xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="min-w-5xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Thông số nước - {pondTypeName}</DialogTitle>
           <DialogDescription>

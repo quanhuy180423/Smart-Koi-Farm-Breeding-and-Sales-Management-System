@@ -778,7 +778,7 @@ export default function AccountManagement() {
 
       {/* Import Dialog */}
       <Dialog open={isImportModalOpen} onOpenChange={setIsImportModalOpen}>
-        <DialogContent className="!max-w-2xl">
+        <DialogContent className="min-w-2xl">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <FileUp className="h-5 w-5" />

@@ -106,7 +106,7 @@ const PondSelectionDialog = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="!max-w-4xl">
+      <DialogContent className="min-w-4xl">
         <DialogHeader>
           <DialogTitle>Chọn Hồ cá</DialogTitle>
           <DialogDescription>
