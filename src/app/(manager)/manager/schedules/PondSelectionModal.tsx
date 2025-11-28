@@ -158,7 +158,7 @@ export default function PondSelectionModal({
   return (
     <>
       <Dialog open={isOpen} onOpenChange={onOpenChange}>
-        <DialogContent className="!max-w-5xl">
+        <DialogContent className="min-w-5xl">
           <DialogHeader>
             <DialogTitle>Chọn hồ</DialogTitle>
             <DialogDescription>Chọn hồ để gán cho công việc</DialogDescription>

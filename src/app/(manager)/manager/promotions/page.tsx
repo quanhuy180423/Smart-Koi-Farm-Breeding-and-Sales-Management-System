@@ -677,7 +677,7 @@ export default function PromotionManagement() {
 
       {/* Promotion Detail Dialog */}
       <Dialog open={isDetailOpen} onOpenChange={setIsDetailOpen}>
-        <DialogContent className="!max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="min-w-2xl max-h-[90vh] overflow-y-auto">
           {selectedPromotion && (
             <>
               <DialogHeader>
@@ -827,7 +827,7 @@ export default function PromotionManagement() {
 
       {/* Create Promotion Dialog */}
       <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
-        <DialogContent className="!max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="min-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Tạo Khuyến Mãi Mới</DialogTitle>
             <DialogDescription>
@@ -1075,7 +1075,7 @@ export default function PromotionManagement() {
 
       {/* Edit Promotion Dialog */}
       <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
-        <DialogContent className="!max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="min-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Chỉnh Sửa Khuyến Mãi</DialogTitle>
             <DialogDescription>Cập nhật thông tin khuyến mãi</DialogDescription>

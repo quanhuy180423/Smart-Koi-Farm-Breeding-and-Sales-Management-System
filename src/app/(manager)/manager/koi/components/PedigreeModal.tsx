@@ -72,7 +72,7 @@ const PedigreeModal = ({ isOpen, onOpenChange, koi }: PedigreeModalProps) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="!max-w-5xl w-[95%] max-h-[95vh] overflow-y-auto">
+      <DialogContent className="min-w-5xl w-[95%] max-h-[95vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold text-indigo-700">
             Gia phả của Cá {koi.rfid}

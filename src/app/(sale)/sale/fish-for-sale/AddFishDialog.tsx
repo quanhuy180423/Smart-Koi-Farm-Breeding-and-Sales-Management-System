@@ -101,7 +101,7 @@ export function AddFishDialog({ onClose }: AddFishDialogProps) {
   const fishList = koiData?.data || [];
 
   return (
-    <DialogContent className="!max-w-4xl max-h-[90vh] flex flex-col">
+    <DialogContent className="min-w-4xl max-h-[90vh] flex flex-col">
       <DialogHeader>
         <DialogTitle>Thêm cá mới vào danh sách bán</DialogTitle>
         <DialogDescription>

@@ -8,6 +8,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { InputNumber } from "@/components/ui/input-number";
@@ -49,7 +50,7 @@ const EditPondModal = ({
   getPondTypeNameById,
 }: EditPondModalProps) => (
   <Dialog open={isOpen} onOpenChange={onOpenChange}>
-    <DialogContent className="max-w-2xl">
+    <DialogContent className="min-w-2xl">
       <DialogHeader>
         <DialogTitle className="text-xl font-semibold text-gray-800">
           Chỉnh sửa thông tin hồ: {editingPond?.pondName}
@@ -60,6 +61,14 @@ const EditPondModal = ({
       </DialogHeader>
       {editingPond && (
         <div className="space-y-6">
+          <Tabs defaultValue="basic" className="w-full">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="basic">Thông tin cơ bản</TabsTrigger>
+              <TabsTrigger value="water">Thông số nước</TabsTrigger>
+            </TabsList>
+
+            {/* Basic Information Tab */}
+            <TabsContent value="basic" className="space-y-6">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label
@@ -214,76 +223,413 @@ const EditPondModal = ({
                 htmlFor="edit-capacity"
                 className="text-sm font-medium text-gray-700"
               >
-                Sức chứa (Lít)
+                Dung tích hiện tại (Lít)
               </Label>
               <InputNumber
                 value={
-                  editPondForm.capacityLiters
-                    ? Number(editPondForm.capacityLiters)
+                  editPondForm.currentCapacity
+                    ? Number(editPondForm.currentCapacity)
                     : undefined
                 }
                 onChange={(value) =>
                   setEditPondForm({
                     ...editPondForm,
-                    capacityLiters: value ? String(value) : "",
+                    currentCapacity: value ? String(value) : "",
                   })
                 }
-                placeholder="Sức chứa (Lít)"
+                placeholder="Dung tích hiện tại (Lít)"
                 allowDecimal={true}
                 className="border-2 border-gray-300 focus:border-blue-500"
               />
             </div>
+            <div className="space-y-2">
+              <Label
+                htmlFor="edit-status"
+                className="text-sm font-medium text-gray-700"
+              >
+                Trạng thái
+              </Label>
+              <Select
+                value={editPondForm.pondStatus}
+                onValueChange={(value: PondStatus) =>
+                  setEditPondForm({ ...editPondForm, pondStatus: value })
+                }
+              >
+                <SelectTrigger className="border-2 border-gray-300 focus:border-blue-500">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={PondStatus.ACTIVE}>Hoạt động</SelectItem>
+                  <SelectItem value={PondStatus.MAINTENANCE}>
+                    Đang bảo trì
+                  </SelectItem>
+                  <SelectItem value={PondStatus.EMPTY}>Trống</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
-          <div className="space-y-2">
-            <Label
-              htmlFor="edit-status"
-              className="text-sm font-medium text-gray-700"
-            >
-              Trạng thái
-            </Label>
-            <Select
-              value={editPondForm.pondStatus}
-              onValueChange={(value: PondStatus) =>
-                setEditPondForm({ ...editPondForm, pondStatus: value })
-              }
-            >
-              <SelectTrigger className="border-2 border-gray-300 focus:border-blue-500">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value={PondStatus.ACTIVE}>Hoạt động</SelectItem>
-                <SelectItem value={PondStatus.MAINTENANCE}>
-                  Đang bảo trì
-                </SelectItem>
-                <SelectItem value={PondStatus.EMPTY}>Trống</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+          </TabsContent>
 
-          <DialogFooter className="pt-4 border-t mt-6">
-            <Button
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-              className="px-6"
-            >
-              Hủy
-            </Button>
-            <Button
-              onClick={handleUpdatePond}
-              disabled={
-                isPending || !editPondForm.areaId || !editPondForm.pondTypeId
-              }
-            >
-              {isPending ? (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              ) : (
-                <Edit className="mr-2 h-4 w-4" />
-              )}
-              Cập nhật
-            </Button>
-          </DialogFooter>
+          {/* Water Parameters Tab */}
+          <TabsContent value="water" className="space-y-6">
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label
+                  htmlFor="edit-ph"
+                  className="text-sm font-medium text-gray-700"
+                >
+                  pH
+                </Label>
+                <InputNumber
+                  value={
+                    editPondForm.record?.phLevel
+                      ? Number(editPondForm.record.phLevel)
+                      : undefined
+                  }
+                  onChange={(value) =>
+                    setEditPondForm({
+                      ...editPondForm,
+                      record: {
+                        ...editPondForm.record,
+                        phLevel: value ? String(value) : "",
+                        temperatureCelsius:
+                          editPondForm.record?.temperatureCelsius || "",
+                        oxygenLevel: editPondForm.record?.oxygenLevel || "",
+                        ammoniaLevel: editPondForm.record?.ammoniaLevel || "",
+                        nitriteLevel: editPondForm.record?.nitriteLevel || "",
+                        nitrateLevel: editPondForm.record?.nitrateLevel || "",
+                        carbonHardness: editPondForm.record?.carbonHardness || "",
+                        waterLevelMeters:
+                          editPondForm.record?.waterLevelMeters || "",
+                        notes: editPondForm.record?.notes || "",
+                      },
+                    })
+                  }
+                  placeholder="VD: 7.5"
+                  allowDecimal={true}
+                  className="border-2 border-gray-300 focus:border-blue-500"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label
+                  htmlFor="edit-temperature"
+                  className="text-sm font-medium text-gray-700"
+                >
+                  Nhiệt độ (°C)
+                </Label>
+                <InputNumber
+                  value={
+                    editPondForm.record?.temperatureCelsius
+                      ? Number(editPondForm.record.temperatureCelsius)
+                      : undefined
+                  }
+                  onChange={(value) =>
+                    setEditPondForm({
+                      ...editPondForm,
+                      record: {
+                        ...editPondForm.record,
+                        temperatureCelsius: value ? String(value) : "",
+                        phLevel: editPondForm.record?.phLevel || "",
+                        oxygenLevel: editPondForm.record?.oxygenLevel || "",
+                        ammoniaLevel: editPondForm.record?.ammoniaLevel || "",
+                        nitriteLevel: editPondForm.record?.nitriteLevel || "",
+                        nitrateLevel: editPondForm.record?.nitrateLevel || "",
+                        carbonHardness: editPondForm.record?.carbonHardness || "",
+                        waterLevelMeters:
+                          editPondForm.record?.waterLevelMeters || "",
+                        notes: editPondForm.record?.notes || "",
+                      },
+                    })
+                  }
+                  placeholder="VD: 25.5"
+                  allowDecimal={true}
+                  className="border-2 border-gray-300 focus:border-blue-500"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label
+                  htmlFor="edit-oxygen"
+                  className="text-sm font-medium text-gray-700"
+                >
+                  Oxy (mg/L)
+                </Label>
+                <InputNumber
+                  value={
+                    editPondForm.record?.oxygenLevel
+                      ? Number(editPondForm.record.oxygenLevel)
+                      : undefined
+                  }
+                  onChange={(value) =>
+                    setEditPondForm({
+                      ...editPondForm,
+                      record: {
+                        ...editPondForm.record,
+                        oxygenLevel: value ? String(value) : "",
+                        phLevel: editPondForm.record?.phLevel || "",
+                        temperatureCelsius:
+                          editPondForm.record?.temperatureCelsius || "",
+                        ammoniaLevel: editPondForm.record?.ammoniaLevel || "",
+                        nitriteLevel: editPondForm.record?.nitriteLevel || "",
+                        nitrateLevel: editPondForm.record?.nitrateLevel || "",
+                        carbonHardness: editPondForm.record?.carbonHardness || "",
+                        waterLevelMeters:
+                          editPondForm.record?.waterLevelMeters || "",
+                        notes: editPondForm.record?.notes || "",
+                      },
+                    })
+                  }
+                  placeholder="VD: 8.5"
+                  allowDecimal={true}
+                  className="border-2 border-gray-300 focus:border-blue-500"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label
+                  htmlFor="edit-ammonia"
+                  className="text-sm font-medium text-gray-700"
+                >
+                  Ammonia (mg/L)
+                </Label>
+                <InputNumber
+                  value={
+                    editPondForm.record?.ammoniaLevel
+                      ? Number(editPondForm.record.ammoniaLevel)
+                      : undefined
+                  }
+                  onChange={(value) =>
+                    setEditPondForm({
+                      ...editPondForm,
+                      record: {
+                        ...editPondForm.record,
+                        ammoniaLevel: value ? String(value) : "",
+                        phLevel: editPondForm.record?.phLevel || "",
+                        temperatureCelsius:
+                          editPondForm.record?.temperatureCelsius || "",
+                        oxygenLevel: editPondForm.record?.oxygenLevel || "",
+                        nitriteLevel: editPondForm.record?.nitriteLevel || "",
+                        nitrateLevel: editPondForm.record?.nitrateLevel || "",
+                        carbonHardness: editPondForm.record?.carbonHardness || "",
+                        waterLevelMeters:
+                          editPondForm.record?.waterLevelMeters || "",
+                        notes: editPondForm.record?.notes || "",
+                      },
+                    })
+                  }
+                  placeholder="VD: 0.0"
+                  allowDecimal={true}
+                  className="border-2 border-gray-300 focus:border-blue-500"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label
+                  htmlFor="edit-nitrite"
+                  className="text-sm font-medium text-gray-700"
+                >
+                  Nitrite (mg/L)
+                </Label>
+                <InputNumber
+                  value={
+                    editPondForm.record?.nitriteLevel
+                      ? Number(editPondForm.record.nitriteLevel)
+                      : undefined
+                  }
+                  onChange={(value) =>
+                    setEditPondForm({
+                      ...editPondForm,
+                      record: {
+                        ...editPondForm.record,
+                        nitriteLevel: value ? String(value) : "",
+                        phLevel: editPondForm.record?.phLevel || "",
+                        temperatureCelsius:
+                          editPondForm.record?.temperatureCelsius || "",
+                        oxygenLevel: editPondForm.record?.oxygenLevel || "",
+                        ammoniaLevel: editPondForm.record?.ammoniaLevel || "",
+                        nitrateLevel: editPondForm.record?.nitrateLevel || "",
+                        carbonHardness: editPondForm.record?.carbonHardness || "",
+                        waterLevelMeters:
+                          editPondForm.record?.waterLevelMeters || "",
+                        notes: editPondForm.record?.notes || "",
+                      },
+                    })
+                  }
+                  placeholder="VD: 0.0"
+                  allowDecimal={true}
+                  className="border-2 border-gray-300 focus:border-blue-500"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label
+                  htmlFor="edit-nitrate"
+                  className="text-sm font-medium text-gray-700"
+                >
+                  Nitrate (mg/L)
+                </Label>
+                <InputNumber
+                  value={
+                    editPondForm.record?.nitrateLevel
+                      ? Number(editPondForm.record.nitrateLevel)
+                      : undefined
+                  }
+                  onChange={(value) =>
+                    setEditPondForm({
+                      ...editPondForm,
+                      record: {
+                        ...editPondForm.record,
+                        nitrateLevel: value ? String(value) : "",
+                        phLevel: editPondForm.record?.phLevel || "",
+                        temperatureCelsius:
+                          editPondForm.record?.temperatureCelsius || "",
+                        oxygenLevel: editPondForm.record?.oxygenLevel || "",
+                        ammoniaLevel: editPondForm.record?.ammoniaLevel || "",
+                        nitriteLevel: editPondForm.record?.nitriteLevel || "",
+                        carbonHardness: editPondForm.record?.carbonHardness || "",
+                        waterLevelMeters:
+                          editPondForm.record?.waterLevelMeters || "",
+                        notes: editPondForm.record?.notes || "",
+                      },
+                    })
+                  }
+                  placeholder="VD: 20.0"
+                  allowDecimal={true}
+                  className="border-2 border-gray-300 focus:border-blue-500"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label
+                  htmlFor="edit-carbonate"
+                  className="text-sm font-medium text-gray-700"
+                >
+                  Độ cứng (dH)
+                </Label>
+                <InputNumber
+                  value={
+                    editPondForm.record?.carbonHardness
+                      ? Number(editPondForm.record.carbonHardness)
+                      : undefined
+                  }
+                  onChange={(value) =>
+                    setEditPondForm({
+                      ...editPondForm,
+                      record: {
+                        ...editPondForm.record,
+                        carbonHardness: value ? String(value) : "",
+                        phLevel: editPondForm.record?.phLevel || "",
+                        temperatureCelsius:
+                          editPondForm.record?.temperatureCelsius || "",
+                        oxygenLevel: editPondForm.record?.oxygenLevel || "",
+                        ammoniaLevel: editPondForm.record?.ammoniaLevel || "",
+                        nitriteLevel: editPondForm.record?.nitriteLevel || "",
+                        nitrateLevel: editPondForm.record?.nitrateLevel || "",
+                        waterLevelMeters:
+                          editPondForm.record?.waterLevelMeters || "",
+                        notes: editPondForm.record?.notes || "",
+                      },
+                    })
+                  }
+                  placeholder="VD: 8.0"
+                  allowDecimal={true}
+                  className="border-2 border-gray-300 focus:border-blue-500"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label
+                  htmlFor="edit-water-level"
+                  className="text-sm font-medium text-gray-700"
+                >
+                  Mức nước (m)
+                </Label>
+                <InputNumber
+                  value={
+                    editPondForm.record?.waterLevelMeters
+                      ? Number(editPondForm.record.waterLevelMeters)
+                      : undefined
+                  }
+                  onChange={(value) =>
+                    setEditPondForm({
+                      ...editPondForm,
+                      record: {
+                        ...editPondForm.record,
+                        waterLevelMeters: value ? String(value) : "",
+                        phLevel: editPondForm.record?.phLevel || "",
+                        temperatureCelsius:
+                          editPondForm.record?.temperatureCelsius || "",
+                        oxygenLevel: editPondForm.record?.oxygenLevel || "",
+                        ammoniaLevel: editPondForm.record?.ammoniaLevel || "",
+                        nitriteLevel: editPondForm.record?.nitriteLevel || "",
+                        nitrateLevel: editPondForm.record?.nitrateLevel || "",
+                        carbonHardness: editPondForm.record?.carbonHardness || "",
+                        notes: editPondForm.record?.notes || "",
+                      },
+                    })
+                  }
+                  placeholder="VD: 1.5"
+                  allowDecimal={true}
+                  className="border-2 border-gray-300 focus:border-blue-500"
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label
+                htmlFor="edit-notes"
+                className="text-sm font-medium text-gray-700"
+              >
+                Ghi chú
+              </Label>
+              <Input
+                id="edit-notes"
+                placeholder="Ghi chú về thông số nước..."
+                value={editPondForm.record?.notes || ""}
+                onChange={(e) =>
+                  setEditPondForm({
+                    ...editPondForm,
+                    record: {
+                      ...editPondForm.record,
+                      notes: e.target.value,
+                      phLevel: editPondForm.record?.phLevel || "",
+                      temperatureCelsius:
+                        editPondForm.record?.temperatureCelsius || "",
+                      oxygenLevel: editPondForm.record?.oxygenLevel || "",
+                      ammoniaLevel: editPondForm.record?.ammoniaLevel || "",
+                      nitriteLevel: editPondForm.record?.nitriteLevel || "",
+                      nitrateLevel: editPondForm.record?.nitrateLevel || "",
+                      carbonHardness: editPondForm.record?.carbonHardness || "",
+                      waterLevelMeters:
+                        editPondForm.record?.waterLevelMeters || "",
+                    },
+                  })
+                }
+                className="border-2 border-gray-300 focus:border-blue-500"
+              />
+            </div>
+            </div>
+            </TabsContent>
+          </Tabs>
         </div>
       )}
+
+      <DialogFooter className="pt-4 border-t mt-6">
+        <Button
+          variant="outline"
+          onClick={() => onOpenChange(false)}
+          className="px-6"
+        >
+          Hủy
+        </Button>
+        <Button
+          onClick={handleUpdatePond}
+          disabled={
+            editingPond === null || !editPondForm.areaId || !editPondForm.pondTypeId
+          }
+        >
+          {isPending ? (
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          ) : (
+            <Edit className="mr-2 h-4 w-4" />
+          )}
+          Cập nhật
+        </Button>
+      </DialogFooter>
     </DialogContent>
   </Dialog>
 );

@@ -76,7 +76,7 @@ const KoiFishSelectionDialogForIncident = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="!max-w-5xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="min-w-5xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Chọn Cá Koi</DialogTitle>
           <DialogDescription>Chọn cá koi để lọc sự cố</DialogDescription>

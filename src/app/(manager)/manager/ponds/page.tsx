@@ -56,13 +56,24 @@ import PondAdvancedFilterDialog, {
 export interface PondFormState {
   pondName: string;
   location: string;
-  capacityLiters: string;
+  currentCapacity: string;
   depthMeters: string;
   lengthMeters: string;
   widthMeters: string;
   areaId: string;
   pondTypeId: string;
   pondStatus?: PondStatus;
+  record?: {
+    phLevel: string;
+    temperatureCelsius: string;
+    oxygenLevel: string;
+    ammoniaLevel: string;
+    nitriteLevel: string;
+    nitrateLevel: string;
+    carbonHardness: string;
+    waterLevelMeters: string;
+    notes: string;
+  };
 }
 
 export default function PondManagement() {
@@ -170,7 +181,7 @@ export default function PondManagement() {
   const [newPond, setNewPond] = useState<PondFormState>({
     pondName: "",
     location: "",
-    capacityLiters: "",
+    currentCapacity: "",
     depthMeters: "",
     lengthMeters: "",
     widthMeters: "",
@@ -182,7 +193,7 @@ export default function PondManagement() {
   const [editPondForm, setEditPondForm] = useState<PondFormState>({
     pondName: "",
     location: "",
-    capacityLiters: "",
+    currentCapacity: "",
     depthMeters: "",
     lengthMeters: "",
     widthMeters: "",
@@ -208,7 +219,7 @@ export default function PondManagement() {
     setNewPond({
       pondName: "",
       location: "",
-      capacityLiters: "",
+      currentCapacity: "",
       depthMeters: "",
       lengthMeters: "",
       widthMeters: "",
@@ -227,13 +238,34 @@ export default function PondManagement() {
     const payload: PondRequest = {
       pondName: newPond.pondName,
       location: newPond.location,
-      capacityLiters: parseFloat(newPond.capacityLiters),
+      currentCapacity: parseFloat(newPond.currentCapacity),
       depthMeters: parseFloat(newPond.depthMeters),
       lengthMeters: parseFloat(newPond.lengthMeters),
       widthMeters: parseFloat(newPond.widthMeters),
       areaId: parseInt(newPond.areaId),
       pondTypeId: parseInt(newPond.pondTypeId),
       pondStatus: PondStatus.EMPTY,
+      record: newPond.record ? {
+        phLevel: parseFloat(newPond.record.phLevel) || 0,
+        temperatureCelsius: parseFloat(newPond.record.temperatureCelsius) || 0,
+        oxygenLevel: parseFloat(newPond.record.oxygenLevel) || 0,
+        ammoniaLevel: parseFloat(newPond.record.ammoniaLevel) || 0,
+        nitriteLevel: parseFloat(newPond.record.nitriteLevel) || 0,
+        nitrateLevel: parseFloat(newPond.record.nitrateLevel) || 0,
+        carbonHardness: parseFloat(newPond.record.carbonHardness) || 0,
+        waterLevelMeters: parseFloat(newPond.record.waterLevelMeters) || 0,
+        notes: newPond.record.notes || "",
+      } : {
+        phLevel: 0,
+        temperatureCelsius: 0,
+        oxygenLevel: 0,
+        ammoniaLevel: 0,
+        nitriteLevel: 0,
+        nitrateLevel: 0,
+        carbonHardness: 0,
+        waterLevelMeters: 0,
+        notes: "",
+      },
     };
 
     addPondMutation.mutate(payload, {
@@ -248,13 +280,34 @@ export default function PondManagement() {
     setEditPondForm({
       pondName: pond.pondName,
       location: pond.location,
-      capacityLiters: pond.capacityLiters.toString(),
+      currentCapacity: pond.currentCapacity?.toString() || "",
       depthMeters: pond.depthMeters.toString(),
       lengthMeters: pond.lengthMeters.toString(),
       widthMeters: pond.widthMeters.toString(),
       areaId: pond.areaId.toString(),
       pondTypeId: pond.pondTypeId.toString(),
       pondStatus: pond.pondStatus,
+      record: pond.record ? {
+        phLevel: pond.record.phLevel.toString(),
+        temperatureCelsius: pond.record.temperatureCelsius.toString(),
+        oxygenLevel: pond.record.oxygenLevel.toString(),
+        ammoniaLevel: pond.record.ammoniaLevel.toString(),
+        nitriteLevel: pond.record.nitriteLevel.toString(),
+        nitrateLevel: pond.record.nitrateLevel.toString(),
+        carbonHardness: pond.record.carbonHardness.toString(),
+        waterLevelMeters: pond.record.waterLevelMeters.toString(),
+        notes: pond.record.notes,
+      } : {
+        phLevel: "",
+        temperatureCelsius: "",
+        oxygenLevel: "",
+        ammoniaLevel: "",
+        nitriteLevel: "",
+        nitrateLevel: "",
+        carbonHardness: "",
+        waterLevelMeters: "",
+        notes: "",
+      },
     });
     setIsEditModalOpen(true);
   };
@@ -266,13 +319,34 @@ export default function PondManagement() {
     const payload: Partial<PondRequest> = {
       pondName: editPondForm.pondName,
       location: editPondForm.location,
-      capacityLiters: parseFloat(editPondForm.capacityLiters),
+      currentCapacity: parseFloat(editPondForm.currentCapacity),
       depthMeters: parseFloat(editPondForm.depthMeters),
       lengthMeters: parseFloat(editPondForm.lengthMeters),
       widthMeters: parseFloat(editPondForm.widthMeters),
       areaId: parseInt(editPondForm.areaId),
       pondTypeId: parseInt(editPondForm.pondTypeId),
       pondStatus: editPondForm.pondStatus,
+      record: editPondForm.record ? {
+        phLevel: parseFloat(editPondForm.record.phLevel) || 0,
+        temperatureCelsius: parseFloat(editPondForm.record.temperatureCelsius) || 0,
+        oxygenLevel: parseFloat(editPondForm.record.oxygenLevel) || 0,
+        ammoniaLevel: parseFloat(editPondForm.record.ammoniaLevel) || 0,
+        nitriteLevel: parseFloat(editPondForm.record.nitriteLevel) || 0,
+        nitrateLevel: parseFloat(editPondForm.record.nitrateLevel) || 0,
+        carbonHardness: parseFloat(editPondForm.record.carbonHardness) || 0,
+        waterLevelMeters: parseFloat(editPondForm.record.waterLevelMeters) || 0,
+        notes: editPondForm.record.notes || "",
+      } : {
+        phLevel: 0,
+        temperatureCelsius: 0,
+        oxygenLevel: 0,
+        ammoniaLevel: 0,
+        nitriteLevel: 0,
+        nitrateLevel: 0,
+        carbonHardness: 0,
+        waterLevelMeters: 0,
+        notes: "",
+      },
     };
 
     updatePondMutation.mutate(

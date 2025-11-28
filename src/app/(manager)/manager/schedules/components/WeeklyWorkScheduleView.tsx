@@ -411,7 +411,7 @@ export default function WeeklyWorkScheduleView({
 
       {/* Pond Selection Dialog */}
       <Dialog open={isPondModalOpen} onOpenChange={setIsPondModalOpen}>
-        <DialogContent className="!max-w-4xl">
+        <DialogContent className="min-w-4xl">
           <DialogHeader>
             <DialogTitle>Chọn Hồ để lọc</DialogTitle>
             <DialogDescription>

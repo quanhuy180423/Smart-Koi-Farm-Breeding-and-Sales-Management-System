@@ -103,7 +103,7 @@ const KoiFishSelectionDialogForBreeding = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="!max-w-5xl">
+      <DialogContent className="min-w-5xl">
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
           <DialogDescription>{description}</DialogDescription>

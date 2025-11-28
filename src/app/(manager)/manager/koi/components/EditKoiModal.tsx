@@ -250,7 +250,7 @@ export function EditKoiModal({ isOpen, onOpenChange, koi }: EditKoiModalProps) {
   return (
     <>
       <Dialog open={isOpen} onOpenChange={onOpenChange}>
-        <DialogContent className="!max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="min-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-2xl">
               Chỉnh sửa thông tin cá
