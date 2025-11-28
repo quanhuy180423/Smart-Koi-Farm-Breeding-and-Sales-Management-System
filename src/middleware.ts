@@ -46,7 +46,7 @@ export function middleware(request: NextRequest) {
     request.cookies.get("accessToken")?.value ||
     request.cookies.get("auth-token")?.value;
 
-    // Role được AuthStore set vào cookie 'user-role'
+  // Role được AuthStore set vào cookie 'user-role'
   const userRole = request.cookies.get("user-role")?.value || Roles.Guest;
 
   const isAuthenticated = !!token;
@@ -65,7 +65,7 @@ export function middleware(request: NextRequest) {
   // === BƯỚC 4: XỬ LÝ CÁC TRANG ĐƯỢC BẢO VỆ (PROTECTED ROUTES) ===
   // Tìm xem URL hiện tại có khớp với route nào trong PROTECTED_ROUTES không
   const matchedRoute = Object.keys(PROTECTED_ROUTES).find((route) =>
-    pathname.startsWith(route)
+    pathname.startsWith(route),
   );
 
   if (matchedRoute) {
@@ -84,7 +84,7 @@ export function middleware(request: NextRequest) {
     // Chuyển userRole từ cookie về dạng Enum để so sánh chính xác
     // Lưu ý: Cookie là string, cần đảm bảo so sánh đúng (Case sensitive)
     const hasPermission = allowedRoles.some(
-      (role) => role.toLowerCase() === userRole.toLowerCase()
+      (role) => role.toLowerCase() === userRole.toLowerCase(),
     );
 
     if (!hasPermission) {
