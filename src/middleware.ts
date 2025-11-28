@@ -21,7 +21,7 @@ const ROLE_DASHBOARD: Record<string, string> = {
 
 // 3. Định nghĩa các Route được bảo vệ và Role được phép truy cập
 const PROTECTED_ROUTES = {
-  "/manager": [Roles.Manager, Roles.FarmStaff],
+  "/manager": [Roles.Manager],
   "/sale": [Roles.SaleStaff],
   // Thêm các route khác nếu cần, ví dụ: "/profile": [Roles.Customer, Roles.Manager...]
 };
@@ -38,17 +38,6 @@ const AUTH_ROUTES = [
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // === BƯỚC 1: BỎ QUA CÁC FILE TĨNH VÀ API ===
-  if (
-    pathname.startsWith("/_next") ||
-    pathname.startsWith("/api") ||
-    pathname.startsWith("/static") ||
-    pathname.includes(".") || // file có đuôi mở rộng (ảnh, css...)
-    pathname === "/favicon.ico"
-  ) {
-    return NextResponse.next();
-  }
-
   // === BƯỚC 2: LẤY THÔNG TIN TỪ COOKIE ===
   // Token để xác định đã đăng nhập hay chưa (AuthStore của bạn cần đảm bảo set cookie này)
   // Trong AuthStore tôi thấy có logic apiService.setAuthToken nhưng chưa rõ có set cookie 'accessToken' không.
@@ -57,7 +46,7 @@ export function middleware(request: NextRequest) {
     request.cookies.get("accessToken")?.value ||
     request.cookies.get("auth-token")?.value;
 
-  // Role được AuthStore set vào cookie 'user-role'
+    // Role được AuthStore set vào cookie 'user-role'
   const userRole = request.cookies.get("user-role")?.value || Roles.Guest;
 
   const isAuthenticated = !!token;
@@ -76,7 +65,7 @@ export function middleware(request: NextRequest) {
   // === BƯỚC 4: XỬ LÝ CÁC TRANG ĐƯỢC BẢO VỆ (PROTECTED ROUTES) ===
   // Tìm xem URL hiện tại có khớp với route nào trong PROTECTED_ROUTES không
   const matchedRoute = Object.keys(PROTECTED_ROUTES).find((route) =>
-    pathname.startsWith(route),
+    pathname.startsWith(route)
   );
 
   if (matchedRoute) {
@@ -95,7 +84,7 @@ export function middleware(request: NextRequest) {
     // Chuyển userRole từ cookie về dạng Enum để so sánh chính xác
     // Lưu ý: Cookie là string, cần đảm bảo so sánh đúng (Case sensitive)
     const hasPermission = allowedRoles.some(
-      (role) => role.toLowerCase() === userRole.toLowerCase(),
+      (role) => role.toLowerCase() === userRole.toLowerCase()
     );
 
     if (!hasPermission) {
