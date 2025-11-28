@@ -245,27 +245,30 @@ export default function PondManagement() {
       areaId: parseInt(newPond.areaId),
       pondTypeId: parseInt(newPond.pondTypeId),
       pondStatus: PondStatus.EMPTY,
-      record: newPond.record ? {
-        phLevel: parseFloat(newPond.record.phLevel) || 0,
-        temperatureCelsius: parseFloat(newPond.record.temperatureCelsius) || 0,
-        oxygenLevel: parseFloat(newPond.record.oxygenLevel) || 0,
-        ammoniaLevel: parseFloat(newPond.record.ammoniaLevel) || 0,
-        nitriteLevel: parseFloat(newPond.record.nitriteLevel) || 0,
-        nitrateLevel: parseFloat(newPond.record.nitrateLevel) || 0,
-        carbonHardness: parseFloat(newPond.record.carbonHardness) || 0,
-        waterLevelMeters: parseFloat(newPond.record.waterLevelMeters) || 0,
-        notes: newPond.record.notes || "",
-      } : {
-        phLevel: 0,
-        temperatureCelsius: 0,
-        oxygenLevel: 0,
-        ammoniaLevel: 0,
-        nitriteLevel: 0,
-        nitrateLevel: 0,
-        carbonHardness: 0,
-        waterLevelMeters: 0,
-        notes: "",
-      },
+      record: newPond.record
+        ? {
+            phLevel: parseFloat(newPond.record.phLevel) || 0,
+            temperatureCelsius:
+              parseFloat(newPond.record.temperatureCelsius) || 0,
+            oxygenLevel: parseFloat(newPond.record.oxygenLevel) || 0,
+            ammoniaLevel: parseFloat(newPond.record.ammoniaLevel) || 0,
+            nitriteLevel: parseFloat(newPond.record.nitriteLevel) || 0,
+            nitrateLevel: parseFloat(newPond.record.nitrateLevel) || 0,
+            carbonHardness: parseFloat(newPond.record.carbonHardness) || 0,
+            waterLevelMeters: parseFloat(newPond.record.waterLevelMeters) || 0,
+            notes: newPond.record.notes || "",
+          }
+        : {
+            phLevel: 0,
+            temperatureCelsius: 0,
+            oxygenLevel: 0,
+            ammoniaLevel: 0,
+            nitriteLevel: 0,
+            nitrateLevel: 0,
+            carbonHardness: 0,
+            waterLevelMeters: 0,
+            notes: "",
+          },
     };
 
     addPondMutation.mutate(payload, {
@@ -287,27 +290,29 @@ export default function PondManagement() {
       areaId: pond.areaId.toString(),
       pondTypeId: pond.pondTypeId.toString(),
       pondStatus: pond.pondStatus,
-      record: pond.record ? {
-        phLevel: pond.record.phLevel.toString(),
-        temperatureCelsius: pond.record.temperatureCelsius.toString(),
-        oxygenLevel: pond.record.oxygenLevel.toString(),
-        ammoniaLevel: pond.record.ammoniaLevel.toString(),
-        nitriteLevel: pond.record.nitriteLevel.toString(),
-        nitrateLevel: pond.record.nitrateLevel.toString(),
-        carbonHardness: pond.record.carbonHardness.toString(),
-        waterLevelMeters: pond.record.waterLevelMeters.toString(),
-        notes: pond.record.notes,
-      } : {
-        phLevel: "",
-        temperatureCelsius: "",
-        oxygenLevel: "",
-        ammoniaLevel: "",
-        nitriteLevel: "",
-        nitrateLevel: "",
-        carbonHardness: "",
-        waterLevelMeters: "",
-        notes: "",
-      },
+      record: pond.record
+        ? {
+            phLevel: pond.record.phLevel.toString(),
+            temperatureCelsius: pond.record.temperatureCelsius.toString(),
+            oxygenLevel: pond.record.oxygenLevel.toString(),
+            ammoniaLevel: pond.record.ammoniaLevel.toString(),
+            nitriteLevel: pond.record.nitriteLevel.toString(),
+            nitrateLevel: pond.record.nitrateLevel.toString(),
+            carbonHardness: pond.record.carbonHardness.toString(),
+            waterLevelMeters: pond.record.waterLevelMeters.toString(),
+            notes: pond.record.notes,
+          }
+        : {
+            phLevel: "",
+            temperatureCelsius: "",
+            oxygenLevel: "",
+            ammoniaLevel: "",
+            nitriteLevel: "",
+            nitrateLevel: "",
+            carbonHardness: "",
+            waterLevelMeters: "",
+            notes: "",
+          },
     });
     setIsEditModalOpen(true);
   };
@@ -326,27 +331,31 @@ export default function PondManagement() {
       areaId: parseInt(editPondForm.areaId),
       pondTypeId: parseInt(editPondForm.pondTypeId),
       pondStatus: editPondForm.pondStatus,
-      record: editPondForm.record ? {
-        phLevel: parseFloat(editPondForm.record.phLevel) || 0,
-        temperatureCelsius: parseFloat(editPondForm.record.temperatureCelsius) || 0,
-        oxygenLevel: parseFloat(editPondForm.record.oxygenLevel) || 0,
-        ammoniaLevel: parseFloat(editPondForm.record.ammoniaLevel) || 0,
-        nitriteLevel: parseFloat(editPondForm.record.nitriteLevel) || 0,
-        nitrateLevel: parseFloat(editPondForm.record.nitrateLevel) || 0,
-        carbonHardness: parseFloat(editPondForm.record.carbonHardness) || 0,
-        waterLevelMeters: parseFloat(editPondForm.record.waterLevelMeters) || 0,
-        notes: editPondForm.record.notes || "",
-      } : {
-        phLevel: 0,
-        temperatureCelsius: 0,
-        oxygenLevel: 0,
-        ammoniaLevel: 0,
-        nitriteLevel: 0,
-        nitrateLevel: 0,
-        carbonHardness: 0,
-        waterLevelMeters: 0,
-        notes: "",
-      },
+      record: editPondForm.record
+        ? {
+            phLevel: parseFloat(editPondForm.record.phLevel) || 0,
+            temperatureCelsius:
+              parseFloat(editPondForm.record.temperatureCelsius) || 0,
+            oxygenLevel: parseFloat(editPondForm.record.oxygenLevel) || 0,
+            ammoniaLevel: parseFloat(editPondForm.record.ammoniaLevel) || 0,
+            nitriteLevel: parseFloat(editPondForm.record.nitriteLevel) || 0,
+            nitrateLevel: parseFloat(editPondForm.record.nitrateLevel) || 0,
+            carbonHardness: parseFloat(editPondForm.record.carbonHardness) || 0,
+            waterLevelMeters:
+              parseFloat(editPondForm.record.waterLevelMeters) || 0,
+            notes: editPondForm.record.notes || "",
+          }
+        : {
+            phLevel: 0,
+            temperatureCelsius: 0,
+            oxygenLevel: 0,
+            ammoniaLevel: 0,
+            nitriteLevel: 0,
+            nitrateLevel: 0,
+            carbonHardness: 0,
+            waterLevelMeters: 0,
+            notes: "",
+          },
     };
 
     updatePondMutation.mutate(
