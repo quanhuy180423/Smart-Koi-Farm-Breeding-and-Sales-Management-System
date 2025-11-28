@@ -45,6 +45,7 @@ export interface PondResponse {
   areaId: number;
   areaName: string;
   available?: boolean;
+  record?: WaterParameterRecord;
 }
 
 const baseUrl = "/api/Pond";
@@ -64,16 +65,29 @@ export interface PondSearchParams extends PagingRequest {
   createdTo?: string;
 }
 
+export interface WaterParameterRecord {
+  phLevel: number;
+  temperatureCelsius: number;
+  oxygenLevel: number;
+  ammoniaLevel: number;
+  nitriteLevel: number;
+  nitrateLevel: number;
+  carbonHardness: number;
+  waterLevelMeters: number;
+  notes: string;
+}
+
 export interface PondRequest {
   pondTypeId: number;
   areaId: number;
   pondName: string;
   location: string;
   pondStatus: PondStatus;
-  capacityLiters: number;
+  currentCapacity: number;
   depthMeters: number;
   lengthMeters: number;
   widthMeters: number;
+  record?: WaterParameterRecord;
 }
 
 export const pondService = {
