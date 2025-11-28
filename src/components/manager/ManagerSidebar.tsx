@@ -62,6 +62,11 @@ const sidebarItems = [
   { title: "Khuyến mãi", href: "/manager/promotions", icon: Tag },
   { title: "Thông báo", href: "/manager/notifications", icon: Bell },
   { title: "Quản lý sự cố", href: "/manager/incidents", icon: AlertTriangle },
+  {
+    title: "Quản lý loại sự cố",
+    href: "/manager/incident-types",
+    icon: Shield,
+  },
 ] as const;
 
 interface ManagerSidebarProps {

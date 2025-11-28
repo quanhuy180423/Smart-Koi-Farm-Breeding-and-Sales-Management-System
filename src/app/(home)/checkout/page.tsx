@@ -273,6 +273,15 @@ export default function CheckoutPage() {
   };
 
   const handleSubmitOrder = () => {
+    // Map payment method string to PaymentMethod enum
+    const paymentMethodMap: Record<string, PaymentMethod> = {
+      vnpay: PaymentMethod.VNPAY,
+      payos: PaymentMethod.PAYOS,
+    };
+
+    const selectedMethod =
+      paymentMethodMap[orderData.paymentMethod] || PaymentMethod.VNPAY;
+
     convertToOrder(
       {
         customerAddressId: selectedAddressId || undefined,
@@ -281,10 +290,10 @@ export default function CheckoutPage() {
       {
         onSuccess: (data) => {
           if (data.isSuccess && data.result?.id) {
-            // Đơn hàng được tạo thành công, khởi tạo thanh toán VNPay
+            // Đơn hàng được tạo thành công, khởi tạo thanh toán
             createPayment({
               orderId: data.result.id,
-              method: PaymentMethod.VNPAY,
+              method: selectedMethod,
             });
             // Hook sẽ tự động chuyển hướng tới payment URL
           } else {
@@ -656,6 +665,44 @@ export default function CheckoutPage() {
                           </Label>
                         </div>
 
+                        {/* PayOS Payment Method */}
+                        <div
+                          className={`relative flex items-center space-x-3 p-4 border-2 rounded-xl transition-all cursor-pointer hover:bg-muted/50 ${
+                            orderData.paymentMethod === "payos"
+                              ? "border-primary bg-primary/5 shadow-sm"
+                              : "border-border hover:border-muted-foreground/30"
+                          }`}
+                        >
+                          <RadioGroupItem
+                            value="payos"
+                            id="payos"
+                            className="mt-1"
+                          />
+                          <Label
+                            htmlFor="payos"
+                            className="flex-1 cursor-pointer"
+                          >
+                            <div className="flex items-start gap-3">
+                              <div className="p-2 rounded-lg bg-purple-100 text-purple-600">
+                                <CreditCard className="h-5 w-5" />
+                              </div>
+                              <div className="space-y-1">
+                                <p className="font-semibold">
+                                  Thanh toán qua PayOS
+                                </p>
+                                <p className="text-sm text-muted-foreground">
+                                  Thanh toán nhanh chóng qua cổng PayOS. Hỗ trợ
+                                  chuyển khoản ngân hàng và ví điện tử.
+                                </p>
+                                <div className="flex items-center gap-2 text-xs text-purple-600">
+                                  <Shield className="h-3 w-3" />
+                                  Bảo mật cao - Tương thích nhiều phương thức
+                                </div>
+                              </div>
+                            </div>
+                          </Label>
+                        </div>
+
                         {/* Momo Payment Method (thêm sau) - Ẩn tạm thời */}
                         {/*
                       <div className={`relative flex items-center space-x-3 p-4 border-2 rounded-xl transition-all cursor-pointer hover:bg-muted/50 ${
@@ -700,6 +747,34 @@ export default function CheckoutPage() {
                                 ✓ Hoàn tiền nhanh chóng nếu giao dịch thất bại
                               </p>
                               <p>✓ An toàn, bảo mật, được chứng thực</p>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      )}
+
+                      {/* PayOS Information */}
+                      {orderData.paymentMethod === "payos" && (
+                        <Card className="bg-purple-50 border-purple-200">
+                          <CardContent className="p-4">
+                            <h4 className="font-medium mb-3 text-purple-900">
+                              Thông tin thanh toán PayOS:
+                            </h4>
+                            <div className="space-y-2 text-sm text-purple-800">
+                              <p>
+                                ✓ Chuyển khoản trực tiếp từ tài khoản ngân hàng
+                              </p>
+                              <p>
+                                ✓ Hỗ trợ ví điện tử và phương thức thanh toán
+                                khác
+                              </p>
+                              <p>
+                                ✓ Xử lý nhanh chóng, tối ưu cho người dùng Việt
+                                Nam
+                              </p>
+                              <p>
+                                ✓ Bảo mật cao, hỗ trợ tương thích với nhiều ngân
+                                hàng
+                              </p>
                             </div>
                           </CardContent>
                         </Card>
