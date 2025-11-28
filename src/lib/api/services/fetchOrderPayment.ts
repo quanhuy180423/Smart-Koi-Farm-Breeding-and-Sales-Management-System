@@ -3,6 +3,7 @@ import apiService, { BaseResponse } from "../apiClient";
 // Enums
 export enum PaymentMethod {
   VNPAY = "VnPay",
+  PAYOS = "PayOS",
 }
 
 // Interfaces

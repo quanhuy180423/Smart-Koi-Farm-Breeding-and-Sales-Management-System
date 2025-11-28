@@ -132,3 +132,124 @@ export function useDeleteWaterParameterThreshold() {
     },
   });
 }
+
+/**
+ * Hook to batch create or update water parameter thresholds
+ * Shows a single toast notification for the entire batch operation
+ */
+export function useBatchWaterParameterThreshold() {
+  const queryClient = useQueryClient();
+  const createThreshold = useCreateWaterParameterThreshold();
+  const updateThreshold = useUpdateWaterParameterThreshold();
+
+  const batchProcess = async (
+    requests: Array<{
+      paramName: string;
+      config: {
+        name: string;
+        label: string;
+        unit: string;
+        placeholder: string;
+      };
+      minValue: number;
+      maxValue: number;
+      id?: number;
+    }>,
+    pondTypeId: number,
+    mode: "create" | "update",
+  ): Promise<void> => {
+    let successCount = 0;
+    let errorCount = 0;
+
+    if (mode === "create") {
+      const createPromises = requests.map((req) => {
+        return new Promise<void>((resolve) => {
+          createThreshold.mutate(
+            {
+              parameterName: req.paramName,
+              unit: req.config.unit,
+              minValue: req.minValue,
+              maxValue: req.maxValue,
+              pondTypeId,
+            },
+            {
+              onSuccess: () => {
+                successCount++;
+                resolve();
+              },
+              onError: () => {
+                errorCount++;
+                resolve(); // Still resolve to continue with other creates
+              },
+            },
+          );
+        });
+      });
+
+      await Promise.all(createPromises);
+      if (successCount > 0) {
+        toast.success(`Tạo ${successCount} thông số nước thành công`, {
+          duration: 3000,
+        });
+      }
+
+      if (errorCount > 0) {
+        toast.success(`Có ${successCount} lỗi khi tạo thông số nước`, {
+          duration: 3000,
+        });
+      }
+    } else {
+      // Update mode
+      const updateRequests = requests.filter((req) => req.id);
+      const updatePromises = updateRequests.map((req) => {
+        return new Promise<void>((resolve) => {
+          updateThreshold.mutate(
+            {
+              id: req.id!,
+              data: {
+                parameterName: req.paramName,
+                unit: req.config.unit,
+                minValue: req.minValue,
+                maxValue: req.maxValue,
+                pondTypeId,
+              },
+            },
+            {
+              onSuccess: () => {
+                successCount++;
+                resolve();
+              },
+              onError: () => {
+                errorCount++;
+                resolve(); // Still resolve to continue with other updates
+              },
+            },
+          );
+        });
+      });
+
+      await Promise.all(updatePromises);
+      if (successCount > 0) {
+        toast.success(`Cập nhật ${successCount} thông số nước thành công`, {
+          duration: 3000,
+        });
+      }
+
+      if (errorCount > 0) {
+        toast.success(`Có ${successCount} lỗi khi cập nhật thông số nước`, {
+          duration: 3000,
+        });
+      }
+    }
+
+    // Invalidate queries after all operations complete
+    queryClient.invalidateQueries({
+      queryKey: ["water-parameter-thresholds"],
+    });
+  };
+
+  return {
+    batchProcess,
+    isPending: createThreshold.isPending || updateThreshold.isPending,
+  };
+}

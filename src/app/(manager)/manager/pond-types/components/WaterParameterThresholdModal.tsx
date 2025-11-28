@@ -33,6 +33,7 @@ import {
   useCreateWaterParameterThreshold,
   useUpdateWaterParameterThreshold,
   useDeleteWaterParameterThreshold,
+  useBatchWaterParameterThreshold,
 } from "@/hooks/useWaterParameterThreshold";
 import {
   WaterParameterName,
@@ -75,6 +76,57 @@ const paramUnits: Record<string, string> = {
   [WaterParameterName.WaterLevelMeters]: "m",
 };
 
+const parameterConfigs = [
+  {
+    name: WaterParameterName.PHLevel,
+    label: "pH Level",
+    unit: "",
+    placeholder: "vd: 7.0",
+  },
+  {
+    name: WaterParameterName.TemperatureCelsius,
+    label: "Nhiệt độ (°C)",
+    unit: "°C",
+    placeholder: "vd: 25",
+  },
+  {
+    name: WaterParameterName.OxygenLevel,
+    label: "Oxy (mg/L)",
+    unit: "mg/L",
+    placeholder: "vd: 7.5",
+  },
+  {
+    name: WaterParameterName.AmmoniaLevel,
+    label: "Amoniac (mg/L)",
+    unit: "mg/L",
+    placeholder: "vd: 0.02",
+  },
+  {
+    name: WaterParameterName.NitriteLevel,
+    label: "Nitrite (mg/L)",
+    unit: "mg/L",
+    placeholder: "vd: 0.05",
+  },
+  {
+    name: WaterParameterName.NitrateLevel,
+    label: "Nitrate (mg/L)",
+    unit: "mg/L",
+    placeholder: "vd: 50",
+  },
+  {
+    name: WaterParameterName.CarbonHardness,
+    label: "Độ cứng (°dH)",
+    unit: "°dH",
+    placeholder: "vd: 8",
+  },
+  {
+    name: WaterParameterName.WaterLevelMeters,
+    label: "Mức nước (m)",
+    unit: "m",
+    placeholder: "vd: 1.5",
+  },
+];
+
 export default function WaterParameterThresholdModal({
   isOpen,
   onOpenChange,
@@ -93,6 +145,22 @@ export default function WaterParameterThresholdModal({
   const [deletingThresholdId, setDeletingThresholdId] = useState<number | null>(
     null,
   );
+  const [isBatchFormOpen, setIsBatchFormOpen] = useState(false);
+  const [isBatchEditMode, setIsBatchEditMode] = useState(false);
+
+  // Batch form state
+  const initializeBatchFormData = () => {
+    return parameterConfigs.reduce(
+      (acc, config) => {
+        acc[config.name] = { min: "", max: "" };
+        return acc;
+      },
+      {} as Record<string, { min: string; max: string; id?: number }>,
+    );
+  };
+
+  const [batchFormData, setBatchFormData] = useState(initializeBatchFormData());
+
   const [createFormData, setCreateFormData] = useState({
     parameterName: WaterParameterName.PHLevel,
     minValue: "",
@@ -117,6 +185,8 @@ export default function WaterParameterThresholdModal({
     useUpdateWaterParameterThreshold();
   const { mutate: deleteThreshold, isPending: isDeleting } =
     useDeleteWaterParameterThreshold();
+  const { batchProcess, isPending: isBatchProcessing } =
+    useBatchWaterParameterThreshold();
 
   const thresholds: WaterParameterThreshold[] = thresholdsData?.data || [];
   const totalPages = thresholdsData?.totalPages || 0;
@@ -256,18 +326,108 @@ export default function WaterParameterThresholdModal({
     setDeletingThresholdId(null);
   };
 
+  // Batch form handlers
+  const handleBatchInputChange = (
+    paramName: string,
+    field: "min" | "max",
+    value: string,
+  ) => {
+    setBatchFormData((prev) => ({
+      ...prev,
+      [paramName]: {
+        ...prev[paramName],
+        [field]: value,
+      },
+    }));
+  };
+
+  const handleOpenBatchForm = (editMode: boolean) => {
+    setIsBatchEditMode(editMode);
+    if (editMode && thresholds.length > 0) {
+      // Nạp dữ liệu từ thresholds hiện có
+      const initialData = initializeBatchFormData();
+      thresholds.forEach((threshold) => {
+        initialData[threshold.parameterName] = {
+          id: threshold.id,
+          min: String(threshold.minValue),
+          max: String(threshold.maxValue),
+        };
+      });
+      setBatchFormData(initialData);
+    } else {
+      // Tạo mới - reset form
+      setBatchFormData(initializeBatchFormData());
+    }
+    setIsBatchFormOpen(true);
+  };
+
+  const handleBatchSubmit = async () => {
+    const requests = parameterConfigs
+      .filter((config) => {
+        const data = batchFormData[config.name];
+        return data.min !== "" && data.max !== "";
+      })
+      .map((config) => {
+        const data = batchFormData[config.name];
+        const minValue = parseFloat(data.min);
+        const maxValue = parseFloat(data.max);
+
+        if (isNaN(minValue) || isNaN(maxValue)) {
+          return null;
+        }
+
+        return {
+          paramName: config.name,
+          config,
+          minValue,
+          maxValue,
+          id: data.id,
+        };
+      })
+      .filter(Boolean) as Array<{
+      paramName: string;
+      config: {
+        name: string;
+        label: string;
+        unit: string;
+        placeholder: string;
+      };
+      minValue: number;
+      maxValue: number;
+      id?: number;
+    }>;
+
+    if (requests.length === 0) {
+      return;
+    }
+
+    const mode = isBatchEditMode ? "update" : "create";
+    await batchProcess(requests, pondTypeId, mode);
+
+    // Always close form after batch operation completes
+    setIsBatchFormOpen(false);
+    setBatchFormData(initializeBatchFormData());
+    setIsBatchEditMode(false);
+  };
+
+  const handleCloseBatchForm = () => {
+    setIsBatchFormOpen(false);
+    setBatchFormData(initializeBatchFormData());
+    setIsBatchEditMode(false);
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="!max-w-4xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="!max-w-5xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Thông số nước - {pondTypeName}</DialogTitle>
           <DialogDescription>
-            Xem danh sách thông số nước cho từng loại hồ
+            Quản lý thông số nước cho loại hồ này
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4">
-          {/* Header with Create Button */}
+          {/* Header with Create and Edit Buttons */}
           <div className="flex items-center justify-between">
             <div className="flex-1">
               <label className="text-sm font-medium">Chọn thông số</label>
@@ -287,16 +447,22 @@ export default function WaterParameterThresholdModal({
                 </SelectContent>
               </Select>
             </div>
-            {!isCreateFormOpen && (
-              <Button
-                onClick={() => setIsCreateFormOpen(true)}
-                size="sm"
-                className="ml-2 mt-6"
-              >
+            <div className="flex gap-2 ml-2 mt-6">
+              <Button onClick={() => handleOpenBatchForm(false)} size="sm">
                 <Plus className="h-4 w-4 mr-1" />
                 Tạo
               </Button>
-            )}
+              {thresholds.length > 0 && (
+                <Button
+                  onClick={() => handleOpenBatchForm(true)}
+                  size="sm"
+                  variant="outline"
+                >
+                  <Edit className="h-4 w-4 mr-1" />
+                  Chỉnh sửa
+                </Button>
+              )}
+            </div>
           </div>
 
           {/* Create Form */}
@@ -623,6 +789,93 @@ export default function WaterParameterThresholdModal({
           )}
         </div>
       </DialogContent>
+
+      {/* Batch Form Dialog */}
+      <Dialog open={isBatchFormOpen} onOpenChange={setIsBatchFormOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>
+              {isBatchEditMode ? "Chỉnh sửa" : "Tạo"} thông số nước -{" "}
+              {pondTypeName}
+            </DialogTitle>
+          </DialogHeader>
+
+          <div className="space-y-6 max-h-[60vh] overflow-y-auto pr-4">
+            {parameterConfigs.map((config) => {
+              const data = batchFormData[config.name];
+              return (
+                <div key={config.name} className="space-y-3 pb-2">
+                  <Label className="font-semibold text-base">
+                    {config.label}
+                  </Label>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label
+                        htmlFor={`batch-${config.name}-min`}
+                        className="text-xs text-muted-foreground"
+                      >
+                        Tối thiểu ({config.unit})
+                      </Label>
+                      <InputNumber
+                        id={`batch-${config.name}-min`}
+                        placeholder={config.placeholder}
+                        value={data.min ? parseFloat(data.min) : undefined}
+                        onChange={(value) =>
+                          handleBatchInputChange(
+                            config.name,
+                            "min",
+                            value !== undefined ? String(value) : "",
+                          )
+                        }
+                        allowDecimal={true}
+                        disabled={isBatchProcessing}
+                      />
+                    </div>
+                    <div>
+                      <Label
+                        htmlFor={`batch-${config.name}-max`}
+                        className="text-xs text-muted-foreground"
+                      >
+                        Tối đa ({config.unit})
+                      </Label>
+                      <InputNumber
+                        id={`batch-${config.name}-max`}
+                        placeholder={config.placeholder}
+                        value={data.max ? parseFloat(data.max) : undefined}
+                        onChange={(value) =>
+                          handleBatchInputChange(
+                            config.name,
+                            "max",
+                            value !== undefined ? String(value) : "",
+                          )
+                        }
+                        allowDecimal={true}
+                        disabled={isBatchProcessing}
+                      />
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          <div className="flex gap-2 justify-end pt-4 border-t">
+            <Button
+              variant="outline"
+              onClick={handleCloseBatchForm}
+              disabled={isBatchProcessing}
+            >
+              Hủy
+            </Button>
+            <Button onClick={handleBatchSubmit} disabled={isBatchProcessing}>
+              {isBatchProcessing && (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              )}
+              {isBatchEditMode ? "Cập nhật" : "Tạo"}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Delete Confirmation Dialog */}
       <Dialog open={isDeleteConfirmOpen} onOpenChange={setIsDeleteConfirmOpen}>
