@@ -20,7 +20,6 @@ import {
   Menu,
   ChevronRight,
   Shield,
-  Bell,
   Clock,
 } from "lucide-react";
 import Image from "next/image";
@@ -56,12 +55,6 @@ const sidebarItems = [
     href: "/sale/my-schedules" as const,
     icon: Clock,
     description: "Lịch làm việc của tôi",
-  },
-  {
-    title: "Thông báo",
-    href: "/sale/notifications" as const,
-    icon: Bell,
-    description: "Thông báo hệ thống",
   },
 ] as const;
 

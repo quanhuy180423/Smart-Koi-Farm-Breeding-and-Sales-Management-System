@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Loader2, Play } from "lucide-react";
-import getAge from "@/lib/utils/dates/age";
+import { formatKoiAge } from "@/lib/utils/dates/age";
 import {
   getFishSizeLabel,
   getGenderLabel,
@@ -191,7 +191,9 @@ export function KoiDetailDialog({
                 <div className="grid grid-cols-2 gap-4">
                   <div className="flex justify-between">
                     <span className="text-gray-600 font-medium">Tuổi:</span>
-                    <span className="font-medium">{getAge(koi.birthDate)}</span>
+                    <span className="font-medium">
+                      {formatKoiAge(koi.birthDate)}
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600 font-medium">

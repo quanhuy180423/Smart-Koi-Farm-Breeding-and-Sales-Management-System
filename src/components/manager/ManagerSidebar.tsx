@@ -37,6 +37,7 @@ import {
   FileSpreadsheet,
   Tag,
   AlertTriangle,
+  Palette,
   LucideIcon,
 } from "lucide-react";
 import Image from "next/image";
@@ -58,6 +59,7 @@ const sidebarItems = [
     href: "/manager/varieties",
     icon: FileSpreadsheet,
   },
+  { title: "Quản lý hoa văn", href: "/manager/patterns", icon: Palette },
   { title: "Chi phí vận chuyển", href: "/manager/shipping", icon: Truck },
   { title: "Khuyến mãi", href: "/manager/promotions", icon: Tag },
   { title: "Thông báo", href: "/manager/notifications", icon: Bell },

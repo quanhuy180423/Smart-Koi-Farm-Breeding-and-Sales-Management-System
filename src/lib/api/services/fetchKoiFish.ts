@@ -168,6 +168,12 @@ export const koiFishService = {
     >(`${baseUrl}/${id}`, request);
     return response.data;
   },
+  deleteKoiFish: async (id: number): Promise<BaseResponse<string>> => {
+    const response = await apiService.delete<BaseResponse<string>>(
+      `${baseUrl}/${id}`,
+    );
+    return response.data;
+  },
 };
 
 export default koiFishService;
