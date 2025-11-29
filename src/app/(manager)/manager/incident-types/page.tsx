@@ -69,9 +69,6 @@ export default function IncidentTypeManagement() {
     useState<IncidentType | null>(null);
 
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
-  const [filterQuarantine, setFilterQuarantine] = useState<
-    boolean | undefined
-  >();
   const [filterBreeding, setFilterBreeding] = useState<boolean | undefined>();
 
   const [searchParams, setSearchParams] = useState<IncidentTypeSearchParams>({
@@ -129,7 +126,6 @@ export default function IncidentTypeManagement() {
   const applyFilters = () => {
     setSearchParams((prev) => ({
       ...prev,
-      requiresQuarantine: filterQuarantine,
       affectsBreeding: filterBreeding,
       pageIndex: 1,
     }));
@@ -137,11 +133,9 @@ export default function IncidentTypeManagement() {
   };
 
   const clearFilters = () => {
-    setFilterQuarantine(undefined);
     setFilterBreeding(undefined);
     setSearchParams((prev) => ({
       ...prev,
-      requiresQuarantine: undefined,
       affectsBreeding: undefined,
       pageIndex: 1,
     }));
@@ -199,18 +193,21 @@ export default function IncidentTypeManagement() {
           ) : incidentTypes.length > 0 ? (
             <>
               <div className="border rounded-lg overflow-hidden">
-                <Table>
+                <Table className="table-fixed w-full">
                   <TableHeader>
                     <TableRow className="bg-muted/50">
                       <TableHead className="w-12">STT</TableHead>
-                      <TableHead>Tên loại sự cố</TableHead>
-                      <TableHead>Mô tả</TableHead>
-                      <TableHead className="text-center">
+                      <TableHead className="w-[20%]">Tên loại sự cố</TableHead>
+                      <TableHead className="w-[28%]">Mô tả</TableHead>
+                      <TableHead className="w-[15%] text-center">
                         Mức độ mặc định
                       </TableHead>
-                      <TableHead className="text-center">Cách ly</TableHead>
-                      <TableHead className="text-center">Nhân giống</TableHead>
-                      <TableHead className="text-center">Thao tác</TableHead>
+                      <TableHead className="w-[12%] text-center">
+                        Nhân giống
+                      </TableHead>
+                      <TableHead className="w-[13%] text-center">
+                        Thao tác
+                      </TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -222,10 +219,10 @@ export default function IncidentTypeManagement() {
                         <TableCell className="text-center font-medium text-gray-500">
                           {index + 1}
                         </TableCell>
-                        <TableCell className="font-medium">
+                        <TableCell className="font-medium truncate">
                           {incidentType.name}
                         </TableCell>
-                        <TableCell className="max-w-xs text-sm text-gray-600 truncate">
+                        <TableCell className="text-sm text-gray-600 truncate">
                           {incidentType.description}
                         </TableCell>
                         <TableCell className="text-center">
@@ -238,17 +235,6 @@ export default function IncidentTypeManagement() {
                             variant="outline"
                           >
                             {severityLabels[incidentType.defaultSeverity]}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="text-center">
-                          <Badge
-                            variant={
-                              incidentType.requiresQuarantine
-                                ? "default"
-                                : "secondary"
-                            }
-                          >
-                            {incidentType.requiresQuarantine ? "Có" : "Không"}
                           </Badge>
                         </TableCell>
                         <TableCell className="text-center">
@@ -351,19 +337,6 @@ export default function IncidentTypeManagement() {
 
           <div className="space-y-4">
             <div className="space-y-3">
-              <div className="flex items-center gap-2">
-                <Checkbox
-                  id="filter-quarantine"
-                  checked={filterQuarantine === true}
-                  onCheckedChange={(checked) =>
-                    setFilterQuarantine(checked === true ? true : undefined)
-                  }
-                />
-                <Label htmlFor="filter-quarantine" className="cursor-pointer">
-                  Yêu cầu cách ly
-                </Label>
-              </div>
-
               <div className="flex items-center gap-2">
                 <Checkbox
                   id="filter-breeding"

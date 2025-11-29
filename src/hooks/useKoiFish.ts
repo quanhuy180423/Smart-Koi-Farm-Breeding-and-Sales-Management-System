@@ -98,3 +98,20 @@ export function useUpdateKoiFish() {
     },
   });
 }
+
+export function useDeleteKoiFish() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: number) => koiFishService.deleteKoiFish(id),
+    onSuccess: (data: BaseResponse<string>) => {
+      if (data.isSuccess) {
+        queryClient.invalidateQueries({ queryKey: ["koi-fishes"] });
+      }
+      toast.success(data.message || "Xóa cá Koi thành công");
+    },
+    onError: (error: ApiError) => {
+      toast.error(error.message || "Có lỗi xảy ra khi xóa cá Koi");
+    },
+  });
+}

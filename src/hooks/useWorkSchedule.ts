@@ -4,6 +4,7 @@ import {
   WorkScheduleRequest,
   UpdateWorkScheduleRequest,
   MyWorkScheduleParams,
+  CompleteAssignmentRequest,
 } from "@/lib/api/services/fetchWorkSchedule";
 import workScheduleService from "@/lib/api/services/fetchWorkSchedule";
 import { useAuthStore } from "@/store/auth-store";
@@ -139,6 +140,33 @@ export function useDeleteWorkSchedule() {
     },
     onError: (error) => {
       toast.error(error?.message || "Có lỗi xảy ra khi xóa công việc");
+    },
+  });
+}
+
+/**
+ * Hook to complete my work assignment
+ */
+export function useCompleteMyAssignment() {
+  const queryClient = useQueryClient();
+
+  return useMutation<
+    WorkSchedule,
+    ApiError,
+    { id: number; request: CompleteAssignmentRequest }
+  >({
+    mutationFn: ({ id, request }) =>
+      workScheduleService
+        .completeMyAssignment(id, request)
+        .then((res) => res.result!),
+    onSuccess: () => {
+      toast.success("Đánh dấu công việc hoàn thành thành công");
+      queryClient.invalidateQueries({ queryKey: ["my-work-schedules"] });
+    },
+    onError: (error) => {
+      toast.error(
+        error?.message || "Có lỗi xảy ra khi đánh dấu công việc hoàn thành",
+      );
     },
   });
 }

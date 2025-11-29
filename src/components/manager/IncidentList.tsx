@@ -299,18 +299,26 @@ export function IncidentList() {
         />
       ) : (
         <>
-          <div className="rounded-lg border overflow-x-auto">
-            <Table>
+          <div className="rounded-lg border">
+            <Table className="table-fixed w-full">
               <TableHeader>
                 <TableRow className="bg-muted/50">
                   <TableHead className="font-semibold w-[5%]">#</TableHead>
-                  <TableHead className="font-semibold">Tiêu đề</TableHead>
-                  <TableHead className="font-semibold">Loại</TableHead>
-                  <TableHead className="font-semibold">Mô tả</TableHead>
-                  <TableHead className="font-semibold">Mức độ</TableHead>
-                  <TableHead className="font-semibold">Trạng thái</TableHead>
-                  <TableHead className="font-semibold">Báo cáo bởi</TableHead>
-                  <TableHead className="font-semibold">
+                  <TableHead className="font-semibold w-[15%]">
+                    Tiêu đề
+                  </TableHead>
+                  <TableHead className="font-semibold w-[12%]">Loại</TableHead>
+                  <TableHead className="font-semibold w-[18%]">Mô tả</TableHead>
+                  <TableHead className="font-semibold w-[10%]">
+                    Mức độ
+                  </TableHead>
+                  <TableHead className="font-semibold w-[12%]">
+                    Trạng thái
+                  </TableHead>
+                  <TableHead className="font-semibold w-[15%]">
+                    Báo cáo bởi
+                  </TableHead>
+                  <TableHead className="font-semibold w-[13%]">
                     Thời gian xảy ra
                   </TableHead>
                 </TableRow>
@@ -323,14 +331,16 @@ export function IncidentList() {
                         index +
                         1}
                     </TableCell>
-                    <TableCell className="font-medium">
+                    <TableCell className="font-medium truncate">
                       {incident.incidentTitle}
                     </TableCell>
-                    <TableCell className="text-sm">
+                    <TableCell className="text-sm truncate">
                       {incident.incidentTypeName}
                     </TableCell>
-                    <TableCell className="text-sm max-w-xs">
-                      <p className="line-clamp-2">{incident.description}</p>
+                    <TableCell className="text-sm truncate">
+                      <p className="line-clamp-2 truncate">
+                        {incident.description}
+                      </p>
                     </TableCell>
                     <TableCell>
                       <Badge

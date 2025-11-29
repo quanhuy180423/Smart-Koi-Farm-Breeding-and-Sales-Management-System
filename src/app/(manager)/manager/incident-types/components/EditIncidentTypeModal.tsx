@@ -50,7 +50,6 @@ export default function EditIncidentTypeModal({
     name: "",
     description: "",
     defaultSeverity: IncidentSeverity.MEDIUM,
-    requiresQuarantine: false,
     affectsBreeding: false,
   });
 
@@ -62,7 +61,6 @@ export default function EditIncidentTypeModal({
         name: incidentType.name,
         description: incidentType.description,
         defaultSeverity: incidentType.defaultSeverity,
-        requiresQuarantine: incidentType.requiresQuarantine,
         affectsBreeding: incidentType.affectsBreeding,
       });
     }
@@ -147,23 +145,6 @@ export default function EditIncidentTypeModal({
           </div>
 
           <div className="space-y-3">
-            <div className="flex items-center gap-2">
-              <Checkbox
-                id="edit-quarantine"
-                checked={formData.requiresQuarantine}
-                onCheckedChange={(checked) =>
-                  setFormData({
-                    ...formData,
-                    requiresQuarantine: checked as boolean,
-                  })
-                }
-                disabled={isPending}
-              />
-              <Label htmlFor="edit-quarantine" className="cursor-pointer">
-                Yêu cầu cách ly
-              </Label>
-            </div>
-
             <div className="flex items-center gap-2">
               <Checkbox
                 id="edit-breeding"
