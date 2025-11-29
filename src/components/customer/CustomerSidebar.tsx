@@ -19,7 +19,6 @@ import {
   CreditCard,
   Menu,
   ChevronRight,
-  Settings,
   Heart,
   MapPin,
 } from "lucide-react";
@@ -63,12 +62,6 @@ const sidebarItems = [
     href: "/profile/favorites" as const,
     icon: Heart,
     description: "Cá Koi yêu thích",
-  },
-  {
-    title: "Cài đặt",
-    href: "/profile/settings" as const,
-    icon: Settings,
-    description: "Cài đặt tài khoản",
   },
 ] as const;
 

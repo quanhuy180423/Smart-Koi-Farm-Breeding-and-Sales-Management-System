@@ -13,6 +13,7 @@ import {
   Dna,
   Mars,
   Venus,
+  Heart,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -27,14 +28,24 @@ import { useRouter } from "next/navigation";
 
 interface KoiFishCardProps {
   koi: KoiFishResponse;
-  onAddToCart: (id: number, e?: React.MouseEvent) => void;
+  onAddToCart?: (id: number, e?: React.MouseEvent) => void;
   addingId?: number | null;
+  showAddToCartButton?: boolean;
+  onRemoveFavorite?: (id: number, e?: React.MouseEvent) => void;
+  removing?: boolean;
+  showRemoveFavoriteButton?: boolean;
+  isInCart?: boolean;
 }
 
 export const KoiFishCard = ({
   koi,
   onAddToCart,
   addingId,
+  showAddToCartButton = true,
+  onRemoveFavorite,
+  removing = false,
+  showRemoveFavoriteButton = false,
+  isInCart = false,
 }: KoiFishCardProps) => {
   const genderInfo = getUserGenderLabelForPerson(koi.gender);
   const isMale = koi.gender === Gender.MALE;
@@ -144,24 +155,56 @@ export const KoiFishCard = ({
       </CardContent>
 
       {/* Footer Actions */}
-      <CardFooter className="p-4 pt-0 gap-2">
-        <Button
-          className="flex-1 bg-[#0A3D62] hover:bg-[#0A3D62]/90 shadow-md transition-all active:scale-[0.98]"
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            onAddToCart(koi.id, e);
-          }}
-          disabled={addingId === koi.id}
-        >
-          {addingId === koi.id ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
+      {(showAddToCartButton || showRemoveFavoriteButton) && (
+        <CardFooter className="p-4 pt-0 gap-2">
+          {showRemoveFavoriteButton ? (
+            <Button
+              className="flex-1 bg-red-500 hover:bg-red-600 shadow-md transition-all active:scale-[0.98]"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                if (onRemoveFavorite) {
+                  onRemoveFavorite(koi.id, e);
+                }
+              }}
+              disabled={removing}
+            >
+              {removing ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Heart className="h-4 w-4 mr-2 fill-current" />
+              )}
+              {removing ? "Đang xử lý..." : "Xóa khỏi yêu thích"}
+            </Button>
+          ) : isInCart ? (
+            <div className="w-full p-3 bg-green-50 border border-green-200 rounded-md text-center">
+              <div className="flex items-center justify-center gap-2 text-green-700 text-sm font-medium">
+                <ShoppingCart className="h-4 w-4" />
+                <span>Đã thêm vào giỏ hàng</span>
+              </div>
+            </div>
           ) : (
-            <ShoppingCart className="h-4 w-4 mr-2" />
+            <Button
+              className="flex-1 bg-[#0A3D62] hover:bg-[#0A3D62]/90 shadow-md transition-all active:scale-[0.98]"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                if (onAddToCart) {
+                  onAddToCart(koi.id, e);
+                }
+              }}
+              disabled={addingId === koi.id}
+            >
+              {addingId === koi.id ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <ShoppingCart className="h-4 w-4 mr-2" />
+              )}
+              {addingId === koi.id ? "Đang xử lý..." : "Thêm vào giỏ hàng"}
+            </Button>
           )}
-          {addingId === koi.id ? "Đang xử lý..." : "Thêm vào giỏ hàng"}
-        </Button>
-      </CardFooter>
+        </CardFooter>
+      )}
     </Card>
   );
 };

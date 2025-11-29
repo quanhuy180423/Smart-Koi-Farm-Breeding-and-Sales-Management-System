@@ -95,11 +95,11 @@ export function useCreateStaffAccount() {
     CreateStaffAccountRequest
   >({
     mutationFn: (data) => usersService.createStaffAccount(data),
-    onSuccess: () => {
-      // Invalidate users query to refresh the list
+    onSuccess: (data) => {
       queryClient.invalidateQueries({
         queryKey: ["users-by-role"],
       });
+      toast.success(data.message || "Tạo tài khoản nhân viên thành công");
     },
     onError: (err: ApiError) => {
       toast.error(err.message || "Có lỗi xảy ra khi tạo tài khoản.");
@@ -115,11 +115,16 @@ export function useToggleAccountBlock() {
 
   return useMutation<BaseResponse<boolean>, ApiError, number>({
     mutationFn: (userId) => usersService.toggleBlockAccount(userId),
-    onSuccess: () => {
-      // Invalidate users query to refresh the list
+    onSuccess: (data) => {
       queryClient.invalidateQueries({
         queryKey: ["users-by-role"],
       });
+      toast.success(data.message || "Cập nhật trạng thái tài khoản thành công");
+    },
+    onError: (err: ApiError) => {
+      toast.error(
+        err.message || "Có lỗi xảy ra khi cập nhật trạng thái tài khoản",
+      );
     },
   });
 }
@@ -132,11 +137,14 @@ export function useImportStaffAccounts() {
 
   return useMutation<BaseResponse<ImportAccountsResponse>, ApiError, File>({
     mutationFn: (file) => usersService.importStaffAccounts(file),
-    onSuccess: () => {
-      // Invalidate users query to refresh the list
+    onSuccess: (data) => {
       queryClient.invalidateQueries({
         queryKey: ["users-by-role"],
       });
+      toast.success(data.message || "Import tài khoản thành công");
+    },
+    onError: (err: ApiError) => {
+      toast.error(err.message || "Có lỗi xảy ra khi import tài khoản");
     },
   });
 }

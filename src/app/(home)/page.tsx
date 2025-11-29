@@ -16,7 +16,7 @@ import {
   CarouselPrevious,
   type CarouselApi,
 } from "@/components/ui/carousel";
-import { Zap, Shield, Award, ArrowRight, Play } from "lucide-react";
+import { Zap, Award, ArrowRight, Play } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
@@ -136,74 +136,6 @@ export default function HomePage() {
           </div>
         </div>
       </section>
-
-      {/* Promotion Banner */}
-      <section className="py-8 px-4">
-        <div className="container mx-auto">
-          <PromotionBanner variant="full" />
-        </div>
-      </section>
-
-      {/* Technology Features */}
-      <section id="technology" className="py-10 bg-muted/30">
-        <div className="container mx-auto px-4">
-          <div className="text-center space-y-4 mb-16">
-            <Badge
-              variant="secondary"
-              className="bg-primary/10   border-primary/20"
-            >
-              Công nghệ tiên tiến
-            </Badge>
-            <h2 className="text-3xl lg:text-4xl font-bold   text-balance">
-              Hệ thống quản lý thông minh
-            </h2>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto text-pretty">
-              Ứng dụng AI và RFID để đảm bảo chất lượng và truy xuất nguồn gốc
-              hoàn hảo
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <Card className="border-border hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
-                  <Zap className="h-6 w-6 text-primary" />
-                </div>
-                <CardTitle>Chip RFID</CardTitle>
-                <CardDescription>
-                  Mỗi con cá được gắn chip RFID để theo dõi và quản lý chính xác
-                </CardDescription>
-              </CardHeader>
-            </Card>
-
-            <Card className="border-border hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <div className="w-12 h-12 bg-accent/10 rounded-lg flex items-center justify-center mb-4">
-                  <Shield className="h-6 w-6 text-accent" />
-                </div>
-                <CardTitle>AI Tư vấn</CardTitle>
-                <CardDescription>
-                  Hệ thống AI gợi ý cặp ghép tối ưu dựa trên dữ liệu di truyền
-                </CardDescription>
-              </CardHeader>
-            </Card>
-
-            <Card className="border-border hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
-                  <Award className="h-6 w-6 text-primary" />
-                </div>
-                <CardTitle>Truy xuất nguồn gốc</CardTitle>
-                <CardDescription>
-                  Theo dõi hoàn chỉnh từ cá bố mẹ, ngày sinh đến quá trình nuôi
-                  dưỡng
-                </CardDescription>
-              </CardHeader>
-            </Card>
-          </div>
-        </div>
-      </section>
-
       {/* Koi Catalog Preview */}
       <section id="catalog" className="py-10">
         <div className="container mx-auto px-4">
@@ -330,6 +262,61 @@ export default function HomePage() {
                 <ArrowRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5" />
               </Button>
             </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Promotion Banner */}
+      <section className="py-8 px-4">
+        <div className="container mx-auto">
+          <PromotionBanner variant="full" />
+        </div>
+      </section>
+
+      {/* Technology Features */}
+      <section id="technology" className="py-10 bg-muted/30">
+        <div className="container mx-auto px-4">
+          <div className="text-center space-y-4 mb-16">
+            <Badge
+              variant="secondary"
+              className="bg-primary/10   border-primary/20"
+            >
+              Công nghệ tiên tiến
+            </Badge>
+            <h2 className="text-3xl lg:text-4xl font-bold   text-balance">
+              Hệ thống quản lý thông minh
+            </h2>
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto text-pretty">
+              Ứng dụng AI và RFID để đảm bảo chất lượng và truy xuất nguồn gốc
+              hoàn hảo
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-2 gap-8">
+            <Card className="border-border hover:shadow-lg transition-shadow">
+              <CardHeader>
+                <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
+                  <Zap className="h-6 w-6 text-primary" />
+                </div>
+                <CardTitle>Chip RFID</CardTitle>
+                <CardDescription>
+                  Mỗi con cá được gắn chip RFID để theo dõi và quản lý chính xác
+                </CardDescription>
+              </CardHeader>
+            </Card>
+
+            <Card className="border-border hover:shadow-lg transition-shadow">
+              <CardHeader>
+                <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
+                  <Award className="h-6 w-6 text-primary" />
+                </div>
+                <CardTitle>Truy xuất nguồn gốc</CardTitle>
+                <CardDescription>
+                  Theo dõi hoàn chỉnh từ cá bố mẹ, ngày sinh đến quá trình nuôi
+                  dưỡng
+                </CardDescription>
+              </CardHeader>
+            </Card>
           </div>
         </div>
       </section>

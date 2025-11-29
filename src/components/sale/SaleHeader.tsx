@@ -10,7 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { User, LogOut, Settings, CircleUserRound } from "lucide-react";
+import { User, LogOut, CircleUserRound } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import logo from "@/assets/images/Logo_ZenKoi.png";
@@ -81,15 +81,6 @@ export function SaleHeader() {
                 >
                   <User className="mr-2 h-4 w-4 group-hover:text-white" />
                   Thông tin cá nhân
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link
-                  href={"/sale/settings" as const}
-                  className="flex items-center cursor-pointer"
-                >
-                  <Settings className="mr-2 h-4 w-4 group-hover:text-white" />
-                  Cài đặt
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />

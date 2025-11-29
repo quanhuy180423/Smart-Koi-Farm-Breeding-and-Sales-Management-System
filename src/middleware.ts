@@ -21,7 +21,7 @@ const ROLE_DASHBOARD: Record<string, string> = {
 
 // 3. Định nghĩa các Route được bảo vệ và Role được phép truy cập
 const PROTECTED_ROUTES = {
-  "/manager": [Roles.Manager, Roles.FarmStaff],
+  "/manager": [Roles.Manager],
   "/sale": [Roles.SaleStaff],
   // Thêm các route khác nếu cần, ví dụ: "/profile": [Roles.Customer, Roles.Manager...]
 };
@@ -37,17 +37,6 @@ const AUTH_ROUTES = [
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-
-  // === BƯỚC 1: BỎ QUA CÁC FILE TĨNH VÀ API ===
-  if (
-    pathname.startsWith("/_next") ||
-    pathname.startsWith("/api") ||
-    pathname.startsWith("/static") ||
-    pathname.includes(".") || // file có đuôi mở rộng (ảnh, css...)
-    pathname === "/favicon.ico"
-  ) {
-    return NextResponse.next();
-  }
 
   // === BƯỚC 2: LẤY THÔNG TIN TỪ COOKIE ===
   // Token để xác định đã đăng nhập hay chưa (AuthStore của bạn cần đảm bảo set cookie này)

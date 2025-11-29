@@ -9,7 +9,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Select,
@@ -26,7 +25,6 @@ import {
   DollarSign,
   Package,
   Clock,
-  Eye,
   ArrowUpRight,
   ArrowDownRight,
   Loader2,
@@ -143,12 +141,6 @@ export default function SaleDashboard() {
           <p className="text-muted-foreground">
             Tổng quan hoạt động bán hàng và thống kê
           </p>
-        </div>
-        <div className="flex gap-3">
-          <Button variant="outline" size="sm">
-            <Eye className="h-4 w-4 mr-2" />
-            Xem báo cáo
-          </Button>
         </div>
       </div>
 
