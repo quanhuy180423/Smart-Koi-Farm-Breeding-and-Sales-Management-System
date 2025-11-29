@@ -24,7 +24,6 @@ export function useGetIncidentTypes(params: IncidentTypeSearchParams) {
     queryKey: [
       "incident-types",
       params.search,
-      params.requiresQuarantine,
       params.affectsBreeding,
       params.pageIndex,
       params.pageSize,

@@ -10,7 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { User, LogOut, Settings, CircleUserRound } from "lucide-react";
+import { User, LogOut, CircleUserRound } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import logo from "@/assets/images/Logo_ZenKoi.png";

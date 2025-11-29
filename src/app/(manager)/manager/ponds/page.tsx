@@ -613,7 +613,7 @@ export default function PondManagement() {
             </div>
           ) : (
             <>
-              <Table>
+              <Table className="table-fixed w-full">
                 <TableHeader>
                   <TableRow>
                     <TableHead className="w-[5%]">STT</TableHead>
@@ -642,11 +642,13 @@ export default function PondManagement() {
                             (searchParams.pageIndex - 1) *
                               searchParams.pageSize}
                         </TableCell>
-                        <TableCell>{pond.pondName}</TableCell>
-                        <TableCell>
+                        <TableCell className="truncate">
+                          {pond.pondName}
+                        </TableCell>
+                        <TableCell className="truncate">
                           {getAreaNameById(pond.areaId) || "N/A"}
                         </TableCell>
-                        <TableCell>
+                        <TableCell className="truncate">
                           {pond.lengthMeters || "N/A"}m ×{" "}
                           {pond.widthMeters || "N/A"}m (
                           {pond.depthMeters || "N/A"}m sâu)
@@ -693,20 +695,24 @@ export default function PondManagement() {
                             >
                               <Edit className="h-4 w-4" />
                             </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="text-red-600 hover:text-red-800"
-                              onClick={() => handleDeletePond(pond)}
-                              title="Xóa"
-                              disabled={deletePondMutation.isPending}
-                            >
-                              {deletePondMutation.isPending ? (
-                                <Loader2 className="h-4 w-4 animate-spin" />
-                              ) : (
-                                <Trash2 className="h-4 w-4" />
-                              )}
-                            </Button>
+                            {pond.pondStatus === PondStatus.EMPTY ? (
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="text-red-600 hover:text-red-800"
+                                onClick={() => handleDeletePond(pond)}
+                                title="Xóa"
+                                disabled={deletePondMutation.isPending}
+                              >
+                                {deletePondMutation.isPending ? (
+                                  <Loader2 className="h-4 w-4 animate-spin" />
+                                ) : (
+                                  <Trash2 className="h-4 w-4" />
+                                )}
+                              </Button>
+                            ) : (
+                              <div className="h-10 w-10" />
+                            )}
                           </div>
                         </TableCell>
                       </TableRow>

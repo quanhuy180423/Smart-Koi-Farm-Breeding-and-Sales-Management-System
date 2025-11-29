@@ -24,13 +24,14 @@ import {
   MapPin,
   User,
   Loader2,
+  Network,
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { formatCurrency } from "@/lib/utils/numbers/formatCurrency";
-import { useGetKoiFishById } from "@/hooks/useKoiFish";
+import { useGetKoiFishById, useGetKoiFishFamily } from "@/hooks/useKoiFish";
+import { formatKoiAge } from "@/lib/utils/dates/age";
 import { useAddItemToCart, useGetCart } from "@/hooks/useCart";
-import getAge from "@/lib/utils/dates/age";
 import {
   getSaleStatusLabel,
   getGenderLabel,
@@ -38,6 +39,35 @@ import {
   getHealthStatusLabel,
 } from "@/lib/utils/enum";
 import { DATE_FORMATS, formatDate } from "@/lib/utils/dates";
+import { Gender, KoiFishFamilyResponse } from "@/lib/api/services/fetchKoiFish";
+
+// Pedigree Node Component
+const PedigreeNode = ({
+  koi,
+  role,
+}: {
+  koi?: KoiFishFamilyResponse | null;
+  role: string;
+}) => {
+  if (!koi) return null;
+
+  return (
+    <div className="border border-indigo-300 rounded-lg p-2 text-center shadow-lg bg-white min-w-[150px] transform transition-all hover:scale-[1.02] hover:shadow-xl relative z-10">
+      <p className="text-[10px] font-medium text-indigo-500">{role}</p>
+      <p className="font-bold text-sm truncate text-indigo-800">
+        {koi?.rfid?.split(" ")[0] ?? "—"}
+      </p>
+      <p className="text-xs text-gray-600">{koi?.varietyName ?? "—"}</p>
+      <p
+        className={`text-xs mt-1 font-bold ${
+          koi?.gender === Gender.MALE ? "text-blue-600" : "text-pink-600"
+        }`}
+      >
+        {getGenderLabel(koi?.gender).label}
+      </p>
+    </div>
+  );
+};
 import { useCheckFavorite, useToggleFavorite } from "@/hooks/useFavoriteKoi";
 import { useAuthStore } from "@/store/auth-store";
 
@@ -46,6 +76,8 @@ export default function KoiDetailPage() {
   const koiId = parseInt(params.id as string);
 
   const { data: koi, isLoading, isError } = useGetKoiFishById(koiId);
+  const { data: koiFishFamily, isLoading: isPedigreeLoading } =
+    useGetKoiFishFamily(koiId);
   const { mutate: addToCart, isPending: isAddPending } = useAddItemToCart();
   const { data: cart } = useGetCart();
 
@@ -246,7 +278,9 @@ export default function KoiDetailPage() {
                   <div className="flex items-center gap-2">
                     <Calendar className="h-4 w-4 text-muted-foreground" />
                     <span className="text-sm text-muted-foreground">Tuổi:</span>
-                    <span className="font-medium">{getAge(koi.birthDate)}</span>
+                    <span className="font-medium">
+                      {formatKoiAge(koi.birthDate)}
+                    </span>
                   </div>
                   <div className="flex items-center gap-2">
                     <User className="h-4 w-4 text-muted-foreground" />
@@ -320,9 +354,10 @@ export default function KoiDetailPage() {
         {/* Detailed Information Tabs */}
         <div className="mt-12">
           <Tabs defaultValue="details" className="w-full">
-            <TabsList className="grid w-full grid-cols-3">
+            <TabsList className="grid w-full grid-cols-4">
               <TabsTrigger value="details">Thông tin chi tiết</TabsTrigger>
               <TabsTrigger value="health">Sức khỏe</TabsTrigger>
+              <TabsTrigger value="pedigree">Gia phả</TabsTrigger>
               <TabsTrigger value="care">Hướng dẫn chăm sóc</TabsTrigger>
             </TabsList>
 
@@ -393,7 +428,9 @@ export default function KoiDetailPage() {
                       <span className="text-sm text-muted-foreground">
                         Tuổi:
                       </span>
-                      <p className="font-medium">{getAge(koi.birthDate)}</p>
+                      <p className="font-medium">
+                        {formatKoiAge(koi.birthDate)}
+                      </p>
                     </div>
                     <div>
                       <span className="text-sm text-muted-foreground">
@@ -451,6 +488,179 @@ export default function KoiDetailPage() {
                       liên hệ với chúng tôi để biết thêm thông tin.
                     </p>
                   </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="pedigree" className="mt-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Network className="h-5 w-5" />
+                    Gia phả cá Koi
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {isPedigreeLoading ? (
+                    <div className="flex items-center justify-center py-10 text-gray-500">
+                      <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                      Đang tải dữ liệu...
+                    </div>
+                  ) : (
+                    <div className="flex flex-col-reverse items-center py-8 space-y-12 space-y-reverse relative">
+                      {/* Cá hiện tại */}
+                      <div className="relative flex flex-col items-center">
+                        <PedigreeNode koi={koiFishFamily} role="Cá Hiện tại" />
+                        {(koiFishFamily?.father || koiFishFamily?.mother) && (
+                          <div className="w-0.5 h-6 bg-indigo-500 absolute top-[-1.5rem]"></div>
+                        )}
+                      </div>
+
+                      {/* Bố mẹ */}
+                      {(koiFishFamily?.father || koiFishFamily?.mother) && (
+                        <div className="relative flex justify-center w-full max-w-5xl">
+                          {koiFishFamily?.father && (
+                            <div className="relative flex flex-col items-center w-1/2">
+                              <PedigreeNode
+                                koi={koiFishFamily.father}
+                                role="Bố (P1)"
+                              />
+                              {(koiFishFamily.father?.father ||
+                                koiFishFamily.father?.mother) && (
+                                <div className="absolute top-[-1.5rem] left-1/2 transform -translate-x-1/2 w-0.5 h-6 bg-indigo-500"></div>
+                              )}
+                            </div>
+                          )}
+
+                          {koiFishFamily?.mother && (
+                            <div className="relative flex flex-col items-center w-1/2">
+                              <PedigreeNode
+                                koi={koiFishFamily.mother}
+                                role="Mẹ (P1)"
+                              />
+                              {(koiFishFamily.mother?.father ||
+                                koiFishFamily.mother?.mother) && (
+                                <div className="absolute top-[-1.5rem] left-1/2 transform -translate-x-1/2 w-0.5 h-6 bg-indigo-500"></div>
+                              )}
+                            </div>
+                          )}
+
+                          {/* Đường ngang nối từ Cá hiện tại xuống Bố Mẹ */}
+                          {koiFishFamily?.father && koiFishFamily?.mother ? (
+                            <div className="absolute -bottom-6 left-1/4 right-1/4 h-0.5 bg-indigo-500"></div>
+                          ) : koiFishFamily?.father ? (
+                            <div className="absolute -bottom-6 left-1/2 w-0 h-0.5 bg-indigo-500"></div>
+                          ) : (
+                            <div className="absolute -bottom-6 right-1/2 w-0 h-0.5 bg-indigo-500"></div>
+                          )}
+
+                          {/* Đường dọc nối từ đường ngang xuống mỗi node */}
+                          {koiFishFamily?.father && (
+                            <div className="absolute -bottom-6 left-1/4 w-0.5 h-6 bg-indigo-500"></div>
+                          )}
+                          {koiFishFamily?.mother && (
+                            <div className="absolute -bottom-6 right-1/4 w-0.5 h-6 bg-indigo-500"></div>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Ông bà */}
+                      {(koiFishFamily?.father?.father ||
+                        koiFishFamily?.father?.mother ||
+                        koiFishFamily?.mother?.father ||
+                        koiFishFamily?.mother?.mother) && (
+                        <div className="relative flex justify-center w-full max-w-6xl">
+                          {/* Ông bà bên cha */}
+                          <div className="relative w-1/2 px-4">
+                            <div className="relative flex justify-between gap-4">
+                              <div className="flex-1 flex justify-start">
+                                {koiFishFamily?.father?.father && (
+                                  <PedigreeNode
+                                    koi={koiFishFamily?.father?.father}
+                                    role="Ông (G1)"
+                                  />
+                                )}
+                              </div>
+                              <div className="flex-1 flex justify-end">
+                                {koiFishFamily?.father?.mother && (
+                                  <PedigreeNode
+                                    koi={koiFishFamily?.father?.mother}
+                                    role="Bà (G1)"
+                                  />
+                                )}
+                              </div>
+                            </div>
+
+                            {/* Đường ngang nối 2 ông bà bên cha */}
+                            {koiFishFamily?.father?.father &&
+                              koiFishFamily?.father?.mother && (
+                                <div className="absolute bottom-[-1.5rem] left-1/4 right-1/4 h-0.5 bg-indigo-500"></div>
+                              )}
+
+                            {/* Đường dọc xuống ông */}
+                            {koiFishFamily?.father?.father &&
+                            koiFishFamily?.father?.mother ? (
+                              <div className="absolute bottom-[-1.5rem] left-1/4 w-0.5 h-6 bg-indigo-500"></div>
+                            ) : koiFishFamily?.father?.father ? (
+                              <div className="absolute bottom-[-1.5rem] left-1/4 w-0.5 h-6 bg-indigo-500"></div>
+                            ) : null}
+
+                            {/* Đường dọc xuống bà */}
+                            {koiFishFamily?.father?.father &&
+                            koiFishFamily?.father?.mother ? (
+                              <div className="absolute bottom-[-1.5rem] right-1/4 w-0.5 h-6 bg-indigo-500"></div>
+                            ) : koiFishFamily?.father?.mother ? (
+                              <div className="absolute bottom-[-1.5rem] right-1/4 w-0.5 h-6 bg-indigo-500"></div>
+                            ) : null}
+                          </div>
+
+                          {/* Ông bà bên mẹ */}
+                          <div className="relative w-1/2 px-4">
+                            <div className="relative flex justify-between gap-4">
+                              <div className="flex-1 flex justify-start">
+                                {koiFishFamily?.mother?.father && (
+                                  <PedigreeNode
+                                    koi={koiFishFamily?.mother?.father}
+                                    role="Ông (G2)"
+                                  />
+                                )}
+                              </div>
+                              <div className="flex-1 flex justify-end">
+                                {koiFishFamily?.mother?.mother && (
+                                  <PedigreeNode
+                                    koi={koiFishFamily?.mother?.mother}
+                                    role="Bà (G2)"
+                                  />
+                                )}
+                              </div>
+                            </div>
+
+                            {/* Đường ngang nối 2 ông bà bên mẹ */}
+                            {koiFishFamily?.mother?.father &&
+                              koiFishFamily?.mother?.mother && (
+                                <div className="absolute bottom-[-1.5rem] left-1/4 right-1/4 h-0.5 bg-indigo-500"></div>
+                              )}
+
+                            {/* Đường dọc xuống ông */}
+                            {koiFishFamily?.mother?.father &&
+                            koiFishFamily?.mother?.mother ? (
+                              <div className="absolute bottom-[-1.5rem] left-1/4 w-0.5 h-6 bg-indigo-500"></div>
+                            ) : koiFishFamily?.mother?.father ? (
+                              <div className="absolute bottom-[-1.5rem] left-1/4 w-0.5 h-6 bg-indigo-500"></div>
+                            ) : null}
+
+                            {/* Đường dọc xuống bà */}
+                            {koiFishFamily?.mother?.father &&
+                            koiFishFamily?.mother?.mother ? (
+                              <div className="absolute bottom-[-1.5rem] right-1/4 w-0.5 h-6 bg-indigo-500"></div>
+                            ) : koiFishFamily?.mother?.mother ? (
+                              <div className="absolute bottom-[-1.5rem] right-1/4 w-0.5 h-6 bg-indigo-500"></div>
+                            ) : null}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             </TabsContent>

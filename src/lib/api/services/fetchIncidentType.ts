@@ -11,13 +11,11 @@ export interface IncidentType {
   name: string;
   description: string;
   defaultSeverity: IncidentSeverity;
-  requiresQuarantine: boolean;
   affectsBreeding: boolean;
 }
 
 export interface IncidentTypeSearchParams extends PagingRequest {
   search?: string;
-  requiresQuarantine?: boolean;
   affectsBreeding?: boolean;
 }
 
@@ -25,7 +23,6 @@ export interface IncidentTypeRequest {
   name: string;
   description: string;
   defaultSeverity: IncidentSeverity;
-  requiresQuarantine: boolean;
   affectsBreeding: boolean;
 }
 

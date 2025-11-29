@@ -322,7 +322,7 @@ export default function PondTypeManagement() {
             </div>
           ) : (
             <>
-              <Table>
+              <Table className="table-fixed w-full">
                 <TableHeader>
                   <TableRow>
                     <TableHead className="w-[4%]">STT</TableHead>
@@ -353,7 +353,9 @@ export default function PondTypeManagement() {
                             (searchParams.pageIndex - 1) *
                               searchParams.pageSize}
                         </TableCell>
-                        <TableCell>{pondType.typeName}</TableCell>
+                        <TableCell className="truncate">
+                          {pondType.typeName}
+                        </TableCell>
                         <TableCell>
                           <span
                             className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getPondTypeLabel(pondType.type).colorClass}`}

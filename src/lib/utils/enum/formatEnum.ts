@@ -210,6 +210,10 @@ const pondTypeMeta: Record<PondTypeEnum, Label> = {
     label: "Cơ Sở Giống",
     colorClass: "bg-emerald-100 text-emerald-800",
   },
+  [PondTypeEnum.QUARANTINE]: {
+    label: "Cách Ly",
+    colorClass: "bg-red-100 text-red-800",
+  },
 };
 
 const rolesMeta: Record<Roles, Label> = {

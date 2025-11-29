@@ -44,7 +44,6 @@ export default function AddIncidentTypeModal({
     name: "",
     description: "",
     defaultSeverity: IncidentSeverity.MEDIUM,
-    requiresQuarantine: false,
     affectsBreeding: false,
   });
 
@@ -61,7 +60,6 @@ export default function AddIncidentTypeModal({
           name: "",
           description: "",
           defaultSeverity: IncidentSeverity.MEDIUM,
-          requiresQuarantine: false,
           affectsBreeding: false,
         });
         onOpenChange(false);
@@ -130,23 +128,6 @@ export default function AddIncidentTypeModal({
           </div>
 
           <div className="space-y-3">
-            <div className="flex items-center gap-2">
-              <Checkbox
-                id="quarantine"
-                checked={formData.requiresQuarantine}
-                onCheckedChange={(checked) =>
-                  setFormData({
-                    ...formData,
-                    requiresQuarantine: checked as boolean,
-                  })
-                }
-                disabled={isPending}
-              />
-              <Label htmlFor="quarantine" className="cursor-pointer">
-                Yêu cầu cách ly
-              </Label>
-            </div>
-
             <div className="flex items-center gap-2">
               <Checkbox
                 id="breeding"

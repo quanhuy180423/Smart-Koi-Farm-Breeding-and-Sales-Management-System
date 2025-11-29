@@ -19,6 +19,7 @@ export enum PondTypeEnum {
   CLASSIFICATION = "Classification",
   MARKET_POND = "MarketPond",
   BROOD_STOCK = "BroodStock",
+  QUARANTINE = "Quarantine",
 }
 
 export interface PondBasicResponse {

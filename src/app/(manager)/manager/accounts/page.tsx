@@ -402,7 +402,6 @@ export default function AccountManagement() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Tất cả vai trò</SelectItem>
-                <SelectItem value={Roles.Manager}>Quản lý</SelectItem>
                 <SelectItem value={Roles.FarmStaff}>
                   Nhân viên trang trại
                 </SelectItem>

@@ -19,12 +19,11 @@ import {
   CreditCard,
   Menu,
   ChevronRight,
-  Settings,
   Heart,
-  Bell,
   MapPin,
 } from "lucide-react";
 import Image from "next/image";
+import type { Route } from "next";
 import Logo from "@/assets/images/ZenKoi.png";
 
 const sidebarItems = [
@@ -109,7 +108,11 @@ export function CustomerSidebar({ className }: CustomerSidebarProps) {
           const isActive = pathname === item.href;
 
           return (
-            <Link key={item.href} href={item.href} onClick={onItemClick}>
+            <Link
+              key={item.href}
+              href={item.href as Route}
+              onClick={onItemClick}
+            >
               <div
                 className={cn(
                   "flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-200 group hover:bg-accent/50 cursor-pointer",

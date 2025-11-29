@@ -62,12 +62,13 @@ import {
   HealthStatus,
   KoiFishResponse,
   KoiFishSearchParams,
+  SaleStatus,
 } from "@/lib/api/services/fetchKoiFish";
-import { useGetKoiFishes } from "@/hooks/useKoiFish";
+import { useGetKoiFishes, useDeleteKoiFish } from "@/hooks/useKoiFish";
 import formatCurrency from "@/lib/utils/numbers";
 import { PAGE_SIZE_OPTIONS_DEFAULT } from "@/components/common/PaginationSection";
 import { PaginationWithLinks } from "@/components/pagination";
-import getAge from "@/lib/utils/dates/age";
+import { formatKoiAge } from "@/lib/utils/dates/age";
 import {
   getFishSizeLabel,
   getHealthStatusLabel,
@@ -113,6 +114,9 @@ export default function KoiManagement() {
   const [selectedPondName, setSelectedPondName] = useState<
     string | undefined
   >();
+  const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
+  const [deleteConfirmKoi, setDeleteConfirmKoi] =
+    useState<KoiFishResponse | null>(null);
 
   const [searchParams, setSearchParams] = useState<KoiFishSearchParams>({
     pageIndex: 1,
@@ -138,6 +142,7 @@ export default function KoiManagement() {
   }, [debouncedSearchTerm]);
 
   const { data: koiFishData, isLoading } = useGetKoiFishes(searchParams);
+  const { mutate: deleteKoi, isPending: isDeletingKoi } = useDeleteKoiFish();
   const dataToDisplay: KoiFishResponse[] = koiFishData?.data || [];
   const totalItems = koiFishData?.totalItems || 0;
 
@@ -250,6 +255,26 @@ export default function KoiManagement() {
     setIsEditModalOpen(true);
   };
 
+  const handleOpenDeleteConfirm = (koi: KoiFishResponse) => {
+    setDeleteConfirmKoi(koi);
+    setIsDeleteConfirmOpen(true);
+  };
+
+  const handleConfirmDelete = () => {
+    if (deleteConfirmKoi) {
+      deleteKoi(deleteConfirmKoi.id);
+      setIsDeleteConfirmOpen(false);
+      setDeleteConfirmKoi(null);
+    }
+  };
+
+  const canDeleteKoi = (koi: KoiFishResponse): boolean => {
+    return (
+      koi.saleStatus === SaleStatus.NOT_FOR_SALE ||
+      koi.saleStatus === SaleStatus.AVAILABLE
+    );
+  };
+
   const handleSelectVariety = (varietyId: number, varietyName: string) => {
     setVarietyIdInput(String(varietyId));
     setSelectedVarietyName(varietyName);
@@ -342,18 +367,20 @@ export default function KoiManagement() {
             </div>
           ) : (
             <>
-              <Table>
+              <Table className="table-fixed w-full">
                 <TableHeader>
                   <TableRow>
                     <TableHead className="w-[5%]">STT</TableHead>
-                    <TableHead className="w-[10%]">RFID</TableHead>
-                    <TableHead className="w-[12%]">Giống</TableHead>
+                    <TableHead className="w-[12%]">RFID</TableHead>
+                    <TableHead className="w-[13%]">Giống</TableHead>
                     <TableHead className="w-[5%]">Tuổi</TableHead>
                     <TableHead className="w-[10%]">Kích thước</TableHead>
-                    <TableHead className="w-[18%]">Hồ</TableHead>
+                    <TableHead className="w-[15%]">Hồ</TableHead>
                     <TableHead className="w-[15%]">Sức khỏe</TableHead>
                     <TableHead className="w-[15%]">Giá bán (VNĐ)</TableHead>
-                    <TableHead className="w-[10%]">Thao tác</TableHead>
+                    <TableHead className="w-[10%] text-center">
+                      Thao tác
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -369,20 +396,24 @@ export default function KoiManagement() {
                   ) : (
                     dataToDisplay.map((koi, index) => (
                       <TableRow key={koi.id}>
-                        <TableCell className="font-medium">
+                        <TableCell className="font-medium truncate">
                           {index +
                             1 +
                             (searchParams.pageIndex - 1) *
                               searchParams.pageSize}
                         </TableCell>
-                        <TableCell className="font-medium">
+                        <TableCell className="font-medium truncate">
                           {koi.rfid}
                         </TableCell>
-                        <TableCell>{koi.variety.varietyName}</TableCell>
-                        <TableCell>{getAge(koi.birthDate)}</TableCell>
+                        <TableCell className="truncate">
+                          {koi.variety.varietyName}
+                        </TableCell>
+                        <TableCell>{formatKoiAge(koi.birthDate)}</TableCell>
                         <TableCell>{getFishSizeLabel(koi.size)}</TableCell>
-                        <TableCell>{koi.pond.pondName}</TableCell>
-                        <TableCell>
+                        <TableCell className="truncate">
+                          {koi.pond.pondName}
+                        </TableCell>
+                        <TableCell className="truncate">
                           {(() => {
                             const label = getHealthStatusLabel(
                               koi.healthStatus,
@@ -396,10 +427,10 @@ export default function KoiManagement() {
                             );
                           })()}
                         </TableCell>
-                        <TableCell>
+                        <TableCell className="truncate">
                           {formatCurrency(koi.sellingPrice || 0)}
                         </TableCell>
-                        <TableCell className="w-[10%]">
+                        <TableCell className="truncate">
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                               <Button
@@ -440,13 +471,15 @@ export default function KoiManagement() {
                                 <AlertCircle className="mr-2 h-4 w-4 hover:text-white" />
                                 Xem lịch sử sự cố
                               </DropdownMenuItem>
-                              <DropdownMenuItem
-                                onClick={() => handleViewIncidentHistory(koi)}
-                                className="text-red-600 hover:text-white hover:bg-red-600 focus:text-white focus:bg-red-600 cursor-pointer"
-                              >
-                                <Trash2 className="mr-2 h-4 w-4 hover:text-white" />
-                                Xóa
-                              </DropdownMenuItem>
+                              {canDeleteKoi(koi) && (
+                                <DropdownMenuItem
+                                  onClick={() => handleOpenDeleteConfirm(koi)}
+                                  className="text-red-600 hover:text-white hover:bg-red-600 focus:text-white focus:bg-red-600 cursor-pointer"
+                                >
+                                  <Trash2 className="mr-2 h-4 w-4 hover:text-white" />
+                                  Xóa
+                                </DropdownMenuItem>
+                              )}
                             </DropdownMenuContent>
                           </DropdownMenu>
                         </TableCell>
@@ -806,6 +839,60 @@ export default function KoiManagement() {
         onOpenChange={setIsEditModalOpen}
         koi={editingKoi}
       />
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={isDeleteConfirmOpen} onOpenChange={setIsDeleteConfirmOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Xác nhận xóa cá Koi</DialogTitle>
+            <DialogDescription>
+              Bạn có chắc chắn muốn xóa cá Koi này? Hành động này không thể hoàn
+              tác.
+            </DialogDescription>
+          </DialogHeader>
+          {deleteConfirmKoi && (
+            <div className="space-y-2 text-sm">
+              <p>
+                <span className="font-semibold">RFID:</span>{" "}
+                {deleteConfirmKoi.rfid}
+              </p>
+              <p>
+                <span className="font-semibold">Giống:</span>{" "}
+                {deleteConfirmKoi.variety.varietyName}
+              </p>
+              <p>
+                <span className="font-semibold">Hồ:</span>{" "}
+                {deleteConfirmKoi.pond.pondName}
+              </p>
+            </div>
+          )}
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setIsDeleteConfirmOpen(false);
+                setDeleteConfirmKoi(null);
+              }}
+            >
+              Hủy
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleConfirmDelete}
+              disabled={isDeletingKoi}
+            >
+              {isDeletingKoi ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Đang xóa...
+                </>
+              ) : (
+                "Xóa"
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

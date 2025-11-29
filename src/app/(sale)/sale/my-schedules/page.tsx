@@ -16,14 +16,35 @@ import {
   ChevronRight,
   Clock,
   Droplets,
+  CheckCircle,
 } from "lucide-react";
-import { useGetMyWorkSchedules } from "@/hooks/useWorkSchedule";
-import { WorkSchedule } from "@/lib/api/services/fetchWorkSchedule";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  useGetMyWorkSchedules,
+  useCompleteMyAssignment,
+} from "@/hooks/useWorkSchedule";
+import {
+  WorkSchedule,
+  WorkScheduleStatusEnum,
+} from "@/lib/api/services/fetchWorkSchedule";
 import { getWorkScheduleStatusLabel } from "@/lib/utils/enum";
 import { formatTimeToHHMM } from "@/lib/utils/formatTime";
 
 export default function MySchedulesPage() {
   const [currentDate, setCurrentDate] = useState(new Date());
+  const [isCompleteDialogOpen, setIsCompleteDialogOpen] = useState(false);
+  const [selectedScheduleForCompletion, setSelectedScheduleForCompletion] =
+    useState<WorkSchedule | null>(null);
+  const [completionNotes, setCompletionNotes] = useState<string>("");
 
   // Calculate week start and end dates (Monday to Sunday)
   const weekStart = useMemo(() => {
@@ -52,6 +73,9 @@ export default function MySchedulesPage() {
     scheduledDateFrom: formattedDateFrom,
     scheduledDateTo: formattedDateTo,
   });
+
+  const { mutate: completeAssignment, isPending: isCompleting } =
+    useCompleteMyAssignment();
 
   // Group schedules by date
   const schedulesByDate = useMemo(() => {
@@ -90,6 +114,46 @@ export default function MySchedulesPage() {
 
   const handleToday = () => {
     setCurrentDate(new Date());
+  };
+
+  // Check if schedule is for today
+  const isToday = (scheduledDate: string): boolean => {
+    return new Date().toISOString().split("T")[0] === scheduledDate;
+  };
+
+  // Check if schedule can be completed
+  const canCompleteSchedule = (schedule: WorkSchedule): boolean => {
+    return (
+      isToday(schedule.scheduledDate) &&
+      (schedule.status === WorkScheduleStatusEnum.Pending ||
+        schedule.status === WorkScheduleStatusEnum.InProgress)
+    );
+  };
+
+  // Open completion dialog
+  const handleOpenCompleteDialog = (schedule: WorkSchedule) => {
+    setSelectedScheduleForCompletion(schedule);
+    setCompletionNotes("");
+    setIsCompleteDialogOpen(true);
+  };
+
+  // Handle completing assignment
+  const handleCompleteAssignment = () => {
+    if (selectedScheduleForCompletion) {
+      completeAssignment(
+        {
+          id: selectedScheduleForCompletion.id,
+          request: { completionNotes },
+        },
+        {
+          onSuccess: () => {
+            setIsCompleteDialogOpen(false);
+            setSelectedScheduleForCompletion(null);
+            setCompletionNotes("");
+          },
+        },
+      );
+    }
   };
 
   if (isLoading) {
@@ -209,9 +273,22 @@ export default function MySchedulesPage() {
                           {formatTimeToHHMM(schedule.endTime)}
                         </span>
                       </div>
-                      {/* <Badge variant="outline" className="text-xs">
-                        {getWorkScheduleStatusLabel(schedule.status).label}
-                      </Badge> */}
+                      <div className="flex items-center gap-1">
+                        <Badge variant="outline" className="text-xs flex-1">
+                          {getWorkScheduleStatusLabel(schedule.status).label}
+                        </Badge>
+                        {canCompleteSchedule(schedule) && (
+                          <Button
+                            size="icon-sm"
+                            variant="ghost"
+                            onClick={() => handleOpenCompleteDialog(schedule)}
+                            className="h-5 w-5 text-green-600 hover:bg-green-200 hover:text-green-700"
+                            title="Hoàn thành công việc"
+                          >
+                            <CheckCircle className="h-3 w-3" />
+                          </Button>
+                        )}
+                      </div>
                     </div>
                   ))
                 )}
@@ -245,13 +322,25 @@ export default function MySchedulesPage() {
                       {schedule.taskTemplate.description}
                     </p>
                   </div>
-                  <Badge
-                    className={
-                      getWorkScheduleStatusLabel(schedule.status).colorClass
-                    }
-                  >
-                    {getWorkScheduleStatusLabel(schedule.status).label}
-                  </Badge>
+                  <div className="flex items-center gap-2">
+                    <Badge
+                      className={
+                        getWorkScheduleStatusLabel(schedule.status).colorClass
+                      }
+                    >
+                      {getWorkScheduleStatusLabel(schedule.status).label}
+                    </Badge>
+                    {canCompleteSchedule(schedule) && (
+                      <Button
+                        size="sm"
+                        onClick={() => handleOpenCompleteDialog(schedule)}
+                        className="bg-green-600 hover:bg-green-700"
+                      >
+                        <CheckCircle className="h-4 w-4 mr-1" />
+                        Hoàn Thành
+                      </Button>
+                    )}
+                  </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
@@ -318,6 +407,90 @@ export default function MySchedulesPage() {
           </CardContent>
         </Card>
       )}
+
+      {/* Complete Assignment Dialog */}
+      <Dialog
+        open={isCompleteDialogOpen}
+        onOpenChange={setIsCompleteDialogOpen}
+      >
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Đánh Dấu Công Việc Hoàn Thành</DialogTitle>
+            <DialogDescription>
+              Nhập ghi chú hoàn thành cho công việc này
+            </DialogDescription>
+          </DialogHeader>
+
+          {selectedScheduleForCompletion && (
+            <div className="space-y-4">
+              <div className="bg-muted p-3 rounded-lg space-y-2">
+                <div>
+                  <p className="text-xs text-muted-foreground">Công Việc</p>
+                  <p className="font-semibold">
+                    {selectedScheduleForCompletion.taskTemplateName}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">Ngày</p>
+                  <p className="font-semibold">
+                    {new Date(
+                      selectedScheduleForCompletion.scheduledDate,
+                    ).toLocaleDateString("vi-VN")}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">Giờ</p>
+                  <p className="font-semibold">
+                    {formatTimeToHHMM(selectedScheduleForCompletion.startTime)}{" "}
+                    - {formatTimeToHHMM(selectedScheduleForCompletion.endTime)}
+                  </p>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="completion-notes">Ghi Chú Hoàn Thành</Label>
+                <Textarea
+                  id="completion-notes"
+                  placeholder="Nhập ghi chú về công việc đã hoàn thành (tùy chọn)"
+                  value={completionNotes}
+                  onChange={(e) => setCompletionNotes(e.target.value)}
+                  className="min-h-[100px]"
+                />
+              </div>
+            </div>
+          )}
+
+          <DialogFooter className="flex gap-2">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setIsCompleteDialogOpen(false);
+                setSelectedScheduleForCompletion(null);
+                setCompletionNotes("");
+              }}
+            >
+              Hủy
+            </Button>
+            <Button
+              onClick={handleCompleteAssignment}
+              disabled={isCompleting}
+              className="bg-green-600 hover:bg-green-700"
+            >
+              {isCompleting ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Đang Xử Lý...
+                </>
+              ) : (
+                <>
+                  <CheckCircle className="h-4 w-4 mr-2" />
+                  Hoàn Thành
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

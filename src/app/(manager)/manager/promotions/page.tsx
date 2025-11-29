@@ -463,18 +463,24 @@ export default function PromotionManagement() {
           ) : (
             <>
               <div className="border rounded-lg overflow-hidden">
-                <Table>
+                <Table className="table-fixed w-full">
                   <TableHeader>
                     <TableRow className="bg-muted/50">
                       <TableHead className="w-12">STT</TableHead>
-                      <TableHead>Mã KM</TableHead>
-                      <TableHead>Mô Tả</TableHead>
-                      <TableHead>Loại Giảm Giá</TableHead>
-                      <TableHead className="text-right">Giá Trị</TableHead>
-                      <TableHead>Khoảng Ngày</TableHead>
-                      <TableHead className="text-right">Lượt Sử Dụng</TableHead>
-                      <TableHead>Trạng Thái</TableHead>
-                      <TableHead className="text-right">Hành Động</TableHead>
+                      <TableHead className="w-[12%]">Mã KM</TableHead>
+                      <TableHead className="w-[20%]">Mô Tả</TableHead>
+                      <TableHead className="w-[15%]">Loại Giảm Giá</TableHead>
+                      <TableHead className="w-[12%] text-right">
+                        Giá Trị
+                      </TableHead>
+                      <TableHead className="w-[18%]">Khoảng Ngày</TableHead>
+                      <TableHead className="w-[10%] text-right">
+                        Lượt Sử Dụng
+                      </TableHead>
+                      <TableHead className="w-[12%]">Trạng Thái</TableHead>
+                      <TableHead className="w-[10%] text-right">
+                        Hành Động
+                      </TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -486,11 +492,11 @@ export default function PromotionManagement() {
                         <TableCell className="text-center text-muted-foreground">
                           {(currentPage - 1) * pageSize + index + 1}
                         </TableCell>
-                        <TableCell className="font-medium">
+                        <TableCell className="font-medium truncate">
                           {promotion.code}
                         </TableCell>
-                        <TableCell>
-                          <div className="max-w-xs truncate">
+                        <TableCell className="truncate">
+                          <div className="truncate">
                             {promotion.description}
                           </div>
                         </TableCell>

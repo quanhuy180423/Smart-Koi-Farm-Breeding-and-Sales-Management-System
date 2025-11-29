@@ -68,6 +68,10 @@ export interface UpdateWorkScheduleRequest {
   pondIds: number[];
 }
 
+export interface CompleteAssignmentRequest {
+  completionNotes: string;
+}
+
 const baseUrl = "/api/WorkSchedule";
 
 export const workScheduleService = {
@@ -114,6 +118,16 @@ export const workScheduleService = {
     const response = await apiService.delete<BaseResponse<boolean>>(
       `${baseUrl}/${id}`,
     );
+    return response.data;
+  },
+  completeMyAssignment: async (
+    id: number,
+    request: CompleteAssignmentRequest,
+  ): Promise<BaseResponse<WorkSchedule>> => {
+    const response = await apiService.post<
+      BaseResponse<WorkSchedule>,
+      CompleteAssignmentRequest
+    >(`${baseUrl}/${id}/complete-my-assignment`, request);
     return response.data;
   },
 };
