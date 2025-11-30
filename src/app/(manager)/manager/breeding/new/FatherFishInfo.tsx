@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/select";
 import { useGetBreedingParentHistory } from "@/hooks/useBreedingProcess";
 import { KoiFishResponse } from "@/lib/api/services/fetchKoiFish";
-import getAge from "@/lib/utils/dates/age";
+import { formatKoiAge } from "@/lib/utils/dates/age";
 import { getFishSizeLabel, getHealthStatusLabel } from "@/lib/utils/enum";
 import { Mars } from "lucide-react";
 import Image from "next/image";
@@ -49,7 +49,7 @@ export default function FatherFishInfo({ selectedFish }: FatherFishInfoProps) {
     },
     {
       label: "Độ tuổi",
-      value: `${getAge(selectedFish.birthDate)} tuổi`,
+      value: formatKoiAge(selectedFish.birthDate),
     },
   ];
 
@@ -133,7 +133,7 @@ export default function FatherFishInfo({ selectedFish }: FatherFishInfoProps) {
             <SelectContent>
               <SelectItem value={selectedFish.id.toString()}>
                 {selectedFish?.variety?.varietyName || ""} RFID:{" "}
-                {selectedFish.rfid} - {getAge(selectedFish.birthDate)} tuổi -
+                {selectedFish.rfid} - {formatKoiAge(selectedFish.birthDate)} -
                 Sức khỏe:{" "}
                 {getHealthStatusLabel(selectedFish.healthStatus).label}
               </SelectItem>

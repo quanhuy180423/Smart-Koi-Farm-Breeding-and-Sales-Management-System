@@ -327,8 +327,8 @@ export default function ScheduleManagement() {
                     <Loader2 className="h-8 w-8 animate-spin text-primary" />
                   </div>
                 ) : (
-                  <div className="w-full overflow-x-auto">
-                    <Table className="w-full">
+                  <>
+                    <Table className="table-fixed w-full">
                       <TableHeader>
                         <TableRow>
                           <TableHead className="w-[10%]">STT</TableHead>
@@ -355,9 +355,9 @@ export default function ScheduleManagement() {
                                   (searchParams.pageIndex - 1) *
                                     searchParams.pageSize}
                               </TableCell>
-                              <TableCell>
+                              <TableCell className="truncate">
                                 <div className="flex flex-col gap-1">
-                                  <p className="font-medium text-sm">
+                                  <p className="font-medium text-sm truncate">
                                     {task.taskName}
                                   </p>
                                   <p
@@ -368,7 +368,7 @@ export default function ScheduleManagement() {
                                   </p>
                                 </div>
                               </TableCell>
-                              <TableCell>
+                              <TableCell className="truncate">
                                 <div
                                   className="text-sm truncate"
                                   title={task.description}
@@ -424,7 +424,7 @@ export default function ScheduleManagement() {
                         )}
                       </TableBody>
                     </Table>
-                  </div>
+                  </>
                 )}
               </div>
 

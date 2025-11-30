@@ -255,7 +255,7 @@ export default function AreaManagement() {
             </div>
           ) : (
             <>
-              <Table>
+              <Table className="table-fixed w-full">
                 <TableHeader>
                   <TableRow>
                     <TableHead className="w-[15%]">STT</TableHead>
@@ -284,10 +284,14 @@ export default function AreaManagement() {
                             (searchParams.pageIndex - 1) *
                               searchParams.pageSize}
                         </TableCell>
-                        <TableCell>{area.areaName}</TableCell>
+                        <TableCell className="truncate">
+                          {area.areaName}
+                        </TableCell>
                         <TableCell>{area.totalAreaSQM}</TableCell>
-                        <TableCell>{area.description}</TableCell>
-                        <TableCell className="space-x-2">
+                        <TableCell className="truncate">
+                          {area.description}
+                        </TableCell>
+                        <TableCell>
                           <Button
                             size="sm"
                             variant="ghost"

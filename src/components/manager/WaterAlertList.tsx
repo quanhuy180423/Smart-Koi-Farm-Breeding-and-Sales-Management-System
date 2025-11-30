@@ -212,19 +212,33 @@ export function WaterAlertList({ pondId }: WaterAlertListProps) {
         />
       ) : (
         <>
-          <div className="rounded-lg border overflow-x-auto">
-            <Table>
+          <div className="rounded-lg border">
+            <Table className="table-fixed w-full">
               <TableHeader>
                 <TableRow className="bg-muted/50">
                   <TableHead className="font-semibold w-[5%]">#</TableHead>
-                  <TableHead className="font-semibold">Hồ</TableHead>
-                  <TableHead className="font-semibold">Tham số</TableHead>
-                  <TableHead className="font-semibold">Giá trị đo</TableHead>
-                  <TableHead className="font-semibold">Loại cảnh báo</TableHead>
-                  <TableHead className="font-semibold">Mức độ</TableHead>
-                  <TableHead className="font-semibold">Thông báo</TableHead>
-                  <TableHead className="font-semibold">Thời gian</TableHead>
-                  <TableHead className="font-semibold">Trạng thái</TableHead>
+                  <TableHead className="font-semibold w-[10%]">Hồ</TableHead>
+                  <TableHead className="font-semibold w-[12%]">
+                    Tham số
+                  </TableHead>
+                  <TableHead className="font-semibold w-[12%]">
+                    Giá trị đo
+                  </TableHead>
+                  <TableHead className="font-semibold w-[12%]">
+                    Loại cảnh báo
+                  </TableHead>
+                  <TableHead className="font-semibold w-[10%]">
+                    Mức độ
+                  </TableHead>
+                  <TableHead className="font-semibold w-[20%]">
+                    Thông báo
+                  </TableHead>
+                  <TableHead className="font-semibold w-[12%]">
+                    Thời gian
+                  </TableHead>
+                  <TableHead className="font-semibold w-[17%]">
+                    Trạng thái
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -235,16 +249,16 @@ export function WaterAlertList({ pondId }: WaterAlertListProps) {
                         index +
                         1}
                     </TableCell>
-                    <TableCell className="font-medium">
+                    <TableCell className="font-medium truncate">
                       {alert.pondName}
                     </TableCell>
-                    <TableCell className="text-sm">
+                    <TableCell className="text-sm truncate">
                       {alert.parameterName}
                     </TableCell>
-                    <TableCell className="text-sm font-medium">
+                    <TableCell className="text-sm font-medium truncate">
                       {alert.measuredValue}
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="truncate">
                       <Badge variant="outline" className="text-xs">
                         {getAlertTypeText(alert.alertType as AlertType)}
                       </Badge>
@@ -258,8 +272,8 @@ export function WaterAlertList({ pondId }: WaterAlertListProps) {
                         {getWaterAlertSeverityText(alert.severity as Severity)}
                       </Badge>
                     </TableCell>
-                    <TableCell className="text-sm max-w-xs">
-                      <p className="line-clamp-2">{alert.message}</p>
+                    <TableCell className="text-sm truncate">
+                      <p className="line-clamp-2 truncate">{alert.message}</p>
                     </TableCell>
                     <TableCell className="text-sm">
                       {formatDate(alert.createdAt, "dd/MM HH:mm")}

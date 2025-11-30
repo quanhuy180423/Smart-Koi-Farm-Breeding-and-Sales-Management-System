@@ -16,7 +16,7 @@ import {
   CarouselPrevious,
   type CarouselApi,
 } from "@/components/ui/carousel";
-import { Zap, Shield, Award, ArrowRight, Play } from "lucide-react";
+import { Zap, Award, ArrowRight, Play } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";

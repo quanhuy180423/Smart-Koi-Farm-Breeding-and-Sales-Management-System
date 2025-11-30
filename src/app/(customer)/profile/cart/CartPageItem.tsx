@@ -18,7 +18,7 @@ import { Loader2, Minus, Plus, Trash2 } from "lucide-react";
 import Image from "next/image";
 import { useState, useEffect, useRef } from "react";
 import { useDebounce } from "@/hooks/useDebounce";
-import getAge from "@/lib/utils/dates/age";
+import { formatKoiAge } from "@/lib/utils/dates/age";
 import {
   getFishSizeLabel,
   getHealthStatusLabel,
@@ -115,7 +115,7 @@ export function CartPageItem({ item }: CartPageItemProps) {
                       </span>
                       <span>
                         <span className="font-medium">Tuổi:</span>{" "}
-                        {getAge(item.koiFish.birthDate)} tuổi
+                        {formatKoiAge(item.koiFish.birthDate)}
                       </span>
                     </div>
                     <div className="flex gap-4 text-xs sm:text-sm text-muted-foreground">

@@ -43,13 +43,13 @@ export default function IncidentTypeDetailModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="min-w-md">
         <DialogHeader>
           <DialogTitle className="text-xl">{incidentType.name}</DialogTitle>
           <DialogDescription>Chi tiết loại sự cố</DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-6 py-4">
+        <div className="space-y-6">
           <div className="space-y-3">
             <Label className="text-sm font-medium text-gray-600">Mô tả</Label>
             <p className="text-base text-gray-800 leading-relaxed">
@@ -57,40 +57,17 @@ export default function IncidentTypeDetailModal({
             </p>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label className="text-sm font-medium text-gray-600">
-                Mức độ mặc định
-              </Label>
-              <Badge
-                className={`${
-                  severityColors[incidentType.defaultSeverity].bg
-                } ${severityColors[incidentType.defaultSeverity].text} w-fit`}
-                variant="outline"
-              >
-                {severityLabels[incidentType.defaultSeverity]}
-              </Badge>
-            </div>
-
-            <div className="space-y-2">
-              <Label className="text-sm font-medium text-gray-600">ID</Label>
-              <p className="text-base font-semibold text-gray-800">
-                {incidentType.id}
-              </p>
-            </div>
-          </div>
-
           <div className="space-y-3">
             <Label className="text-sm font-medium text-gray-600">
-              Yêu cầu cách ly
+              Mức độ mặc định
             </Label>
             <Badge
-              variant={
-                incidentType.requiresQuarantine ? "default" : "secondary"
-              }
-              className="w-fit"
+              className={`${
+                severityColors[incidentType.defaultSeverity].bg
+              } ${severityColors[incidentType.defaultSeverity].text} w-fit`}
+              variant="outline"
             >
-              {incidentType.requiresQuarantine ? "Có" : "Không"}
+              {severityLabels[incidentType.defaultSeverity]}
             </Badge>
           </div>
 

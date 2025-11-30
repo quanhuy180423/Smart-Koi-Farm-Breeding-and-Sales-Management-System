@@ -26,7 +26,7 @@ import Image from "next/image";
 import { Gender, KoiFishResponse } from "@/lib/api/services/fetchKoiFish";
 import { useGetKoiFishById, useGetKoiFishes } from "@/hooks/useKoiFish";
 import toast from "react-hot-toast";
-import getAge from "@/lib/utils/dates/age";
+import { formatKoiAge } from "@/lib/utils/dates/age";
 import { RecommendedPair } from "@/lib/api/services/fetchBreedingProcess";
 import { useGetBreedingRecommend } from "@/hooks/useBreedingProcess";
 import * as z from "zod";
@@ -336,7 +336,7 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
                 </span>
                 <span className="flex-shrink-0">•</span>
                 <span className="flex-shrink-0">
-                  {getAge(selected.birthDate)} tuổi
+                  {formatKoiAge(selected.birthDate)}
                 </span>
               </div>
             </>
@@ -465,7 +465,7 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
                             <div className="flex items-center gap-2">
                               <Calendar className="h-4 w-4 text-green-500 flex-shrink-0" />
                               <span className="text-gray-700">
-                                {getAge(fish.birthDate)} tuổi
+                                {formatKoiAge(fish.birthDate)}
                               </span>
                             </div>
                           </div>
@@ -573,7 +573,7 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
                             <div className="flex items-center gap-2">
                               <Calendar className="h-4 w-4 text-green-500 flex-shrink-0" />
                               <span className="text-gray-700">
-                                {getAge(fish.birthDate)} tuổi
+                                {formatKoiAge(fish.birthDate)}
                               </span>
                             </div>
                           </div>
