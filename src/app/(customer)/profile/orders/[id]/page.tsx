@@ -53,11 +53,43 @@ export default function OrderDetailPage() {
   const [isCancelDialogOpen, setIsCancelDialogOpen] = useState(false);
   const [cancelReason, setCancelReason] = useState<string>("");
 
-  const handlePayOrder = (orderId: number) => {
-    paymentMutation.mutate({
-      orderId,
-      method: PaymentMethod.VNPAY,
-    });
+  // Payment method selection dialog state
+  const [isPaymentDialogOpen, setIsPaymentDialogOpen] = useState(false);
+  const [selectedPaymentMethod, setSelectedPaymentMethod] =
+    useState<PaymentMethod | null>(null);
+
+  const handlePayOrder = () => {
+    setIsPaymentDialogOpen(true);
+  };
+
+  const handleConfirmPayment = () => {
+    if (!orderId) {
+      toast.error("Không tìm thấy đơn hàng");
+      return;
+    }
+
+    if (!selectedPaymentMethod) {
+      toast.error("Vui lòng chọn phương thức thanh toán");
+      return;
+    }
+
+    paymentMutation.mutate(
+      {
+        orderId,
+        method: selectedPaymentMethod,
+      },
+      {
+        onSuccess: () => {
+          setIsPaymentDialogOpen(false);
+          setSelectedPaymentMethod(null);
+        },
+        onError: (error) => {
+          toast.error(
+            error instanceof Error ? error.message : "Không thể tạo thanh toán",
+          );
+        },
+      },
+    );
   };
 
   const handleCancelOrder = () => {
@@ -358,7 +390,7 @@ export default function OrderDetailPage() {
           {order?.status === OrderStatus.PENDING && (
             <>
               <Button
-                onClick={() => handlePayOrder(order.id)}
+                onClick={() => handlePayOrder()}
                 disabled={paymentMutation.isPending}
                 className="flex-1 bg-blue-600 hover:bg-blue-700"
               >
@@ -389,6 +421,110 @@ export default function OrderDetailPage() {
             Liên hệ hỗ trợ
           </Button>
         </div>
+
+        {/* Payment Method Dialog */}
+        <Dialog
+          open={isPaymentDialogOpen}
+          onOpenChange={setIsPaymentDialogOpen}
+        >
+          <DialogContent className="sm:max-w-[500px]">
+            <DialogHeader>
+              <DialogTitle>Chọn phương thức thanh toán</DialogTitle>
+              <DialogDescription>
+                Vui lòng chọn một phương thức thanh toán để hoàn tất đơn hàng
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="space-y-3">
+              <button
+                onClick={() => setSelectedPaymentMethod(PaymentMethod.VNPAY)}
+                className={`w-full p-4 border-2 rounded-lg transition-colors text-left ${
+                  selectedPaymentMethod === PaymentMethod.VNPAY
+                    ? "border-primary bg-primary/5"
+                    : "border-muted hover:border-primary/50"
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <div
+                    className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                      selectedPaymentMethod === PaymentMethod.VNPAY
+                        ? "border-primary bg-primary"
+                        : "border-muted-foreground"
+                    }`}
+                  >
+                    {selectedPaymentMethod === PaymentMethod.VNPAY && (
+                      <div className="w-2 h-2 bg-white rounded-full" />
+                    )}
+                  </div>
+                  <div>
+                    <p className="font-semibold">VNPay</p>
+                    <p className="text-sm text-muted-foreground">
+                      Thanh toán qua cổng VNPay
+                    </p>
+                  </div>
+                </div>
+              </button>
+
+              <button
+                onClick={() => setSelectedPaymentMethod(PaymentMethod.PAYOS)}
+                className={`w-full p-4 border-2 rounded-lg transition-colors text-left ${
+                  selectedPaymentMethod === PaymentMethod.PAYOS
+                    ? "border-primary bg-primary/5"
+                    : "border-muted hover:border-primary/50"
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <div
+                    className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                      selectedPaymentMethod === PaymentMethod.PAYOS
+                        ? "border-primary bg-primary"
+                        : "border-muted-foreground"
+                    }`}
+                  >
+                    {selectedPaymentMethod === PaymentMethod.PAYOS && (
+                      <div className="w-2 h-2 bg-white rounded-full" />
+                    )}
+                  </div>
+                  <div>
+                    <p className="font-semibold">PayOS</p>
+                    <p className="text-sm text-muted-foreground">
+                      Thanh toán qua cổng PayOS
+                    </p>
+                  </div>
+                </div>
+              </button>
+            </div>
+
+            <div className="flex justify-end gap-3">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setIsPaymentDialogOpen(false);
+                  setSelectedPaymentMethod(null);
+                }}
+              >
+                Huỷ
+              </Button>
+              <Button
+                onClick={handleConfirmPayment}
+                disabled={paymentMutation.isPending || !selectedPaymentMethod}
+                className="bg-blue-600 hover:bg-blue-700"
+              >
+                {paymentMutation.isPending ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Đang xử lý...
+                  </>
+                ) : (
+                  <>
+                    <CreditCard className="mr-2 h-4 w-4" />
+                    Tiếp tục thanh toán
+                  </>
+                )}
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
 
         {/* Cancel Order Dialog */}
         <Dialog open={isCancelDialogOpen} onOpenChange={setIsCancelDialogOpen}>
