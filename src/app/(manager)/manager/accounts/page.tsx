@@ -408,9 +408,7 @@ export default function AccountManagement() {
                 <SelectItem value={Roles.SaleStaff}>
                   Nhân viên bán hàng
                 </SelectItem>
-                <SelectItem value={Roles.Customer}>
-                  Khách hàng
-                </SelectItem>
+                <SelectItem value={Roles.Customer}>Khách hàng</SelectItem>
               </SelectContent>
             </Select>
           </div>
