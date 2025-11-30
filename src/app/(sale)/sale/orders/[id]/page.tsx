@@ -60,10 +60,6 @@ export default function OrderDetailPage() {
   const [isRejectDialogOpen, setIsRejectDialogOpen] = useState(false);
   const [rejectReason, setRejectReason] = useState<string>("");
 
-  // Refund order dialog state
-  const [isRefundDialogOpen, setIsRefundDialogOpen] = useState(false);
-  const [refundNote, setRefundNote] = useState<string>("");
-
   // Update order status mutation
   const updateStatusMutation = useUpdateOrderStatus();
 
@@ -92,10 +88,10 @@ export default function OrderDetailPage() {
           toast.error(
             error instanceof Error
               ? error.message
-              : "Không thể xác nhận đơn hàng",
+              : "Không thể xác nhận đơn hàng"
           );
         },
-      },
+      }
     );
   };
 
@@ -129,10 +125,10 @@ export default function OrderDetailPage() {
           toast.error(
             error instanceof Error
               ? error.message
-              : "Không thể chuyển trạng thái hoàn trả",
+              : "Không thể chuyển trạng thái hoàn trả"
           );
         },
-      },
+      }
     );
   };
 
@@ -161,10 +157,10 @@ export default function OrderDetailPage() {
           toast.error(
             error instanceof Error
               ? error.message
-              : "Không thể xác nhận giao hàng",
+              : "Không thể xác nhận giao hàng"
           );
         },
-      },
+      }
     );
   };
 
@@ -198,42 +194,10 @@ export default function OrderDetailPage() {
           toast.error(
             error instanceof Error
               ? error.message
-              : "Không thể từ chối đơn hàng",
+              : "Không thể từ chối đơn hàng"
           );
         },
-      },
-    );
-  };
-
-  // Handler for refunding order (REJECTED/CANCELLED/UNSHIPPING -> REFUND)
-  const handleRefundOrder = () => {
-    if (!orderId) {
-      toast.error("Không tìm thấy đơn hàng");
-      return;
-    }
-
-    updateStatusMutation.mutate(
-      {
-        orderId: orderId,
-        request: {
-          status: OrderStatus.REFUND,
-          note: refundNote || undefined,
-        },
-      },
-      {
-        onSuccess: () => {
-          toast.success("Đơn hàng đã được hoàn tiền");
-          setIsRefundDialogOpen(false);
-          setRefundNote("");
-        },
-        onError: (error) => {
-          toast.error(
-            error instanceof Error
-              ? error.message
-              : "Không thể hoàn tiền đơn hàng",
-          );
-        },
-      },
+      }
     );
   };
 
@@ -498,28 +462,6 @@ export default function OrderDetailPage() {
             </Button>
           </>
         )}
-
-        {/* Show action buttons for REJECTED status */}
-        {order && order.status === OrderStatus.REJECTED && (
-          <Button
-            onClick={() => setIsRefundDialogOpen(true)}
-            className="flex-1 bg-blue-600 hover:bg-blue-700"
-          >
-            <DollarSign className="h-4 w-4 mr-2" />
-            Hoàn tiền
-          </Button>
-        )}
-
-        {/* Show action buttons for UNSHIPPING status */}
-        {order && order.status === OrderStatus.UNSHIPPING && (
-          <Button
-            onClick={() => setIsRefundDialogOpen(true)}
-            className="flex-1 bg-blue-600 hover:bg-blue-700"
-          >
-            <DollarSign className="h-4 w-4 mr-2" />
-            Hoàn tiền
-          </Button>
-        )}
       </div>
 
       {/* Confirm Order Dialog */}
@@ -771,65 +713,6 @@ export default function OrderDetailPage() {
                   </>
                 ) : (
                   "Xác nhận từ chối"
-                )}
-              </Button>
-            </div>
-          </DialogContent>
-        </Dialog>
-      )}
-
-      {/* Refund Order Dialog */}
-      {order && (
-        <Dialog open={isRefundDialogOpen} onOpenChange={setIsRefundDialogOpen}>
-          <DialogContent className="sm:max-w-[500px]">
-            <DialogHeader>
-              <DialogTitle>Hoàn tiền đơn hàng</DialogTitle>
-              <DialogDescription>
-                Xác nhận hoàn tiền và chuyển sang trạng thái &quot;Đã hoàn
-                tiền&quot;
-              </DialogDescription>
-            </DialogHeader>
-
-            <div className="space-y-4">
-              <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                <p className="text-sm text-blue-900">
-                  Đơn hàng sẽ chuyển sang trạng thái &quot;Đã hoàn tiền&quot; và
-                  khách hàng sẽ được hoàn lại số tiền.
-                </p>
-              </div>
-
-              <div>
-                <label className="text-sm font-medium mb-2 block">
-                  Ghi chú (tùy chọn)
-                </label>
-                <Textarea
-                  placeholder="Thêm ghi chú khi hoàn tiền..."
-                  value={refundNote}
-                  onChange={(e) => setRefundNote(e.target.value)}
-                  rows={3}
-                />
-              </div>
-            </div>
-
-            <div className="flex justify-end gap-3">
-              <Button
-                variant="outline"
-                onClick={() => setIsRefundDialogOpen(false)}
-              >
-                Hủy
-              </Button>
-              <Button
-                onClick={handleRefundOrder}
-                disabled={updateStatusMutation.isPending}
-                className="bg-blue-600 hover:bg-blue-700"
-              >
-                {updateStatusMutation.isPending ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Đang xử lý...
-                  </>
-                ) : (
-                  "Xác nhận hoàn tiền"
                 )}
               </Button>
             </div>

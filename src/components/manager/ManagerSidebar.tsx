@@ -46,9 +46,10 @@ import { useSidebarStore } from "@/store/use-sidebar-store";
 // Định nghĩa danh sách menu
 const sidebarItems = [
   { title: "Dashboard", href: "/manager", icon: LayoutDashboard },
+  { title: "Quản lý tài khoản", href: "/manager/accounts", icon: Users },
+  { title: "Quản lý đơn hàng", href: "/manager/orders", icon: Truck },
   { title: "Quản lý cá Koi", href: "/manager/koi", icon: Fish },
   { title: "Quản lý sinh sản", href: "/manager/breeding", icon: Heart },
-  { title: "Quản lý tài khoản", href: "/manager/accounts", icon: Users },
   { title: "Lịch làm việc", href: "/manager/schedules", icon: Calendar },
   { title: "Quản lý khu", href: "/manager/area", icon: Grid2X2 },
   { title: "Quản lý hồ", href: "/manager/ponds", icon: Building2 },
@@ -107,13 +108,13 @@ export default function ManagerSidebar({ className }: ManagerSidebarProps) {
         className={cn(
           "flex items-center gap-3 rounded-lg py-2 transition-all duration-200 group hover:bg-accent hover:text-white",
           isActive ? "bg-primary/10 text-primary" : "text-muted-foreground",
-          isCollapsed && !isMobile ? "justify-center px-0" : "px-3",
+          isCollapsed && !isMobile ? "justify-center px-0" : "px-3"
         )}
       >
         <Icon
           className={cn(
             "h-5 w-5 flex-shrink-2",
-            isActive && "text-primary hover:text-white",
+            isActive && "text-primary hover:text-white"
           )}
         />
 
@@ -121,7 +122,7 @@ export default function ManagerSidebar({ className }: ManagerSidebarProps) {
         <span
           className={cn(
             "whitespace-nowrap transition-all duration-300 overflow-hidden",
-            showText ? "w-auto opacity-100 ml-0" : "w-0 opacity-0 ml-0",
+            showText ? "w-auto opacity-100 ml-0" : "w-0 opacity-0 ml-0"
           )}
         >
           {item.title}
@@ -153,7 +154,7 @@ export default function ManagerSidebar({ className }: ManagerSidebarProps) {
         className={cn(
           "hidden lg:flex flex-col border-r bg-card h-[calc(100vh-4rem)] sticky  transition-all duration-300 ease-in-out flex-shrink-0 z-30",
           isCollapsed ? "w-[70px]" : "w-64",
-          className,
+          className
         )}
       >
         {/* Nút Thu Gọn/Mở Rộng */}
@@ -164,7 +165,7 @@ export default function ManagerSidebar({ className }: ManagerSidebarProps) {
                 "flex items-center gap-2 rounded-md p-2 transition-all duration-300 w-full",
                 isCollapsed
                   ? "justify-center bg-transparent"
-                  : "bg-primary/5 border border-primary/10",
+                  : "bg-primary/5 border border-primary/10"
               )}
             >
               <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary/20 text-primary shrink-0">
@@ -189,7 +190,7 @@ export default function ManagerSidebar({ className }: ManagerSidebarProps) {
             <ChevronLeft
               className={cn(
                 "h-8 w-8 transition-transform duration-300",
-                isCollapsed && "rotate-180",
+                isCollapsed && "rotate-180"
               )}
             />
           </Button>

@@ -5,8 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { InputNumber } from "@/components/ui/input-number";
-import { Checkbox } from "@/components/ui/checkbox";
+// InputNumber and Checkbox are used by the filter sheet; they are imported there. Removed from page to avoid unused import lint warnings
 import {
   Select,
   SelectContent,
@@ -24,7 +23,6 @@ import {
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
-import { Slider } from "@/components/ui/slider";
 import {
   Package,
   Search,
@@ -32,10 +30,10 @@ import {
   Loader2,
   CreditCard,
   Filter,
-  X,
   XCircle,
 } from "lucide-react";
-import { DatePickerFilter } from "@/components/ui/DatePickerFilter";
+// Date picker is used in the filter sheet component
+import { OrderFilterSheet } from "./components/OrdersFilterSheet";
 import { toast } from "sonner";
 import Image from "next/image";
 import { formatCurrency } from "@/lib/utils/numbers/formatCurrency";
@@ -61,7 +59,7 @@ export default function OrdersPage() {
   const [statusFilter, setStatusFilter] = useState<OrderStatus | string>("all");
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
+  const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
 
   // Advanced filters
   const [createdFromDate, setCreatedFromDate] = useState<Date | undefined>();
@@ -70,6 +68,24 @@ export default function OrdersPage() {
     0, 100000000,
   ]);
   const [hasPromotion, setHasPromotion] = useState(false);
+
+  // Active filters badge count and reset
+  const activeFilterCount = useMemo(() => {
+    let count = 0;
+    if (statusFilter !== "all") count++;
+    if (createdFromDate && createdToDate) count++;
+    if (priceRange[0] > 0 || priceRange[1] < 100000000) count++;
+    if (hasPromotion) count++;
+    return count;
+  }, [statusFilter, createdFromDate, createdToDate, priceRange, hasPromotion]);
+
+  const handleResetFilters = () => {
+    setStatusFilter("all");
+    setCreatedFromDate(undefined);
+    setCreatedToDate(undefined);
+    setPriceRange([0, 100000000]);
+    setHasPromotion(false);
+  };
 
   // Selected order ID for cancel action
   const [selectedOrderId, setSelectedOrderId] = useState<number | null>(null);
@@ -116,16 +132,18 @@ export default function OrdersPage() {
         },
         onError: (error) => {
           toast.error(
-            error instanceof Error ? error.message : "Không thể hủy đơn hàng",
+            error instanceof Error ? error.message : "Không thể hủy đơn hàng"
           );
         },
-      },
+      }
     );
   };
 
-  // Debounce search term and price range
+  // Debounce search term, price range and date filters
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
   const debouncedPriceRange = useDebounce(priceRange, 800);
+  const debouncedCreatedFromDate = useDebounce(createdFromDate, 500);
+  const debouncedCreatedToDate = useDebounce(createdToDate, 500);
 
   // Build search params
   const searchParams = useMemo<OrderSearchParams>(() => {
@@ -135,12 +153,13 @@ export default function OrdersPage() {
         statusFilter && statusFilter !== "all"
           ? (statusFilter as OrderStatus)
           : undefined,
-      createdFrom: createdFromDate
-        ? Math.floor(createdFromDate.getTime() / 1000)
-        : undefined,
-      createdTo: createdToDate
-        ? Math.floor(createdToDate.getTime() / 1000)
-        : undefined,
+      // Only apply date filters when both debounced from/to are selected
+      ...(debouncedCreatedFromDate && debouncedCreatedToDate
+        ? {
+            createdFrom: Math.floor(debouncedCreatedFromDate.getTime() / 1000),
+            createdTo: Math.floor(debouncedCreatedToDate.getTime() / 1000),
+          }
+        : {}),
       minTotalAmount:
         debouncedPriceRange[0] > 0 ? debouncedPriceRange[0] : undefined,
       maxTotalAmount:
@@ -152,8 +171,8 @@ export default function OrdersPage() {
   }, [
     debouncedSearchTerm,
     statusFilter,
-    createdFromDate,
-    createdToDate,
+    debouncedCreatedFromDate,
+    debouncedCreatedToDate,
     debouncedPriceRange,
     hasPromotion,
     currentPage,
@@ -420,17 +439,17 @@ export default function OrdersPage() {
 
         {/* Search and Filter */}
         <div className="flex flex-col gap-4 mb-6">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-            <Input
-              placeholder="Tìm kiếm theo mã đơn hàng..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 rounded-xl border-2 border-border hover:border-primary/50 focus:border-primary transition-colors"
-            />
-          </div>
-          <div className="flex flex-col md:flex-row gap-3">
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
+          <div className="flex flex-row md:flex-row gap-3">
+            <div className="relative w-full">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+              <Input
+                placeholder="Tìm kiếm theo mã đơn hàng..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10 rounded-xl border-2 border-border hover:border-primary/50 focus:border-primary transition-colors"
+              />
+            </div>
+            {/* <Select value={statusFilter} onValueChange={setStatusFilter}>
               <SelectTrigger className="flex-1 rounded-xl border-2 border-border hover:border-primary/50 focus:border-primary transition-colors">
                 <SelectValue placeholder="Lọc theo trạng thái" />
               </SelectTrigger>
@@ -442,143 +461,27 @@ export default function OrdersPage() {
                   </SelectItem>
                 ))}
               </SelectContent>
-            </Select>
+            </Select> */}
             <Button
               variant="outline"
-              onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
-              className="rounded-xl border-2 gap-2 hover:border-primary/50"
+              onClick={() => setIsFilterSheetOpen(true)}
+              className="rounded-xl border-2 gap-2 hover:border-primary/50 relative"
             >
               <Filter className="h-4 w-4" />
-              <span className="hidden sm:inline">
-                {showAdvancedFilters ? "Ẩn" : "Bộ lọc"} nâng cao
-              </span>
+              <span className="hidden sm:inline">Bộ lọc</span>
               <span className="sm:hidden">Lọc</span>
+              {activeFilterCount > 0 && (
+                <Badge
+                  variant="default"
+                  className="absolute -top-2 -right-2 h-5 w-5 p-0 flex items-center justify-center text-xs"
+                >
+                  {activeFilterCount}
+                </Badge>
+              )}
             </Button>
           </div>
 
-          {/* Advanced Filters */}
-          {showAdvancedFilters && (
-            <Card className="p-4 border-2 border-primary/20 bg-primary/5">
-              <div className="space-y-4">
-                <div className="flex items-center justify-between mb-3">
-                  <h3 className="font-semibold text-sm">Bộ lọc nâng cao</h3>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => {
-                      setCreatedFromDate(undefined);
-                      setCreatedToDate(undefined);
-                      setPriceRange([0, 100000000]);
-                      setHasPromotion(false);
-                    }}
-                  >
-                    <X className="h-4 w-4 mr-1" />
-                    Xóa bộ lọc
-                  </Button>
-                </div>
-
-                <Separator />
-
-                {/* Date Range */}
-                <div>
-                  <label className="text-sm font-semibold mb-3 block">
-                    Khoảng thời gian
-                  </label>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    <DatePickerFilter
-                      label="Từ ngày"
-                      value={
-                        createdFromDate ? createdFromDate.toISOString() : ""
-                      }
-                      onChange={(value) =>
-                        setCreatedFromDate(value ? new Date(value) : undefined)
-                      }
-                    />
-
-                    <DatePickerFilter
-                      label="Đến ngày"
-                      value={createdToDate ? createdToDate.toISOString() : ""}
-                      onChange={(value) =>
-                        setCreatedToDate(value ? new Date(value) : undefined)
-                      }
-                    />
-                  </div>
-                </div>
-
-                <Separator />
-
-                {/* Price Range Slider */}
-                <div>
-                  <div className="flex items-center justify-between mb-3">
-                    <label className="text-sm font-semibold">Khoảng giá</label>
-                    <span className="text-sm font-medium text-primary">
-                      {formatCurrency(priceRange[0])} -{" "}
-                      {formatCurrency(priceRange[1])}
-                    </span>
-                  </div>
-                  <Slider
-                    value={priceRange}
-                    onValueChange={(value) =>
-                      setPriceRange(value as [number, number])
-                    }
-                    min={0}
-                    max={100000000}
-                    step={100000}
-                    className="w-full"
-                  />
-                  <div className="flex gap-3 mt-3">
-                    <div className="flex-1">
-                      <p className="text-xs text-muted-foreground mb-1">Min</p>
-                      <InputNumber
-                        value={priceRange[0]}
-                        onChange={(value) => {
-                          const validValue = value || 0;
-                          setPriceRange([
-                            Math.min(validValue, priceRange[1]),
-                            priceRange[1],
-                          ]);
-                        }}
-                        className="rounded-lg border-border text-xs"
-                      />
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-xs text-muted-foreground mb-1">Max</p>
-                      <InputNumber
-                        value={priceRange[1]}
-                        onChange={(value) => {
-                          const validValue = value || 100000000;
-                          setPriceRange([
-                            priceRange[0],
-                            Math.max(validValue, priceRange[0]),
-                          ]);
-                        }}
-                        className="rounded-lg border-border text-xs"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                <Separator />
-
-                {/* Has Promotion */}
-                <div className="flex items-center gap-3 p-3 bg-background rounded-lg border border-border">
-                  <Checkbox
-                    id="has-promotion"
-                    checked={hasPromotion}
-                    onCheckedChange={(checked) =>
-                      setHasPromotion(checked === true)
-                    }
-                  />
-                  <label
-                    htmlFor="has-promotion"
-                    className="text-sm font-medium cursor-pointer flex-1"
-                  >
-                    Chỉ hiển thị các đơn hàng có mã khuyến mãi
-                  </label>
-                </div>
-              </div>
-            </Card>
-          )}
+          {/* Advanced filters are now in a right-sheet. Use the filter button to open the sheet. */}
         </div>
 
         {/* Orders List */}
@@ -629,6 +532,19 @@ export default function OrdersPage() {
             />
           )}
         </div>
+
+        {/* Order Filter Sheet */}
+        <OrderFilterSheet
+          isOpen={isFilterSheetOpen}
+          onOpenChange={setIsFilterSheetOpen}
+          statusFilter={statusFilter}
+          onStatusFilterChange={setStatusFilter}
+          priceRange={priceRange}
+          onPriceRangeChange={setPriceRange}
+          hasPromotion={hasPromotion}
+          onHasPromotionChange={setHasPromotion}
+          onResetFilters={handleResetFilters}
+        />
 
         {/* Cancel Order Dialog */}
         <Dialog open={isCancelDialogOpen} onOpenChange={setIsCancelDialogOpen}>

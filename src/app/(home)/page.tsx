@@ -185,7 +185,7 @@ export default function HomePage() {
                       key={koi.id}
                       className="pl-2 md:pl-4 md:basis-1/2 lg:basis-1/3"
                     >
-                      <Card className="border-border hover:shadow-lg transition-all group cursor-pointer pt-0">
+                      <Card className="border-border max-w-xl hover:shadow-lg transition-all group cursor-pointer pt-0">
                         <div className="aspect-square overflow-hidden rounded-t-lg bg-muted/30">
                           {koi.images && koi.images.length > 0 ? (
                             <Image
@@ -207,7 +207,10 @@ export default function HomePage() {
                               <CardTitle className="text-lg">
                                 {koi.variety.varietyName}
                               </CardTitle>
-                              <CardDescription className="text-sm">
+                              <CardDescription
+                                className="text-sm truncate max-w-[180px]"
+                                title={`RFID: ${koi.rfid}${koi.size ? ` • Size: ${koi.size}` : ""}`}
+                              >
                                 RFID: {koi.rfid}
                                 {koi.size && ` • Size: ${koi.size}`}
                               </CardDescription>

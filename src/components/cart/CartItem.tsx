@@ -39,7 +39,7 @@ export function CartItem({ item }: CartItemProps) {
     <div
       className={cn(
         "flex gap-4 p-4 border border-border/60 rounded-xl bg-card hover:border-primary/20 transition-colors group",
-        isMutating && "opacity-60 pointer-events-none",
+        isMutating && "opacity-60 pointer-events-none"
       )}
     >
       {/* 1. Image Section */}
@@ -62,7 +62,7 @@ export function CartItem({ item }: CartItemProps) {
         <div>
           <div className="flex justify-between items-start gap-2">
             <h4
-              className="font-semibold text-sm truncate pr-4"
+              className="font-semibold text-sm truncate pr-4 max-w-[180px]"
               title={item?.koiFish?.rfid || item?.packetFish?.name}
             >
               {item?.koiFish?.rfid
@@ -119,15 +119,9 @@ export function CartItem({ item }: CartItemProps) {
 
           <div className="text-xs text-muted-foreground mt-1">
             {item.koiFish ? (
-              <span>
-                Size: {getFishSizeLabel(item.koiFish?.size)} •{" "}
-                {getAge(item.koiFish?.birthDate)}
-              </span>
+              <span>Size: {getFishSizeLabel(item.koiFish?.size)} cm</span>
             ) : (
-              <span>
-                {item.packetFish?.fishPerPacket} con/gói • Size{" "}
-                {item.packetFish?.size}
-              </span>
+              <span>{item.packetFish?.fishPerPacket} con/gói</span>
             )}
           </div>
         </div>

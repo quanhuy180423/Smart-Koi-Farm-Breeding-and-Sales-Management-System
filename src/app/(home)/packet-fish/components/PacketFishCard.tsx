@@ -121,7 +121,7 @@ export const PacketFishCard = ({
           ) : (
             <div className="flex items-center gap-2">
               <ShoppingCart className="h-4 w-4" />
-              <span>Mua ngay</span>
+              <span>Đặt ngay</span>
             </div>
           )}
         </Button>

@@ -22,7 +22,7 @@ const getDateFromString = (dateString: string): Date | undefined => {
   return new Date(
     parseInt(parts[0]),
     parseInt(parts[1]) - 1,
-    parseInt(parts[2]),
+    parseInt(parts[2])
   );
 };
 
@@ -40,7 +40,7 @@ export function DatePickerFilter({
   placeholder = "Chọn ngày...",
 }: DatePickerFilterProps) {
   return (
-    <div className="space-y-2">
+    <div className="space-y-2 w-full">
       <Label>{label}</Label>
       <Popover>
         <PopoverTrigger asChild>
