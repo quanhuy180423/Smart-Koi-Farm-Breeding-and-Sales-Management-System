@@ -40,7 +40,7 @@ export function DatePickerFilter({
   placeholder = "Chọn ngày...",
 }: DatePickerFilterProps) {
   return (
-    <div className="space-y-2">
+    <div className="space-y-2 w-full">
       <Label>{label}</Label>
       <Popover>
         <PopoverTrigger asChild>

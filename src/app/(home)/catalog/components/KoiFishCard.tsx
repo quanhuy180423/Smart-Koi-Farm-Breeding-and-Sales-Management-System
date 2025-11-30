@@ -10,10 +10,10 @@ import {
   ShoppingCart,
   Ruler,
   Loader2,
-  Dna,
   Mars,
   Venus,
   Heart,
+  MapPin,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -96,15 +96,16 @@ export const KoiFishCard = ({
       {/* Content */}
       <CardContent className="flex flex-col flex-1 p-4 space-y-3">
         <div className="flex justify-between items-start">
-          <div>
+          <div className="min-w-0 flex-1 pr-2">
             <Link
               href={`/koi/${koi.id}`}
-              className="font-bold text-gray-800 hover:text-primary transition-colors line-clamp-1"
+              className="font-bold text-gray-800 hover:text-primary transition-colors block truncate"
+              title={`RFID: ${koi.rfid}`}
             >
               RFID: {koi.rfid}
             </Link>
             <p className="text-xs text-muted-foreground mt-0.5 flex items-center gap-1">
-              <Dna className="w-3 h-3" /> {koi.origin}
+              <MapPin className="w-3 h-3" /> {koi.origin}
             </p>
           </div>
           {/* Gender Icon */}

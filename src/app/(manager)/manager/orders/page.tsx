@@ -14,7 +14,6 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { InputNumber } from "@/components/ui/input-number";
 import {
   Select,
   SelectContent,
@@ -43,14 +42,11 @@ import {
   MoreHorizontal,
   Eye,
   Package,
-  CheckCircle,
-  XCircle,
   User,
   Fish,
   DollarSign,
   Loader2,
   X,
-  Truck,
 } from "lucide-react";
 import { formatCurrency } from "@/lib/utils/numbers/formatCurrency";
 import { useGetAllOrders, useUpdateOrderStatus } from "@/hooks/useOrder";
@@ -67,33 +63,19 @@ import { DATE_FORMATS, formatDate } from "@/lib/utils/dates";
 import { LoadingState } from "@/components/common/LoadingState";
 import { ErrorState } from "@/components/common/ErrorState";
 import { EmptyState } from "@/components/common/EmptyState";
-import { DatePickerFilter } from "@/components/ui/DatePickerFilter";
 
-export default function OrdersPage() {
+export default function ManagerOrdersPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<OrderStatus | string>("all");
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-  const [startDate, setStartDate] = useState<Date | undefined>();
-  const [endDate, setEndDate] = useState<Date | undefined>();
+  // Date filter removed — using no date range
   const [minPrice, setMinPrice] = useState<string>("");
   const [maxPrice, setMaxPrice] = useState<string>("");
 
-  // Confirm order dialog state
-  const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
-  const [confirmNote, setConfirmNote] = useState<string>("");
-
-  // UnShip order dialog state
-  const [isUnShipDialogOpen, setIsUnShipDialogOpen] = useState(false);
-  const [unShipNote, setUnShipNote] = useState<string>("");
-
-  // Deliver order dialog state
-  const [isDeliverDialogOpen, setIsDeliverDialogOpen] = useState(false);
-  const [deliverNote, setDeliverNote] = useState<string>("");
-
-  // Reject order dialog state
-  const [isRejectDialogOpen, setIsRejectDialogOpen] = useState(false);
-  const [rejectReason, setRejectReason] = useState<string>("");
+  // Refund order dialog state
+  const [isRefundDialogOpen, setIsRefundDialogOpen] = useState(false);
+  const [refundNote, setRefundNote] = useState<string>("");
 
   // Selected order for actions
   const [selectedOrderId, setSelectedOrderId] = useState<number | null>(null);
@@ -101,42 +83,20 @@ export default function OrdersPage() {
   // Update order status mutation
   const updateStatusMutation = useUpdateOrderStatus();
 
-  // Check if order can be updated
-  const canUpdateOrder = (status: string): boolean => {
-    return (
-      status === OrderStatus.PROCESSING ||
-      status === OrderStatus.SHIPPED ||
-      status === OrderStatus.REJECTED ||
-      status === OrderStatus.UNSHIPPING
-    );
+  // Check if order can have refund action
+  const canRefund = (status: string): boolean => {
+    return status === OrderStatus.REJECTED || status === OrderStatus.UNSHIPPING;
   };
 
-  // Get available actions for order status (refund removed - manager only)
-  const getAvailableActions = (
-    status: string,
-  ): {
-    canConfirm: boolean;
-    canUnShip: boolean;
-    canDeliver: boolean;
-    canReject: boolean;
-  } => {
-    return {
-      canConfirm: status === OrderStatus.PROCESSING,
-      canUnShip: status === OrderStatus.PROCESSING,
-      canDeliver: status === OrderStatus.SHIPPED,
-      canReject: status === OrderStatus.SHIPPED,
-    };
-  };
-
-  // Handler for opening confirm dialog
-  const handleOpenConfirmDialog = (orderId: number) => {
+  // Handler for opening refund dialog
+  const handleOpenRefundDialog = (orderId: number) => {
     setSelectedOrderId(orderId);
-    setConfirmNote("");
-    setIsConfirmDialogOpen(true);
+    setRefundNote("");
+    setIsRefundDialogOpen(true);
   };
 
-  // Handler for confirming order (PROCESSING -> SHIPPED)
-  const handleConfirmOrder = () => {
+  // Handler for refunding order (REJECTED/UNSHIPPING -> REFUND)
+  const handleRefundOrder = () => {
     if (!selectedOrderId) {
       toast.error("Không tìm thấy đơn hàng");
       return;
@@ -146,152 +106,29 @@ export default function OrdersPage() {
       {
         orderId: selectedOrderId,
         request: {
-          status: OrderStatus.SHIPPED,
-          note: confirmNote || undefined,
+          status: OrderStatus.REFUND,
+          note: refundNote || undefined,
         },
       },
       {
         onSuccess: () => {
-          toast.success("Đơn hàng đã được xác nhận");
-          setIsConfirmDialogOpen(false);
+          toast.success("Đơn hàng đã được hoàn tiền");
+          setIsRefundDialogOpen(false);
           setSelectedOrderId(null);
-          setConfirmNote("");
+          setRefundNote("");
         },
         onError: (error) => {
           toast.error(
             error instanceof Error
               ? error.message
-              : "Không thể xác nhận đơn hàng",
+              : "Không thể hoàn tiền đơn hàng",
           );
         },
       },
     );
   };
 
-  // Handler for opening UnShip dialog
-  const handleOpenUnShipDialog = (orderId: number) => {
-    setSelectedOrderId(orderId);
-    setUnShipNote("");
-    setIsUnShipDialogOpen(true);
-  };
-
-  // Handler for unshipping order (PROCESSING -> UNSHIPPING or SHIPPED -> UNSHIPPING)
-  const handleUnShipOrder = () => {
-    if (!selectedOrderId) {
-      toast.error("Không tìm thấy đơn hàng");
-      return;
-    }
-
-    updateStatusMutation.mutate(
-      {
-        orderId: selectedOrderId,
-        request: {
-          status: OrderStatus.UNSHIPPING,
-          note: unShipNote || undefined,
-        },
-      },
-      {
-        onSuccess: () => {
-          toast.success("Đơn hàng đã được chuyển sang không giao");
-          setIsUnShipDialogOpen(false);
-          setSelectedOrderId(null);
-          setUnShipNote("");
-        },
-        onError: (error) => {
-          toast.error(
-            error instanceof Error
-              ? error.message
-              : "Không thể cập nhật đơn hàng",
-          );
-        },
-      },
-    );
-  };
-
-  // Handler for opening deliver dialog
-  const handleOpenDeliverDialog = (orderId: number) => {
-    setSelectedOrderId(orderId);
-    setDeliverNote("");
-    setIsDeliverDialogOpen(true);
-  };
-
-  // Handler for delivering order (SHIPPED -> DELIVERED)
-  const handleDeliverOrder = () => {
-    if (!selectedOrderId) {
-      toast.error("Không tìm thấy đơn hàng");
-      return;
-    }
-
-    updateStatusMutation.mutate(
-      {
-        orderId: selectedOrderId,
-        request: {
-          status: OrderStatus.DELIVERED,
-          note: deliverNote || undefined,
-        },
-      },
-      {
-        onSuccess: () => {
-          toast.success("Đơn hàng đã được giao thành công");
-          setIsDeliverDialogOpen(false);
-          setSelectedOrderId(null);
-          setDeliverNote("");
-        },
-        onError: (error) => {
-          toast.error(
-            error instanceof Error ? error.message : "Không thể giao đơn hàng",
-          );
-        },
-      },
-    );
-  };
-
-  // Handler for opening reject dialog
-  const handleOpenRejectDialog = (orderId: number) => {
-    setSelectedOrderId(orderId);
-    setRejectReason("");
-    setIsRejectDialogOpen(true);
-  };
-
-  // Handler for rejecting order (SHIPPED -> REJECTED)
-  const handleRejectOrder = () => {
-    if (!selectedOrderId) {
-      toast.error("Không tìm thấy đơn hàng");
-      return;
-    }
-
-    if (!rejectReason.trim()) {
-      toast.error("Vui lòng nhập lý do từ chối");
-      return;
-    }
-
-    updateStatusMutation.mutate(
-      {
-        orderId: selectedOrderId,
-        request: {
-          status: OrderStatus.REJECTED,
-          note: rejectReason,
-        },
-      },
-      {
-        onSuccess: () => {
-          toast.success("Đơn hàng đã được từ chối");
-          setIsRejectDialogOpen(false);
-          setSelectedOrderId(null);
-          setRejectReason("");
-        },
-        onError: (error) => {
-          toast.error(
-            error instanceof Error
-              ? error.message
-              : "Không thể từ chối đơn hàng",
-          );
-        },
-      },
-    );
-  };
-
-  // Debounce search term
+  // Debounce search term only
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
 
   // Debounce price filters
@@ -306,10 +143,7 @@ export default function OrdersPage() {
         statusFilter && statusFilter !== "all"
           ? (statusFilter as OrderStatus)
           : undefined,
-      createdFrom: startDate
-        ? Math.floor(startDate.getTime() / 1000)
-        : undefined,
-      createdTo: endDate ? Math.floor(endDate.getTime() / 1000) : undefined,
+      // Date filter removed
       minTotalAmount: debouncedMinPrice
         ? parseFloat(debouncedMinPrice)
         : undefined,
@@ -322,8 +156,6 @@ export default function OrdersPage() {
   }, [
     debouncedSearchTerm,
     statusFilter,
-    startDate,
-    endDate,
     debouncedMinPrice,
     debouncedMaxPrice,
     currentPage,
@@ -342,7 +174,7 @@ export default function OrdersPage() {
             Quản lý đơn hàng
           </h1>
           <p className="text-muted-foreground">
-            Theo dõi và quản lý các đơn hàng từ khách hàng
+            Theo dõi và quản lý các đơn hàng - Chỉ có quyền hoàn tiền
           </p>
         </div>
       </div>
@@ -388,23 +220,9 @@ export default function OrdersPage() {
 
             {/* Filters Row 2 - Date and Price Range */}
             <div className="flex flex-row lg:flex-row gap-4 items-center justify-between">
-              <DatePickerFilter
-                label="Từ ngày"
-                value={startDate ? startDate.toISOString() : ""}
-                onChange={(value) =>
-                  setStartDate(value ? new Date(value) : undefined)
-                }
-              />
+              {/* Date filters removed for Manager - keep start/end price filters only */}
 
-              <DatePickerFilter
-                label="Đến ngày"
-                value={endDate ? endDate.toISOString() : ""}
-                onChange={(value) =>
-                  setEndDate(value ? new Date(value) : undefined)
-                }
-              />
-
-              <div className="relative flex-1 sm:flex-none">
+              {/* <div className="relative flex-1 sm:flex-none">
                 <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <InputNumber
                   value={minPrice ? Number(minPrice) : undefined}
@@ -422,16 +240,15 @@ export default function OrdersPage() {
                   placeholder="Đến giá"
                   className="pl-10 w-full"
                 />
-              </div>
+              </div> */}
 
               {/* Clear Filters Button */}
-              {(startDate || endDate || minPrice || maxPrice) && (
+              {(minPrice || maxPrice) && (
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={() => {
-                    setStartDate(undefined);
-                    setEndDate(undefined);
+                    // start/end date filters have been removed
                     setMinPrice("");
                     setMaxPrice("");
                   }}
@@ -490,6 +307,14 @@ export default function OrdersPage() {
                             </span>
                           </div>
                         </Badge>
+                        {canRefund(order.status) && (
+                          <Badge
+                            variant="outline"
+                            className="bg-blue-50 text-blue-700 border-blue-200"
+                          >
+                            Có thể hoàn tiền
+                          </Badge>
+                        )}
                       </div>
 
                       <div className="space-y-1 sm:space-y-0 sm:flex sm:items-center sm:gap-4 text-xs sm:text-sm text-muted-foreground mb-2">
@@ -602,56 +427,23 @@ export default function OrdersPage() {
                       <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Hành động</DropdownMenuLabel>
                         <DropdownMenuItem asChild>
-                          <Link href={`/sale/orders/${order.id}`}>
+                          <Link href={`/manager/orders/${order.id}`}>
                             <Eye className="mr-2 h-4 w-4" />
                             Xem chi tiết
                           </Link>
                         </DropdownMenuItem>
 
-                        {/* Show action buttons based on status */}
-                        {canUpdateOrder(order.status) && (
+                        {/* Only show refund button for manager */}
+                        {canRefund(order.status) && (
                           <>
                             <DropdownMenuSeparator />
-                            {getAvailableActions(order.status).canConfirm && (
-                              <DropdownMenuItem
-                                onClick={() =>
-                                  handleOpenConfirmDialog(order.id)
-                                }
-                                className="text-green-600 hover:text-green-700 hover:bg-green-50 cursor-pointer transition-colors duration-150"
-                              >
-                                <CheckCircle className="mr-2 h-4 w-4" />
-                                Xác nhận đơn
-                              </DropdownMenuItem>
-                            )}
-                            {getAvailableActions(order.status).canUnShip && (
-                              <DropdownMenuItem
-                                onClick={() => handleOpenUnShipDialog(order.id)}
-                                className="text-orange-600 hover:text-orange-700 hover:bg-orange-50 cursor-pointer transition-colors duration-150"
-                              >
-                                <Truck className="mr-2 h-4 w-4" />
-                                Không giao
-                              </DropdownMenuItem>
-                            )}
-                            {getAvailableActions(order.status).canDeliver && (
-                              <DropdownMenuItem
-                                onClick={() =>
-                                  handleOpenDeliverDialog(order.id)
-                                }
-                                className="text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 cursor-pointer transition-colors duration-150"
-                              >
-                                <CheckCircle className="mr-2 h-4 w-4" />
-                                Đã giao hàng
-                              </DropdownMenuItem>
-                            )}
-                            {getAvailableActions(order.status).canReject && (
-                              <DropdownMenuItem
-                                onClick={() => handleOpenRejectDialog(order.id)}
-                                className="text-red-600 hover:text-red-700 hover:bg-red-50 cursor-pointer transition-colors duration-150"
-                              >
-                                <XCircle className="mr-2 h-4 w-4" />
-                                Khách hàng từ chối
-                              </DropdownMenuItem>
-                            )}
+                            <DropdownMenuItem
+                              onClick={() => handleOpenRefundDialog(order.id)}
+                              className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 cursor-pointer transition-colors duration-150"
+                            >
+                              <DollarSign className="mr-2 h-4 w-4" />
+                              Hoàn tiền
+                            </DropdownMenuItem>
                           </>
                         )}
                       </DropdownMenuContent>
@@ -688,22 +480,22 @@ export default function OrdersPage() {
         </CardContent>
       </Card>
 
-      {/* Confirm Order Dialog */}
-      <Dialog open={isConfirmDialogOpen} onOpenChange={setIsConfirmDialogOpen}>
+      {/* Refund Order Dialog */}
+      <Dialog open={isRefundDialogOpen} onOpenChange={setIsRefundDialogOpen}>
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
-            <DialogTitle>Xác nhận đơn hàng</DialogTitle>
+            <DialogTitle>Hoàn tiền đơn hàng</DialogTitle>
             <DialogDescription>
-              Xác nhận đơn hàng và chuyển sang trạng thái &quot;Đã xác
-              nhận&quot;
+              Xác nhận hoàn tiền và chuyển sang trạng thái &quot;Đã hoàn
+              tiền&quot;
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4">
             <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
               <p className="text-sm text-blue-900">
-                Sau khi xác nhận, đơn hàng sẽ chuyển sang trạng thái &quot;Đã
-                xác nhận&quot; và sẵn sàng để giao hàng.
+                Đơn hàng sẽ chuyển sang trạng thái &quot;Đã hoàn tiền&quot; và
+                khách hàng sẽ được hoàn lại số tiền.
               </p>
             </div>
 
@@ -712,9 +504,9 @@ export default function OrdersPage() {
                 Ghi chú (tùy chọn)
               </label>
               <Textarea
-                placeholder="Thêm ghi chú khi xác nhận đơn hàng..."
-                value={confirmNote}
-                onChange={(e) => setConfirmNote(e.target.value)}
+                placeholder="Thêm ghi chú khi hoàn tiền..."
+                value={refundNote}
+                onChange={(e) => setRefundNote(e.target.value)}
                 rows={3}
               />
             </div>
@@ -723,196 +515,22 @@ export default function OrdersPage() {
           <div className="flex justify-end gap-3">
             <Button
               variant="outline"
-              onClick={() => setIsConfirmDialogOpen(false)}
+              onClick={() => setIsRefundDialogOpen(false)}
             >
               Hủy
             </Button>
             <Button
-              onClick={handleConfirmOrder}
+              onClick={handleRefundOrder}
               disabled={updateStatusMutation.isPending}
-              className="bg-green-600 hover:bg-green-700"
+              className="bg-blue-600 hover:bg-blue-700"
             >
               {updateStatusMutation.isPending ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Đang xác nhận...
+                  Đang xử lý...
                 </>
               ) : (
-                "Xác nhận đơn hàng"
-              )}
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* UnShip Order Dialog */}
-      <Dialog open={isUnShipDialogOpen} onOpenChange={setIsUnShipDialogOpen}>
-        <DialogContent className="sm:max-w-[500px]">
-          <DialogHeader>
-            <DialogTitle>Không giao đơn hàng</DialogTitle>
-            <DialogDescription>
-              Chuyển đơn hàng sang trạng thái &quot;Không giao&quot;
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="space-y-4">
-            <div className="p-4 bg-orange-50 border border-orange-200 rounded-lg">
-              <p className="text-sm text-orange-900">
-                Đơn hàng sẽ chuyển sang trạng thái &quot;Không giao&quot; và sẽ
-                được xử lý hoàn trả.
-              </p>
-            </div>
-
-            <div>
-              <label className="text-sm font-medium mb-2 block">
-                Ghi chú (tùy chọn)
-              </label>
-              <Textarea
-                placeholder="Thêm ghi chú khi không giao đơn hàng..."
-                value={unShipNote}
-                onChange={(e) => setUnShipNote(e.target.value)}
-                rows={3}
-              />
-            </div>
-          </div>
-
-          <div className="flex justify-end gap-3">
-            <Button
-              variant="outline"
-              onClick={() => setIsUnShipDialogOpen(false)}
-            >
-              Hủy
-            </Button>
-            <Button
-              onClick={handleUnShipOrder}
-              disabled={updateStatusMutation.isPending}
-              className="bg-orange-600 hover:bg-orange-700"
-            >
-              {updateStatusMutation.isPending ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Đang cập nhật...
-                </>
-              ) : (
-                "Không giao"
-              )}
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* Deliver Order Dialog */}
-      <Dialog open={isDeliverDialogOpen} onOpenChange={setIsDeliverDialogOpen}>
-        <DialogContent className="sm:max-w-[500px]">
-          <DialogHeader>
-            <DialogTitle>Giao hàng thành công</DialogTitle>
-            <DialogDescription>
-              Xác nhận rằng đơn hàng đã được giao thành công
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="space-y-4">
-            <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
-              <p className="text-sm text-green-900">
-                Sau khi xác nhận, đơn hàng sẽ chuyển sang trạng thái &quot;Đã
-                giao&quot; và khách hàng có thể đánh giá sản phẩm.
-              </p>
-            </div>
-
-            <div>
-              <label className="text-sm font-medium mb-2 block">
-                Ghi chú (tùy chọn)
-              </label>
-              <Textarea
-                placeholder="Thêm ghi chú khi giao hàng thành công..."
-                value={deliverNote}
-                onChange={(e) => setDeliverNote(e.target.value)}
-                rows={3}
-              />
-            </div>
-          </div>
-
-          <div className="flex justify-end gap-3">
-            <Button
-              variant="outline"
-              onClick={() => setIsDeliverDialogOpen(false)}
-            >
-              Hủy
-            </Button>
-            <Button
-              onClick={handleDeliverOrder}
-              disabled={updateStatusMutation.isPending}
-              className="bg-green-600 hover:bg-green-700"
-            >
-              {updateStatusMutation.isPending ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Đang cập nhật...
-                </>
-              ) : (
-                "Xác nhận giao hàng"
-              )}
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* Reject Order Dialog */}
-      <Dialog open={isRejectDialogOpen} onOpenChange={setIsRejectDialogOpen}>
-        <DialogContent className="sm:max-w-[500px]">
-          <DialogHeader>
-            <DialogTitle>Từ chối đơn hàng</DialogTitle>
-            <DialogDescription>
-              Từ chối giao hàng và chuyển sang trạng thái &quot;Từ chối&quot;
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="space-y-4">
-            <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
-              <p className="text-sm text-red-900">
-                ⚠️ Sau khi từ chối, đơn hàng sẽ chuyển sang trạng thái từ chối
-                và được xử lý hoàn trả.
-              </p>
-            </div>
-
-            <div>
-              <label className="text-sm font-medium mb-2 block text-red-600">
-                Lý do từ chối *
-              </label>
-              <Textarea
-                placeholder="Nhập lý do từ chối đơn hàng (bắt buộc)..."
-                value={rejectReason}
-                onChange={(e) => setRejectReason(e.target.value)}
-                rows={4}
-                className="border-red-300 focus:border-red-500"
-              />
-              {!rejectReason.trim() && (
-                <p className="text-xs text-red-600 mt-1">
-                  Lý do từ chối là bắt buộc
-                </p>
-              )}
-            </div>
-          </div>
-
-          <div className="flex justify-end gap-3">
-            <Button
-              variant="outline"
-              onClick={() => setIsRejectDialogOpen(false)}
-            >
-              Hủy
-            </Button>
-            <Button
-              onClick={handleRejectOrder}
-              disabled={updateStatusMutation.isPending || !rejectReason.trim()}
-              className="bg-red-600 hover:bg-red-700"
-            >
-              {updateStatusMutation.isPending ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Đang cập nhật...
-                </>
-              ) : (
-                "Xác nhận từ chối"
+                "Xác nhận hoàn tiền"
               )}
             </Button>
           </div>

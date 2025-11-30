@@ -47,9 +47,10 @@ import { useSidebarStore } from "@/store/use-sidebar-store";
 // Định nghĩa danh sách menu
 const sidebarItems = [
   { title: "Dashboard", href: "/manager", icon: LayoutDashboard },
+  { title: "Quản lý tài khoản", href: "/manager/accounts", icon: Users },
+  { title: "Quản lý đơn hàng", href: "/manager/orders", icon: Truck },
   { title: "Quản lý cá Koi", href: "/manager/koi", icon: Fish },
   { title: "Quản lý sinh sản", href: "/manager/breeding", icon: Heart },
-  { title: "Quản lý tài khoản", href: "/manager/accounts", icon: Users },
   { title: "Lịch làm việc", href: "/manager/schedules", icon: Calendar },
   { title: "Quản lý khu", href: "/manager/area", icon: Grid2X2 },
   { title: "Quản lý hồ", href: "/manager/ponds", icon: Building2 },
