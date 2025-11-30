@@ -77,10 +77,10 @@ export default function ManagerOrderDetailPage() {
           toast.error(
             error instanceof Error
               ? error.message
-              : "Không thể hoàn tiền đơn hàng"
+              : "Không thể hoàn tiền đơn hàng",
           );
         },
-      }
+      },
     );
   };
 

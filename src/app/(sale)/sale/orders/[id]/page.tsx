@@ -88,10 +88,10 @@ export default function OrderDetailPage() {
           toast.error(
             error instanceof Error
               ? error.message
-              : "Không thể xác nhận đơn hàng"
+              : "Không thể xác nhận đơn hàng",
           );
         },
-      }
+      },
     );
   };
 
@@ -125,10 +125,10 @@ export default function OrderDetailPage() {
           toast.error(
             error instanceof Error
               ? error.message
-              : "Không thể chuyển trạng thái hoàn trả"
+              : "Không thể chuyển trạng thái hoàn trả",
           );
         },
-      }
+      },
     );
   };
 
@@ -157,10 +157,10 @@ export default function OrderDetailPage() {
           toast.error(
             error instanceof Error
               ? error.message
-              : "Không thể xác nhận giao hàng"
+              : "Không thể xác nhận giao hàng",
           );
         },
-      }
+      },
     );
   };
 
@@ -194,10 +194,10 @@ export default function OrderDetailPage() {
           toast.error(
             error instanceof Error
               ? error.message
-              : "Không thể từ chối đơn hàng"
+              : "Không thể từ chối đơn hàng",
           );
         },
-      }
+      },
     );
   };
 

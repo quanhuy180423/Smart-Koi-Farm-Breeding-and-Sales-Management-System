@@ -113,7 +113,7 @@ export default function OrdersPage() {
 
   // Get available actions for order status (refund removed - manager only)
   const getAvailableActions = (
-    status: string
+    status: string,
   ): {
     canConfirm: boolean;
     canUnShip: boolean;
@@ -161,10 +161,10 @@ export default function OrdersPage() {
           toast.error(
             error instanceof Error
               ? error.message
-              : "Không thể xác nhận đơn hàng"
+              : "Không thể xác nhận đơn hàng",
           );
         },
-      }
+      },
     );
   };
 
@@ -201,10 +201,10 @@ export default function OrdersPage() {
           toast.error(
             error instanceof Error
               ? error.message
-              : "Không thể cập nhật đơn hàng"
+              : "Không thể cập nhật đơn hàng",
           );
         },
-      }
+      },
     );
   };
 
@@ -239,10 +239,10 @@ export default function OrdersPage() {
         },
         onError: (error) => {
           toast.error(
-            error instanceof Error ? error.message : "Không thể giao đơn hàng"
+            error instanceof Error ? error.message : "Không thể giao đơn hàng",
           );
         },
-      }
+      },
     );
   };
 
@@ -284,10 +284,10 @@ export default function OrdersPage() {
           toast.error(
             error instanceof Error
               ? error.message
-              : "Không thể từ chối đơn hàng"
+              : "Không thể từ chối đơn hàng",
           );
         },
-      }
+      },
     );
   };
 
@@ -481,7 +481,7 @@ export default function OrdersPage() {
                           <div className="flex items-center gap-1">
                             {(() => {
                               const Icon = getOrderStatusLabel(
-                                order.status
+                                order.status,
                               ).icon;
                               return <Icon className="h-4 w-4" />;
                             })()}
@@ -501,7 +501,7 @@ export default function OrdersPage() {
                           <span>
                             {formatDate(
                               order.createdAt,
-                              DATE_FORMATS.DATETIME_24H
+                              DATE_FORMATS.DATETIME_24H,
                             )}
                           </span>
                         </div>
@@ -584,7 +584,7 @@ export default function OrdersPage() {
                       <p className="text-xs text-muted-foreground">
                         {order.orderDetails.reduce(
                           (sum, item) => sum + item.quantity,
-                          0
+                          0,
                         )}{" "}
                         sản phẩm
                       </p>

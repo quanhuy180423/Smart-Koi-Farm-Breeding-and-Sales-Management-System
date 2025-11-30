@@ -112,7 +112,7 @@ export const KoiFishCard = ({
           <div
             className={cn(
               "p-1.5 rounded-full",
-              isMale ? "bg-blue-50 text-blue-500" : "bg-pink-50 text-pink-500"
+              isMale ? "bg-blue-50 text-blue-500" : "bg-pink-50 text-pink-500",
             )}
           >
             {genderInfo.icon && typeof genderInfo.icon === "function" ? (

@@ -39,7 +39,7 @@ export function CartItem({ item }: CartItemProps) {
     <div
       className={cn(
         "flex gap-4 p-4 border border-border/60 rounded-xl bg-card hover:border-primary/20 transition-colors group",
-        isMutating && "opacity-60 pointer-events-none"
+        isMutating && "opacity-60 pointer-events-none",
       )}
     >
       {/* 1. Image Section */}

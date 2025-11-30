@@ -22,7 +22,7 @@ const getDateFromString = (dateString: string): Date | undefined => {
   return new Date(
     parseInt(parts[0]),
     parseInt(parts[1]) - 1,
-    parseInt(parts[2])
+    parseInt(parts[2]),
   );
 };
 

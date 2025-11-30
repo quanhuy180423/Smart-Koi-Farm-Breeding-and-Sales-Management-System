@@ -132,10 +132,10 @@ export default function OrdersPage() {
         },
         onError: (error) => {
           toast.error(
-            error instanceof Error ? error.message : "Không thể hủy đơn hàng"
+            error instanceof Error ? error.message : "Không thể hủy đơn hàng",
           );
         },
-      }
+      },
     );
   };
 
