@@ -91,7 +91,7 @@ export function useUpdateKoiFish() {
       if (data.isSuccess) {
         queryClient.invalidateQueries({ queryKey: ["koi-fishes"] });
       }
-      toast.success(data.message || "Chỉnh sửa cá Koi thành công");
+      toast.success("Chỉnh sửa cá Koi thành công");
     },
     onError: (error: ApiError) => {
       toast.error(error.message || "Có lỗi xảy ra khi cập nhật thông tin");

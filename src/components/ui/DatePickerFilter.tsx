@@ -18,12 +18,17 @@ interface DatePickerFilterProps {
 
 const getDateFromString = (dateString: string): Date | undefined => {
   if (!dateString) return undefined;
+  // Parse ISO string and interpret the DATE portion as local time, not UTC
+  // This ensures the calendar shows the date that was actually selected
   const parts = dateString.split("T")[0].split("-");
-  return new Date(
-    parseInt(parts[0]),
-    parseInt(parts[1]) - 1,
-    parseInt(parts[2]),
-  );
+  const year = parseInt(parts[0]);
+  const month = parseInt(parts[1]) - 1;
+  const day = parseInt(parts[2]);
+
+  // Create a date at midnight in local timezone
+  // This ensures when the calendar reads getDate(), it gets the correct day
+  const date = new Date(year, month, day, 0, 0, 0, 0);
+  return date;
 };
 
 const formatDateToString = (date: Date): string => {

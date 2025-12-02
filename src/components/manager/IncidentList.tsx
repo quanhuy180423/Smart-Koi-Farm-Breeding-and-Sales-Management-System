@@ -7,6 +7,7 @@ import {
   IncidentSearchParams,
 } from "@/lib/api/services/fetchIncident";
 import { useGetIncidents } from "@/hooks/useIncident";
+import { useDebounce } from "@/hooks/useDebounce";
 import { Badge } from "@/components/ui/badge";
 import {
   Table,
@@ -54,6 +55,7 @@ export function IncidentList() {
   });
 
   const [searchTerm, setSearchTerm] = useState<string>("");
+  const debouncedSearchTerm = useDebounce(searchTerm, 500);
   const [filterSeverity, setFilterSeverity] =
     useState<FilterValue<IncidentSeverity>>("all");
   const [filterStatus, setFilterStatus] =
@@ -85,12 +87,12 @@ export function IncidentList() {
 
     setSearchParams((prev) => ({
       ...prev,
-      search: searchTerm || undefined,
+      search: debouncedSearchTerm || undefined,
       severity,
       status,
       pageIndex: 1,
     }));
-  }, [searchTerm, filterSeverity, filterStatus]);
+  }, [debouncedSearchTerm, filterSeverity, filterStatus]);
 
   const handleSelectPond = (pondId: number, pondName: string) => {
     setSelectedPondName(pondName);
