@@ -1,6 +1,8 @@
 "use client";
 
 import React, { useState } from "react";
+import * as z from "zod";
+import { toast } from "sonner";
 import {
   Card,
   CardContent,
@@ -59,6 +61,67 @@ import {
 } from "@/lib/api/services/fetchShippingBox";
 import { ShippingDistance } from "@/lib/api/services/fetchShippingDistance";
 
+// Zod validation schemas
+const shippingBoxSchema = z.object({
+  name: z.string().min(1, "Vui lòng nhập tên hộp"),
+  maxKoiCount: z.number().refine((val) => val > 0, {
+    message: "Số lượng cá tối đa phải lớn hơn 0",
+  }),
+  maxKoiSizeInch: z.number().refine((val) => val > 0, {
+    message: "Kích thước cá tối đa phải lớn hơn 0",
+  }),
+  fee: z.number().refine((val) => val > 0, {
+    message: "Phí vận chuyển phải lớn hơn 0",
+  }),
+  weightCapacityLb: z.number().refine((val) => val > 0, {
+    message: "Cân nặng hộp phải lớn hơn 0",
+  }),
+  notes: z.string().min(1, "Vui lòng nhập ghi chú"),
+  isActive: z.boolean(),
+});
+
+const shippingDistanceSchema = z.object({
+  name: z.string().min(1, "Vui lòng nhập tên khoảng cách"),
+  minDistanceKm: z.number().refine((val) => val >= 0, {
+    message: "Khoảng cách tối thiểu không thể âm",
+  }),
+  maxDistanceKm: z.number().refine((val) => val > 0, {
+    message: "Khoảng cách tối đa phải lớn hơn 0",
+  }),
+  pricePerKm: z.number().refine((val) => val > 0, {
+    message: "Giá/km phải lớn hơn 0",
+  }),
+  baseFee: z.number().refine((val) => val > 0, {
+    message: "Phí cơ sở phải lớn hơn 0",
+  }),
+  description: z.string().optional(),
+  isActive: z.boolean(),
+});
+
+const shippingBoxRuleSchema = z.object({
+  ruleType: z.nativeEnum(RuleType),
+  maxCount: z.number().refine((val) => val > 0, {
+    message: "Số lượng tối đa phải lớn hơn 0",
+  }),
+  maxLengthCm: z.number().refine((val) => val > 0, {
+    message: "Chiều dài tối đa phải lớn hơn 0",
+  }),
+  minLengthCm: z.number().refine((val) => val > 0, {
+    message: "Chiều dài tối thiểu phải lớn hơn 0",
+  }),
+  maxWeightLb: z.number().refine((val) => val > 0, {
+    message: "Cân nặng tối đa phải lớn hơn 0",
+  }),
+  extraInfo: z.string().min(1, "Vui lòng nhập thông tin bổ sung"),
+  priority: z
+    .number()
+    .int()
+    .refine((val) => val > 0, {
+      message: "Ưu tiên phải lớn hơn 0",
+    }),
+  isActive: z.boolean(),
+});
+
 export default function ShippingManagement() {
   const {
     data: shippingBoxes,
@@ -108,10 +171,10 @@ export default function ShippingManagement() {
   // Form state for new rule
   const [ruleFormData, setRuleFormData] = useState({
     ruleType: RuleType.ByCount as RuleType,
-    maxCount: null as number | null,
-    maxLengthCm: null as number | null,
-    minLengthCm: null as number | null,
-    maxWeightLb: null as number | null,
+    maxCount: 0,
+    maxLengthCm: 0,
+    minLengthCm: 0,
+    maxWeightLb: 0,
     extraInfo: "",
     priority: 0,
     isActive: true,
@@ -137,20 +200,35 @@ export default function ShippingManagement() {
   // Form state for new box
   const [boxFormData, setBoxFormData] = useState({
     name: "",
-    maxKoiCount: null as number | null,
-    maxKoiSizeInch: null as number | null,
+    maxKoiCount: 0,
+    maxKoiSizeInch: 0,
     fee: 0,
     weightCapacityLb: 0,
     notes: "",
     isActive: true,
   });
 
+  // Error state for box form
+  const [boxFormErrors, setBoxFormErrors] = useState<Record<string, string>>(
+    {},
+  );
+
+  // Error state for distance form
+  const [distanceFormErrors, setDistanceFormErrors] = useState<
+    Record<string, string>
+  >({});
+
+  // Error state for rule form
+  const [ruleFormErrors, setRuleFormErrors] = useState<Record<string, string>>(
+    {},
+  );
+
   const handleEditBox = (box: ShippingBoxResponse) => {
     setEditingBox(box);
     setBoxFormData({
       name: box.name,
-      maxKoiCount: box.maxKoiCount,
-      maxKoiSizeInch: box.maxKoiSizeInch,
+      maxKoiCount: box.maxKoiCount || 0,
+      maxKoiSizeInch: box.maxKoiSizeInch || 0,
       fee: box.fee,
       weightCapacityLb: box.weightCapacityLb,
       notes: box.notes,
@@ -162,8 +240,8 @@ export default function ShippingManagement() {
   const resetBoxForm = () => {
     setBoxFormData({
       name: "",
-      maxKoiCount: null,
-      maxKoiSizeInch: null,
+      maxKoiCount: 0,
+      maxKoiSizeInch: 0,
       fee: 0,
       weightCapacityLb: 0,
       notes: "",
@@ -175,11 +253,13 @@ export default function ShippingManagement() {
     setIsBoxDialogOpen(false);
     setEditingBox(null);
     resetBoxForm();
+    setBoxFormErrors({});
   };
 
   const handleAddBox = () => {
     setEditingBox(null);
     resetBoxForm();
+    setBoxFormErrors({});
     setIsBoxDialogOpen(true);
   };
 
@@ -193,21 +273,26 @@ export default function ShippingManagement() {
   };
 
   const handleBoxFormSubmit = async () => {
-    // Validation
-    if (!boxFormData.name.trim()) {
-      alert("Vui lòng nhập tên hộp");
+    // Validate using Zod schema
+    const result = shippingBoxSchema.safeParse(boxFormData);
+
+    if (!result.success) {
+      // Collect error messages by field
+      const errorMap: Record<string, string> = {};
+      result.error.errors.forEach((error) => {
+        const fieldName = error.path[0] as string;
+        errorMap[fieldName] = error.message;
+      });
+      setBoxFormErrors(errorMap);
+
+      // Also show first error as toast
+      const firstError = result.error.errors[0];
+      toast.error(firstError.message);
       return;
     }
 
-    if (boxFormData.fee <= 0) {
-      alert("Phí vận chuyển phải lớn hơn 0");
-      return;
-    }
-
-    if (boxFormData.weightCapacityLb <= 0) {
-      alert("Sức chứa cân nặng phải lớn hơn 0");
-      return;
-    }
+    // Clear errors if validation passes
+    setBoxFormErrors({});
 
     try {
       const payload = {
@@ -255,10 +340,10 @@ export default function ShippingManagement() {
     setEditingRule(rule);
     setRuleFormData({
       ruleType: rule.ruleType as RuleType,
-      maxCount: rule.maxCount,
-      maxLengthCm: rule.maxLengthCm,
-      minLengthCm: rule.minLengthCm,
-      maxWeightLb: rule.maxWeightLb,
+      maxCount: rule.maxCount ?? 0,
+      maxLengthCm: rule.maxLengthCm ?? 0,
+      minLengthCm: rule.minLengthCm ?? 0,
+      maxWeightLb: rule.maxWeightLb ?? 0,
       extraInfo: rule.extraInfo,
       priority: rule.priority,
       isActive: rule.isActive,
@@ -269,10 +354,10 @@ export default function ShippingManagement() {
   const resetRuleForm = () => {
     setRuleFormData({
       ruleType: RuleType.ByCount as RuleType,
-      maxCount: null,
-      maxLengthCm: null,
-      minLengthCm: null,
-      maxWeightLb: null,
+      maxCount: 0,
+      maxLengthCm: 0,
+      minLengthCm: 0,
+      maxWeightLb: 0,
       extraInfo: "",
       priority: 0,
       isActive: true,
@@ -283,11 +368,13 @@ export default function ShippingManagement() {
     setIsRuleDialogOpen(false);
     setEditingRule(null);
     resetRuleForm();
+    setRuleFormErrors({});
   };
 
   const handleAddRule = () => {
     setEditingRule(null);
     resetRuleForm();
+    setRuleFormErrors({});
     setIsRuleDialogOpen(true);
   };
 
@@ -310,9 +397,30 @@ export default function ShippingManagement() {
 
   const handleRuleFormSubmit = async () => {
     if (!expandedBoxId) {
-      alert("Vui lòng chọn hộp trước");
+      toast.error("Vui lòng chọn hộp trước");
       return;
     }
+
+    // Validate using Zod schema
+    const result = shippingBoxRuleSchema.safeParse(ruleFormData);
+
+    if (!result.success) {
+      // Collect error messages by field
+      const errorMap: Record<string, string> = {};
+      result.error.errors.forEach((error) => {
+        const fieldName = error.path[0] as string;
+        errorMap[fieldName] = error.message;
+      });
+      setRuleFormErrors(errorMap);
+
+      // Also show first error as toast
+      const firstError = result.error.errors[0];
+      toast.error(firstError.message);
+      return;
+    }
+
+    // Clear errors if validation passes
+    setRuleFormErrors({});
 
     try {
       const payload = {
@@ -392,11 +500,13 @@ export default function ShippingManagement() {
     setIsDistanceDialogOpen(false);
     setEditingDistance(null);
     resetDistanceForm();
+    setDistanceFormErrors({});
   };
 
   const handleAddDistanceClick = () => {
     setEditingDistance(null);
     resetDistanceForm();
+    setDistanceFormErrors({});
     setIsDistanceDialogOpen(true);
   };
 
@@ -418,31 +528,35 @@ export default function ShippingManagement() {
   };
 
   const handleDistanceFormSubmit = async () => {
-    // Validation
-    if (!distanceFormData.name.trim()) {
-      alert("Vui lòng nhập tên khoảng cách");
+    // Validate using Zod schema
+    const validateData = shippingDistanceSchema.refine(
+      (data) => data.maxDistanceKm >= data.minDistanceKm,
+      {
+        message:
+          "Khoảng cách tối đa phải lớn hơn hoặc bằng khoảng cách tối thiểu",
+        path: ["maxDistanceKm"],
+      },
+    );
+
+    const result = validateData.safeParse(distanceFormData);
+
+    if (!result.success) {
+      // Collect error messages by field
+      const errorMap: Record<string, string> = {};
+      result.error.errors.forEach((error) => {
+        const fieldName = error.path[0] as string;
+        errorMap[fieldName] = error.message;
+      });
+      setDistanceFormErrors(errorMap);
+
+      // Also show first error as toast
+      const firstError = result.error.errors[0];
+      toast.error(firstError.message);
       return;
     }
 
-    if (distanceFormData.minDistanceKm < 0) {
-      alert("Khoảng cách tối thiểu không thể âm");
-      return;
-    }
-
-    if (distanceFormData.maxDistanceKm < distanceFormData.minDistanceKm) {
-      alert("Khoảng cách tối đa phải lớn hơn khoảng cách tối thiểu");
-      return;
-    }
-
-    if (distanceFormData.pricePerKm < 0) {
-      alert("Giá/km không thể âm");
-      return;
-    }
-
-    if (distanceFormData.baseFee < 0) {
-      alert("Phí cơ sở không thể âm");
-      return;
-    }
+    // Clear errors if validation passes
+    setDistanceFormErrors({});
 
     try {
       const payload = {
@@ -568,10 +682,36 @@ export default function ShippingManagement() {
                           name="name"
                           placeholder="VD: Mini Box"
                           value={boxFormData.name}
-                          onChange={handleBoxFormChange}
+                          onChange={(e) => {
+                            handleBoxFormChange(e);
+                            // Clear error when user starts typing
+                            if (boxFormErrors.name) {
+                              setBoxFormErrors((prev) => {
+                                // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                                const { name: _, ...rest } = prev;
+                                return rest;
+                              });
+                            }
+                          }}
+                          onBlur={() => {
+                            // Validate name field when user blur out
+                            if (!boxFormData.name.trim()) {
+                              setBoxFormErrors((prev) => ({
+                                ...prev,
+                                name: "Vui lòng nhập tên hộp",
+                              }));
+                            }
+                          }}
                           disabled={isCreatingBox}
-                          className="border-gray-300 focus:border-teal-500"
+                          className={`border-gray-300 focus:border-teal-500 ${
+                            boxFormErrors.name ? "border-red-500" : ""
+                          }`}
                         />
+                        {boxFormErrors.name && (
+                          <p className="text-sm text-red-500">
+                            {boxFormErrors.name}
+                          </p>
+                        )}
                       </div>
 
                       <div className="grid grid-cols-2 gap-4">
@@ -580,7 +720,8 @@ export default function ShippingManagement() {
                             htmlFor="maxKoiCount"
                             className="text-sm font-medium"
                           >
-                            Số lượng cá tối đa
+                            Số lượng cá tối đa{" "}
+                            <span className="text-red-500">*</span>
                           </Label>
                           <InputNumber
                             value={
@@ -588,23 +729,51 @@ export default function ShippingManagement() {
                                 ? Number(boxFormData.maxKoiCount)
                                 : undefined
                             }
-                            onChange={(value) =>
+                            onChange={(value) => {
+                              const numValue = value || 0;
+                              if (numValue < 0) return;
                               setBoxFormData((prev) => ({
                                 ...prev,
-                                maxKoiCount: value || null,
-                              }))
-                            }
+                                maxKoiCount: numValue,
+                              }));
+                              // Clear error when user starts typing
+                              if (boxFormErrors.maxKoiCount) {
+                                setBoxFormErrors((prev) => {
+                                  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                                  const { maxKoiCount: _, ...rest } = prev;
+                                  return rest;
+                                });
+                              }
+                            }}
+                            onBlur={() => {
+                              // Validate on blur
+                              if (boxFormData.maxKoiCount <= 0) {
+                                setBoxFormErrors((prev) => ({
+                                  ...prev,
+                                  maxKoiCount:
+                                    "Số lượng cá tối đa phải lớn hơn 0",
+                                }));
+                              }
+                            }}
                             placeholder="VD: 5"
                             disabled={isCreatingBox}
-                            className="border-gray-300 focus:border-teal-500"
+                            className={`border-gray-300 focus:border-teal-500 ${
+                              boxFormErrors.maxKoiCount ? "border-red-500" : ""
+                            }`}
                           />
+                          {boxFormErrors.maxKoiCount && (
+                            <p className="text-sm text-red-500">
+                              {boxFormErrors.maxKoiCount}
+                            </p>
+                          )}
                         </div>
                         <div className="space-y-2">
                           <Label
                             htmlFor="maxKoiSizeInch"
                             className="text-sm font-medium"
                           >
-                            Kích thước cá tối đa (Inch)
+                            Kích thước cá tối đa (Inch){" "}
+                            <span className="text-red-500">*</span>
                           </Label>
                           <InputNumber
                             value={
@@ -612,16 +781,45 @@ export default function ShippingManagement() {
                                 ? Number(boxFormData.maxKoiSizeInch)
                                 : undefined
                             }
-                            onChange={(value) =>
+                            onChange={(value) => {
+                              const numValue = value || 0;
+                              if (numValue < 0) return;
                               setBoxFormData((prev) => ({
                                 ...prev,
-                                maxKoiSizeInch: value || null,
-                              }))
-                            }
+                                maxKoiSizeInch: numValue,
+                              }));
+                              // Clear error when user starts typing
+                              if (boxFormErrors.maxKoiSizeInch) {
+                                setBoxFormErrors((prev) => {
+                                  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                                  const { maxKoiSizeInch: _, ...rest } = prev;
+                                  return rest;
+                                });
+                              }
+                            }}
+                            onBlur={() => {
+                              // Validate on blur
+                              if (boxFormData.maxKoiSizeInch <= 0) {
+                                setBoxFormErrors((prev) => ({
+                                  ...prev,
+                                  maxKoiSizeInch:
+                                    "Kích thước cá tối đa phải lớn hơn 0",
+                                }));
+                              }
+                            }}
                             placeholder="VD: 6"
                             disabled={isCreatingBox}
-                            className="border-gray-300 focus:border-teal-500"
+                            className={`border-gray-300 focus:border-teal-500 ${
+                              boxFormErrors.maxKoiSizeInch
+                                ? "border-red-500"
+                                : ""
+                            }`}
                           />
+                          {boxFormErrors.maxKoiSizeInch && (
+                            <p className="text-sm text-red-500">
+                              {boxFormErrors.maxKoiSizeInch}
+                            </p>
+                          )}
                         </div>
                       </div>
 
@@ -633,53 +831,134 @@ export default function ShippingManagement() {
                           </Label>
                           <InputNumber
                             value={boxFormData.fee}
-                            onChange={(value) =>
+                            onChange={(value) => {
+                              const numValue = value || 0;
+                              if (numValue < 0) return;
                               setBoxFormData((prev) => ({
                                 ...prev,
-                                fee: value || 0,
-                              }))
-                            }
+                                fee: numValue,
+                              }));
+                              // Clear error when user starts typing
+                              if (boxFormErrors.fee) {
+                                setBoxFormErrors((prev) => {
+                                  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                                  const { fee: _, ...rest } = prev;
+                                  return rest;
+                                });
+                              }
+                            }}
+                            onBlur={() => {
+                              // Validate on blur
+                              if (boxFormData.fee <= 0) {
+                                setBoxFormErrors((prev) => ({
+                                  ...prev,
+                                  fee: "Phí vận chuyển phải lớn hơn 0",
+                                }));
+                              }
+                            }}
                             placeholder="VD: 250000"
                             disabled={isCreatingBox}
-                            className="border-gray-300 focus:border-teal-500"
+                            className={`border-gray-300 focus:border-teal-500 ${
+                              boxFormErrors.fee ? "border-red-500" : ""
+                            }`}
                           />
+                          {boxFormErrors.fee && (
+                            <p className="text-sm text-red-500">
+                              {boxFormErrors.fee}
+                            </p>
+                          )}
                         </div>
                         <div className="space-y-2">
                           <Label
                             htmlFor="weightCapacityLb"
                             className="text-sm font-medium"
                           >
-                            Sức chứa cân nặng (Lb){" "}
+                            Cân nặng hộp (Lb){" "}
                             <span className="text-red-500">*</span>
                           </Label>
                           <InputNumber
                             value={boxFormData.weightCapacityLb}
-                            onChange={(value) =>
+                            onChange={(value) => {
+                              const numValue = value || 0;
+                              if (numValue < 0) return;
                               setBoxFormData((prev) => ({
                                 ...prev,
-                                weightCapacityLb: value || 0,
-                              }))
-                            }
+                                weightCapacityLb: numValue,
+                              }));
+                              // Clear error when user starts typing
+                              if (boxFormErrors.weightCapacityLb) {
+                                setBoxFormErrors((prev) => {
+                                  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                                  const { weightCapacityLb: _, ...rest } = prev;
+                                  return rest;
+                                });
+                              }
+                            }}
+                            onBlur={() => {
+                              // Validate on blur
+                              if (boxFormData.weightCapacityLb <= 0) {
+                                setBoxFormErrors((prev) => ({
+                                  ...prev,
+                                  weightCapacityLb:
+                                    "Cân nặng hộp phải lớn hơn 0",
+                                }));
+                              }
+                            }}
                             placeholder="VD: 15"
                             disabled={isCreatingBox}
-                            className="border-gray-300 focus:border-teal-500"
+                            className={`border-gray-300 focus:border-teal-500 ${
+                              boxFormErrors.weightCapacityLb
+                                ? "border-red-500"
+                                : ""
+                            }`}
                           />
+                          {boxFormErrors.weightCapacityLb && (
+                            <p className="text-sm text-red-500">
+                              {boxFormErrors.weightCapacityLb}
+                            </p>
+                          )}
                         </div>
                       </div>
 
                       <div className="space-y-2">
                         <Label htmlFor="notes" className="text-sm font-medium">
-                          Ghi chú
+                          Ghi chú <span className="text-red-500">*</span>
                         </Label>
                         <Input
                           id="notes"
                           name="notes"
                           placeholder="VD: Chỉ dành cho cá dưới 1 tuổi"
                           value={boxFormData.notes}
-                          onChange={handleBoxFormChange}
+                          onChange={(e) => {
+                            handleBoxFormChange(e);
+                            // Clear error when user starts typing
+                            if (boxFormErrors.notes) {
+                              setBoxFormErrors((prev) => {
+                                // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                                const { notes: _, ...rest } = prev;
+                                return rest;
+                              });
+                            }
+                          }}
+                          onBlur={() => {
+                            // Validate on blur
+                            if (!boxFormData.notes.trim()) {
+                              setBoxFormErrors((prev) => ({
+                                ...prev,
+                                notes: "Vui lòng nhập ghi chú",
+                              }));
+                            }
+                          }}
                           disabled={isCreatingBox}
-                          className="border-gray-300 focus:border-teal-500"
+                          className={`border-gray-300 focus:border-teal-500 ${
+                            boxFormErrors.notes ? "border-red-500" : ""
+                          }`}
                         />
+                        {boxFormErrors.notes && (
+                          <p className="text-sm text-red-500">
+                            {boxFormErrors.notes}
+                          </p>
+                        )}
                       </div>
 
                       <div className="rounded-lg bg-blue-50 p-4">
@@ -1012,24 +1291,44 @@ export default function ShippingManagement() {
 
                 <div className="space-y-2">
                   <Label htmlFor="maxCount" className="text-sm font-medium">
-                    Số lượng cá tối đa
+                    Số lượng cá tối đa <span className="text-red-500">*</span>
                   </Label>
                   <InputNumber
-                    value={
-                      ruleFormData.maxCount
-                        ? Number(ruleFormData.maxCount)
-                        : undefined
-                    }
-                    onChange={(value) =>
+                    value={ruleFormData.maxCount}
+                    onChange={(value) => {
                       setRuleFormData((prev) => ({
                         ...prev,
-                        maxCount: value || null,
-                      }))
-                    }
+                        maxCount: value || 0,
+                      }));
+                      // Clear error when user starts typing
+                      if (ruleFormErrors.maxCount) {
+                        setRuleFormErrors((prev) => {
+                          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                          const { maxCount: _, ...rest } = prev;
+                          return rest;
+                        });
+                      }
+                    }}
+                    onBlur={() => {
+                      // Validate on blur
+                      if (ruleFormData.maxCount <= 0) {
+                        setRuleFormErrors((prev) => ({
+                          ...prev,
+                          maxCount: "Số lượng cá tối đa phải lớn hơn 0",
+                        }));
+                      }
+                    }}
                     placeholder="VD: 5"
                     disabled={isCreatingRule || isUpdatingRule}
-                    className="border-gray-300 focus:border-teal-500"
+                    className={`border-gray-300 focus:border-teal-500 ${
+                      ruleFormErrors.maxCount ? "border-red-500" : ""
+                    }`}
                   />
+                  {ruleFormErrors.maxCount && (
+                    <p className="text-sm text-red-500">
+                      {ruleFormErrors.maxCount}
+                    </p>
+                  )}
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
@@ -1038,104 +1337,216 @@ export default function ShippingManagement() {
                       htmlFor="minLengthCm"
                       className="text-sm font-medium"
                     >
-                      Chiều dài tối thiểu (cm)
+                      Chiều dài tối thiểu (cm){" "}
+                      <span className="text-red-500">*</span>
                     </Label>
                     <InputNumber
-                      value={
-                        ruleFormData.minLengthCm
-                          ? Number(ruleFormData.minLengthCm)
-                          : undefined
-                      }
-                      onChange={(value) =>
+                      value={ruleFormData.minLengthCm}
+                      onChange={(value) => {
                         setRuleFormData((prev) => ({
                           ...prev,
-                          minLengthCm: value || null,
-                        }))
-                      }
+                          minLengthCm: value || 0,
+                        }));
+                        // Clear error when user starts typing
+                        if (ruleFormErrors.minLengthCm) {
+                          setRuleFormErrors((prev) => {
+                            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                            const { minLengthCm: _, ...rest } = prev;
+                            return rest;
+                          });
+                        }
+                      }}
+                      onBlur={() => {
+                        // Validate on blur
+                        if (ruleFormData.minLengthCm <= 0) {
+                          setRuleFormErrors((prev) => ({
+                            ...prev,
+                            minLengthCm: "Chiều dài tối thiểu phải lớn hơn 0",
+                          }));
+                        }
+                      }}
                       placeholder="VD: 10"
                       disabled={isCreatingRule || isUpdatingRule}
-                      className="border-gray-300 focus:border-teal-500"
+                      className={`border-gray-300 focus:border-teal-500 ${
+                        ruleFormErrors.minLengthCm ? "border-red-500" : ""
+                      }`}
                     />
+                    {ruleFormErrors.minLengthCm && (
+                      <p className="text-sm text-red-500">
+                        {ruleFormErrors.minLengthCm}
+                      </p>
+                    )}
                   </div>
                   <div className="space-y-2">
                     <Label
                       htmlFor="maxLengthCm"
                       className="text-sm font-medium"
                     >
-                      Chiều dài tối đa (cm)
+                      Chiều dài tối đa (cm){" "}
+                      <span className="text-red-500">*</span>
                     </Label>
                     <InputNumber
-                      value={
-                        ruleFormData.maxLengthCm
-                          ? Number(ruleFormData.maxLengthCm)
-                          : undefined
-                      }
-                      onChange={(value) =>
+                      value={ruleFormData.maxLengthCm}
+                      onChange={(value) => {
                         setRuleFormData((prev) => ({
                           ...prev,
-                          maxLengthCm: value || null,
-                        }))
-                      }
+                          maxLengthCm: value || 0,
+                        }));
+                        // Clear error when user starts typing
+                        if (ruleFormErrors.maxLengthCm) {
+                          setRuleFormErrors((prev) => {
+                            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                            const { maxLengthCm: _, ...rest } = prev;
+                            return rest;
+                          });
+                        }
+                      }}
+                      onBlur={() => {
+                        // Validate on blur
+                        if (ruleFormData.maxLengthCm <= 0) {
+                          setRuleFormErrors((prev) => ({
+                            ...prev,
+                            maxLengthCm: "Chiều dài tối đa phải lớn hơn 0",
+                          }));
+                        }
+                      }}
                       placeholder="VD: 50"
                       disabled={isCreatingRule || isUpdatingRule}
-                      className="border-gray-300 focus:border-teal-500"
+                      className={`border-gray-300 focus:border-teal-500 ${
+                        ruleFormErrors.maxLengthCm ? "border-red-500" : ""
+                      }`}
                     />
+                    {ruleFormErrors.maxLengthCm && (
+                      <p className="text-sm text-red-500">
+                        {ruleFormErrors.maxLengthCm}
+                      </p>
+                    )}
                   </div>
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="maxWeightLb" className="text-sm font-medium">
-                    Cân nặng tối đa (Lb)
+                    Cân nặng tối đa (Lb) <span className="text-red-500">*</span>
                   </Label>
                   <InputNumber
-                    value={
-                      ruleFormData.maxWeightLb
-                        ? Number(ruleFormData.maxWeightLb)
-                        : undefined
-                    }
-                    onChange={(value) =>
+                    value={ruleFormData.maxWeightLb}
+                    onChange={(value) => {
                       setRuleFormData((prev) => ({
                         ...prev,
-                        maxWeightLb: value || null,
-                      }))
-                    }
+                        maxWeightLb: value || 0,
+                      }));
+                      // Clear error when user starts typing
+                      if (ruleFormErrors.maxWeightLb) {
+                        setRuleFormErrors((prev) => {
+                          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                          const { maxWeightLb: _, ...rest } = prev;
+                          return rest;
+                        });
+                      }
+                    }}
+                    onBlur={() => {
+                      // Validate on blur
+                      if (ruleFormData.maxWeightLb <= 0) {
+                        setRuleFormErrors((prev) => ({
+                          ...prev,
+                          maxWeightLb: "Cân nặng tối đa phải lớn hơn 0",
+                        }));
+                      }
+                    }}
                     placeholder="VD: 10"
                     disabled={isCreatingRule || isUpdatingRule}
-                    className="border-gray-300 focus:border-teal-500"
+                    className={`border-gray-300 focus:border-teal-500 ${
+                      ruleFormErrors.maxWeightLb ? "border-red-500" : ""
+                    }`}
                   />
+                  {ruleFormErrors.maxWeightLb && (
+                    <p className="text-sm text-red-500">
+                      {ruleFormErrors.maxWeightLb}
+                    </p>
+                  )}
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="priority" className="text-sm font-medium">
-                    Ưu tiên (Priority)
+                    Ưu tiên (Priority) <span className="text-red-500">*</span>
                   </Label>
                   <InputNumber
                     value={ruleFormData.priority}
-                    onChange={(value) =>
+                    onChange={(value) => {
                       setRuleFormData((prev) => ({
                         ...prev,
                         priority: value || 0,
-                      }))
-                    }
+                      }));
+                      // Clear error when user starts typing
+                      if (ruleFormErrors.priority) {
+                        setRuleFormErrors((prev) => {
+                          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                          const { priority: _, ...rest } = prev;
+                          return rest;
+                        });
+                      }
+                    }}
+                    onBlur={() => {
+                      // Validate on blur
+                      if (ruleFormData.priority <= 0) {
+                        setRuleFormErrors((prev) => ({
+                          ...prev,
+                          priority: "Ưu tiên phải lớn hơn 0",
+                        }));
+                      }
+                    }}
                     placeholder="VD: 1"
                     disabled={isCreatingRule || isUpdatingRule}
-                    className="border-gray-300 focus:border-teal-500"
+                    className={`border-gray-300 focus:border-teal-500 ${
+                      ruleFormErrors.priority ? "border-red-500" : ""
+                    }`}
                   />
+                  {ruleFormErrors.priority && (
+                    <p className="text-sm text-red-500">
+                      {ruleFormErrors.priority}
+                    </p>
+                  )}
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="extraInfo" className="text-sm font-medium">
-                    Thông tin bổ sung
+                    Thông tin bổ sung <span className="text-red-500">*</span>
                   </Label>
                   <Input
                     id="extraInfo"
                     name="extraInfo"
                     placeholder="VD: Chỉ dành cho cá nhỏ"
                     value={ruleFormData.extraInfo}
-                    onChange={handleRuleFormChange}
+                    onChange={(e) => {
+                      handleRuleFormChange(e);
+                      // Clear error when user starts typing
+                      if (ruleFormErrors.extraInfo) {
+                        setRuleFormErrors((prev) => {
+                          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                          const { extraInfo: _, ...rest } = prev;
+                          return rest;
+                        });
+                      }
+                    }}
+                    onBlur={() => {
+                      // Validate on blur
+                      if (!ruleFormData.extraInfo.trim()) {
+                        setRuleFormErrors((prev) => ({
+                          ...prev,
+                          extraInfo: "Vui lòng nhập thông tin bổ sung",
+                        }));
+                      }
+                    }}
                     disabled={isCreatingRule || isUpdatingRule}
-                    className="border-gray-300 focus:border-teal-500"
+                    className={`border-gray-300 focus:border-teal-500 ${
+                      ruleFormErrors.extraInfo ? "border-red-500" : ""
+                    }`}
                   />
+                  {ruleFormErrors.extraInfo && (
+                    <p className="text-sm text-red-500">
+                      {ruleFormErrors.extraInfo}
+                    </p>
+                  )}
                 </div>
 
                 <div className="flex items-center gap-2">
@@ -1240,10 +1651,36 @@ export default function ShippingManagement() {
                           name="name"
                           placeholder="VD: Nội thành TP HCM"
                           value={distanceFormData.name}
-                          onChange={handleDistanceFormChange}
+                          onChange={(e) => {
+                            handleDistanceFormChange(e);
+                            // Clear error when user starts typing
+                            if (distanceFormErrors.name) {
+                              setDistanceFormErrors((prev) => {
+                                // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                                const { name: _, ...rest } = prev;
+                                return rest;
+                              });
+                            }
+                          }}
+                          onBlur={() => {
+                            // Validate on blur
+                            if (!distanceFormData.name.trim()) {
+                              setDistanceFormErrors((prev) => ({
+                                ...prev,
+                                name: "Vui lòng nhập tên khoảng cách",
+                              }));
+                            }
+                          }}
                           disabled={isCreatingDistance || isUpdatingDistance}
-                          className="border border-gray-300 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 h-9 sm:h-10 rounded-md text-sm"
+                          className={`border border-gray-300 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 h-9 sm:h-10 rounded-md text-sm ${
+                            distanceFormErrors.name ? "border-red-500" : ""
+                          }`}
                         />
+                        {distanceFormErrors.name && (
+                          <p className="text-xs text-red-500">
+                            {distanceFormErrors.name}
+                          </p>
+                        )}
                       </div>
 
                       <div className="border-t border-gray-200 my-4"></div>
@@ -1278,44 +1715,109 @@ export default function ShippingManagement() {
                                 htmlFor="minDistanceKm"
                                 className="text-xs font-semibold text-gray-600"
                               >
-                                Từ (km)
+                                Từ (km) <span className="text-red-500">*</span>
                               </Label>
                               <InputNumber
                                 value={distanceFormData.minDistanceKm}
-                                onChange={(value) =>
+                                onChange={(value) => {
                                   setDistanceFormData((prev) => ({
                                     ...prev,
                                     minDistanceKm: value || 0,
-                                  }))
-                                }
+                                  }));
+                                  // Clear error when user starts typing
+                                  if (distanceFormErrors.minDistanceKm) {
+                                    setDistanceFormErrors((prev) => {
+                                      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                                      const { minDistanceKm: _, ...rest } =
+                                        prev;
+                                      return rest;
+                                    });
+                                  }
+                                }}
+                                onBlur={() => {
+                                  // Validate on blur
+                                  if (distanceFormData.minDistanceKm < 0) {
+                                    setDistanceFormErrors((prev) => ({
+                                      ...prev,
+                                      minDistanceKm:
+                                        "Khoảng cách tối thiểu không thể âm",
+                                    }));
+                                  }
+                                }}
                                 placeholder="0"
                                 disabled={
                                   isCreatingDistance || isUpdatingDistance
                                 }
-                                className="border border-blue-200 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 bg-white h-8 sm:h-9 text-sm"
+                                className={`border border-blue-200 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 bg-white h-8 sm:h-9 text-sm ${
+                                  distanceFormErrors.minDistanceKm
+                                    ? "border-red-500"
+                                    : ""
+                                }`}
                               />
+                              {distanceFormErrors.minDistanceKm && (
+                                <p className="text-xs text-red-500">
+                                  {distanceFormErrors.minDistanceKm}
+                                </p>
+                              )}
                             </div>
                             <div className="space-y-1">
                               <Label
                                 htmlFor="maxDistanceKm"
                                 className="text-xs font-semibold text-gray-600"
                               >
-                                Đến (km)
+                                Đến (km) <span className="text-red-500">*</span>
                               </Label>
                               <InputNumber
                                 value={distanceFormData.maxDistanceKm}
-                                onChange={(value) =>
+                                onChange={(value) => {
                                   setDistanceFormData((prev) => ({
                                     ...prev,
                                     maxDistanceKm: value || 0,
-                                  }))
-                                }
+                                  }));
+                                  // Clear error when user starts typing
+                                  if (distanceFormErrors.maxDistanceKm) {
+                                    setDistanceFormErrors((prev) => {
+                                      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                                      const { maxDistanceKm: _, ...rest } =
+                                        prev;
+                                      return rest;
+                                    });
+                                  }
+                                }}
+                                onBlur={() => {
+                                  // Validate on blur
+                                  if (distanceFormData.maxDistanceKm <= 0) {
+                                    setDistanceFormErrors((prev) => ({
+                                      ...prev,
+                                      maxDistanceKm:
+                                        "Khoảng cách tối đa phải lớn hơn 0",
+                                    }));
+                                  } else if (
+                                    distanceFormData.maxDistanceKm <
+                                    distanceFormData.minDistanceKm
+                                  ) {
+                                    setDistanceFormErrors((prev) => ({
+                                      ...prev,
+                                      maxDistanceKm:
+                                        "Khoảng cách tối đa phải lớn hơn hoặc bằng khoảng cách tối thiểu",
+                                    }));
+                                  }
+                                }}
                                 placeholder="2000"
                                 disabled={
                                   isCreatingDistance || isUpdatingDistance
                                 }
-                                className="border border-blue-200 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 bg-white h-8 sm:h-9 text-sm"
+                                className={`border border-blue-200 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 bg-white h-8 sm:h-9 text-sm ${
+                                  distanceFormErrors.maxDistanceKm
+                                    ? "border-red-500"
+                                    : ""
+                                }`}
                               />
+                              {distanceFormErrors.maxDistanceKm && (
+                                <p className="text-xs text-red-500">
+                                  {distanceFormErrors.maxDistanceKm}
+                                </p>
+                              )}
                             </div>
                           </div>
                         </div>
@@ -1334,22 +1836,49 @@ export default function ShippingManagement() {
                           <div className="relative">
                             <InputNumber
                               value={distanceFormData.pricePerKm}
-                              onChange={(value) =>
+                              onChange={(value) => {
+                                const numValue = value || 0;
                                 setDistanceFormData((prev) => ({
                                   ...prev,
-                                  pricePerKm: value || 0,
-                                }))
-                              }
+                                  pricePerKm: numValue,
+                                }));
+                                // Clear error when user starts typing
+                                if (distanceFormErrors.pricePerKm) {
+                                  setDistanceFormErrors((prev) => {
+                                    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                                    const { pricePerKm: _, ...rest } = prev;
+                                    return rest;
+                                  });
+                                }
+                              }}
+                              onBlur={() => {
+                                // Validate on blur
+                                if (distanceFormData.pricePerKm <= 0) {
+                                  setDistanceFormErrors((prev) => ({
+                                    ...prev,
+                                    pricePerKm: "Giá/km phải lớn hơn 0",
+                                  }));
+                                }
+                              }}
                               placeholder="VD: 2000"
                               disabled={
                                 isCreatingDistance || isUpdatingDistance
                               }
-                              className="border border-gray-300 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 h-8 sm:h-10 rounded-md pr-7 sm:pr-8 text-sm w-full"
+                              className={`border border-gray-300 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 h-8 sm:h-10 rounded-md pr-7 sm:pr-8 text-sm w-full ${
+                                distanceFormErrors.pricePerKm
+                                  ? "border-red-500"
+                                  : ""
+                              }`}
                             />
                             <span className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 text-xs font-medium text-gray-500">
                               ₫
                             </span>
                           </div>
+                          {distanceFormErrors.pricePerKm && (
+                            <p className="text-xs text-red-500">
+                              {distanceFormErrors.pricePerKm}
+                            </p>
+                          )}
                         </div>
                         <div className="space-y-2 min-w-0">
                           <Label
@@ -1362,22 +1891,49 @@ export default function ShippingManagement() {
                           <div className="relative">
                             <InputNumber
                               value={distanceFormData.baseFee}
-                              onChange={(value) =>
+                              onChange={(value) => {
+                                const numValue = value || 0;
                                 setDistanceFormData((prev) => ({
                                   ...prev,
-                                  baseFee: value || 0,
-                                }))
-                              }
+                                  baseFee: numValue,
+                                }));
+                                // Clear error when user starts typing
+                                if (distanceFormErrors.baseFee) {
+                                  setDistanceFormErrors((prev) => {
+                                    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                                    const { baseFee: _, ...rest } = prev;
+                                    return rest;
+                                  });
+                                }
+                              }}
+                              onBlur={() => {
+                                // Validate on blur
+                                if (distanceFormData.baseFee <= 0) {
+                                  setDistanceFormErrors((prev) => ({
+                                    ...prev,
+                                    baseFee: "Phí cơ sở phải lớn hơn 0",
+                                  }));
+                                }
+                              }}
                               placeholder="VD: 30000"
                               disabled={
                                 isCreatingDistance || isUpdatingDistance
                               }
-                              className="border border-gray-300 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 h-8 sm:h-10 rounded-md pr-7 sm:pr-8 text-sm w-full"
+                              className={`border border-gray-300 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 h-8 sm:h-10 rounded-md pr-7 sm:pr-8 text-sm w-full ${
+                                distanceFormErrors.baseFee
+                                  ? "border-red-500"
+                                  : ""
+                              }`}
                             />
                             <span className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 text-xs font-medium text-gray-500">
                               ₫
                             </span>
                           </div>
+                          {distanceFormErrors.baseFee && (
+                            <p className="text-xs text-red-500">
+                              {distanceFormErrors.baseFee}
+                            </p>
+                          )}
                         </div>
                       </div>
 

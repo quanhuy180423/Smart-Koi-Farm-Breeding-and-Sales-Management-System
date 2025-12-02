@@ -35,7 +35,6 @@ import {
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { DatePickerFilter } from "@/components/ui/DatePickerFilter";
-import { ApiError } from "@/lib/api/apiClient";
 import VarietySelectionDialog from "@/components/manager/VarietySelectionDialog";
 import Image from "next/image";
 import { useUploadImage, useUploadVideo } from "@/hooks/useUploadFile";
@@ -230,11 +229,7 @@ export function EditKoiModal({ isOpen, onOpenChange, koi }: EditKoiModalProps) {
         },
         {
           onSuccess: () => {
-            toast.success("Cập nhật thông tin cá thành công");
             onOpenChange(false);
-          },
-          onError: (error: ApiError) => {
-            toast.error(error.message || "Có lỗi xảy ra khi cập nhật");
           },
         },
       );
