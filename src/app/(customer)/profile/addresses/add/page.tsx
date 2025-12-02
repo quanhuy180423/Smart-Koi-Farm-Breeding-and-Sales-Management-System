@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import * as z from "zod";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,6 +26,20 @@ const CheckoutMap = dynamic(() => import("../components/CheckoutMap"), {
   ),
 });
 
+// Zod schema for address validation
+const addressSchema = z.object({
+  city: z.string().min(1, "Thành phố không được để trống"),
+  ward: z.string().min(1, "Phường/Xã không được để trống"),
+  streetAddress: z.string().min(1, "Số nhà/Đường phố không được để trống"),
+  recipientPhone: z
+    .string()
+    .min(1, "Số điện thoại không được để trống")
+    .regex(
+      /^0\d{9}$/,
+      "Số điện thoại không hợp lệ (cần 10 chữ số, bắt đầu từ 0)",
+    ),
+});
+
 export default function AddAddressPage() {
   const router = useRouter();
   const { mutate: createAddress, isPending } = useCreateAddress();
@@ -39,6 +54,18 @@ export default function AddAddressPage() {
     recipientPhone: "",
     isDefault: false,
   });
+
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+
+  const clearFieldError = (fieldName: string) => {
+    if (formErrors[fieldName]) {
+      setFormErrors((prev) => {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { [fieldName]: _, ...rest } = prev;
+        return rest;
+      });
+    }
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -59,6 +86,8 @@ export default function AddAddressPage() {
       }
       return updated;
     });
+    // Clear field error when user types
+    clearFieldError(name);
   };
 
   const handleCheckboxChange = (checked: boolean) => {
@@ -79,25 +108,25 @@ export default function AddAddressPage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validate required fields
-    if (
-      !formData.city ||
-      !formData.ward ||
-      !formData.streetAddress ||
-      !formData.recipientPhone
-    ) {
-      toast.error("Vui lòng điền đầy đủ thông tin");
+    // Validate using Zod
+    const validationResult = addressSchema.safeParse({
+      city: formData.city,
+      ward: formData.ward,
+      streetAddress: formData.streetAddress,
+      recipientPhone: formData.recipientPhone,
+    });
+
+    if (!validationResult.success) {
+      const errors: Record<string, string> = {};
+      validationResult.error.errors.forEach((error) => {
+        errors[error.path[0] as string] = error.message;
+      });
+      setFormErrors(errors);
       return;
     }
 
-    // Validate phone
-    const phoneRegex = /^0\d{9}$/;
-    if (!phoneRegex.test(formData.recipientPhone)) {
-      toast.error(
-        "Số điện thoại không hợp lệ (cần có 10 chữ số, bắt đầu từ 0)",
-      );
-      return;
-    }
+    // Clear errors on successful validation
+    setFormErrors({});
 
     createAddress(formData, {
       onSuccess: () => {
@@ -168,8 +197,11 @@ export default function AddAddressPage() {
                       value={formData.city}
                       onChange={handleInputChange}
                       disabled={isPending}
-                      className="h-9"
+                      className={`h-9 ${formErrors.city ? "border-red-500" : ""}`}
                     />
+                    {formErrors.city && (
+                      <p className="text-sm text-red-500">{formErrors.city}</p>
+                    )}
                   </div>
 
                   {/* Ward */}
@@ -184,8 +216,11 @@ export default function AddAddressPage() {
                       value={formData.ward}
                       onChange={handleInputChange}
                       disabled={isPending}
-                      className="h-9"
+                      className={`h-9 ${formErrors.ward ? "border-red-500" : ""}`}
                     />
+                    {formErrors.ward && (
+                      <p className="text-sm text-red-500">{formErrors.ward}</p>
+                    )}
                   </div>
 
                   {/* Street Address */}
@@ -200,8 +235,13 @@ export default function AddAddressPage() {
                       value={formData.streetAddress}
                       onChange={handleInputChange}
                       disabled={isPending}
-                      className="h-9"
+                      className={`h-9 ${formErrors.streetAddress ? "border-red-500" : ""}`}
                     />
+                    {formErrors.streetAddress && (
+                      <p className="text-sm text-red-500">
+                        {formErrors.streetAddress}
+                      </p>
+                    )}
                   </div>
 
                   {/* Phone */}
@@ -217,8 +257,13 @@ export default function AddAddressPage() {
                       onChange={handleInputChange}
                       disabled={isPending}
                       maxLength={10}
-                      className="h-9"
+                      className={`h-9 ${formErrors.recipientPhone ? "border-red-500" : ""}`}
                     />
+                    {formErrors.recipientPhone && (
+                      <p className="text-sm text-red-500">
+                        {formErrors.recipientPhone}
+                      </p>
+                    )}
                   </div>
 
                   {/* Default Address Checkbox */}
