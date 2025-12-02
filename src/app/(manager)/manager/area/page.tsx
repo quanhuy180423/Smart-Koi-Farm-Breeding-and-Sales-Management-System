@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import * as z from "zod";
 import {
   useAddArea,
   useGetAreas,
@@ -37,10 +38,18 @@ import {
 import { AreaResponse, AreaSearchParams } from "@/lib/api/services/fetchArea";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import toast from "react-hot-toast";
 import { PAGE_SIZE_OPTIONS_DEFAULT } from "@/components/common/PaginationSection";
 import { useDebounce } from "@/hooks/useDebounce";
 import { PaginationWithLinks } from "@/components/pagination";
+
+// Zod validation schema
+const areaSchema = z.object({
+  areaName: z.string().min(1, "Vui lòng nhập tên khu vực"),
+  totalAreaSQM: z.number().refine((val) => val >= 0, {
+    message: "Diện tích không thể âm",
+  }),
+  description: z.string().optional(),
+});
 
 export default function AreaManagement() {
   const [searchTerm, setSearchTerm] = useState<string>("");
@@ -73,6 +82,14 @@ export default function AreaManagement() {
 
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
   const [areaToDelete, setAreaToDelete] = useState<AreaResponse | null>(null);
+
+  // Error states for forms
+  const [addFormErrors, setAddFormErrors] = useState<Record<string, string>>(
+    {},
+  );
+  const [editFormErrors, setEditFormErrors] = useState<Record<string, string>>(
+    {},
+  );
 
   useEffect(() => {
     setSearchParams((prev) => ({
@@ -147,8 +164,18 @@ export default function AreaManagement() {
   };
 
   const handleAddArea = async () => {
-    if (!newArea.areaName || !newArea.totalAreaSQM) {
-      toast.error("Vui lòng điền đầy đủ thông tin bắt buộc");
+    const result = areaSchema.safeParse({
+      areaName: newArea.areaName,
+      totalAreaSQM: newArea.totalAreaSQM ? Number(newArea.totalAreaSQM) : 0,
+      description: newArea.description,
+    });
+
+    if (!result.success) {
+      const errors: Record<string, string> = {};
+      result.error.errors.forEach((error) => {
+        errors[error.path[0] as string] = error.message;
+      });
+      setAddFormErrors(errors);
       return;
     }
 
@@ -160,13 +187,25 @@ export default function AreaManagement() {
       });
       setIsAddModalOpen(false);
       setNewArea({ areaName: "", totalAreaSQM: "", description: "" });
+      setAddFormErrors({});
     } catch {}
   };
 
   const handleUpdateArea = async () => {
     if (!editingArea) return;
-    if (!editingArea.areaName || !editingArea.totalAreaSQM) {
-      toast.error("Vui lòng điền đầy đủ thông tin bắt buộc");
+
+    const result = areaSchema.safeParse({
+      areaName: editingArea.areaName,
+      totalAreaSQM: Number(editingArea.totalAreaSQM),
+      description: editingArea.description,
+    });
+
+    if (!result.success) {
+      const errors: Record<string, string> = {};
+      result.error.errors.forEach((error) => {
+        errors[error.path[0] as string] = error.message;
+      });
+      setEditFormErrors(errors);
       return;
     }
 
@@ -181,6 +220,7 @@ export default function AreaManagement() {
       });
       setIsEditModalOpen(false);
       setEditingArea(null);
+      setEditFormErrors({});
     } catch {}
   };
 
@@ -401,7 +441,15 @@ export default function AreaManagement() {
         </DialogContent>
       </Dialog>
 
-      <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
+      <Dialog
+        open={isAddModalOpen}
+        onOpenChange={(open) => {
+          setIsAddModalOpen(open);
+          if (!open) {
+            setAddFormErrors({});
+          }
+        }}
+      >
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>Thêm khu vực mới</DialogTitle>
@@ -412,33 +460,95 @@ export default function AreaManagement() {
           <div className="space-y-6">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="areaName">Tên khu vực *</Label>
+                <Label htmlFor="areaName">
+                  Tên khu vực <span className="text-red-500">*</span>
+                </Label>
                 <Input
                   id="areaName"
                   placeholder="Nhập tên khu vực..."
                   value={newArea.areaName}
-                  onChange={(e) =>
-                    setNewArea({ ...newArea, areaName: e.target.value })
-                  }
+                  onChange={(e) => {
+                    setNewArea({ ...newArea, areaName: e.target.value });
+                    // Clear error when user starts typing
+                    if (addFormErrors.areaName) {
+                      setAddFormErrors((prev) => {
+                        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                        const { areaName: _, ...rest } = prev;
+                        return rest;
+                      });
+                    }
+                  }}
+                  onBlur={() => {
+                    // Validate on blur
+                    if (!newArea.areaName.trim()) {
+                      setAddFormErrors((prev) => ({
+                        ...prev,
+                        areaName: "Vui lòng nhập tên khu vực",
+                      }));
+                    }
+                  }}
+                  className={`border-gray-300 focus:border-teal-500 ${
+                    addFormErrors.areaName ? "border-red-500" : ""
+                  }`}
                 />
+                {addFormErrors.areaName && (
+                  <p className="text-sm text-red-500">
+                    {addFormErrors.areaName}
+                  </p>
+                )}
               </div>
               <div className="space-y-2">
-                <Label htmlFor="totalAreaSQM">Diện tích (m²) *</Label>
+                <Label htmlFor="totalAreaSQM">
+                  Diện tích (m²) <span className="text-red-500">*</span>
+                </Label>
                 <InputNumber
                   value={
                     newArea.totalAreaSQM
                       ? Number(newArea.totalAreaSQM)
                       : undefined
                   }
-                  onChange={(value) =>
+                  onChange={(value) => {
                     setNewArea({
                       ...newArea,
                       totalAreaSQM: value ? String(value) : "",
-                    })
-                  }
+                    });
+                    // Clear error when user starts typing
+                    if (addFormErrors.totalAreaSQM) {
+                      setAddFormErrors((prev) => {
+                        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                        const { totalAreaSQM: _, ...rest } = prev;
+                        return rest;
+                      });
+                    }
+                  }}
+                  onBlur={() => {
+                    // Validate on blur
+                    const value = newArea.totalAreaSQM
+                      ? Number(newArea.totalAreaSQM)
+                      : 0;
+                    if (!newArea.totalAreaSQM) {
+                      setAddFormErrors((prev) => ({
+                        ...prev,
+                        totalAreaSQM: "Vui lòng nhập diện tích",
+                      }));
+                    } else if (value < 0) {
+                      setAddFormErrors((prev) => ({
+                        ...prev,
+                        totalAreaSQM: "Diện tích không thể âm",
+                      }));
+                    }
+                  }}
                   placeholder="Nhập diện tích"
                   allowDecimal={true}
+                  className={`border-gray-300 focus:border-teal-500 ${
+                    addFormErrors.totalAreaSQM ? "border-red-500" : ""
+                  }`}
                 />
+                {addFormErrors.totalAreaSQM && (
+                  <p className="text-sm text-red-500">
+                    {addFormErrors.totalAreaSQM}
+                  </p>
+                )}
               </div>
             </div>
             <div className="space-y-2">
@@ -468,7 +578,15 @@ export default function AreaManagement() {
         </DialogContent>
       </Dialog>
 
-      <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
+      <Dialog
+        open={isEditModalOpen}
+        onOpenChange={(open) => {
+          setIsEditModalOpen(open);
+          if (!open) {
+            setEditFormErrors({});
+          }
+        }}
+      >
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>Chỉnh sửa khu vực</DialogTitle>
@@ -480,30 +598,84 @@ export default function AreaManagement() {
             <div className="space-y-6">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="editAreaName">Tên khu vực *</Label>
+                  <Label htmlFor="editAreaName">
+                    Tên khu vực <span className="text-red-500">*</span>
+                  </Label>
                   <Input
                     id="editAreaName"
                     value={editingArea.areaName}
-                    onChange={(e) =>
+                    onChange={(e) => {
                       setEditingArea({
                         ...editingArea,
                         areaName: e.target.value,
-                      })
-                    }
+                      });
+                      // Clear error when user starts typing
+                      if (editFormErrors.areaName) {
+                        setEditFormErrors((prev) => {
+                          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                          const { areaName: _, ...rest } = prev;
+                          return rest;
+                        });
+                      }
+                    }}
+                    onBlur={() => {
+                      // Validate on blur
+                      if (!editingArea.areaName.trim()) {
+                        setEditFormErrors((prev) => ({
+                          ...prev,
+                          areaName: "Vui lòng nhập tên khu vực",
+                        }));
+                      }
+                    }}
+                    className={`border-gray-300 focus:border-teal-500 ${
+                      editFormErrors.areaName ? "border-red-500" : ""
+                    }`}
                   />
+                  {editFormErrors.areaName && (
+                    <p className="text-sm text-red-500">
+                      {editFormErrors.areaName}
+                    </p>
+                  )}
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="editTotalArea">Diện tích (m²) *</Label>
+                  <Label htmlFor="editTotalArea">
+                    Diện tích (m²) <span className="text-red-500">*</span>
+                  </Label>
                   <InputNumber
                     value={editingArea.totalAreaSQM}
-                    onChange={(value) =>
+                    onChange={(value) => {
                       setEditingArea({
                         ...editingArea,
                         totalAreaSQM: value || 0,
-                      })
-                    }
+                      });
+                      // Clear error when user starts typing
+                      if (editFormErrors.totalAreaSQM) {
+                        setEditFormErrors((prev) => {
+                          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                          const { totalAreaSQM: _, ...rest } = prev;
+                          return rest;
+                        });
+                      }
+                    }}
+                    onBlur={() => {
+                      // Validate on blur
+                      if (editingArea.totalAreaSQM <= 0) {
+                        setEditFormErrors((prev) => ({
+                          ...prev,
+                          totalAreaSQM: "Diện tích không thể âm",
+                        }));
+                      }
+                    }}
                     allowDecimal={true}
+                    className={`border-gray-300 focus:border-teal-500 ${
+                      editFormErrors.totalAreaSQM ? "border-red-500" : ""
+                    }`}
                   />
+                  {editFormErrors.totalAreaSQM && (
+                    <p className="text-sm text-red-500">
+                      {editFormErrors.totalAreaSQM}
+                    </p>
+                  )}
                 </div>
               </div>
               <div className="space-y-2">

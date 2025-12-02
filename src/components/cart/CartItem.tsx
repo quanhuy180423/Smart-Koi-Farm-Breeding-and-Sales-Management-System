@@ -13,7 +13,6 @@ import { CartItemResponse } from "@/lib/api/services/fetchCart";
 import { useUpdateItem, useDeleteItem } from "@/hooks/useCart";
 import { formatCurrency } from "@/lib/utils/numbers/formatCurrency";
 import { getFishSizeLabel } from "@/lib/utils/enum";
-import { formatKoiAge } from "@/lib/utils/dates/age";
 import { cn } from "@/lib/utils";
 
 interface CartItemProps {

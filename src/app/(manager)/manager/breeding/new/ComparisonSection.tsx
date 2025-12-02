@@ -90,12 +90,12 @@ export default function ComparisonSection({
         },
         {
           label: "Tỷ lệ đột biến dự kiến:",
-          value: `${analysisData.predictedMutationRate.toFixed(1)}%`,
+          value: `${analysisData.predictedMutationRate?.toFixed(1) || 0}%`,
           color: "text-amber-600",
         },
         {
-          label: "Khả năng khớp với đột biến mong muốn:",
-          value: `${analysisData.predictedMatchToDesiredMutationType.toFixed(1)}%`,
+          label: "Tỷ lệ cá con chất lượng cao:",
+          value: `${analysisData?.predictedHighQualifiedRate?.toFixed(1) || 0}%`,
           color: "text-purple-600",
         },
       ]
@@ -105,17 +105,17 @@ export default function ComparisonSection({
     ? [
         {
           label: "Tỷ lệ thụ tinh dự kiến:",
-          value: `${analysisData.predictedFertilizationRate.toFixed(1)}%`,
+          value: `${analysisData.predictedFertilizationRate?.toFixed(1) || 0}%`,
           color: "text-blue-600",
         },
         {
           label: "Tỷ lệ nở dự kiến:",
-          value: `${analysisData.predictedHatchRate.toFixed(1)}%`,
+          value: `${analysisData.predictedHatchRate?.toFixed(1) || 0}%`,
           color: "text-blue-600",
         },
         {
           label: "Tỷ lệ sống sót dự kiến:",
-          value: `${analysisData.predictedSurvivalRate.toFixed(1)}%`,
+          value: `${analysisData.predictedSurvivalRate?.toFixed(1) || 0}%`,
           color: "text-blue-600",
         },
       ]

@@ -229,7 +229,6 @@ export default function AccountManagement() {
     try {
       // Call API to create new staff account
       await createStaffMutation.mutateAsync(requestData);
-      toast.success("Tạo tài khoản thành công!");
 
       setIsAddModalOpen(false);
       setNewAccount({
@@ -734,11 +733,6 @@ export default function AccountManagement() {
                 if (blockConfirmDialog.userId) {
                   toggleBlockMutation.mutate(blockConfirmDialog.userId, {
                     onSuccess: () => {
-                      toast.success(
-                        blockConfirmDialog.isCurrentlyBlocked
-                          ? "Bỏ chặn tài khoản thành công!"
-                          : "Chặn tài khoản thành công!",
-                      );
                       setBlockConfirmDialog({
                         isOpen: false,
                         userId: null,

@@ -66,7 +66,7 @@ export function useUpdateArea() {
       if (data.isSuccess) {
         queryClient.invalidateQueries({ queryKey: ["area"] });
       }
-      toast.success(data.message || "Chỉnh sửa khu vực thành công");
+      toast.success("Chỉnh sửa khu vực thành công");
     },
     onError: (error: ApiError) => {
       toast.error(error.message || "Có lỗi xảy ra khi cập nhật thông tin");
