@@ -20,6 +20,12 @@ export interface ConvertCartToOrderRequest {
   shippingFee?: number;
 }
 
+export interface PromotionResponse {
+  id: number;
+  code: string;
+  description: string;
+}
+
 export interface CartItemResponse {
   id: number;
   cartId: number;
@@ -28,6 +34,7 @@ export interface CartItemResponse {
   koiFish?: KoiFishResponse;
   packetFish?: PacketFishResponse;
   quantity: number;
+  unitPrice: number;
   itemTotalPrice: number;
   addedAt: string;
   updatedAt: string;
@@ -41,6 +48,9 @@ export interface CartResponse {
   updatedAt: string;
   cartItems: CartItemResponse[];
   totalPrice: number;
+  discountAmount: number;
+  finalPrice: number;
+  promotion?: PromotionResponse;
 }
 
 export const cartService = {

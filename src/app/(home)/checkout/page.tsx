@@ -251,9 +251,13 @@ export default function CheckoutPage() {
   const items = cartData?.cartItems || [];
   const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
   const totalPrice = cartData?.totalPrice || 0;
+  const discountAmount = cartData?.discountAmount || 0;
+  const finalPrice = cartData?.finalPrice || 0;
 
   const getTotalItems = () => totalItems;
   const getTotalPrice = () => totalPrice;
+  const getDiscountAmount = () => discountAmount;
+  const getFinalPrice = () => finalPrice;
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("vi-VN", {
@@ -950,14 +954,25 @@ export default function CheckoutPage() {
                   <Separator className="my-4" />
 
                   <div className="space-y-3 p-3 bg-muted/20 rounded-lg">
+                    {/* Tạm tính */}
                     <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">
-                        Tạm tính ({getTotalItems()} sản phẩm)
-                      </span>
-                      <span className="font-medium">
+                      <span className="text-muted-foreground">Tạm tính:</span>
+                      <span className="font-semibold">
                         {formatPrice(getTotalPrice())}
                       </span>
                     </div>
+
+                    {/* Giảm giá */}
+                    {getDiscountAmount() > 0 && (
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">Giảm giá:</span>
+                        <span className="font-semibold text-red-600">
+                          -{formatPrice(getDiscountAmount())}
+                        </span>
+                      </div>
+                    )}
+
+                    {/* Phí vận chuyển */}
                     <div className="flex justify-between text-sm items-center">
                       <div className="flex items-center gap-1.5">
                         <span className="text-muted-foreground">
@@ -994,16 +1009,15 @@ export default function CheckoutPage() {
                         )}
                       </div>
                     </div>
-                    <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">Thuế VAT</span>
-                      <span className="text-muted-foreground">Đã bao gồm</span>
-                    </div>
+
                     <Separator />
+
+                    {/* Tổng cộng */}
                     <div className="flex justify-between font-bold text-lg">
                       <span>Tổng cộng</span>
                       <span className="text-primary text-xl">
                         {formatPrice(
-                          getTotalPrice() +
+                          (getFinalPrice() || getTotalPrice()) +
                             (shippingFeeData?.totalShippingFee || 0),
                         )}
                       </span>
