@@ -1,7 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { ShoppingCart } from "lucide-react";
+import toast from "react-hot-toast";
 
 import {
   Sheet,
@@ -19,6 +21,7 @@ import { useGetCart } from "@/hooks/useCart";
 import { formatCurrency } from "@/lib/utils/numbers/formatCurrency";
 import { CartItem } from "./CartItem";
 import { useAuthStore } from "@/store/auth-store";
+import { SaleStatus } from "@/lib/api/services/fetchKoiFish";
 
 // Component Skeleton cho lúc loading
 const CartSkeleton = () => (
@@ -45,12 +48,36 @@ interface CartSheetProps {
 }
 
 export function CartSheet({ isOpen, onOpenChange }: CartSheetProps) {
+  const router = useRouter();
   const { data: cartData, isLoading, isError, refetch } = useGetCart();
   const { isAuthenticated } = useAuthStore();
 
   const items = cartData?.cartItems || [];
   const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
   const totalPrice = cartData?.totalPrice || 0;
+  const discountAmount = cartData?.discountAmount || 0;
+  const finalPrice = cartData?.finalPrice || 0;
+
+  // Kiểm tra xem có item nào hết hàng không
+  const hasOutOfStockItems = items.some((item) => {
+    const isKoi = !!item.koiFish;
+    return (
+      (isKoi && item.koiFish?.saleStatus === SaleStatus.SOLD) ||
+      (!isKoi && item.packetFish?.stockQuantity === 0)
+    );
+  });
+
+  // Handler cho nút Thanh toán
+  const handleCheckout = () => {
+    if (hasOutOfStockItems) {
+      toast.error(
+        "Giỏ hàng của bạn có sản phẩm đã hết hàng. Vui lòng xóa những sản phẩm này trước khi thanh toán.",
+      );
+      return;
+    }
+    onOpenChange?.(false);
+    router.push("/checkout");
+  };
 
   return (
     <Sheet open={isOpen} onOpenChange={onOpenChange}>
@@ -148,12 +175,29 @@ export function CartSheet({ isOpen, onOpenChange }: CartSheetProps) {
               {!isLoading && items.length > 0 && (
                 <div className="px-6 py-4 z-10 bottom-0 bg-white border-t shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] shrink-0">
                   <div className="w-full space-y-4">
-                    <div className="flex justify-between items-end">
-                      <span className="text-muted-foreground text-sm">
-                        Tạm tính:
-                      </span>
-                      <span className="font-bold text-2xl text-primary">
+                    {/* Tạm tính */}
+                    <div className="flex justify-between items-center text-sm">
+                      <span className="text-muted-foreground">Tạm tính:</span>
+                      <span className="font-semibold">
                         {formatCurrency(totalPrice)}
+                      </span>
+                    </div>
+
+                    {/* Giảm giá */}
+                    {discountAmount > 0 && (
+                      <div className="flex justify-between items-center text-sm">
+                        <span className="text-muted-foreground">Giảm giá:</span>
+                        <span className="font-semibold text-red-600">
+                          -{formatCurrency(discountAmount)}
+                        </span>
+                      </div>
+                    )}
+
+                    {/* Tổng cộng */}
+                    <div className="border-t pt-3 flex justify-between items-end">
+                      <span className="text-muted-foreground">Tổng cộng:</span>
+                      <span className="font-bold text-2xl text-primary">
+                        {formatCurrency(finalPrice || totalPrice)}
                       </span>
                     </div>
 
@@ -165,15 +209,10 @@ export function CartSheet({ isOpen, onOpenChange }: CartSheetProps) {
                         Chọn thêm
                       </Button>
                       <Button
-                        asChild
                         className="bg-[#0A3D62] hover:bg-[#0A3D62]/90"
+                        onClick={handleCheckout}
                       >
-                        <Link
-                          href="/checkout"
-                          onClick={() => onOpenChange?.(false)}
-                        >
-                          Thanh toán
-                        </Link>
+                        Thanh toán
                       </Button>
                     </div>
                   </div>

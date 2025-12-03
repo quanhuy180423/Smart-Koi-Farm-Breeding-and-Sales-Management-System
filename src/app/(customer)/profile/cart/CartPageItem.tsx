@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
   DialogContent,
@@ -14,7 +15,7 @@ import {
 import { useDeleteItem, useUpdateItem } from "@/hooks/useCart";
 import { CartItemResponse } from "@/lib/api/services/fetchCart";
 import { formatCurrency } from "@/lib/utils/numbers/formatCurrency";
-import { Loader2, Minus, Plus, Trash2 } from "lucide-react";
+import { Loader2, Minus, Plus, Trash2, AlertTriangle } from "lucide-react";
 import Image from "next/image";
 import { useState, useEffect, useRef } from "react";
 import { useDebounce } from "@/hooks/useDebounce";
@@ -24,6 +25,8 @@ import {
   getHealthStatusLabel,
   getGenderLabel,
 } from "@/lib/utils/enum/formatEnum";
+import { SaleStatus } from "@/lib/api/services/fetchKoiFish";
+import { cn } from "@/lib/utils";
 
 interface CartPageItemProps {
   item: CartItemResponse;
@@ -39,6 +42,13 @@ export function CartPageItem({ item }: CartPageItemProps) {
   const { mutate: updateItem, isPending: isUpdating } =
     useUpdateItem(handleUpdateErr);
   const { mutate: deleteItem, isPending: isDeleting } = useDeleteItem();
+
+  const isKoi = !!item.koiFish;
+
+  // Kiểm tra trạng thái stock
+  const isOutOfStock =
+    (isKoi && item.koiFish?.saleStatus === SaleStatus.SOLD) ||
+    (!isKoi && item.packetFish?.stockQuantity === 0);
 
   const handleConfirmRemove = () => {
     deleteItem(item.id);
@@ -86,17 +96,35 @@ export function CartPageItem({ item }: CartPageItemProps) {
                 "/placeholder.svg"
               }
               alt={item?.koiFish?.rfid || item?.packetFish?.name || ""}
-              className="object-cover"
+              className={cn(
+                "object-cover",
+                isOutOfStock && "grayscale opacity-50",
+              )}
               fill
               sizes="(max-width: 640px) 100vw, (max-width: 768px) 96px, 160px"
             />
+            {isOutOfStock && (
+              <div className="absolute inset-0 flex items-center justify-center bg-black/40">
+                <AlertTriangle className="h-8 w-8 text-white drop-shadow-md" />
+              </div>
+            )}
           </div>
           <div className="flex-1 min-w-0 space-y-3 sm:space-y-2">
             <div className="flex justify-between items-start">
               <div className="flex-1 pr-2 space-y-2">
-                <h3 className="font-semibold text-lg sm:text-base md:text-lg line-clamp-2">
-                  {item?.koiFish?.rfid || item?.packetFish?.name || ""}
-                </h3>
+                <div className="space-y-1">
+                  <h3 className="font-semibold text-lg sm:text-base md:text-lg line-clamp-2">
+                    {item?.koiFish?.rfid || item?.packetFish?.name || ""}
+                  </h3>
+                  {isOutOfStock && (
+                    <Badge
+                      variant="destructive"
+                      className="text-[10px] font-medium"
+                    >
+                      {isKoi ? "Đã bán" : "Hết hàng"}
+                    </Badge>
+                  )}
+                </div>
                 {/* Variety */}
                 <p className="text-xs sm:text-sm text-muted-foreground">
                   <span className="font-medium">Giống:</span>{" "}
@@ -194,42 +222,50 @@ export function CartPageItem({ item }: CartPageItemProps) {
               </Dialog>
             </div>
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pt-2 border-t">
-              {item.koiFishId ? (
-                <div className="text-sm text-muted-foreground">
-                  <span className="font-medium">Số lượng:</span> {localQuantity}
-                </div>
-              ) : (
-                <div className="flex items-center gap-2 sm:gap-3">
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    className="h-8 w-8 bg-transparent"
-                    onClick={() =>
-                      setLocalQuantity((prev) => Math.max(0, prev - 1))
-                    }
-                    disabled={isMutating || localQuantity <= 1}
-                  >
-                    <Minus className="h-3 w-3" />
-                  </Button>
-                  <span className="w-12 text-center font-medium bg-muted px-2 py-1 rounded text-sm">
-                    {isUpdating ? (
-                      <Loader2 className="h-3 w-3 mx-auto animate-spin" />
-                    ) : (
-                      localQuantity
-                    )}
-                  </span>
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    className="h-8 w-8 bg-transparent"
-                    onClick={() => setLocalQuantity((prev) => prev + 1)}
-                    disabled={isMutating}
-                  >
-                    <Plus className="h-3 w-3" />
-                  </Button>
-                </div>
-              )}
-              <div className="text-right">
+              <div className="space-y-2 w-full sm:w-auto">
+                {item.koiFishId ? (
+                  <div className="text-sm text-muted-foreground">
+                    <span className="font-medium">Số lượng:</span>{" "}
+                    {localQuantity}
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2 sm:gap-3">
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="h-8 w-8 bg-transparent"
+                      onClick={() =>
+                        setLocalQuantity((prev) => Math.max(0, prev - 1))
+                      }
+                      disabled={
+                        isMutating || localQuantity <= 1 || isOutOfStock
+                      }
+                    >
+                      <Minus className="h-3 w-3" />
+                    </Button>
+                    <span className="w-12 text-center font-medium bg-muted px-2 py-1 rounded text-sm">
+                      {isUpdating ? (
+                        <Loader2 className="h-3 w-3 mx-auto animate-spin" />
+                      ) : (
+                        localQuantity
+                      )}
+                    </span>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="h-8 w-8 bg-transparent"
+                      onClick={() => setLocalQuantity((prev) => prev + 1)}
+                      disabled={isMutating || isOutOfStock}
+                    >
+                      <Plus className="h-3 w-3" />
+                    </Button>
+                  </div>
+                )}
+              </div>
+              <div className="text-right space-y-1 sm:ml-auto">
+                <p className="text-xs sm:text-sm text-muted-foreground">
+                  {formatCurrency(item.unitPrice || 0)}/sp
+                </p>
                 <p className="font-bold text-lg sm:text-base md:text-lg text-primary">
                   {formatCurrency(item.itemTotalPrice || 0)}
                 </p>

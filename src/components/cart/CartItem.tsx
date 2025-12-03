@@ -2,8 +2,16 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { Minus, Plus, Trash2, Loader2, AlertCircle } from "lucide-react";
+import {
+  Minus,
+  Plus,
+  Trash2,
+  Loader2,
+  AlertCircle,
+  AlertTriangle,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
   Popover,
   PopoverContent,
@@ -14,6 +22,7 @@ import { useUpdateItem, useDeleteItem } from "@/hooks/useCart";
 import { formatCurrency } from "@/lib/utils/numbers/formatCurrency";
 import { getFishSizeLabel } from "@/lib/utils/enum";
 import { cn } from "@/lib/utils";
+import { SaleStatus } from "@/lib/api/services/fetchKoiFish";
 
 interface CartItemProps {
   item: CartItemResponse;
@@ -28,6 +37,11 @@ export function CartItem({ item }: CartItemProps) {
 
   const isMutating = isUpdating || isDeleting;
   const isKoi = !!item.koiFish; // Kiểm tra xem có phải cá Koi đơn lẻ không
+
+  // Kiểm tra trạng thái stock
+  const isOutOfStock =
+    (isKoi && item.koiFish?.saleStatus === SaleStatus.SOLD) ||
+    (!isKoi && item.packetFish?.stockQuantity === 0);
 
   const handleQuantityChange = (newQuantity: number) => {
     if (newQuantity < 1) return;
@@ -50,24 +64,42 @@ export function CartItem({ item }: CartItemProps) {
             "/placeholder.svg"
           }
           alt={item?.koiFish?.rfid || item?.packetFish?.name || "Sản phẩm"}
-          className="object-cover transition-transform group-hover:scale-105"
+          className={cn(
+            "object-cover transition-transform group-hover:scale-105",
+            isOutOfStock && "grayscale opacity-50",
+          )}
           fill
           sizes="80px"
         />
+        {isOutOfStock && (
+          <div className="absolute inset-0 flex items-center justify-center bg-black/40">
+            <AlertTriangle className="h-6 w-6 text-white drop-shadow-md" />
+          </div>
+        )}
       </div>
 
       {/* 2. Info Section */}
       <div className="flex-1 min-w-0 flex flex-col justify-between">
         <div>
           <div className="flex justify-between items-start gap-2">
-            <h4
-              className="font-semibold text-sm truncate pr-4 max-w-[180px]"
-              title={item?.koiFish?.rfid || item?.packetFish?.name}
-            >
-              {item?.koiFish?.rfid
-                ? `Koi RFID: ${item.koiFish.rfid}`
-                : item?.packetFish?.name}
-            </h4>
+            <div className="flex-1 min-w-0">
+              <h4
+                className="font-semibold text-sm truncate pr-4 max-w-[180px]"
+                title={item?.koiFish?.rfid || item?.packetFish?.name}
+              >
+                {item?.koiFish?.rfid
+                  ? `Koi RFID: ${item.koiFish.rfid}`
+                  : item?.packetFish?.name}
+              </h4>
+              {isOutOfStock && (
+                <Badge
+                  variant="destructive"
+                  className="mt-1 text-[10px] font-medium"
+                >
+                  {isKoi ? "Đã bán" : "Hết hàng"}
+                </Badge>
+              )}
+            </div>
             {/* Xóa bằng Popover: Nhẹ hơn Dialog */}
             <Popover open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
               <PopoverTrigger asChild>
@@ -126,44 +158,65 @@ export function CartItem({ item }: CartItemProps) {
         </div>
 
         {/* 3. Footer: Price & Quantity Controls */}
-        <div className="flex items-end justify-between mt-2">
-          <p className="font-bold text-primary text-sm">
-            {formatCurrency(item.itemTotalPrice)}
-          </p>
+        <div className="space-y-1 mt-2">
+          <div className="flex items-end justify-between">
+            <div className="text-xs text-muted-foreground">
+              {formatCurrency(item.unitPrice)}/sp
+            </div>
+            <p className="font-bold text-primary text-sm">
+              {formatCurrency(item.itemTotalPrice)}
+            </p>
+          </div>
 
           {/* Quantity Controls */}
-          {isKoi ? (
-            <div className="bg-muted/50 px-2 py-1 rounded text-[10px] font-medium text-muted-foreground flex items-center gap-1">
-              <AlertCircle className="h-3 w-3" /> Số lượng: 1
-            </div>
-          ) : (
-            <div className="flex items-center gap-1 bg-secondary/30 rounded-md border p-0.5">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-6 w-6 rounded hover:bg-background hover:text-primary"
-                onClick={() => handleQuantityChange(item.quantity - 1)}
-                disabled={isMutating || item.quantity <= 1}
+          <div className="flex items-end justify-between">
+            {isKoi ? (
+              <div
+                className={cn(
+                  "px-2 py-1 rounded text-[10px] font-medium flex items-center gap-1",
+                  isOutOfStock
+                    ? "bg-destructive/20 text-destructive"
+                    : "bg-muted/50 text-muted-foreground",
+                )}
               >
-                <Minus className="h-3 w-3" />
-              </Button>
-
-              <span className="w-8 text-center text-xs font-medium tabular-nums">
-                {/* Giữ nguyên số khi loading, chỉ mờ đi (do parent opacity) để tránh layout shift */}
-                {item.quantity}
-              </span>
-
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-6 w-6 rounded hover:bg-background hover:text-primary"
-                onClick={() => handleQuantityChange(item.quantity + 1)}
-                disabled={isMutating}
+                <AlertCircle className="h-3 w-3" /> Số lượng: 1
+              </div>
+            ) : (
+              <div
+                className={cn(
+                  "flex items-center gap-1 rounded-md border p-0.5",
+                  isOutOfStock
+                    ? "bg-destructive/10 border-destructive/30"
+                    : "bg-secondary/30",
+                )}
               >
-                <Plus className="h-3 w-3" />
-              </Button>
-            </div>
-          )}
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-6 w-6 rounded hover:bg-background hover:text-primary"
+                  onClick={() => handleQuantityChange(item.quantity - 1)}
+                  disabled={isMutating || item.quantity <= 1 || isOutOfStock}
+                >
+                  <Minus className="h-3 w-3" />
+                </Button>
+
+                <span className="w-8 text-center text-xs font-medium tabular-nums">
+                  {/* Giữ nguyên số khi loading, chỉ mờ đi (do parent opacity) để tránh layout shift */}
+                  {item.quantity}
+                </span>
+
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-6 w-6 rounded hover:bg-background hover:text-primary"
+                  onClick={() => handleQuantityChange(item.quantity + 1)}
+                  disabled={isMutating || isOutOfStock}
+                >
+                  <Plus className="h-3 w-3" />
+                </Button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>
