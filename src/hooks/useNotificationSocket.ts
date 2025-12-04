@@ -88,7 +88,7 @@ export function useNotificationSocket(
     try {
       // Get backend URL from environment variable
       const backendUrl =
-        'http://14.225.219.222:5000';
+        process.env.NEXT_PUBLIC_API_URL_BACKEND || "http://localhost:5000";
 
       // Convert HTTP/HTTPS to WS/WSS
       const wsUrl = backendUrl
