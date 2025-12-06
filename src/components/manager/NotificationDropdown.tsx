@@ -370,6 +370,7 @@ export function NotificationDropdown() {
           <Link
             href="/manager/notifications"
             className="flex items-center justify-center gap-2 px-4 py-3 bg-slate-50 hover:bg-slate-100 transition-colors text-sm font-medium text-slate-700 border-t"
+            onClick={() => setIsDropdownOpen(false)}
           >
             <Eye className="h-4 w-4" />
             Xem tất cả thông báo
