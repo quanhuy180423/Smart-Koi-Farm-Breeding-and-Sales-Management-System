@@ -101,9 +101,9 @@ export const PacketFishCard = ({
       </CardContent>
 
       {/* Footer Section */}
-      <CardFooter className="p-5 pt-0 flex items-center justify-between gap-4">
+      <CardFooter className="p-5 pt-0 flex-col items-center gap-4">
         <div className="flex flex-col">
-          <span className="text-xs text-muted-foreground">Giá gói</span>
+          {/* <span className="text-xs text-muted-foreground">Giá gói</span> */}
           <span className="text-xl font-bold text-primary">
             {formatCurrency(packet.pricePerPacket)}
           </span>

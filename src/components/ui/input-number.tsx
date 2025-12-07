@@ -1,11 +1,10 @@
 import * as React from "react";
 import { Input } from "./input";
 
-export interface InputNumberProps
-  extends Omit<
-    React.InputHTMLAttributes<HTMLInputElement>,
-    "type" | "onChange"
-  > {
+export interface InputNumberProps extends Omit<
+  React.InputHTMLAttributes<HTMLInputElement>,
+  "type" | "onChange"
+> {
   value?: number | string;
   onChange?: (value: number) => void;
   min?: number;
