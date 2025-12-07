@@ -5,8 +5,9 @@ import * as SliderPrimitive from "@radix-ui/react-slider";
 
 import { cn } from "@/lib/utils";
 
-interface SliderProps
-  extends React.ComponentProps<typeof SliderPrimitive.Root> {
+interface SliderProps extends React.ComponentProps<
+  typeof SliderPrimitive.Root
+> {
   className?: string;
   min?: number;
   max?: number;
