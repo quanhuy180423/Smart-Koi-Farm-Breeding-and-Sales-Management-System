@@ -44,5 +44,7 @@ next-env.d.ts
 
 .claude
 
+TEST_CASES
+
 REAL_TIME_NOTIFICATIONS.md
 NOTIFICATION_DEBUGGING.md

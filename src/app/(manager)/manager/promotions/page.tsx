@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import * as z from "zod";
 import {
   Card,
   CardContent,
@@ -69,7 +70,6 @@ import { useDebounce } from "@/hooks/useDebounce";
 import { LoadingState } from "@/components/common/LoadingState";
 import { ErrorState } from "@/components/common/ErrorState";
 import { EmptyState } from "@/components/common/EmptyState";
-import toast from "react-hot-toast";
 import { DATE_FORMATS, formatDate } from "@/lib/utils/dates";
 
 const defaultPromotionData = {
@@ -80,6 +80,39 @@ const defaultPromotionData = {
   hasNextPage: false,
   data: [],
 };
+
+// Zod schema for promotion validation
+const basePromotionSchema = z
+  .object({
+    code: z.string().min(1, "Mã khuyến mãi không được để trống"),
+    description: z.string().min(1, "Mô tả không được để trống"),
+    discountValue: z.number().gt(0, "Giá trị giảm phải lớn hơn 0"),
+    minimumOrderAmount: z.number().gte(0, "Tối thiểu đơn hàng phải >= 0"),
+    maxDiscountAmount: z.number().gt(0, "Tối đa giảm giá phải lớn hơn 0"),
+    validFrom: z.string().min(1, "Ngày bắt đầu không được để trống"),
+    validTo: z.string().min(1, "Ngày kết thúc không được để trống"),
+  })
+  .refine((data) => new Date(data.validFrom) < new Date(data.validTo), {
+    message: "Ngày kết thúc phải sau ngày bắt đầu",
+    path: ["validTo"],
+  });
+
+// Schema for creating new promotions (with past date check)
+const promotionCreateSchema = basePromotionSchema.refine(
+  (data) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const startDate = new Date(data.validFrom);
+    return startDate >= today;
+  },
+  {
+    message: "Ngày bắt đầu không thể ở quá khứ",
+    path: ["validFrom"],
+  },
+);
+
+// Schema for editing promotions (no past date check)
+const promotionEditSchema = basePromotionSchema;
 
 export default function PromotionManagement() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -126,6 +159,7 @@ export default function PromotionManagement() {
     isActive: true,
     images: [],
   });
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [selectedImageFiles, setSelectedImageFiles] = useState<File[]>([]);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const uploadImageMutation = useUploadImage();
@@ -263,8 +297,19 @@ export default function PromotionManagement() {
       isActive: true,
       images: [],
     });
+    setFormErrors({});
     setSelectedImageFiles([]);
     setImagePreviews([]);
+  };
+
+  const clearFieldError = (fieldName: string) => {
+    if (formErrors[fieldName]) {
+      setFormErrors((prev) => {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { [fieldName]: _, ...rest } = prev;
+        return rest;
+      });
+    }
   };
 
   const handleEditPromotion = (promotion: PromotionResponse) => {
@@ -291,21 +336,29 @@ export default function PromotionManagement() {
   };
 
   const handleCreatePromotion = async () => {
-    if (!formData.code.trim() || !formData.description.trim()) {
-      toast.error("Vui lòng điền mã và mô tả khuyến mãi");
-      return;
-    }
-    if (!formData.validFrom || !formData.validTo) {
-      toast.error("Vui lòng chọn ngày bắt đầu và kết thúc");
-      return;
-    }
-    if (new Date(formData.validFrom) >= new Date(formData.validTo)) {
-      toast.error("Ngày bắt đầu phải trước ngày kết thúc");
+    // Validate using Zod
+    const validationResult = promotionCreateSchema.safeParse({
+      code: formData.code,
+      description: formData.description,
+      discountValue: formData.discountValue,
+      minimumOrderAmount: formData.minimumOrderAmount,
+      maxDiscountAmount: formData.maxDiscountAmount,
+      validFrom: formData.validFrom,
+      validTo: formData.validTo,
+    });
+
+    if (!validationResult.success) {
+      const errors: Record<string, string> = {};
+      validationResult.error.errors.forEach((error) => {
+        errors[error.path[0] as string] = error.message;
+      });
+      setFormErrors(errors);
       return;
     }
 
     try {
       setIsCreating(true);
+      setFormErrors({});
 
       // Upload images
       const uploadedImageUrls: string[] = [];
@@ -335,21 +388,29 @@ export default function PromotionManagement() {
   const handleUpdatePromotion = async () => {
     if (!editingPromotion) return;
 
-    if (!formData.code.trim() || !formData.description.trim()) {
-      toast.error("Vui lòng điền mã và mô tả khuyến mãi");
-      return;
-    }
-    if (!formData.validFrom || !formData.validTo) {
-      toast.error("Vui lòng chọn ngày bắt đầu và kết thúc");
-      return;
-    }
-    if (new Date(formData.validFrom) >= new Date(formData.validTo)) {
-      toast.error("Ngày bắt đầu phải trước ngày kết thúc");
+    // Validate using Zod
+    const validationResult = promotionEditSchema.safeParse({
+      code: formData.code,
+      description: formData.description,
+      discountValue: formData.discountValue,
+      minimumOrderAmount: formData.minimumOrderAmount,
+      maxDiscountAmount: formData.maxDiscountAmount,
+      validFrom: formData.validFrom,
+      validTo: formData.validTo,
+    });
+
+    if (!validationResult.success) {
+      const errors: Record<string, string> = {};
+      validationResult.error.errors.forEach((error) => {
+        errors[error.path[0] as string] = error.message;
+      });
+      setFormErrors(errors);
       return;
     }
 
     try {
       setIsEditing(true);
+      setFormErrors({});
 
       // Upload new images (files selected by user)
       const uploadedImageUrls: string[] = [];
@@ -478,9 +539,7 @@ export default function PromotionManagement() {
                         Lượt Sử Dụng
                       </TableHead>
                       <TableHead className="w-[12%]">Trạng Thái</TableHead>
-                      <TableHead className="w-[10%] text-right">
-                        Hành Động
-                      </TableHead>
+                      <TableHead className="w-[10%]">Hành Động</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -547,18 +606,18 @@ export default function PromotionManagement() {
                             <Button
                               variant="ghost"
                               size="icon"
-                              onClick={() => handleEditPromotion(promotion)}
-                              title="Chỉnh sửa"
-                            >
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
                               onClick={() => viewDetails(promotion)}
                               title="Xem chi tiết"
                             >
                               <Eye className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleEditPromotion(promotion)}
+                              title="Chỉnh sửa"
+                            >
+                              <Edit className="h-4 w-4" />
                             </Button>
                             <Button
                               variant="ghost"
@@ -849,20 +908,48 @@ export default function PromotionManagement() {
                 <Input
                   placeholder="VD: SALE2025"
                   value={formData.code}
-                  onChange={(e) =>
-                    setFormData({ ...formData, code: e.target.value })
-                  }
+                  onChange={(e) => {
+                    setFormData({ ...formData, code: e.target.value });
+                    clearFieldError("code");
+                  }}
+                  onBlur={() => {
+                    if (!formData.code.trim()) {
+                      setFormErrors((prev) => ({
+                        ...prev,
+                        code: "Mã khuyến mãi không được để trống",
+                      }));
+                    }
+                  }}
+                  className={formErrors.code ? "border-red-500" : ""}
                 />
+                {formErrors.code && (
+                  <p className="text-sm text-red-500">{formErrors.code}</p>
+                )}
               </div>
               <div className="space-y-2">
                 <Label>Mô Tả *</Label>
                 <Input
                   placeholder="VD: Giảm 50% cho khách hàng mới"
                   value={formData.description}
-                  onChange={(e) =>
-                    setFormData({ ...formData, description: e.target.value })
-                  }
+                  onChange={(e) => {
+                    setFormData({ ...formData, description: e.target.value });
+                    clearFieldError("description");
+                  }}
+                  onBlur={() => {
+                    if (!formData.description.trim()) {
+                      setFormErrors((prev) => ({
+                        ...prev,
+                        description: "Mô tả không được để trống",
+                      }));
+                    }
+                  }}
+                  className={formErrors.description ? "border-red-500" : ""}
                 />
+                {formErrors.description && (
+                  <p className="text-sm text-red-500">
+                    {formErrors.description}
+                  </p>
+                )}
               </div>
             </div>
 
@@ -901,11 +988,18 @@ export default function PromotionManagement() {
                 </Label>
                 <InputNumber
                   value={formData.discountValue}
-                  onChange={(value) =>
-                    setFormData({ ...formData, discountValue: value })
-                  }
+                  onChange={(value) => {
+                    setFormData({ ...formData, discountValue: value });
+                    clearFieldError("discountValue");
+                  }}
                   min={0}
+                  className={formErrors.discountValue ? "border-red-500" : ""}
                 />
+                {formErrors.discountValue && (
+                  <p className="text-sm text-red-500">
+                    {formErrors.discountValue}
+                  </p>
+                )}
               </div>
             </div>
 
@@ -915,21 +1009,39 @@ export default function PromotionManagement() {
                 <Label>Tối Thiểu Đơn Hàng (đ)</Label>
                 <InputNumber
                   value={formData.minimumOrderAmount}
-                  onChange={(value) =>
-                    setFormData({ ...formData, minimumOrderAmount: value })
-                  }
+                  onChange={(value) => {
+                    setFormData({ ...formData, minimumOrderAmount: value });
+                    clearFieldError("minimumOrderAmount");
+                  }}
                   min={0}
+                  className={
+                    formErrors.minimumOrderAmount ? "border-red-500" : ""
+                  }
                 />
+                {formErrors.minimumOrderAmount && (
+                  <p className="text-sm text-red-500">
+                    {formErrors.minimumOrderAmount}
+                  </p>
+                )}
               </div>
               <div className="space-y-2">
                 <Label>Tối Đa Giảm Giá (đ)</Label>
                 <InputNumber
                   value={formData.maxDiscountAmount}
-                  onChange={(value) =>
-                    setFormData({ ...formData, maxDiscountAmount: value })
-                  }
+                  onChange={(value) => {
+                    setFormData({ ...formData, maxDiscountAmount: value });
+                    clearFieldError("maxDiscountAmount");
+                  }}
                   min={0}
+                  className={
+                    formErrors.maxDiscountAmount ? "border-red-500" : ""
+                  }
                 />
+                {formErrors.maxDiscountAmount && (
+                  <p className="text-sm text-red-500">
+                    {formErrors.maxDiscountAmount}
+                  </p>
+                )}
               </div>
             </div>
 
@@ -947,26 +1059,38 @@ export default function PromotionManagement() {
 
             {/* Date Range */}
             <div className="grid grid-cols-2 gap-3">
-              <DatePickerFilter
-                label="Ngày Bắt Đầu *"
-                value={formData.validFrom}
-                onChange={(dateString) =>
-                  setFormData({
-                    ...formData,
-                    validFrom: `${dateString}T00:00:00.000Z`,
-                  })
-                }
-              />
-              <DatePickerFilter
-                label="Ngày Kết Thúc *"
-                value={formData.validTo}
-                onChange={(dateString) =>
-                  setFormData({
-                    ...formData,
-                    validTo: `${dateString}T23:59:59.999Z`,
-                  })
-                }
-              />
+              <div className="space-y-2">
+                <DatePickerFilter
+                  label="Ngày Bắt Đầu *"
+                  value={formData.validFrom}
+                  onChange={(dateString) => {
+                    setFormData({
+                      ...formData,
+                      validFrom: `${dateString}T00:00:00.000Z`,
+                    });
+                    clearFieldError("validFrom");
+                  }}
+                />
+                {formErrors.validFrom && (
+                  <p className="text-sm text-red-500">{formErrors.validFrom}</p>
+                )}
+              </div>
+              <div className="space-y-2">
+                <DatePickerFilter
+                  label="Ngày Kết Thúc *"
+                  value={formData.validTo}
+                  onChange={(dateString) => {
+                    setFormData({
+                      ...formData,
+                      validTo: `${dateString}T00:00:00.000Z`,
+                    });
+                    clearFieldError("validTo");
+                  }}
+                />
+                {formErrors.validTo && (
+                  <p className="text-sm text-red-500">{formErrors.validTo}</p>
+                )}
+              </div>
             </div>
 
             {/* Image Upload */}
@@ -1095,20 +1219,48 @@ export default function PromotionManagement() {
                 <Input
                   placeholder="VD: SALE2025"
                   value={formData.code}
-                  onChange={(e) =>
-                    setFormData({ ...formData, code: e.target.value })
-                  }
+                  onChange={(e) => {
+                    setFormData({ ...formData, code: e.target.value });
+                    clearFieldError("code");
+                  }}
+                  onBlur={() => {
+                    if (!formData.code.trim()) {
+                      setFormErrors((prev) => ({
+                        ...prev,
+                        code: "Mã khuyến mãi không được để trống",
+                      }));
+                    }
+                  }}
+                  className={formErrors.code ? "border-red-500" : ""}
                 />
+                {formErrors.code && (
+                  <p className="text-sm text-red-500">{formErrors.code}</p>
+                )}
               </div>
               <div className="space-y-2">
                 <Label>Mô Tả *</Label>
                 <Input
                   placeholder="VD: Giảm 50% cho khách hàng mới"
                   value={formData.description}
-                  onChange={(e) =>
-                    setFormData({ ...formData, description: e.target.value })
-                  }
+                  onChange={(e) => {
+                    setFormData({ ...formData, description: e.target.value });
+                    clearFieldError("description");
+                  }}
+                  onBlur={() => {
+                    if (!formData.description.trim()) {
+                      setFormErrors((prev) => ({
+                        ...prev,
+                        description: "Mô tả không được để trống",
+                      }));
+                    }
+                  }}
+                  className={formErrors.description ? "border-red-500" : ""}
                 />
+                {formErrors.description && (
+                  <p className="text-sm text-red-500">
+                    {formErrors.description}
+                  </p>
+                )}
               </div>
             </div>
 
@@ -1147,11 +1299,18 @@ export default function PromotionManagement() {
                 </Label>
                 <InputNumber
                   value={formData.discountValue}
-                  onChange={(value) =>
-                    setFormData({ ...formData, discountValue: value })
-                  }
+                  onChange={(value) => {
+                    setFormData({ ...formData, discountValue: value });
+                    clearFieldError("discountValue");
+                  }}
                   min={0}
+                  className={formErrors.discountValue ? "border-red-500" : ""}
                 />
+                {formErrors.discountValue && (
+                  <p className="text-sm text-red-500">
+                    {formErrors.discountValue}
+                  </p>
+                )}
               </div>
             </div>
 
@@ -1161,21 +1320,39 @@ export default function PromotionManagement() {
                 <Label>Tối Thiểu Đơn Hàng (đ)</Label>
                 <InputNumber
                   value={formData.minimumOrderAmount}
-                  onChange={(value) =>
-                    setFormData({ ...formData, minimumOrderAmount: value })
-                  }
+                  onChange={(value) => {
+                    setFormData({ ...formData, minimumOrderAmount: value });
+                    clearFieldError("minimumOrderAmount");
+                  }}
                   min={0}
+                  className={
+                    formErrors.minimumOrderAmount ? "border-red-500" : ""
+                  }
                 />
+                {formErrors.minimumOrderAmount && (
+                  <p className="text-sm text-red-500">
+                    {formErrors.minimumOrderAmount}
+                  </p>
+                )}
               </div>
               <div className="space-y-2">
                 <Label>Tối Đa Giảm Giá (đ)</Label>
                 <InputNumber
                   value={formData.maxDiscountAmount}
-                  onChange={(value) =>
-                    setFormData({ ...formData, maxDiscountAmount: value })
-                  }
+                  onChange={(value) => {
+                    setFormData({ ...formData, maxDiscountAmount: value });
+                    clearFieldError("maxDiscountAmount");
+                  }}
                   min={0}
+                  className={
+                    formErrors.maxDiscountAmount ? "border-red-500" : ""
+                  }
                 />
+                {formErrors.maxDiscountAmount && (
+                  <p className="text-sm text-red-500">
+                    {formErrors.maxDiscountAmount}
+                  </p>
+                )}
               </div>
             </div>
 
@@ -1193,26 +1370,38 @@ export default function PromotionManagement() {
 
             {/* Date Range */}
             <div className="grid grid-cols-2 gap-3">
-              <DatePickerFilter
-                label="Ngày Bắt Đầu *"
-                value={formData.validFrom}
-                onChange={(dateString) =>
-                  setFormData({
-                    ...formData,
-                    validFrom: `${dateString}T00:00:00.000Z`,
-                  })
-                }
-              />
-              <DatePickerFilter
-                label="Ngày Kết Thúc *"
-                value={formData.validTo}
-                onChange={(dateString) =>
-                  setFormData({
-                    ...formData,
-                    validTo: `${dateString}T23:59:59.999Z`,
-                  })
-                }
-              />
+              <div className="space-y-2">
+                <DatePickerFilter
+                  label="Ngày Bắt Đầu *"
+                  value={formData.validFrom}
+                  onChange={(dateString) => {
+                    setFormData({
+                      ...formData,
+                      validFrom: `${dateString}T00:00:00.000Z`,
+                    });
+                    clearFieldError("validFrom");
+                  }}
+                />
+                {formErrors.validFrom && (
+                  <p className="text-sm text-red-500">{formErrors.validFrom}</p>
+                )}
+              </div>
+              <div className="space-y-2">
+                <DatePickerFilter
+                  label="Ngày Kết Thúc *"
+                  value={formData.validTo}
+                  onChange={(dateString) => {
+                    setFormData({
+                      ...formData,
+                      validTo: `${dateString}T00:00:00.000Z`,
+                    });
+                    clearFieldError("validTo");
+                  }}
+                />
+                {formErrors.validTo && (
+                  <p className="text-sm text-red-500">{formErrors.validTo}</p>
+                )}
+              </div>
             </div>
 
             {/* Image Upload */}

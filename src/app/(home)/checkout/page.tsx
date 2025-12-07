@@ -1,5 +1,6 @@
 "use client";
 
+import * as z from "zod";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -70,6 +71,20 @@ const CheckoutMap = dynamic(
   },
 );
 
+// Zod schema for address validation
+const addressSchema = z.object({
+  city: z.string().min(1, "Thành phố không được để trống"),
+  ward: z.string().min(1, "Phường/Xã không được để trống"),
+  streetAddress: z.string().min(1, "Số nhà/Đường phố không được để trống"),
+  recipientPhone: z
+    .string()
+    .min(1, "Số điện thoại không được để trống")
+    .regex(
+      /^0\d{9}$/,
+      "Số điện thoại không hợp lệ (cần 10 chữ số, bắt đầu từ 0)",
+    ),
+});
+
 export default function CheckoutPage() {
   const router = useRouter();
   const { data: cartData, isLoading, isError, refetch } = useGetCart();
@@ -104,6 +119,21 @@ export default function CheckoutPage() {
     recipientPhone: "",
     isDefault: false,
   });
+
+  const [quickAddFormErrors, setQuickAddFormErrors] = useState<
+    Record<string, string>
+  >({});
+
+  const clearQuickAddFieldError = (fieldName: string) => {
+    if (quickAddFormErrors[fieldName]) {
+      setQuickAddFormErrors((prev) => {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { [fieldName]: _, ...rest } = prev;
+        return rest;
+      });
+    }
+  };
+
   const [orderData, setOrderData] = useState({
     // Payment
     paymentMethod: "vnpay",
@@ -149,6 +179,8 @@ export default function CheckoutPage() {
       }
       return updated;
     });
+    // Clear field error when user types
+    clearQuickAddFieldError(name);
   };
 
   const handleQuickAddCheckboxChange = (checked: boolean) => {
@@ -167,25 +199,25 @@ export default function CheckoutPage() {
   };
 
   const handleQuickAddSubmit = () => {
-    // Validate required fields
-    if (
-      !quickAddForm.city ||
-      !quickAddForm.ward ||
-      !quickAddForm.streetAddress ||
-      !quickAddForm.recipientPhone
-    ) {
-      toast.error("Vui lòng điền đầy đủ thông tin");
+    // Validate using Zod
+    const validationResult = addressSchema.safeParse({
+      city: quickAddForm.city,
+      ward: quickAddForm.ward,
+      streetAddress: quickAddForm.streetAddress,
+      recipientPhone: quickAddForm.recipientPhone,
+    });
+
+    if (!validationResult.success) {
+      const errors: Record<string, string> = {};
+      validationResult.error.errors.forEach((error: z.ZodIssue) => {
+        errors[error.path[0] as string] = error.message;
+      });
+      setQuickAddFormErrors(errors);
       return;
     }
 
-    // Validate phone
-    const phoneRegex = /^0\d{9}$/;
-    if (!phoneRegex.test(quickAddForm.recipientPhone)) {
-      toast.error(
-        "Số điện thoại không hợp lệ (cần có 10 chữ số, bắt đầu từ 0)",
-      );
-      return;
-    }
+    // Clear errors on successful validation
+    setQuickAddFormErrors({});
 
     createAddress(quickAddForm, {
       onSuccess: (data) => {
@@ -219,9 +251,13 @@ export default function CheckoutPage() {
   const items = cartData?.cartItems || [];
   const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
   const totalPrice = cartData?.totalPrice || 0;
+  const discountAmount = cartData?.discountAmount || 0;
+  const finalPrice = cartData?.finalPrice || 0;
 
   const getTotalItems = () => totalItems;
   const getTotalPrice = () => totalPrice;
+  const getDiscountAmount = () => discountAmount;
+  const getFinalPrice = () => finalPrice;
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("vi-VN", {
@@ -918,14 +954,25 @@ export default function CheckoutPage() {
                   <Separator className="my-4" />
 
                   <div className="space-y-3 p-3 bg-muted/20 rounded-lg">
+                    {/* Tạm tính */}
                     <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">
-                        Tạm tính ({getTotalItems()} sản phẩm)
-                      </span>
-                      <span className="font-medium">
+                      <span className="text-muted-foreground">Tạm tính:</span>
+                      <span className="font-semibold">
                         {formatPrice(getTotalPrice())}
                       </span>
                     </div>
+
+                    {/* Giảm giá */}
+                    {getDiscountAmount() > 0 && (
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">Giảm giá:</span>
+                        <span className="font-semibold text-red-600">
+                          -{formatPrice(getDiscountAmount())}
+                        </span>
+                      </div>
+                    )}
+
+                    {/* Phí vận chuyển */}
                     <div className="flex justify-between text-sm items-center">
                       <div className="flex items-center gap-1.5">
                         <span className="text-muted-foreground">
@@ -962,16 +1009,15 @@ export default function CheckoutPage() {
                         )}
                       </div>
                     </div>
-                    <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">Thuế VAT</span>
-                      <span className="text-muted-foreground">Đã bao gồm</span>
-                    </div>
+
                     <Separator />
+
+                    {/* Tổng cộng */}
                     <div className="flex justify-between font-bold text-lg">
                       <span>Tổng cộng</span>
                       <span className="text-primary text-xl">
                         {formatPrice(
-                          getTotalPrice() +
+                          (getFinalPrice() || getTotalPrice()) +
                             (shippingFeeData?.totalShippingFee || 0),
                         )}
                       </span>
@@ -1060,8 +1106,13 @@ export default function CheckoutPage() {
                   value={quickAddForm.city}
                   onChange={handleQuickAddInputChange}
                   disabled={isCreatingAddress}
-                  className="h-9"
+                  className={`h-9 ${quickAddFormErrors.city ? "border-red-500" : ""}`}
                 />
+                {quickAddFormErrors.city && (
+                  <p className="text-sm text-red-500">
+                    {quickAddFormErrors.city}
+                  </p>
+                )}
               </div>
 
               {/* Ward */}
@@ -1076,8 +1127,13 @@ export default function CheckoutPage() {
                   value={quickAddForm.ward}
                   onChange={handleQuickAddInputChange}
                   disabled={isCreatingAddress}
-                  className="h-9"
+                  className={`h-9 ${quickAddFormErrors.ward ? "border-red-500" : ""}`}
                 />
+                {quickAddFormErrors.ward && (
+                  <p className="text-sm text-red-500">
+                    {quickAddFormErrors.ward}
+                  </p>
+                )}
               </div>
 
               {/* Street Address */}
@@ -1092,8 +1148,13 @@ export default function CheckoutPage() {
                   value={quickAddForm.streetAddress}
                   onChange={handleQuickAddInputChange}
                   disabled={isCreatingAddress}
-                  className="h-9"
+                  className={`h-9 ${quickAddFormErrors.streetAddress ? "border-red-500" : ""}`}
                 />
+                {quickAddFormErrors.streetAddress && (
+                  <p className="text-sm text-red-500">
+                    {quickAddFormErrors.streetAddress}
+                  </p>
+                )}
               </div>
 
               {/* Phone */}
@@ -1109,8 +1170,13 @@ export default function CheckoutPage() {
                   onChange={handleQuickAddInputChange}
                   disabled={isCreatingAddress}
                   maxLength={10}
-                  className="h-9"
+                  className={`h-9 ${quickAddFormErrors.recipientPhone ? "border-red-500" : ""}`}
                 />
+                {quickAddFormErrors.recipientPhone && (
+                  <p className="text-sm text-red-500">
+                    {quickAddFormErrors.recipientPhone}
+                  </p>
+                )}
               </div>
 
               {/* Default Address Checkbox */}

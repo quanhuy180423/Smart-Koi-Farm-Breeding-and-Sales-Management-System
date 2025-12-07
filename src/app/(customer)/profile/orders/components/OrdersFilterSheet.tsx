@@ -1,7 +1,6 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import { InputNumber } from "@/components/ui/input-number";
 import {
   Select,
@@ -52,7 +51,6 @@ export function OrderFilterSheet({
   priceRange,
   onPriceRangeChange,
   hasPromotion,
-  onHasPromotionChange,
   onResetFilters,
 }: OrderFilterSheetProps) {
   // Check if any filter is active

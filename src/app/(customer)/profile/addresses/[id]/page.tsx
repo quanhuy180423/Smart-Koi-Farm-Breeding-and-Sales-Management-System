@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import * as z from "zod";
 import { useRouter, useParams } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -100,6 +101,20 @@ function MapMover({ lat, lng }: { lat: number; lng: number }) {
   return null;
 }
 
+// Zod schema for address validation
+const addressSchema = z.object({
+  city: z.string().min(1, "Thành phố không được để trống"),
+  ward: z.string().min(1, "Phường/Xã không được để trống"),
+  streetAddress: z.string().min(1, "Số nhà/Đường phố không được để trống"),
+  recipientPhone: z
+    .string()
+    .min(1, "Số điện thoại không được để trống")
+    .regex(
+      /^0\d{9}$/,
+      "Số điện thoại không hợp lệ (cần 10 chữ số, bắt đầu từ 0)",
+    ),
+});
+
 export default function EditAddressPage() {
   const router = useRouter();
   const params = useParams();
@@ -119,6 +134,18 @@ export default function EditAddressPage() {
     recipientPhone: "",
     isDefault: false,
   });
+
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+
+  const clearFieldError = (fieldName: string) => {
+    if (formErrors[fieldName]) {
+      setFormErrors((prev) => {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { [fieldName]: _, ...rest } = prev;
+        return rest;
+      });
+    }
+  };
 
   const [originalAddress, setOriginalAddress] = useState<{
     isActive: boolean;
@@ -203,6 +230,8 @@ export default function EditAddressPage() {
       }
       return updated;
     });
+    // Clear field error when user types
+    clearFieldError(name);
   };
 
   const handleCheckboxChange = (checked: boolean) => {
@@ -266,25 +295,25 @@ export default function EditAddressPage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validate required fields
-    if (
-      !formData.city ||
-      !formData.ward ||
-      !formData.streetAddress ||
-      !formData.recipientPhone
-    ) {
-      toast.error("Vui lòng điền đầy đủ thông tin");
+    // Validate using Zod
+    const validationResult = addressSchema.safeParse({
+      city: formData.city,
+      ward: formData.ward,
+      streetAddress: formData.streetAddress,
+      recipientPhone: formData.recipientPhone,
+    });
+
+    if (!validationResult.success) {
+      const errors: Record<string, string> = {};
+      validationResult.error.errors.forEach((error: z.ZodIssue) => {
+        errors[error.path[0] as string] = error.message;
+      });
+      setFormErrors(errors);
       return;
     }
 
-    // Validate phone
-    const phoneRegex = /^0\d{9}$/;
-    if (!phoneRegex.test(formData.recipientPhone)) {
-      toast.error(
-        "Số điện thoại không hợp lệ (cần có 10 chữ số, bắt đầu từ 0)",
-      );
-      return;
-    }
+    // Clear errors on successful validation
+    setFormErrors({});
 
     updateAddress(
       {
@@ -376,8 +405,11 @@ export default function EditAddressPage() {
                       value={formData.city}
                       onChange={handleInputChange}
                       disabled={isUpdating}
-                      className="h-9"
+                      className={`h-9 ${formErrors.city ? "border-red-500" : ""}`}
                     />
+                    {formErrors.city && (
+                      <p className="text-sm text-red-500">{formErrors.city}</p>
+                    )}
                   </div>
 
                   {/* Ward */}
@@ -392,8 +424,11 @@ export default function EditAddressPage() {
                       value={formData.ward}
                       onChange={handleInputChange}
                       disabled={isUpdating}
-                      className="h-9"
+                      className={`h-9 ${formErrors.ward ? "border-red-500" : ""}`}
                     />
+                    {formErrors.ward && (
+                      <p className="text-sm text-red-500">{formErrors.ward}</p>
+                    )}
                   </div>
 
                   {/* Street Address */}
@@ -408,8 +443,13 @@ export default function EditAddressPage() {
                       value={formData.streetAddress}
                       onChange={handleInputChange}
                       disabled={isUpdating}
-                      className="h-9"
+                      className={`h-9 ${formErrors.streetAddress ? "border-red-500" : ""}`}
                     />
+                    {formErrors.streetAddress && (
+                      <p className="text-sm text-red-500">
+                        {formErrors.streetAddress}
+                      </p>
+                    )}
                   </div>
 
                   {/* Phone */}
@@ -425,8 +465,13 @@ export default function EditAddressPage() {
                       onChange={handleInputChange}
                       disabled={isUpdating}
                       maxLength={10}
-                      className="h-9"
+                      className={`h-9 ${formErrors.recipientPhone ? "border-red-500" : ""}`}
                     />
+                    {formErrors.recipientPhone && (
+                      <p className="text-sm text-red-500">
+                        {formErrors.recipientPhone}
+                      </p>
+                    )}
                   </div>
 
                   {/* Default Address Checkbox */}

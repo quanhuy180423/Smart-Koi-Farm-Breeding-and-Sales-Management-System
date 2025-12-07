@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { useState, useMemo, useEffect } from "react";
+import * as z from "zod";
 import { Plus, Search, Edit, Trash2, Eye, Loader2, Filter } from "lucide-react";
 import {
   Card,
@@ -52,6 +53,7 @@ import { useDebounce } from "@/hooks/useDebounce";
 import PondAdvancedFilterDialog, {
   PondAdvancedFilterState,
 } from "@/components/manager/PondAdvancedFilterDialog";
+import toast from "react-hot-toast";
 
 export interface PondFormState {
   pondName: string;
@@ -75,6 +77,111 @@ export interface PondFormState {
     notes: string;
   };
 }
+
+// Zod validation schemas for pond
+const waterParametersSchema = z.object({
+  phLevel: z
+    .string()
+    .optional()
+    .refine((val) => {
+      if (!val) return true; // optional, so empty is ok
+      const num = parseFloat(val);
+      return !isNaN(num) && num >= 0;
+    }, "pH Level phải >= 0"),
+  temperatureCelsius: z
+    .string()
+    .optional()
+    .refine((val) => {
+      if (!val) return true;
+      const num = parseFloat(val);
+      return !isNaN(num);
+    }, "Nhiệt độ phải là số hợp lệ"),
+  oxygenLevel: z
+    .string()
+    .optional()
+    .refine((val) => {
+      if (!val) return true;
+      const num = parseFloat(val);
+      return !isNaN(num) && num >= 0;
+    }, "Oxy phải >= 0"),
+  ammoniaLevel: z
+    .string()
+    .optional()
+    .refine((val) => {
+      if (!val) return true;
+      const num = parseFloat(val);
+      return !isNaN(num) && num >= 0;
+    }, "Ammonia phải >= 0"),
+  nitriteLevel: z
+    .string()
+    .optional()
+    .refine((val) => {
+      if (!val) return true;
+      const num = parseFloat(val);
+      return !isNaN(num) && num >= 0;
+    }, "Nitrite phải >= 0"),
+  nitrateLevel: z
+    .string()
+    .optional()
+    .refine((val) => {
+      if (!val) return true;
+      const num = parseFloat(val);
+      return !isNaN(num) && num >= 0;
+    }, "Nitrate phải >= 0"),
+  carbonHardness: z
+    .string()
+    .optional()
+    .refine((val) => {
+      if (!val) return true;
+      const num = parseFloat(val);
+      return !isNaN(num) && num >= 0;
+    }, "Carbon Hardness phải >= 0"),
+  waterLevelMeters: z
+    .string()
+    .optional()
+    .refine((val) => {
+      if (!val) return true;
+      const num = parseFloat(val);
+      return !isNaN(num) && num >= 0;
+    }, "Mức nước phải >= 0"),
+  notes: z.string().optional(),
+});
+
+const pondSchema = z.object({
+  pondName: z.string().min(1, "Vui lòng nhập tên hồ"),
+  location: z.string().min(1, "Vui lòng nhập địa điểm"),
+  lengthMeters: z
+    .string()
+    .min(1, "Vui lòng nhập chiều dài")
+    .refine((val) => {
+      const num = parseFloat(val);
+      return !isNaN(num) && num > 0;
+    }, "Chiều dài phải lớn hơn 0"),
+  widthMeters: z
+    .string()
+    .min(1, "Vui lòng nhập chiều rộng")
+    .refine((val) => {
+      const num = parseFloat(val);
+      return !isNaN(num) && num > 0;
+    }, "Chiều rộng phải lớn hơn 0"),
+  depthMeters: z
+    .string()
+    .min(1, "Vui lòng nhập độ sâu")
+    .refine((val) => {
+      const num = parseFloat(val);
+      return !isNaN(num) && num > 0;
+    }, "Độ sâu phải lớn hơn 0"),
+  currentCapacity: z
+    .string()
+    .min(1, "Vui lòng nhập dung tích")
+    .refine((val) => {
+      const num = parseFloat(val);
+      return !isNaN(num) && num > 0;
+    }, "Dung tích phải lớn hơn 0"),
+  areaId: z.string().min(1, "Vui lòng chọn khu vực"),
+  pondTypeId: z.string().min(1, "Vui lòng chọn loại hồ"),
+  record: waterParametersSchema.optional(),
+});
 
 export default function PondManagement() {
   const [searchTerm, setSearchTerm] = useState<string>("");
@@ -231,10 +338,35 @@ export default function PondManagement() {
     setIsAddModalOpen(true);
   };
 
-  const handleAddPond = () => {
-    if (!newPond.areaId || !newPond.pondTypeId) {
+  const handleAddPond = (
+    onValidationError?: (errors: Record<string, string>) => void,
+  ) => {
+    const result = pondSchema.safeParse({
+      pondName: newPond.pondName,
+      location: newPond.location,
+      lengthMeters: newPond.lengthMeters,
+      widthMeters: newPond.widthMeters,
+      depthMeters: newPond.depthMeters,
+      currentCapacity: newPond.currentCapacity,
+      areaId: newPond.areaId,
+      pondTypeId: newPond.pondTypeId,
+      record: newPond.record,
+    });
+
+    if (!result.success) {
+      const errors: Record<string, string> = {};
+      result.error.errors.forEach((error) => {
+        errors[error.path[0] as string] = error.message;
+      });
+      if (onValidationError) {
+        onValidationError(errors);
+      } else {
+        const firstError = result.error.errors[0];
+        toast.error(firstError.message);
+      }
       return;
     }
+
     const payload: PondRequest = {
       pondName: newPond.pondName,
       location: newPond.location,
@@ -317,9 +449,36 @@ export default function PondManagement() {
     setIsEditModalOpen(true);
   };
 
-  const handleUpdatePond = () => {
-    if (!editingPond || !editPondForm.areaId || !editPondForm.pondTypeId)
+  const handleUpdatePond = (
+    onValidationError?: (errors: Record<string, string>) => void,
+  ) => {
+    if (!editingPond) return;
+
+    const result = pondSchema.safeParse({
+      pondName: editPondForm.pondName,
+      location: editPondForm.location,
+      lengthMeters: editPondForm.lengthMeters,
+      widthMeters: editPondForm.widthMeters,
+      depthMeters: editPondForm.depthMeters,
+      currentCapacity: editPondForm.currentCapacity,
+      areaId: editPondForm.areaId,
+      pondTypeId: editPondForm.pondTypeId,
+      record: editPondForm.record,
+    });
+
+    if (!result.success) {
+      const errors: Record<string, string> = {};
+      result.error.errors.forEach((error) => {
+        errors[error.path[0] as string] = error.message;
+      });
+      if (onValidationError) {
+        onValidationError(errors);
+      } else {
+        const firstError = result.error.errors[0];
+        toast.error(firstError.message);
+      }
       return;
+    }
 
     const payload: Partial<PondRequest> = {
       pondName: editPondForm.pondName,

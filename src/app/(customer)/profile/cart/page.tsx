@@ -14,6 +14,8 @@ import { EmptyState } from "@/components/common/EmptyState";
 
 export default function CartPage() {
   const { data: cart, isLoading: isCartLoading } = useGetCart();
+  const discountAmount = cart?.discountAmount || 0;
+  const finalPrice = cart?.finalPrice || 0;
 
   // Loading state
   if (isCartLoading) {
@@ -72,6 +74,7 @@ export default function CartPage() {
               </CardHeader>
               <CardContent className="space-y-4 md:space-y-5">
                 <div className="space-y-2 md:space-y-3">
+                  {/* Tạm tính */}
                   <div className="flex justify-between text-sm md:text-base">
                     <span>
                       Tạm tính ({cart.cartItems.length || 0} sản phẩm)
@@ -80,11 +83,24 @@ export default function CartPage() {
                       {formatCurrency(cart.totalPrice || 0)}
                     </span>
                   </div>
+
+                  {/* Giảm giá */}
+                  {discountAmount > 0 && (
+                    <div className="flex justify-between text-sm md:text-base">
+                      <span>Giảm giá</span>
+                      <span className="font-medium text-red-600">
+                        -{formatCurrency(discountAmount)}
+                      </span>
+                    </div>
+                  )}
+
                   <Separator />
+
+                  {/* Tổng cộng */}
                   <div className="flex justify-between font-bold text-lg md:text-xl">
                     <span>Tổng cộng</span>
                     <span className="text-primary">
-                      {formatCurrency(cart.totalPrice || 0)}
+                      {formatCurrency(finalPrice || cart.totalPrice || 0)}
                     </span>
                   </div>
                 </div>

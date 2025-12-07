@@ -57,7 +57,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
-  FishSize,
   Gender,
   HealthStatus,
   KoiFishResponse,
@@ -100,9 +99,10 @@ export default function KoiManagement() {
   const [genderFilterInput, setGenderFilterInput] = useState<string>("all");
   const [minPriceInput, setMinPriceInput] = useState<string>("");
   const [maxPriceInput, setMaxPriceInput] = useState<string>("");
+  const [minSizeInput, setMinSizeInput] = useState<string>("");
+  const [maxSizeInput, setMaxSizeInput] = useState<string>("");
   const [varietyIdInput, setVarietyIdInput] = useState<string>("");
   const [pondIdInput, setPondIdInput] = useState<string>("");
-  const [fishSizeInput, setFishSizeInput] = useState<string>("all");
   const [originInput, setOriginInput] = useState<string>("");
 
   const [isPedigreeModalOpen, setIsPedigreeModalOpen] = useState(false);
@@ -175,8 +175,8 @@ export default function KoiManagement() {
         : undefined;
     const gender =
       genderFilterInput !== "all" ? (genderFilterInput as Gender) : undefined;
-    const fishSize =
-      fishSizeInput !== "all" ? (fishSizeInput as FishSize) : undefined;
+    const minSize = minSizeInput ? Number(minSizeInput) : undefined;
+    const maxSize = maxSizeInput ? Number(maxSizeInput) : undefined;
     const minPrice = minPriceInput ? Number(minPriceInput) : undefined;
     const maxPrice = maxPriceInput ? Number(maxPriceInput) : undefined;
 
@@ -187,7 +187,8 @@ export default function KoiManagement() {
       ...prev,
       health: health,
       gender: gender,
-      fishSize: fishSize,
+      minSize: minSize,
+      maxSize: maxSize,
       minPrice: minPrice,
       maxPrice: maxPrice,
       varietyId: varietyId,
@@ -204,9 +205,10 @@ export default function KoiManagement() {
     setGenderFilterInput("all");
     setMinPriceInput("");
     setMaxPriceInput("");
+    setMinSizeInput("");
+    setMaxSizeInput("");
     setVarietyIdInput("");
     setPondIdInput("");
-    setFishSizeInput("all");
     setOriginInput("");
 
     setSearchParams((prev) => ({
@@ -215,9 +217,10 @@ export default function KoiManagement() {
       gender: undefined,
       minPrice: undefined,
       maxPrice: undefined,
+      minSize: undefined,
+      maxSize: undefined,
       varietyId: undefined,
       pondId: undefined,
-      fishSize: undefined,
       origin: undefined,
       pageIndex: 1,
     }));
@@ -430,7 +433,7 @@ export default function KoiManagement() {
                         <TableCell className="truncate">
                           {formatCurrency(koi.sellingPrice || 0)}
                         </TableCell>
-                        <TableCell className="truncate">
+                        <TableCell className="truncate text-center">
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                               <Button
@@ -630,10 +633,15 @@ export default function KoiManagement() {
           if (!open) {
             setHealthFilterInput(searchParams.health || "all");
             setGenderFilterInput(searchParams.gender || "all");
-            setFishSizeInput(
+            setMinSizeInput(
               searchParams.minSize !== undefined
                 ? String(searchParams.minSize)
-                : "all",
+                : "",
+            );
+            setMaxSizeInput(
+              searchParams.maxSize !== undefined
+                ? String(searchParams.maxSize)
+                : "",
             );
             setMinPriceInput(
               searchParams.minPrice !== undefined
@@ -717,24 +725,23 @@ export default function KoiManagement() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="fishSize">Kích thước</Label>
-                <Select value={fishSizeInput} onValueChange={setFishSizeInput}>
-                  <SelectTrigger>
-                    <span className="flex items-center gap-2">
-                      {fishSizeInput === "all"
-                        ? "Chọn kích thước"
-                        : getFishSizeLabel(fishSizeInput)}
-                    </span>
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Tất cả</SelectItem>
-                    {Object.values(FishSize).map((s) => (
-                      <SelectItem key={s} value={s}>
-                        {getFishSizeLabel(s)}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <Label htmlFor="origin">Kích thước (cm)</Label>
+                <div className="grid grid-cols-2 gap-2">
+                  <InputNumber
+                    value={minSizeInput ? Number(minSizeInput) : undefined}
+                    onChange={(value) =>
+                      setMinSizeInput(value ? String(value) : "")
+                    }
+                    placeholder="Kích thước tối thiểu"
+                  />
+                  <InputNumber
+                    value={maxSizeInput ? Number(maxSizeInput) : undefined}
+                    onChange={(value) =>
+                      setMaxSizeInput(value ? String(value) : "")
+                    }
+                    placeholder="Kích thước tối đa"
+                  />
+                </div>
               </div>
 
               <div className="space-y-2">
