@@ -105,7 +105,6 @@ export interface BreedingRecommendRequest {
   isMutation: boolean;
   minHatchRate: number;
   minSurvivalRate: number;
-  minHighQualifiedRate: number;
 }
 
 export interface RecommendedPair {
@@ -170,6 +169,8 @@ export interface AnalyzePairRequest {
 export interface BreedingInfo {
   summary: string;
   breedingSuccessRate: number;
+  avgFertilizationRate: number;
+  avgEggs?: number;
 }
 
 export interface AnalyzePairResponse {
@@ -224,9 +225,10 @@ export const breedingProcessService = {
     >(`${baseUrl}/recommend`, request);
     return response.data;
   },
-  cancelBreeding: async (id: number) => {
-    const response = await apiService.put<BaseResponse<boolean>>(
+  cancelBreeding: async (id: number, note: string) => {
+    const response = await apiService.put<BaseResponse<boolean>, string>(
       `${baseUrl}/cancel/${id}`,
+      note,
     );
     return response.data;
   },

@@ -54,7 +54,7 @@ export default function HomePage() {
     <div className="min-h-screen bg-background">
       {/* Hero Section */}
       <section className="relative py-10 lg:py-8 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-accent/5"></div>
+        <div className="absolute inset-0 bg-linear-to-br from-primary/5 to-accent/5"></div>
         <div className="container mx-auto px-4 relative z-10">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div className="space-y-8">
@@ -115,7 +115,7 @@ export default function HomePage() {
               </div>
             </div>
             <div className="relative">
-              <div className="aspect-square rounded-2xl overflow-hidden bg-gradient-to-br from-primary/10 to-accent/10 p-4">
+              <div className="aspect-square rounded-2xl overflow-hidden bg-linear-to-br from-primary/10 to-accent/10 p-4">
                 <Image
                   src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/attachments/gen-images/public/beautiful-japanese-koi-fish-swimming-in-clear-pond-1MrDrpINIJ33x6iP0z7Xz4hMlnVc50.jpg"
                   alt="Cá Koi Nhật Bản chất lượng cao"
@@ -327,7 +327,7 @@ export default function HomePage() {
       {/* CTA Section */}
       <section className="py-10">
         <div className="container mx-auto px-4">
-          <div className="bg-gradient-to-r from-primary/10 to-accent/10 rounded-2xl p-8 lg:p-16 text-center">
+          <div className="bg-linear-to-r from-primary/10 to-accent/10 rounded-2xl p-8 lg:p-16 text-center">
             <div className="space-y-6 max-w-3xl mx-auto">
               <h2 className="text-3xl lg:text-4xl font-bold   text-balance">
                 Sẵn sàng sở hữu cá Koi chất lượng cao?

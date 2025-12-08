@@ -329,7 +329,7 @@ export default function KoiDetailPage() {
             ) : (
               <Button
                 size="lg"
-                className="w-full bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-white"
+                className="w-full bg-linear-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-white"
                 disabled={isAddPending || koi.saleStatus === "Sold"}
                 onClick={() => addToCart({ koiFishId: koi.id, quantity: 1 })}
               >

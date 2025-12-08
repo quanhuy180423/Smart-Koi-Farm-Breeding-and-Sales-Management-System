@@ -49,7 +49,7 @@ export function ManagerHeader() {
               />
             </div>
             <div className="hidden sm:block">
-              <h1 className="font-bold text-lg leading-none bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+              <h1 className="font-bold text-lg leading-none bg-linear-to-r from-primary to-accent bg-clip-text text-transparent">
                 ZenKoi Manager
               </h1>
             </div>

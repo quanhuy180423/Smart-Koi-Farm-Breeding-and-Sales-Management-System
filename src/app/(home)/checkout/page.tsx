@@ -331,13 +331,7 @@ export default function CheckoutPage() {
               orderId: data.result.id,
               method: selectedMethod,
             });
-            // Hook sẽ tự động chuyển hướng tới payment URL
-          } else {
-            router.push("/checkout/failure");
           }
-        },
-        onError: () => {
-          router.push("/checkout/failure");
         },
       },
     );
@@ -352,7 +346,7 @@ export default function CheckoutPage() {
   // Loading state
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-background to-muted/20 flex items-center justify-center">
+      <div className="min-h-screen bg-linear-to-br from-background to-muted/20 flex items-center justify-center">
         <div className="container mx-auto px-4">
           <div className="max-w-2xl mx-auto">
             <LoadingState message="Đang tải giỏ hàng..." />
@@ -365,7 +359,7 @@ export default function CheckoutPage() {
   // Error state
   if (isError) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-background to-muted/20 flex items-center justify-center">
+      <div className="min-h-screen bg-linear-to-br from-background to-muted/20 flex items-center justify-center">
         <div className="container mx-auto px-4">
           <div className="max-w-2xl mx-auto">
             <ErrorState
@@ -382,7 +376,7 @@ export default function CheckoutPage() {
   // Empty cart state
   if (items.length === 0) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-background to-muted/20 flex items-center justify-center">
+      <div className="min-h-screen bg-linear-to-br from-background to-muted/20 flex items-center justify-center">
         <div className="container mx-auto px-4">
           <div className="max-w-2xl mx-auto">
             <EmptyState
@@ -401,7 +395,7 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background to-muted/20">
+    <div className="min-h-screen bg-linear-to-br from-background to-muted/20">
       <div className="container mx-auto px-4 py-6 md:py-8">
         <div className="max-w-7xl mx-auto">
           {/* Header */}
@@ -548,7 +542,7 @@ export default function CheckoutPage() {
                               <CardContent className="pt-4">
                                 <div className="space-y-2 text-sm">
                                   <div className="flex items-start gap-2">
-                                    <MapPin className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+                                    <MapPin className="h-4 w-4 text-primary mt-0.5 shrink-0" />
                                     <div>
                                       <p className="font-medium">
                                         {selectedAddress.customerName}
@@ -853,7 +847,7 @@ export default function CheckoutPage() {
                           disabled={
                             !isStep2Valid || isSubmitting || isCreatingPayment
                           }
-                          className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 px-8 py-2.5 shadow-lg disabled:opacity-50"
+                          className="bg-linear-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 px-8 py-2.5 shadow-lg disabled:opacity-50"
                         >
                           {isSubmitting || isCreatingPayment ? (
                             <>
@@ -910,7 +904,7 @@ export default function CheckoutPage() {
                           key={item.id}
                           className="flex gap-3 p-3 bg-muted/30 rounded-lg border border-border/50"
                         >
-                          <div className="relative w-14 h-14 rounded-lg overflow-hidden flex-shrink-0 bg-muted">
+                          <div className="relative w-14 h-14 rounded-lg overflow-hidden shrink-0 bg-muted">
                             <Image
                               src={itemImage}
                               alt={itemName}

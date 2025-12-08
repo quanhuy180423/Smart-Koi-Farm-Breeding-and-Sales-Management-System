@@ -71,3 +71,63 @@ export async function redirectHighPrivilegeUser(
     (redirect as (path: string) => never)(redirectPath);
   }
 }
+
+/**
+ * Decode JWT token and return payload
+ * @param token JWT token string
+ * @returns Decoded token payload or null if invalid
+ */
+export function decodeToken(token: string): Record<string, unknown> | null {
+  try {
+    const decoded = jwt.decode(token);
+    return decoded as Record<string, unknown> | null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Check if token is expired
+ * @param token JWT token string
+ * @param bufferSeconds Buffer time in seconds before actual expiration (default: 60)
+ * @returns true if token is expired or will expire soon
+ */
+export function isTokenExpired(
+  token: string,
+  bufferSeconds: number = 60,
+): boolean {
+  try {
+    const decoded = decodeToken(token);
+    if (!decoded || typeof decoded.exp !== "number") {
+      return true; // Treat as expired if no exp claim
+    }
+
+    const now = Math.floor(Date.now() / 1000);
+    const expirationTime = decoded.exp;
+    const timeUntilExpiry = expirationTime - now;
+
+    // Token is expired if expiry time <= current time + buffer
+    return timeUntilExpiry <= bufferSeconds;
+  } catch {
+    return true; // Treat as expired if error
+  }
+}
+
+/**
+ * Get time remaining for token in seconds
+ * @param token JWT token string
+ * @returns Seconds until token expires, or -1 if invalid
+ */
+export function getTokenExpiryTime(token: string): number {
+  try {
+    const decoded = decodeToken(token);
+    if (!decoded || typeof decoded.exp !== "number") {
+      return -1;
+    }
+
+    const now = Math.floor(Date.now() / 1000);
+    return decoded.exp - now;
+  } catch {
+    return -1;
+  }
+}

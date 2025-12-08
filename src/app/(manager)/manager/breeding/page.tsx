@@ -60,6 +60,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { DatePickerFilter } from "@/components/ui/DatePickerFilter";
+import { Textarea } from "@/components/ui/textarea";
 import KoiFishSelectionDialogForBreeding from "@/components/manager/KoiFishSelectionDialogForBreeding";
 import PondSelectionDialog from "@/components/manager/PondSelectionDialog";
 
@@ -70,6 +71,7 @@ export default function BreedingManagement() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [breedingToDelete, setBreedingToDelete] =
     useState<BreedingProcessResponse>();
+  const [cancelNote, setCancelNote] = useState<string>("");
 
   // Complete Classification
   const [isCompleteModalOpen, setIsCompleteModalOpen] = useState(false);
@@ -332,9 +334,10 @@ export default function BreedingManagement() {
     if (!breedingToDelete?.id) return;
 
     try {
-      await cancelBreedingAsync(breedingToDelete?.id);
+      await cancelBreedingAsync({ id: breedingToDelete.id, note: cancelNote });
       setIsDeleteModalOpen(false);
       setBreedingToDelete(undefined);
+      setCancelNote("");
     } catch {}
   };
 
@@ -389,7 +392,7 @@ export default function BreedingManagement() {
         </CardHeader>
         <CardContent>
           <div className="flex space-x-4 mb-4">
-            <div className="relative flex-grow">
+            <div className="relative grow">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 placeholder="Tìm kiếm theo RFID cá bố/mẹ..."
@@ -535,20 +538,21 @@ export default function BreedingManagement() {
                             </Button>
                           )}
 
-                          {process.status === BreedingStatus.PAIRING && (
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              className="text-red-600"
-                              title="Hủy"
-                              onClick={() => {
-                                setBreedingToDelete(process);
-                                setIsDeleteModalOpen(true);
-                              }}
-                            >
-                              <X className="h-4 w-4" />
-                            </Button>
-                          )}
+                          {process.status !== BreedingStatus.COMPLETE &&
+                            process.status !== BreedingStatus.FAILED && (
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                className="text-red-600"
+                                title="Hủy"
+                                onClick={() => {
+                                  setBreedingToDelete(process);
+                                  setIsDeleteModalOpen(true);
+                                }}
+                              >
+                                <X className="h-4 w-4" />
+                              </Button>
+                            )}
                         </TableCell>
                       </TableRow>
                     ))
@@ -763,7 +767,7 @@ export default function BreedingManagement() {
             </div>
 
             <div className="grid grid-cols-2 gap-3 border-t pt-3">
-              <p className="text-sm font-semibold col-span-full mb-[-6px] text-muted-foreground">
+              <p className="text-sm font-semibold col-span-full -mb-1.5 text-muted-foreground">
                 Lọc theo Số lượng cá Đạt chuẩn
               </p>
               <div className="space-y-2 col-span-2 md:col-span-1">
@@ -795,7 +799,7 @@ export default function BreedingManagement() {
                 />
               </div>
 
-              <p className="text-sm font-semibold col-span-full md:col-span-2 mb-[-6px] text-muted-foreground">
+              <p className="text-sm font-semibold col-span-full md:col-span-2 -mb-1.5 text-muted-foreground">
                 Lọc theo Số gói (Package)
               </p>
               <div className="space-y-2 col-span-2 md:col-span-1">
@@ -827,7 +831,7 @@ export default function BreedingManagement() {
                 />
               </div>
 
-              <p className="text-sm font-semibold col-span-full md:col-span-2 mb-[-6px] text-muted-foreground">
+              <p className="text-sm font-semibold col-span-full md:col-span-2 -mb-1.5 text-muted-foreground">
                 Lọc theo Số trứng
               </p>
               <div className="space-y-2 col-span-2 md:col-span-1">
@@ -893,7 +897,7 @@ export default function BreedingManagement() {
             </div>
 
             <div className="grid grid-cols-2 gap-3 border-t pt-3">
-              <p className="text-sm font-semibold col-span-full mb-[-6px] text-muted-foreground">
+              <p className="text-sm font-semibold col-span-full -mb-1.5 text-muted-foreground">
                 Lọc theo Thời gian BẮT ĐẦU
               </p>
               <DatePickerFilter
@@ -907,7 +911,7 @@ export default function BreedingManagement() {
                 onChange={setStartDateToInput}
               />
 
-              <p className="text-sm font-semibold col-span-full md:col-span-2 mb-[-6px] text-muted-foreground">
+              <p className="text-sm font-semibold col-span-full md:col-span-2 -mb-1.5 text-muted-foreground">
                 Lọc theo Thời gian KẾT THÚC
               </p>
               <DatePickerFilter
@@ -993,7 +997,18 @@ export default function BreedingManagement() {
       </Dialog>
 
       {/* Confirm Delete Dialog */}
-      <Dialog open={isDeleteModalOpen} onOpenChange={setIsDeleteModalOpen}>
+      <Dialog
+        open={isDeleteModalOpen}
+        onOpenChange={(open) => {
+          setIsDeleteModalOpen(open);
+          if (!open) {
+            setTimeout(() => {
+              setBreedingToDelete(undefined);
+              setCancelNote("");
+            }, 100);
+          }
+        }}
+      >
         <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle>Xác nhận hủy đợt lai</DialogTitle>
@@ -1001,15 +1016,30 @@ export default function BreedingManagement() {
               Hành động này không thể hoàn tác.
             </DialogDescription>
           </DialogHeader>
-          <p>
-            Bạn có chắc chắn muốn hủy đợt lai{" "}
-            <span className="font-semibold text-red-600">
-              {breedingToDelete?.maleKoiRFID} -{" "}
-              {breedingToDelete?.femaleKoiRFID}
-            </span>
-            ?
-          </p>
-          <div className="flex justify-end gap-3 pt-4 border-t">
+          <div className="space-y-4">
+            <p>
+              Bạn có chắc chắn muốn hủy đợt lai{" "}
+              <span className="font-semibold text-red-600">
+                {breedingToDelete?.maleKoiRFID} -{" "}
+                {breedingToDelete?.femaleKoiRFID}
+              </span>
+              ?
+            </p>
+            <div className="space-y-2">
+              <Label htmlFor="cancelNote">
+                Ghi chú lý do hủy <span className="text-red-600">*</span>
+              </Label>
+              <Textarea
+                id="cancelNote"
+                placeholder="Nhập lý do hủy đợt lai..."
+                value={cancelNote}
+                onChange={(e) => setCancelNote(e.target.value)}
+                rows={4}
+                className="resize-none"
+              />
+            </div>
+          </div>
+          <DialogFooter className="pt-4 border-t">
             <Button
               variant="outline"
               onClick={() => setIsDeleteModalOpen(false)}
@@ -1019,10 +1049,11 @@ export default function BreedingManagement() {
             <Button
               className="bg-red-600 hover:bg-red-700"
               onClick={handleDelete}
+              disabled={!cancelNote.trim()}
             >
-              Hủy
+              Hủy đợt lai
             </Button>
-          </div>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
 

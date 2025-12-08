@@ -76,7 +76,7 @@ export function PromotionBanner({
     return (
       <div
         className={cn(
-          "bg-gradient-to-r from-primary to-accent text-white py-2 px-4 text-center text-sm font-semibold rounded-lg",
+          "bg-linear-to-r from-primary to-accent text-white py-2 px-4 text-center text-sm font-semibold rounded-lg",
           className,
         )}
       >
@@ -143,7 +143,7 @@ export function PromotionBanner({
             </Carousel>
           </div>
         ) : (
-          <div className="hidden lg:flex aspect-square items-center justify-center bg-gradient-to-br from-primary/10 to-accent/10 rounded-l-lg">
+          <div className="hidden lg:flex aspect-square items-center justify-center bg-linear-to-br from-primary/10 to-accent/10 rounded-l-lg">
             <Gift className="h-20 w-20 text-primary/30" />
           </div>
         )}

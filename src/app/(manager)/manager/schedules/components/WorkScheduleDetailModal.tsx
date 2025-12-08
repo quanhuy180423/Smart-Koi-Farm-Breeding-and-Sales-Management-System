@@ -63,7 +63,7 @@ export default function WorkScheduleDetailModal({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Scheduled Date */}
                 <div className="flex items-start gap-3">
-                  <Calendar className="h-5 w-5 text-gray-600 mt-0.5 flex-shrink-0" />
+                  <Calendar className="h-5 w-5 text-gray-600 mt-0.5 shrink-0" />
                   <div>
                     <p className="text-sm font-medium text-gray-600">
                       Ngày thực hiện
@@ -79,7 +79,7 @@ export default function WorkScheduleDetailModal({
 
                 {/* Time */}
                 <div className="flex items-start gap-3">
-                  <Clock className="h-5 w-5 text-gray-600 mt-0.5 flex-shrink-0" />
+                  <Clock className="h-5 w-5 text-gray-600 mt-0.5 shrink-0" />
                   <div>
                     <p className="text-sm font-medium text-gray-600">
                       Giờ thực hiện
@@ -121,7 +121,7 @@ export default function WorkScheduleDetailModal({
                   >
                     <CardContent className="pt-4">
                       <div className="flex items-start gap-3">
-                        <User className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
+                        <User className="h-5 w-5 text-blue-600 mt-0.5 shrink-0" />
                         <div className="flex-1 space-y-2">
                           <p className="font-medium text-gray-900">
                             {staff.staffName}
@@ -182,7 +182,7 @@ export default function WorkScheduleDetailModal({
                   >
                     <CardContent className="pt-4">
                       <div className="flex items-start gap-3">
-                        <Droplets className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
+                        <Droplets className="h-5 w-5 text-green-600 mt-0.5 shrink-0" />
                         <p className="font-medium text-gray-900">
                           {pond.pondName}
                         </p>
@@ -203,7 +203,7 @@ export default function WorkScheduleDetailModal({
             <Card className="bg-amber-50 border-amber-200">
               <CardContent className="pt-6">
                 <div className="flex items-start gap-3">
-                  <FileText className="h-5 w-5 text-amber-600 mt-0.5 flex-shrink-0" />
+                  <FileText className="h-5 w-5 text-amber-600 mt-0.5 shrink-0" />
                   <div>
                     <p className="text-sm font-medium text-amber-900 mb-2">
                       Ghi chú

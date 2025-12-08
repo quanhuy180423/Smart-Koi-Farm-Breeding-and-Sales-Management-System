@@ -144,7 +144,7 @@ export default function MotherFishInfo({ selectedFish }: MotherFishInfoProps) {
 
         <div className="flex flex-col items-center mb-8">
           <div className="relative mb-4">
-            <div className="w-36 h-36 rounded-2xl border-4 border-pink-100 overflow-hidden shadow-lg bg-gradient-to-br from-pink-50 to-white">
+            <div className="w-36 h-36 rounded-2xl border-4 border-pink-100 overflow-hidden shadow-lg bg-linear-to-br from-pink-50 to-white">
               <Image
                 src={selectedFish.images[0]}
                 alt={selectedFish.rfid}
@@ -176,7 +176,7 @@ export default function MotherFishInfo({ selectedFish }: MotherFishInfoProps) {
             {basicQualityData.map((item, index) => (
               <Card
                 key={index}
-                className="bg-gradient-to-br from-pink-50 to-white border-pink-100 hover:shadow-md transition-shadow"
+                className="bg-linear-to-br from-pink-50 to-white border-pink-100 hover:shadow-md transition-shadow"
               >
                 <CardContent className="p-4">
                   <div className="text-sm font-semibold text-gray-700 mb-2">
@@ -200,7 +200,7 @@ export default function MotherFishInfo({ selectedFish }: MotherFishInfoProps) {
             {geneticData.map((item, index) => (
               <Card
                 key={index}
-                className="bg-gradient-to-br from-pink-50 to-white border-pink-100 hover:shadow-md transition-shadow"
+                className="bg-linear-to-br from-pink-50 to-white border-pink-100 hover:shadow-md transition-shadow"
               >
                 <CardContent className="p-4">
                   <div className="text-sm font-semibold text-gray-700 mb-2">
@@ -224,7 +224,7 @@ export default function MotherFishInfo({ selectedFish }: MotherFishInfoProps) {
             {healthAgeData.map((item, index) => (
               <Card
                 key={index}
-                className="bg-gradient-to-br from-pink-50 to-white border-pink-100 hover:shadow-md transition-shadow"
+                className="bg-linear-to-br from-pink-50 to-white border-pink-100 hover:shadow-md transition-shadow"
               >
                 <CardContent className="p-4">
                   <div className="text-sm font-semibold text-gray-700 mb-2">
@@ -248,7 +248,7 @@ export default function MotherFishInfo({ selectedFish }: MotherFishInfoProps) {
             {breedData.map((item, index) => (
               <Card
                 key={index}
-                className="bg-gradient-to-br from-pink-50 to-white border-pink-100 hover:shadow-md transition-shadow"
+                className="bg-linear-to-br from-pink-50 to-white border-pink-100 hover:shadow-md transition-shadow"
               >
                 <CardContent className="p-4">
                   <div className="text-sm font-semibold text-gray-700 mb-2">
@@ -272,7 +272,7 @@ export default function MotherFishInfo({ selectedFish }: MotherFishInfoProps) {
             {breedingHistoryData.map((item, index) => (
               <Card
                 key={index}
-                className="bg-gradient-to-br from-pink-50 to-white border-pink-100 hover:shadow-md transition-shadow"
+                className="bg-linear-to-br from-pink-50 to-white border-pink-100 hover:shadow-md transition-shadow"
               >
                 <CardContent className="p-4">
                   <div className="text-sm font-semibold text-gray-700 mb-2">

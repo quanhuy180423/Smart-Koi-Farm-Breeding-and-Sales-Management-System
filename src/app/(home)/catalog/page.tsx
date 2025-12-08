@@ -4,7 +4,6 @@ import { useState, useMemo, Suspense } from "react";
 import { useDebounce } from "@/hooks/useDebounce";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
 import {
   Sheet,
   SheetContent,
@@ -14,7 +13,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 
-import { Search, X, FishOff, Fish, Filter } from "lucide-react";
+import { Search, FishOff, Fish, Filter } from "lucide-react";
 import { useGetKoiFishes } from "@/hooks/useKoiFish";
 import {
   KoiFishSearchParams,
@@ -23,7 +22,6 @@ import {
 } from "@/lib/api/services/fetchKoiFish";
 import { useAddItemToCart, useGetCart } from "@/hooks/useCart";
 import { PaginationWithLinks } from "@/components/pagination";
-import { formatCurrency } from "@/lib/utils/numbers/formatCurrency";
 import { KoiFishCard } from "./components/KoiFishCard";
 import {
   KoiFilterPanel,
@@ -36,8 +34,10 @@ const PAGE_SIZE_OPTIONS = [9, 12, 24];
 function CatalogContent() {
   // 1. Initialize state without URL dependency
   const [filters, setFilters] = useState(initialFilterState);
+  const [appliedFilters, setAppliedFilters] = useState(initialFilterState);
   const [searchTerm, setSearchTerm] = useState("");
-  const debouncedSearchTerm = useDebounce(searchTerm, 500);
+  const [appliedSearchTerm, setAppliedSearchTerm] = useState("");
+  const debouncedSearchTerm = useDebounce(appliedSearchTerm, 500);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(PAGE_SIZE_OPTIONS[0]);
 
@@ -52,16 +52,19 @@ function CatalogContent() {
     );
   };
 
-  // 2. Handle filter application - now just updates applied filters
+  // 2. Handle filter application - apply filters when button clicked
   const handleApplyFilters = () => {
+    setAppliedFilters(filters);
+    setAppliedSearchTerm(searchTerm);
     setCurrentPage(1); // Reset to first page when filters change
-    // Filters are already updated in real-time, no need for separate applied state
   };
 
   // 3. Reset all filters to initial state
   const resetFilters = () => {
     setSearchTerm("");
+    setAppliedSearchTerm("");
     setFilters(initialFilterState);
+    setAppliedFilters(initialFilterState);
     setCurrentPage(1);
   };
 
@@ -75,7 +78,7 @@ function CatalogContent() {
     setCurrentPage(1); // Reset to first page when page size changes
   };
 
-  // 5. Create API params from filter state
+  // 5. Create API params from APPLIED filter state
   const apiParams = useMemo((): KoiFishSearchParams => {
     const params: KoiFishSearchParams = {
       pageIndex: currentPage,
@@ -84,25 +87,28 @@ function CatalogContent() {
     };
 
     if (debouncedSearchTerm) params.search = debouncedSearchTerm;
-    if (filters.selectedGender !== "Tất cả")
-      params.gender = filters.selectedGender as Gender;
-    if (filters.selectedVariety !== "Tất cả")
-      params.varietyId = Number(filters.selectedVariety);
-    if (filters.selectedOrigin !== "Tất cả")
-      params.origin = filters.selectedOrigin;
+    if (appliedFilters.selectedGender !== "Tất cả")
+      params.gender = appliedFilters.selectedGender as Gender;
+    if (appliedFilters.selectedVariety !== "Tất cả")
+      params.varietyId = Number(appliedFilters.selectedVariety);
+    if (appliedFilters.selectedOrigin !== "Tất cả")
+      params.origin = appliedFilters.selectedOrigin;
 
-    if (filters.sizeRange[0] > 0 || filters.sizeRange[1] < 90) {
-      params.minSize = filters.sizeRange[0];
-      params.maxSize = filters.sizeRange[1];
+    if (appliedFilters.sizeRange[0] > 0 || appliedFilters.sizeRange[1] < 90) {
+      params.minSize = appliedFilters.sizeRange[0];
+      params.maxSize = appliedFilters.sizeRange[1];
     }
 
-    if (filters.priceRange[0] > 0 || filters.priceRange[1] < 100000000) {
-      params.minPrice = filters.priceRange[0];
-      params.maxPrice = filters.priceRange[1];
+    if (
+      appliedFilters.priceRange[0] > 0 ||
+      appliedFilters.priceRange[1] < 100000000
+    ) {
+      params.minPrice = appliedFilters.priceRange[0];
+      params.maxPrice = appliedFilters.priceRange[1];
     }
 
     return params;
-  }, [filters, debouncedSearchTerm, currentPage, pageSize]);
+  }, [appliedFilters, debouncedSearchTerm, currentPage, pageSize]);
 
   // Fetch Data
   const { data: koiData, isLoading } = useGetKoiFishes(apiParams);
@@ -132,80 +138,80 @@ function CatalogContent() {
   };
 
   // Remove individual filter
-  const removeFilter = (key: string) => {
-    switch (key) {
-      case "gender":
-        setFilters((prev) => ({ ...prev, selectedGender: "Tất cả" }));
-        break;
-      case "variety":
-        setFilters((prev) => ({ ...prev, selectedVariety: "Tất cả" }));
-        break;
-      case "size":
-        setFilters((prev) => ({ ...prev, sizeRange: [0, 90] }));
-        break;
-      case "price":
-        setFilters((prev) => ({ ...prev, priceRange: [0, 100000000] }));
-        break;
-    }
-    setCurrentPage(1); // Reset to first page when removing filter
-  };
+  // const removeFilter = (key: string) => {
+  //   switch (key) {
+  //     case "gender":
+  //       setFilters((prev) => ({ ...prev, selectedGender: "Tất cả" }));
+  //       break;
+  //     case "variety":
+  //       setFilters((prev) => ({ ...prev, selectedVariety: "Tất cả" }));
+  //       break;
+  //     case "size":
+  //       setFilters((prev) => ({ ...prev, sizeRange: [0, 90] }));
+  //       break;
+  //     case "price":
+  //       setFilters((prev) => ({ ...prev, priceRange: [0, 100000000] }));
+  //       break;
+  //   }
+  //   setCurrentPage(1); // Reset to first page when removing filter
+  // };
 
   // Active Filters Bar (Display based on current filter state)
-  const ActiveFiltersBar = () => {
-    const chips = [];
-    if (filters.selectedGender !== "Tất cả")
-      chips.push({
-        label: `Giới tính: ${filters.selectedGender === Gender.MALE ? "Đực" : "Cái"}`,
-        key: "gender",
-      });
-    if (filters.selectedVariety !== "Tất cả")
-      chips.push({
-        label: `Giống: ${filters.selectedVariety}`,
-        key: "variety",
-      });
-    if (filters.sizeRange[0] > 0 || filters.sizeRange[1] < 90) {
-      chips.push({
-        label: `Size: ${filters.sizeRange[0]}-${filters.sizeRange[1]}cm`,
-        key: "size",
-      });
-    }
-    if (filters.priceRange[0] > 0 || filters.priceRange[1] < 100000000) {
-      chips.push({
-        label: `Giá: ${formatCurrency(filters.priceRange[0])} - ${formatCurrency(filters.priceRange[1])}`,
-        key: "price",
-      });
-    }
+  // const ActiveFiltersBar = () => {
+  //   const chips = [];
+  //   if (filters.selectedGender !== "Tất cả")
+  //     chips.push({
+  //       label: `Giới tính: ${filters.selectedGender === Gender.MALE ? "Đực" : "Cái"}`,
+  //       key: "gender",
+  //     });
+  //   if (filters.selectedVariety !== "Tất cả")
+  //     chips.push({
+  //       label: `Giống: ${filters.selectedVariety}`,
+  //       key: "variety",
+  //     });
+  //   if (filters.sizeRange[0] > 0 || filters.sizeRange[1] < 90) {
+  //     chips.push({
+  //       label: `Size: ${filters.sizeRange[0]}-${filters.sizeRange[1]}cm`,
+  //       key: "size",
+  //     });
+  //   }
+  //   if (filters.priceRange[0] > 0 || filters.priceRange[1] < 100000000) {
+  //     chips.push({
+  //       label: `Giá: ${formatCurrency(filters.priceRange[0])} - ${formatCurrency(filters.priceRange[1])}`,
+  //       key: "price",
+  //     });
+  //   }
 
-    if (chips.length === 0) return null;
+  //   if (chips.length === 0) return null;
 
-    return (
-      <div className="flex flex-wrap gap-2 mb-4 animate-in fade-in slide-in-from-top-2">
-        {chips.map((chip) => (
-          <Badge
-            key={chip.key}
-            variant="secondary"
-            className="px-3 py-1 bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 cursor-default"
-          >
-            {chip.label}
-            <button
-              onClick={() => removeFilter(chip.key)}
-              className="ml-2 hover:text-red-500"
-            >
-              <X className="h-3 w-3" />
-            </button>
-          </Badge>
-        ))}
-        <Button
-          variant="link"
-          size="sm"
-          onClick={resetFilters}
-          className="h-auto p-0 ml-2 text-muted-foreground"
-        >
-          Xóa tất cả
-        </Button>
-      </div>
-    );
-  };
+  //   return (
+  //     <div className="flex flex-wrap gap-2 mb-4 animate-in fade-in slide-in-from-top-2">
+  //       {chips.map((chip) => (
+  //         <Badge
+  //           key={chip.key}
+  //           variant="secondary"
+  //           className="px-3 py-1 bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 cursor-default"
+  //         >
+  //           {chip.label}
+  //           <button
+  //             onClick={() => removeFilter(chip.key)}
+  //             className="ml-2 hover:text-red-500"
+  //           >
+  //             <X className="h-3 w-3" />
+  //           </button>
+  //         </Badge>
+  //       ))}
+  //       <Button
+  //         variant="link"
+  //         size="sm"
+  //         onClick={resetFilters}
+  //         className="h-auto p-0 ml-2 text-muted-foreground"
+  //       >
+  //         Xóa tất cả
+  //       </Button>
+  //     </div>
+  //   );
+  // };
 
   const filterPanelProps = {
     filters,
@@ -244,6 +250,11 @@ function CatalogContent() {
               placeholder="Tìm kiếm..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  handleApplyFilters();
+                }
+              }}
               className="pl-11 pr-12 h-14 rounded-full text-white shadow-lg border-0 bg-white/20 placeholder-white/70 focus:bg-white/30 focus:ring-0 focus:border-0 transition-all duration-200"
             />
             {/* Mobile Filter Button */}
@@ -294,7 +305,7 @@ function CatalogContent() {
             </div>
 
             {/* Hiển thị các filter đang active dựa trên URL */}
-            <ActiveFiltersBar />
+            {/* <ActiveFiltersBar /> */}
 
             {isLoading ? (
               <KoiGridSkeleton />

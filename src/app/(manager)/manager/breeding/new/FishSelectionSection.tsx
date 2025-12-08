@@ -61,16 +61,6 @@ const recommendSchema = z.object({
         .min(0, "Tỷ lệ phải lớn hơn 0")
         .max(100, "Tỷ lệ không được quá 100"),
     ),
-  minHighQualifiedRate: z
-    .string()
-    .min(1, { message: "Tỷ lệ chất lượng cao là bắt buộc." })
-    .transform(Number)
-    .pipe(
-      z
-        .number()
-        .min(0, "Tỷ lệ phải lớn hơn 0")
-        .max(100, "Tỷ lệ không được quá 100"),
-    ),
 });
 
 interface FishSelectionProps {
@@ -89,7 +79,6 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
   const [isMutation, setIsMutation] = useState(false);
   const [minHatchRate, setMinHatchRate] = useState("");
   const [minSurvivalRate, setMinSurvivalRate] = useState("");
-  const [minHighQualifiedRate, setMinHighQualifiedRate] = useState("");
   const [recommendedPairs, setRecommendedPairs] = useState<RecommendedPair[]>(
     [],
   );
@@ -144,7 +133,7 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
     pageIndex: pageIndexMale,
     pageSize,
     gender: Gender.MALE,
-    isBreeding: false,
+    isBreeding: true,
     search: fatherSearch,
     health: HealthStatus.HEALTHY,
   });
@@ -157,7 +146,7 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
     pageIndex: pageIndexFemale,
     pageSize,
     gender: Gender.FEMALE,
-    isBreeding: false,
+    isBreeding: true,
     search: motherSearch,
     health: HealthStatus.HEALTHY,
   });
@@ -219,7 +208,6 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
       isMutation,
       minHatchRate,
       minSurvivalRate,
-      minHighQualifiedRate,
     };
 
     const validationResult = recommendSchema.safeParse(formData);
@@ -334,8 +322,8 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
                 <span className="truncate">
                   {getFishSizeLabel(selected.size)}
                 </span>
-                <span className="flex-shrink-0">•</span>
-                <span className="flex-shrink-0">
+                <span className="shrink-0">•</span>
+                <span className="shrink-0">
                   {formatKoiAge(selected.birthDate)}
                 </span>
               </div>
@@ -381,7 +369,7 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
               <div
                 className={`w-16 h-16 rounded-full flex items-center justify-center transition-all duration-500 ${
                   selectedFather && selectedMother
-                    ? "bg-gradient-to-r from-pink-500 to-red-500 animate-pulse shadow-lg"
+                    ? "bg-linear-to-r from-pink-500 to-red-500 animate-pulse shadow-lg"
                     : "bg-pink-500"
                 }`}
               >
@@ -457,13 +445,13 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
                           </p>
                           <div className="grid grid-cols-[2fr_1fr] gap-3 text-sm">
                             <div className="flex items-center gap-2">
-                              <Ruler className="h-4 w-4 text-blue-500 flex-shrink-0" />
+                              <Ruler className="h-4 w-4 text-blue-500 shrink-0" />
                               <span className="text-gray-700">
                                 {getFishSizeLabel(fish.size)}
                               </span>
                             </div>
                             <div className="flex items-center gap-2">
-                              <Calendar className="h-4 w-4 text-green-500 flex-shrink-0" />
+                              <Calendar className="h-4 w-4 text-green-500 shrink-0" />
                               <span className="text-gray-700">
                                 {formatKoiAge(fish.birthDate)}
                               </span>
@@ -565,13 +553,13 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
                           </p>
                           <div className="grid grid-cols-[2fr_1fr] gap-3 text-sm">
                             <div className="flex items-center gap-2">
-                              <Ruler className="h-4 w-4 text-blue-500 flex-shrink-0" />
+                              <Ruler className="h-4 w-4 text-blue-500 shrink-0" />
                               <span className="text-gray-700">
                                 {getFishSizeLabel(fish.size)}
                               </span>
                             </div>
                             <div className="flex items-center gap-2">
-                              <Calendar className="h-4 w-4 text-green-500 flex-shrink-0" />
+                              <Calendar className="h-4 w-4 text-green-500 shrink-0" />
                               <span className="text-gray-700">
                                 {formatKoiAge(fish.birthDate)}
                               </span>
@@ -668,8 +656,8 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
                     <SelectValue placeholder="Chọn mục tiêu..." />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Sinh sản">Sinh sản</SelectItem>
-                    <SelectItem value="Thương mại">Thương mại</SelectItem>
+                    <SelectItem value="Số lượng">Số lượng</SelectItem>
+                    <SelectItem value="Chất lượng">Chất lượng</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -684,7 +672,7 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
                 Tiêu chí đột biến
               </h3>
             </div>
-            <div className="bg-gradient-to-r from-amber-50 to-yellow-50 p-6 rounded-lg border border-amber-200 shadow-sm">
+            <div className="bg-linear-to-r from-amber-50 to-yellow-50 p-6 rounded-lg border border-amber-200 shadow-sm">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="p-2 bg-amber-100 rounded-lg">
@@ -732,7 +720,7 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
                 Tiêu chí chất lượng
               </h3>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 bg-green-50 p-6 rounded-lg border border-green-100">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-green-50 p-6 rounded-lg border border-green-100">
               <div>
                 <Label
                   htmlFor="min-hatch-rate"
@@ -766,23 +754,6 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
                   className="mt-1 border border-gray-300 w-full"
                 />
               </div>
-              <div>
-                <Label
-                  htmlFor="min-high-qualified-rate"
-                  className="text-sm font-medium text-gray-700"
-                >
-                  Cá chất lượng cao tối thiểu (%){" "}
-                  <span className="text-red-500">*</span>
-                </Label>
-                <Input
-                  id="min-high-qualified-rate"
-                  placeholder="VD: 30"
-                  value={minHighQualifiedRate}
-                  onChange={(e) => setMinHighQualifiedRate(e.target.value)}
-                  onInput={handleNumericInput}
-                  className="mt-1 border border-gray-300 w-full"
-                />
-              </div>
             </div>
           </div>
 
@@ -790,7 +761,7 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
             <Button
               onClick={handleRecommend}
               disabled={isPending}
-              className="px-8 py-2 min-w-[240px]"
+              className="px-8 py-2 min-w-60"
             >
               {isPending ? (
                 <>
@@ -817,7 +788,7 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
 
                   return (
                     <Card key={index} className="overflow-hidden flex flex-col">
-                      <CardContent className="p-4 flex-grow">
+                      <CardContent className="p-4 grow">
                         <div className="flex gap-4">
                           {/* Cá đực */}
                           <div className="text-center w-1/2">

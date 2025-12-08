@@ -126,8 +126,8 @@ export default function PondSelectionModal({
                         `}
                       >
                         {/* Icon/Avatar */}
-                        <div className="flex-shrink-0">
-                          <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-full flex items-center justify-center text-white font-semibold text-sm">
+                        <div className="shrink-0">
+                          <div className="w-10 h-10 bg-linear-to-br from-blue-500 to-cyan-500 rounded-full flex items-center justify-center text-white font-semibold text-sm">
                             {pond.pondName.charAt(0).toUpperCase()}
                           </div>
                         </div>

@@ -58,7 +58,7 @@ export default function ForgotPasswordPage() {
           {/* Left Side - Success Message */}
           <div className="flex items-center justify-center p-4 lg:p-8 relative overflow-hidden bg-background">
             {/* Background effects for left side */}
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-accent/10"></div>
+            <div className="absolute inset-0 bg-linear-to-br from-primary/5 via-background to-accent/10"></div>
 
             {/* Floating koi fish animations for left side */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -80,8 +80,8 @@ export default function ForgotPasswordPage() {
 
             <Card className="w-full max-w-md mx-auto bg-card/95 backdrop-blur-md border-border/60 shadow-2xl relative z-10 transition-all duration-500 hover:shadow-primary/20 hover:shadow-2xl hover:-translate-y-1 rounded-2xl overflow-hidden">
               {/* Card glow effect */}
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-accent/10 opacity-50"></div>
-              <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent"></div>
+              <div className="absolute inset-0 bg-linear-to-br from-primary/10 via-transparent to-accent/10 opacity-50"></div>
+              <div className="absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-primary/50 to-transparent"></div>
 
               <CardHeader className="text-center space-y-4 relative z-10">
                 <Link href="/" className="flex justify-center mb-1 group">
@@ -97,7 +97,7 @@ export default function ForgotPasswordPage() {
                   </div>
                 </Link>
                 <div className="space-y-1">
-                  <CardTitle className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                  <CardTitle className="text-2xl font-bold bg-linear-to-r from-primary to-accent bg-clip-text text-transparent">
                     Email đã được gửi!
                   </CardTitle>
                   <CardDescription className="text-muted-foreground text-sm">
@@ -119,25 +119,25 @@ export default function ForgotPasswordPage() {
 
                   <Button
                     asChild
-                    className="w-full bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-primary-foreground font-semibold py-2.5 h-10 transition-all duration-300 hover:scale-[1.02] hover:shadow-lg hover:shadow-primary/25 relative overflow-hidden group"
+                    className="w-full bg-linear-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-primary-foreground font-semibold py-2.5 h-10 transition-all duration-300 hover:scale-[1.02] hover:shadow-lg hover:shadow-primary/25 relative overflow-hidden group"
                   >
                     <Link href="/login">
                       <span className="relative z-10">Quay lại đăng nhập</span>
-                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
+                      <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
                     </Link>
                   </Button>
                 </div>
               </CardContent>
 
               {/* Bottom highlight */}
-              <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-secondary/30 to-transparent"></div>
+              <div className="absolute inset-x-0 bottom-0 h-px bg-linear-to-r from-transparent via-secondary/30 to-transparent"></div>
             </Card>
           </div>
 
           {/* Right Side - Hero Image */}
           <div className="hidden lg:block relative bg-muted">
             {/* Background gradient overlay */}
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-secondary/20 z-10" />
+            <div className="absolute inset-0 bg-linear-to-br from-primary/20 to-secondary/20 z-10" />
 
             {/* Hero Image */}
             <Image
@@ -254,7 +254,7 @@ export default function ForgotPasswordPage() {
         {/* Left Side - Forgot Password Form */}
         <div className="flex items-center justify-center p-4 lg:p-8 relative overflow-hidden bg-background">
           {/* Background effects for left side */}
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-accent/10"></div>
+          <div className="absolute inset-0 bg-linear-to-br from-primary/5 via-background to-accent/10"></div>
 
           {/* Floating koi fish animations for left side */}
           <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -276,8 +276,8 @@ export default function ForgotPasswordPage() {
 
           <Card className="w-full max-w-md mx-auto bg-card/95 backdrop-blur-md border-border/60 shadow-2xl relative z-10 transition-all duration-500 hover:shadow-primary/20 hover:shadow-2xl hover:-translate-y-1 rounded-2xl overflow-hidden">
             {/* Card glow effect */}
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-accent/10 opacity-50"></div>
-            <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent"></div>
+            <div className="absolute inset-0 bg-linear-to-br from-primary/10 via-transparent to-accent/10 opacity-50"></div>
+            <div className="absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-primary/50 to-transparent"></div>
 
             <CardHeader className="text-center space-y-4 relative z-10">
               <Link href="/" className="flex justify-center mb-1 group">
@@ -293,7 +293,7 @@ export default function ForgotPasswordPage() {
                 </div>
               </Link>
               <div className="space-y-1">
-                <CardTitle className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                <CardTitle className="text-2xl font-bold bg-linear-to-r from-primary to-accent bg-clip-text text-transparent">
                   Quên mật khẩu
                 </CardTitle>
                 <CardDescription className="text-muted-foreground text-sm">
@@ -329,7 +329,7 @@ export default function ForgotPasswordPage() {
                 <Button
                   type="submit"
                   disabled={isMutating}
-                  className="w-full bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-primary-foreground font-semibold py-2.5 h-10 transition-all duration-300 hover:scale-[1.02] hover:shadow-lg hover:shadow-primary/25 disabled:opacity-50 disabled:scale-100 disabled:shadow-none relative overflow-hidden group"
+                  className="w-full bg-linear-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-primary-foreground font-semibold py-2.5 h-10 transition-all duration-300 hover:scale-[1.02] hover:shadow-lg hover:shadow-primary/25 disabled:opacity-50 disabled:scale-100 disabled:shadow-none relative overflow-hidden group"
                 >
                   <span className="relative z-10">
                     {isMutating ? (
@@ -341,7 +341,7 @@ export default function ForgotPasswordPage() {
                       "Gửi mã OTP"
                     )}
                   </span>
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
+                  <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
                 </Button>
               </form>
 
@@ -381,14 +381,14 @@ export default function ForgotPasswordPage() {
             </CardContent>
 
             {/* Bottom highlight */}
-            <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-secondary/30 to-transparent"></div>
+            <div className="absolute inset-x-0 bottom-0 h-px bg-linear-to-r from-transparent via-secondary/30 to-transparent"></div>
           </Card>
         </div>
 
         {/* Right Side - Hero Image */}
         <div className="hidden lg:block relative bg-muted">
           {/* Background gradient overlay */}
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-secondary/20 z-10" />
+          <div className="absolute inset-0 bg-linear-to-br from-primary/20 to-secondary/20 z-10" />
 
           {/* Hero Image */}
           <Image

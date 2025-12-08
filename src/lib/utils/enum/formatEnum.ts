@@ -8,6 +8,7 @@ import {
   Gender,
   HealthStatus,
   SaleStatus,
+  KoiBreedingStatus,
 } from "@/lib/api/services/fetchKoiFish";
 import { PondStatus, PondTypeEnum } from "@/lib/api/services/fetchPond";
 import { OrderStatus } from "@/lib/api/services/fetchOrder";
@@ -86,6 +87,25 @@ const saleStatusMeta: Record<SaleStatus, Label> = {
   [SaleStatus.SOLD]: { label: "Đã bán", colorClass: "bg-red-100 text-red-800" },
   [SaleStatus.NOT_FOR_SALE]: {
     label: "Không bán",
+    colorClass: "bg-gray-200 text-gray-800",
+  },
+};
+
+const koiBreedingStatusMeta: Record<KoiBreedingStatus, Label> = {
+  [KoiBreedingStatus.READY]: {
+    label: "Sẵn sàng sinh sản",
+    colorClass: "bg-green-100 text-green-800",
+  },
+  [KoiBreedingStatus.SPAWNING]: {
+    label: "Đang sinh sản",
+    colorClass: "bg-blue-100 text-blue-800",
+  },
+  [KoiBreedingStatus.POST_SPAWNING]: {
+    label: "Hậu sinh sản",
+    colorClass: "bg-orange-100 text-orange-800",
+  },
+  [KoiBreedingStatus.NOT_MATURE]: {
+    label: "Chưa trưởng thành",
     colorClass: "bg-gray-200 text-gray-800",
   },
 };
@@ -377,6 +397,10 @@ export function getUserGenderLabelForPerson(gender?: Gender): Label {
 
 export function getSaleStatusLabel(status?: SaleStatus): Label {
   return getLabelForEnum(status, saleStatusMeta);
+}
+
+export function getKoiBreedingStatusLabel(status?: KoiBreedingStatus): Label {
+  return getLabelForEnum(status, koiBreedingStatusMeta);
 }
 
 export function getBreedingResultLabel(result?: BreedingResult): Label {

@@ -100,7 +100,7 @@ export default function AboutPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-orange-100 dark:from-gray-900 dark:to-gray-800">
+    <div className="min-h-screen bg-linear-to-br from-orange-50 via-white to-orange-100 dark:from-gray-900 dark:to-gray-800">
       {/* Hero Section */}
       <section className="relative py-20 px-4">
         <div className="max-w-6xl mx-auto text-center">
@@ -222,7 +222,7 @@ export default function AboutPage() {
           <div className="grid md:grid-cols-2 gap-8 md:items-start">
             <div className="space-y-6 flex flex-col justify-between h-full">
               <div className="flex items-start gap-4">
-                <CheckCircle className="w-6 h-6 text-primary mt-1 flex-shrink-0" />
+                <CheckCircle className="w-6 h-6 text-primary mt-1 shrink-0" />
                 <div>
                   <h3 className="font-semibold text-lg mb-2">
                     Công nghệ tiên tiến
@@ -235,7 +235,7 @@ export default function AboutPage() {
               </div>
 
               <div className="flex items-start gap-4">
-                <CheckCircle className="w-6 h-6 text-primary mt-1 flex-shrink-0" />
+                <CheckCircle className="w-6 h-6 text-primary mt-1 shrink-0" />
                 <div>
                   <h3 className="font-semibold text-lg mb-2">Dễ sử dụng</h3>
                   <p className="text-muted-foreground">
@@ -246,7 +246,7 @@ export default function AboutPage() {
               </div>
 
               <div className="flex items-start gap-4">
-                <CheckCircle className="w-6 h-6 text-primary mt-1 flex-shrink-0" />
+                <CheckCircle className="w-6 h-6 text-primary mt-1 shrink-0" />
                 <div>
                   <h3 className="font-semibold text-lg mb-2">Hỗ trợ 24/7</h3>
                   <p className="text-muted-foreground">
@@ -259,7 +259,7 @@ export default function AboutPage() {
 
             <div className="space-y-6 flex flex-col justify-between h-full">
               <div className="flex items-start gap-4">
-                <CheckCircle className="w-6 h-6 text-primary mt-1 flex-shrink-0" />
+                <CheckCircle className="w-6 h-6 text-primary mt-1 shrink-0" />
                 <div>
                   <h3 className="font-semibold text-lg mb-2">Bảo mật cao</h3>
                   <p className="text-muted-foreground">
@@ -270,7 +270,7 @@ export default function AboutPage() {
               </div>
 
               <div className="flex items-start gap-4">
-                <CheckCircle className="w-6 h-6 text-primary mt-1 flex-shrink-0" />
+                <CheckCircle className="w-6 h-6 text-primary mt-1 shrink-0" />
                 <div>
                   <h3 className="font-semibold text-lg mb-2">
                     Cập nhật liên tục
@@ -283,7 +283,7 @@ export default function AboutPage() {
               </div>
 
               <div className="flex items-start gap-4">
-                <CheckCircle className="w-6 h-6 text-primary mt-1 flex-shrink-0" />
+                <CheckCircle className="w-6 h-6 text-primary mt-1 shrink-0" />
                 <div>
                   <h3 className="font-semibold text-lg mb-2">Chi phí hợp lý</h3>
                   <p className="text-muted-foreground">

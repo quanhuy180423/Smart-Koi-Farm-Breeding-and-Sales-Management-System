@@ -287,7 +287,7 @@ export default function PondTypeManagement() {
         </CardHeader>
         <CardContent>
           <div className="flex space-x-4 mb-4">
-            <div className="relative flex-grow">
+            <div className="relative grow">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 placeholder="Tìm kiếm theo tên loại hồ..."

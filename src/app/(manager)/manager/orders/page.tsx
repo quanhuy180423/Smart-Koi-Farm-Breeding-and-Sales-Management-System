@@ -170,7 +170,7 @@ export default function ManagerOrdersPage() {
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+          <h1 className="text-3xl font-bold bg-linear-to-r from-primary to-accent bg-clip-text text-transparent">
             Quản lý đơn hàng
           </h1>
           <p className="text-muted-foreground">
@@ -283,7 +283,7 @@ export default function ManagerOrdersPage() {
                   className="flex flex-col lg:flex-row lg:items-center lg:justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors gap-4"
                 >
                   <div className="flex items-start gap-4 flex-1">
-                    <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                    <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
                       <Package className="h-6 w-6" />
                     </div>
                     <div className="flex-1 min-w-0">
@@ -319,7 +319,7 @@ export default function ManagerOrdersPage() {
 
                       <div className="space-y-1 sm:space-y-0 sm:flex sm:items-center sm:gap-4 text-xs sm:text-sm text-muted-foreground mb-2">
                         <div className="flex items-center gap-1">
-                          <User className="h-3 w-3 flex-shrink-0" />
+                          <User className="h-3 w-3 shrink-0" />
                           <span className="truncate">{order.customerName}</span>
                         </div>
                         <div className="flex items-center gap-1">
@@ -334,7 +334,7 @@ export default function ManagerOrdersPage() {
 
                       <div className="text-xs sm:text-sm mb-2">
                         <div className="flex items-center gap-1 mb-2">
-                          <Fish className="h-3 w-3 text-muted-foreground flex-shrink-0" />
+                          <Fish className="h-3 w-3 text-muted-foreground shrink-0" />
                           <span className="text-muted-foreground">
                             {order?.orderDetails?.length || 0} sản phẩm
                           </span>
@@ -345,7 +345,7 @@ export default function ManagerOrdersPage() {
                               key={idx}
                               className="flex items-center gap-2 p-2 bg-muted/50 rounded-lg border"
                             >
-                              <div className="relative w-10 h-10 rounded-md overflow-hidden bg-muted flex-shrink-0">
+                              <div className="relative w-10 h-10 rounded-md overflow-hidden bg-muted shrink-0">
                                 <Image
                                   src={
                                     item.koiFish?.images?.[0] ||
@@ -419,7 +419,7 @@ export default function ManagerOrdersPage() {
                       <DropdownMenuTrigger asChild>
                         <Button
                           variant="ghost"
-                          className="h-8 w-8 p-0 flex-shrink-0"
+                          className="h-8 w-8 p-0 shrink-0"
                         >
                           <MoreHorizontal className="h-4 w-4" />
                         </Button>

@@ -21,7 +21,6 @@ import { useGetCart } from "@/hooks/useCart";
 import { formatCurrency } from "@/lib/utils/numbers/formatCurrency";
 import { CartItem } from "./CartItem";
 import { useAuthStore } from "@/store/auth-store";
-import { SaleStatus } from "@/lib/api/services/fetchKoiFish";
 
 // Component Skeleton cho lúc loading
 const CartSkeleton = () => (
@@ -59,13 +58,7 @@ export function CartSheet({ isOpen, onOpenChange }: CartSheetProps) {
   const finalPrice = cartData?.finalPrice || 0;
 
   // Kiểm tra xem có item nào hết hàng không
-  const hasOutOfStockItems = items.some((item) => {
-    const isKoi = !!item.koiFish;
-    return (
-      (isKoi && item.koiFish?.saleStatus === SaleStatus.SOLD) ||
-      (!isKoi && item.packetFish?.stockQuantity === 0)
-    );
-  });
+  const hasOutOfStockItems = items.some((item) => !item.isAvailable);
 
   // Handler cho nút Thanh toán
   const handleCheckout = () => {

@@ -22,7 +22,7 @@ export default async function AuthLayout({
 
   await redirectMultipleRestrictedRoles(redirectRules);
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-card to-background relative overflow-hidden">
+    <div className="min-h-screen bg-linear-to-br from-background via-card to-background relative overflow-hidden">
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div
           className="absolute top-1/4 left-1/4 w-16 h-8 bg-primary/20 rounded-full animate-pulse animate-duration-[4s]"

@@ -175,7 +175,7 @@ export default function CheckoutSuccessPage() {
                         className="flex gap-3 p-3 bg-muted/30 rounded-lg hover:bg-muted/50 transition-colors"
                       >
                         {/* Product Image */}
-                        <div className="relative w-20 h-20 rounded-md overflow-hidden flex-shrink-0 bg-muted">
+                        <div className="relative w-20 h-20 rounded-md overflow-hidden shrink-0 bg-muted">
                           <Image
                             src={
                               item.koiFish?.images?.[0] ||
