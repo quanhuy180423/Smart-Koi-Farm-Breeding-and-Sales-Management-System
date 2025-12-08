@@ -84,7 +84,7 @@ export function Header() {
               />
             </div>
             <div className="hidden sm:block">
-              <h1 className="font-bold text-2xl bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+              <h1 className="font-bold text-2xl bg-linear-to-r from-primary to-accent bg-clip-text text-transparent">
                 ZenKoi
               </h1>
               <p className="text-xs text-muted-foreground leading-tight">
@@ -166,7 +166,7 @@ export function Header() {
                 <div className="flex items-center gap-3">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button className="bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-primary-foreground font-medium px-4 py-2.5 h-auto transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-primary/25 relative overflow-hidden group rounded-xl cursor-pointer">
+                      <Button className="bg-linear-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-primary-foreground font-medium px-4 py-2.5 h-auto transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-primary/25 relative overflow-hidden group rounded-xl cursor-pointer">
                         <span className="relative z-10 flex items-center gap-2">
                           <User className="w-4 h-4" />
                           <span className="hover:underline cursor-pointer">
@@ -218,12 +218,12 @@ export function Header() {
                 </div>
               ) : (
                 <Link href="/login">
-                  <Button className="bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-primary-foreground font-medium px-6 py-2.5 h-auto transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-primary/25 relative overflow-hidden group rounded-xl cursor-pointer">
+                  <Button className="bg-linear-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-primary-foreground font-medium px-6 py-2.5 h-auto transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-primary/25 relative overflow-hidden group rounded-xl cursor-pointer">
                     <span className="relative z-10 flex items-center gap-2">
                       <User className="w-4 h-4" />
                       Đăng nhập
                     </span>
-                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
+                    <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
                   </Button>
                 </Link>
               )}
@@ -308,7 +308,7 @@ export function Header() {
                         setIsMenuOpen(false);
                         router.push("/profile");
                       }}
-                      className="w-full justify-center bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-primary-foreground font-medium"
+                      className="w-full justify-center bg-linear-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-primary-foreground font-medium"
                     >
                       <User className="w-4 h-4 mr-2" />
                       <span className="hover:underline cursor-pointer">
@@ -334,7 +334,7 @@ export function Header() {
                       onClick={() => setIsMenuOpen(false)}
                       className="flex-1"
                     >
-                      <Button className="w-full justify-center bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-primary-foreground font-medium">
+                      <Button className="w-full justify-center bg-linear-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-primary-foreground font-medium">
                         <User className="w-4 h-4 mr-2" />
                         Đăng nhập
                       </Button>

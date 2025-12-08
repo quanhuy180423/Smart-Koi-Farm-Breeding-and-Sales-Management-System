@@ -115,3 +115,22 @@ export function useDeleteKoiFish() {
     },
   });
 }
+
+export function useSetKoiReadyToSpawn() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (koiId: number) => koiFishService.setKoiReadyToSpawn(koiId),
+    onSuccess: (data: BaseResponse<string>) => {
+      if (data.isSuccess) {
+        queryClient.invalidateQueries({ queryKey: ["koi-fishes"] });
+      }
+      toast.success("Cá đã sẵn sàng sinh sản");
+    },
+    onError: (error: ApiError) => {
+      toast.error(
+        error.message || "Có lỗi xảy ra khi cập nhật trạng thái sinh sản",
+      );
+    },
+  });
+}

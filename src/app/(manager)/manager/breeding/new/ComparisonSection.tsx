@@ -136,7 +136,7 @@ export default function ComparisonSection({
       <section className="w-full bg-white border border-gray-100 shadow-sm rounded-xl p-8 space-y-8">
         <header>
           <h2 className="text-xl font-bold text-gray-900 mb-2 flex items-center gap-3">
-            <div className="w-3 h-8 bg-gradient-to-b from-purple-500 to-pink-500 rounded-full"></div>
+            <div className="w-3 h-8 bg-linear-to-b from-purple-500 to-pink-500 rounded-full"></div>
             Đánh giá mức độ tương hợp
           </h2>
           <p className="text-gray-600 text-sm">
@@ -144,7 +144,7 @@ export default function ComparisonSection({
           </p>
         </header>
 
-        <Card className="border-purple-200 bg-gradient-to-r from-purple-50 via-blue-50 to-pink-50 shadow-lg">
+        <Card className="border-purple-200 bg-linear-to-r from-purple-50 via-blue-50 to-pink-50 shadow-lg">
           <CardContent className="px-6 py-12 flex flex-col items-center justify-center gap-4">
             <Loader2 className="w-8 h-8 text-purple-600 animate-spin" />
             <p className="text-gray-600 font-medium">
@@ -160,7 +160,7 @@ export default function ComparisonSection({
     <section className="w-full bg-white border border-gray-100 shadow-sm rounded-xl p-8 space-y-8">
       <header>
         <h2 className="text-xl font-bold text-gray-900 mb-2 flex items-center gap-3">
-          <div className="w-3 h-8 bg-gradient-to-b from-purple-500 to-pink-500 rounded-full"></div>
+          <div className="w-3 h-8 bg-linear-to-b from-purple-500 to-pink-500 rounded-full"></div>
           Đánh giá mức độ tương hợp
         </h2>
         <p className="text-gray-600 text-sm">
@@ -168,7 +168,7 @@ export default function ComparisonSection({
         </p>
       </header>
 
-      <Card className="border-purple-200 bg-gradient-to-r from-purple-50 via-blue-50 to-pink-50 shadow-lg">
+      <Card className="border-purple-200 bg-linear-to-r from-purple-50 via-blue-50 to-pink-50 shadow-lg">
         <CardContent className="px-6">
           <h3 className="text-lg font-bold text-gray-800 mb-6 text-center">
             Thông tin cặp phối giống
@@ -177,7 +177,7 @@ export default function ComparisonSection({
           <div className="flex items-center justify-center gap-12">
             <div className="flex flex-col items-center">
               <div className="relative mb-4">
-                <div className="w-24 h-24 rounded-2xl border-4 border-blue-200 overflow-hidden shadow-lg bg-gradient-to-br from-blue-50 to-white">
+                <div className="w-24 h-24 rounded-2xl border-4 border-blue-200 overflow-hidden shadow-lg bg-linear-to-br from-blue-50 to-white">
                   <Image
                     src={fatherFish.images[0]}
                     alt={fatherFish.rfid}
@@ -197,7 +197,7 @@ export default function ComparisonSection({
             </div>
 
             <div className="flex flex-col items-center">
-              <div className="bg-gradient-to-r from-pink-500 to-purple-500 rounded-full p-4 mb-4 shadow-lg animate-pulse">
+              <div className="bg-linear-to-r from-pink-500 to-purple-500 rounded-full p-4 mb-4 shadow-lg animate-pulse">
                 <Heart className="h-8 w-8 text-white fill-white" />
               </div>
               <div className="text-xs font-medium text-purple-600">
@@ -207,7 +207,7 @@ export default function ComparisonSection({
 
             <div className="flex flex-col items-center">
               <div className="relative mb-4">
-                <div className="w-24 h-24 rounded-2xl border-4 border-pink-200 overflow-hidden shadow-lg bg-gradient-to-br from-pink-50 to-white">
+                <div className="w-24 h-24 rounded-2xl border-4 border-pink-200 overflow-hidden shadow-lg bg-linear-to-br from-pink-50 to-white">
                   <Image
                     src={motherFish.images[0]}
                     alt={motherFish.rfid}
@@ -230,7 +230,7 @@ export default function ComparisonSection({
       </Card>
 
       <div className="grid grid-cols-2 gap-6">
-        <Card className="bg-gradient-to-br from-green-50 to-emerald-50 border-green-200 hover:shadow-md transition-shadow">
+        <Card className="bg-linear-to-br from-green-50 to-emerald-50 border-green-200 hover:shadow-md transition-shadow">
           <CardContent className="px-5">
             <h3 className="text-base font-bold text-gray-800 mb-4 flex items-center gap-2">
               <div className="bg-green-100 text-green-800 rounded-full w-6 h-6 flex items-center justify-center">
@@ -256,7 +256,7 @@ export default function ComparisonSection({
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200 hover:shadow-md transition-shadow">
+        <Card className="bg-linear-to-br from-blue-50 to-indigo-50 border-blue-200 hover:shadow-md transition-shadow">
           <CardContent className="px-5">
             <h3 className="text-base font-bold text-gray-800 mb-4 flex items-center gap-2">
               <div className="bg-blue-100 text-blue-800 rounded-full w-6 h-6 flex items-center justify-center">
@@ -292,11 +292,14 @@ export default function ComparisonSection({
         </h3>
 
         <div className="grid grid-cols-2 gap-6">
-          <Card className="bg-gradient-to-br from-blue-50 to-cyan-50 border-blue-200 hover:shadow-lg transition-shadow">
+          <Card className="bg-linear-to-br from-blue-50 to-cyan-50 border-blue-200 hover:shadow-lg transition-shadow">
             <CardContent className="px-5">
               <div className="flex items-center gap-2 mb-3">
                 <Mars className="w-6 h-6 text-blue-800" />
-                <span className="text-base font-bold text-blue-800">Cá Bố</span>
+                <span className="text-base font-bold text-blue-800">
+                  Cá Bố - Tỷ lệ thụ tinh trung bình:{" "}
+                  {analysisData?.maleBreedingInfo?.avgFertilizationRate}%
+                </span>
               </div>
               <div className="text-sm text-gray-700 mb-3 leading-relaxed">
                 {analysisData?.maleBreedingInfo?.summary ||
@@ -328,11 +331,14 @@ export default function ComparisonSection({
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-pink-50 to-rose-50 border-pink-200 hover:shadow-lg transition-shadow">
+          <Card className="bg-linear-to-br from-pink-50 to-rose-50 border-pink-200 hover:shadow-lg transition-shadow">
             <CardContent className="px-5">
               <div className="flex items-center gap-2 mb-3">
                 <Venus className="w-6 h-6 text-pink-800" />
-                <span className="text-base font-bold text-pink-800">Cá Mẹ</span>
+                <span className="text-base font-bold text-pink-800">
+                  Cá Mẹ - Số trứng trung bình:{" "}
+                  {analysisData?.femaleBreedingInfo?.avgEggs}
+                </span>
               </div>
               <div className="text-sm text-gray-700 mb-3 leading-relaxed">
                 {analysisData?.femaleBreedingInfo?.summary ||
@@ -374,10 +380,10 @@ export default function ComparisonSection({
           Tóm tắt phân tích
         </h3>
 
-        <Card className="bg-gradient-to-br from-blue-50 to-cyan-50 border-blue-200 shadow-sm hover:shadow-md transition-shadow">
+        <Card className="bg-linear-to-br from-blue-50 to-cyan-50 border-blue-200 shadow-sm hover:shadow-md transition-shadow">
           <CardContent className="px-6">
             <div className="flex items-start gap-4">
-              <div className="bg-blue-200 text-blue-800 rounded-full w-10 h-10 flex items-center justify-center text-lg font-bold flex-shrink-0 shadow-md">
+              <div className="bg-blue-200 text-blue-800 rounded-full w-10 h-10 flex items-center justify-center text-lg font-bold shrink-0 shadow-md">
                 📋
               </div>
               <div className="flex-1">
@@ -408,7 +414,7 @@ export default function ComparisonSection({
                 <CardContent className="px-5">
                   <div className="flex items-start gap-4">
                     <div
-                      className={`rounded-full w-10 h-10 flex items-center justify-center text-lg font-bold flex-shrink-0 ${
+                      className={`rounded-full w-10 h-10 flex items-center justify-center text-lg font-bold shrink-0 ${
                         assessment.bgColor.includes("green")
                           ? "bg-green-200 text-green-800 shadow-green-100 shadow-md"
                           : assessment.bgColor.includes("yellow")
@@ -481,7 +487,7 @@ export default function ComparisonSection({
           Ghi chú đánh giá bổ sung
         </h3>
 
-        <Card className="bg-gradient-to-br from-gray-50 to-slate-50 border-gray-200 shadow-sm hover:shadow-md transition-shadow">
+        <Card className="bg-linear-to-br from-gray-50 to-slate-50 border-gray-200 shadow-sm hover:shadow-md transition-shadow">
           <CardContent className="px-6">
             <Textarea
               className="border border-gray-300 resize-none bg-transparent text-gray-700 text-sm leading-relaxed placeholder:text-gray-400 focus:ring-0 min-h-[120px]"

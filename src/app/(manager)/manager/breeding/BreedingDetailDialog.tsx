@@ -110,7 +110,7 @@ export const BreedingDetailDialog = ({
         {breedingProcess && (
           <div className="space-y-4 text-sm">
             {/* --- Thông tin cơ bản --- */}
-            <Card className="border-0 bg-gradient-to-r from-slate-50 via-blue-50 to-slate-50 shadow-md">
+            <Card className="border-0 bg-linear-to-r from-slate-50 via-blue-50 to-slate-50 shadow-md">
               <CardHeader className="pb-3">
                 <CardTitle className="text-lg text-gray-900 flex items-center gap-2">
                   <div className="w-1 h-6 bg-blue-500 rounded-full"></div>
@@ -182,7 +182,7 @@ export const BreedingDetailDialog = ({
                 Đang tải dữ liệu...
               </div>
             ) : (
-              <Card className="border-0 bg-gradient-to-br from-slate-50 to-slate-100 shadow-md">
+              <Card className="border-0 bg-linear-to-br from-slate-50 to-slate-100 shadow-md">
                 <CardHeader className="pb-4">
                   <div className="flex items-center gap-2">
                     <div className="w-1 h-8 bg-gradient-to-b from-blue-500 to-purple-500 rounded-full"></div>
@@ -300,7 +300,7 @@ export const BreedingDetailDialog = ({
                       <div className="space-y-4">
                         {/* Thống kê nhanh */}
                         <div className="grid grid-cols-2 gap-3">
-                          <div className="bg-gradient-to-br from-orange-50 to-amber-50 border border-orange-200 rounded-lg p-3">
+                          <div className="bg-linear-to-br from-orange-50 to-amber-50 border border-orange-200 rounded-lg p-3">
                             <p className="text-xs text-orange-600 font-medium">
                               Tổng trứng ban đầu
                             </p>
@@ -308,7 +308,7 @@ export const BreedingDetailDialog = ({
                               {batch?.quantity || 0}
                             </p>
                           </div>
-                          <div className="bg-gradient-to-br from-cyan-50 to-blue-50 border border-cyan-200 rounded-lg p-3">
+                          <div className="bg-linear-to-br from-cyan-50 to-blue-50 border border-cyan-200 rounded-lg p-3">
                             <p className="text-xs text-cyan-600 font-medium">
                               Ngày dự kiến nở
                             </p>
@@ -463,7 +463,7 @@ export const BreedingDetailDialog = ({
                       BreedingStatus.FRY_FISH,
                     ) !== "Thất bại" ? (
                       <div className="space-y-4">
-                        <div className="bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200 rounded-lg p-3">
+                        <div className="bg-linear-to-r from-purple-50 to-pink-50 border border-purple-200 rounded-lg p-3">
                           <p className="text-xs text-purple-600 font-medium">
                             Tổng số cá bột ban đầu
                           </p>
@@ -517,7 +517,7 @@ export const BreedingDetailDialog = ({
                                         )}
                                       </TableCell>
                                       <TableCell className="text-center">
-                                        <span className="px-2 py-1 bg-gradient-to-r from-green-100 to-emerald-100 text-green-700 rounded text-sm font-bold">
+                                        <span className="px-2 py-1 bg-linear-to-r from-green-100 to-emerald-100 text-green-700 rounded text-sm font-bold">
                                           {record.survivalRate?.toFixed(1) || 0}
                                           %
                                         </span>
@@ -604,7 +604,7 @@ export const BreedingDetailDialog = ({
                     ) !== "Thất bại" ? (
                       <div className="space-y-4">
                         <div className="grid grid-cols-3 gap-3">
-                          <div className="bg-gradient-to-br from-indigo-50 to-blue-50 border border-indigo-200 rounded-lg p-3">
+                          <div className="bg-linear-to-br from-indigo-50 to-blue-50 border border-indigo-200 rounded-lg p-3">
                             <p className="text-xs text-indigo-600 font-medium">
                               Số đợt tuyển
                             </p>
@@ -612,7 +612,7 @@ export const BreedingDetailDialog = ({
                               {classificationRecords?.length || 0}
                             </p>
                           </div>
-                          <div className="bg-gradient-to-br from-green-50 to-emerald-50 border border-green-200 rounded-lg p-3">
+                          <div className="bg-linear-to-br from-green-50 to-emerald-50 border border-green-200 rounded-lg p-3">
                             <p className="text-xs text-green-600 font-medium">
                               Giữ lại
                             </p>
@@ -620,7 +620,7 @@ export const BreedingDetailDialog = ({
                               {totalKept}
                             </p>
                           </div>
-                          <div className="bg-gradient-to-br from-red-50 to-rose-50 border border-red-200 rounded-lg p-3">
+                          <div className="bg-linear-to-br from-red-50 to-rose-50 border border-red-200 rounded-lg p-3">
                             <p className="text-xs text-red-600 font-medium">
                               Loại bỏ
                             </p>

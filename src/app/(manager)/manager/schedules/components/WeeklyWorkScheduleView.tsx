@@ -330,7 +330,7 @@ export default function WeeklyWorkScheduleView({
                                 .map((staff) => (
                                   <div
                                     key={staff.staffId}
-                                    className="w-6 h-6 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white text-xs font-semibold border-2 border-white"
+                                    className="w-6 h-6 bg-linear-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white text-xs font-semibold border-2 border-white"
                                     title={`${staff.staffName} - ${getRoleText(staff.role)}`}
                                   >
                                     {staff.staffName.charAt(0).toUpperCase()}
@@ -464,8 +464,8 @@ export default function WeeklyWorkScheduleView({
                         />
 
                         {/* Icon/Avatar */}
-                        <div className="flex-shrink-0">
-                          <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-full flex items-center justify-center text-white font-semibold text-sm">
+                        <div className="shrink-0">
+                          <div className="w-10 h-10 bg-linear-to-br from-blue-500 to-cyan-500 rounded-full flex items-center justify-center text-white font-semibold text-sm">
                             {pond.pondName.charAt(0).toUpperCase()}
                           </div>
                         </div>

@@ -43,16 +43,11 @@ export enum FishSize {
   OVER_83_1CM = "Over83_1cm",
 }
 
-export enum Pattern {
-  NONE = "None",
-  TANCHO = "Tancho",
-  MARUTEN = "Maruten",
-  NIDAN = "Nidan",
-  SANDAN = "Sandan",
-  INAZUMA = "Inazuma",
-  STRAIGHT_HI = "StraightHi",
-  MENKABURI = "Menkaburi",
-  BOZU = "Bozu",
+export enum KoiBreedingStatus {
+  READY = "Ready",
+  SPAWNING = "Spawning",
+  POST_SPAWNING = "PostSpawning",
+  NOT_MATURE = "NotMature",
 }
 
 export interface KoiFishResponse {
@@ -63,7 +58,7 @@ export interface KoiFishResponse {
   birthDate: string;
   gender: Gender;
   healthStatus: HealthStatus;
-  pattern: Pattern;
+  pattern: string;
   saleStatus: SaleStatus;
   images: string[];
   videos: string[];
@@ -77,6 +72,7 @@ export interface KoiFishResponse {
   pond: PondBasicResponse;
   variety: VarietyResponse;
   breedingProcess: BreedingProcessBasicResponse | null;
+  koiBreedingStatus: KoiBreedingStatus;
 }
 
 export enum SaleStatus {
@@ -99,6 +95,7 @@ export interface KoiFishSearchParams extends PagingRequest {
   saleStatus?: SaleStatus;
   isBreeding?: boolean;
   IsFavorited?: boolean;
+  isPostSpawning?: boolean;
 }
 
 export interface KoiFishFamilyResponse {
@@ -117,7 +114,7 @@ export interface KoiFishUpdateRequest {
   rfid: string;
   size: number;
   type: KoiType;
-  pattern: Pattern;
+  pattern: string;
   birthDate: string;
   gender: Gender;
   healthStatus: HealthStatus;
@@ -172,6 +169,12 @@ export const koiFishService = {
   deleteKoiFish: async (id: number): Promise<BaseResponse<string>> => {
     const response = await apiService.delete<BaseResponse<string>>(
       `${baseUrl}/${id}`,
+    );
+    return response.data;
+  },
+  setKoiReadyToSpawn: async (koiId: number): Promise<BaseResponse<string>> => {
+    const response = await apiService.put<BaseResponse<string>>(
+      `${baseUrl}/koi-spawn/${koiId}`,
     );
     return response.data;
   },

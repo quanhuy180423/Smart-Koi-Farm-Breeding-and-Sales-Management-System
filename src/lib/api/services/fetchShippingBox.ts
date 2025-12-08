@@ -12,7 +12,6 @@ export interface ShippingBoxRule {
   maxWeightLb: number | null;
   extraInfo: string;
   priority: number;
-  isActive: boolean;
   createdAt: string;
 }
 
@@ -24,7 +23,6 @@ export interface ShippingBoxResponse {
   maxKoiCount: number | null;
   maxKoiSizeInch: number | null;
   notes: string;
-  isActive: boolean;
   createdAt: string;
   updatedAt: string | null;
   rules: ShippingBoxRule[];
@@ -37,7 +35,6 @@ export interface CreateShippingBoxRequest {
   maxKoiCount: number | null;
   maxKoiSizeInch: number | null;
   notes: string;
-  isActive: boolean;
 }
 
 export interface UpdateShippingBoxRequest {
@@ -47,7 +44,6 @@ export interface UpdateShippingBoxRequest {
   maxKoiCount: number | null;
   maxKoiSizeInch: number | null;
   notes: string;
-  isActive: boolean;
 }
 
 export enum RuleType {
@@ -66,7 +62,6 @@ export interface CreateShippingBoxRuleRequest {
   maxWeightLb: number | null;
   extraInfo: string;
   priority: number;
-  isActive: boolean;
 }
 
 export interface UpdateShippingBoxRuleRequest {
@@ -78,7 +73,6 @@ export interface UpdateShippingBoxRuleRequest {
   maxWeightLb: number | null;
   extraInfo: string;
   priority: number;
-  isActive: boolean;
 }
 
 export interface KoiInput {

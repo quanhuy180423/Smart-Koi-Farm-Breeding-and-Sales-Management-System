@@ -18,6 +18,7 @@ import {
   getGenderLabel,
   getHealthStatusLabel,
   getSaleStatusLabel,
+  getKoiBreedingStatusLabel,
 } from "@/lib/utils/enum";
 import { formatCurrency } from "@/lib/utils/numbers/formatCurrency";
 import { formatDate, DATE_FORMATS } from "@/lib/utils/dates/formatDate";
@@ -143,7 +144,7 @@ export function KoiDetailDialog({
                       <button
                         key={`${media.type}-${media.index}`}
                         onClick={() => setSelectedMediaIdx(idx)}
-                        className={`flex-shrink-0 relative w-12 h-12 rounded-md overflow-hidden border-2 transition-colors ${
+                        className={`shrink-0 relative w-12 h-12 rounded-md overflow-hidden border-2 transition-colors ${
                           selectedMediaIdx === idx
                             ? "border-primary"
                             : "border-gray-300 hover:border-primary"
@@ -292,21 +293,35 @@ export function KoiDetailDialog({
               </div>
             </div>
 
-            {/* Sale Status Section */}
-            {koi.saleStatus && (
-              <div className="border-t pt-4">
-                <div className="flex items-center justify-between">
-                  <span className="font-medium text-muted-foreground">
-                    Trạng thái bán hàng:
-                  </span>
-                  <Badge
-                    className={`font-semibold text-xs ${getSaleStatusLabel(koi.saleStatus).colorClass}`}
-                  >
-                    {getSaleStatusLabel(koi.saleStatus).label}
-                  </Badge>
-                </div>
+            {/* Sale Status & Breeding Status Section */}
+            <div className="border-t pt-4">
+              <div className="space-y-3">
+                {koi.saleStatus && (
+                  <div className="flex items-center justify-between">
+                    <span className="font-medium text-muted-foreground">
+                      Trạng thái bán hàng:
+                    </span>
+                    <Badge
+                      className={`font-semibold text-xs ${getSaleStatusLabel(koi.saleStatus).colorClass}`}
+                    >
+                      {getSaleStatusLabel(koi.saleStatus).label}
+                    </Badge>
+                  </div>
+                )}
+                {koi.koiBreedingStatus && (
+                  <div className="flex items-center justify-between">
+                    <span className="font-medium text-muted-foreground">
+                      Trạng thái sinh sản:
+                    </span>
+                    <Badge
+                      className={`font-semibold text-xs ${getKoiBreedingStatusLabel(koi.koiBreedingStatus).colorClass}`}
+                    >
+                      {getKoiBreedingStatusLabel(koi.koiBreedingStatus).label}
+                    </Badge>
+                  </div>
+                )}
               </div>
-            )}
+            </div>
 
             {/* Breeding Process Info */}
             {koi.breedingProcess && (

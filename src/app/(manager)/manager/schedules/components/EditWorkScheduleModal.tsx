@@ -260,7 +260,7 @@ export default function EditWorkScheduleModal({
     <>
       <Dialog open={isOpen} onOpenChange={handleDialogOpenChange}>
         <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col">
-          <DialogHeader className="flex-shrink-0">
+          <DialogHeader className="shrink-0">
             <div className="flex items-start justify-between gap-4">
               <div className="flex-1">
                 <DialogTitle className="text-2xl font-bold text-gray-800">
@@ -606,7 +606,7 @@ export default function EditWorkScheduleModal({
           </div>
 
           {isEditing && canEdit && (
-            <div className="flex-shrink-0 flex justify-end gap-2 pt-4 border-t bg-white">
+            <div className="shrink-0 flex justify-end gap-2 pt-4 border-t bg-white">
               <Button
                 variant="outline"
                 onClick={handleCancelEdit}

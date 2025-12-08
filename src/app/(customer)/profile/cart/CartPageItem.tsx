@@ -25,7 +25,6 @@ import {
   getHealthStatusLabel,
   getGenderLabel,
 } from "@/lib/utils/enum/formatEnum";
-import { SaleStatus } from "@/lib/api/services/fetchKoiFish";
 import { cn } from "@/lib/utils";
 
 interface CartPageItemProps {
@@ -43,12 +42,8 @@ export function CartPageItem({ item }: CartPageItemProps) {
     useUpdateItem(handleUpdateErr);
   const { mutate: deleteItem, isPending: isDeleting } = useDeleteItem();
 
-  const isKoi = !!item.koiFish;
-
   // Kiểm tra trạng thái stock
-  const isOutOfStock =
-    (isKoi && item.koiFish?.saleStatus === SaleStatus.SOLD) ||
-    (!isKoi && item.packetFish?.stockQuantity === 0);
+  const isOutOfStock = item.isAvailable === false;
 
   const handleConfirmRemove = () => {
     deleteItem(item.id);
@@ -88,7 +83,7 @@ export function CartPageItem({ item }: CartPageItemProps) {
     >
       <CardContent className="p-4 md:p-4">
         <div className="flex flex-col sm:flex-row gap-4 sm:gap-6">
-          <div className="relative w-full h-48 sm:w-24 sm:h-24 md:w-40 md:h-40 rounded-lg overflow-hidden flex-shrink-0 border">
+          <div className="relative w-full h-48 sm:w-24 sm:h-24 md:w-40 md:h-40 rounded-lg overflow-hidden shrink-0 border">
             <Image
               src={
                 item?.koiFish?.images[0] ||
@@ -121,7 +116,7 @@ export function CartPageItem({ item }: CartPageItemProps) {
                       variant="destructive"
                       className="text-[10px] font-medium"
                     >
-                      {isKoi ? "Đã bán" : "Hết hàng"}
+                      {item.unavailableReason}
                     </Badge>
                   )}
                 </div>
@@ -186,7 +181,7 @@ export function CartPageItem({ item }: CartPageItemProps) {
                     variant="ghost"
                     size="icon"
                     disabled={isMutating}
-                    className="text-destructive hover:text-white hover:bg-destructive flex-shrink-0"
+                    className="text-destructive hover:text-white hover:bg-destructive shrink-0"
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>

@@ -76,7 +76,7 @@ export default function CheckoutFailurePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background to-red-50/20">
+    <div className="min-h-screen bg-linear-to-br from-background to-red-50/20">
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-2xl mx-auto text-center">
           <div className="mb-8">
@@ -210,7 +210,7 @@ export default function CheckoutFailurePage() {
                         className="flex gap-3 p-3 bg-muted/30 rounded-lg hover:bg-muted/50 transition-colors"
                       >
                         {/* Product Image */}
-                        <div className="relative w-20 h-20 rounded-md overflow-hidden flex-shrink-0 bg-muted">
+                        <div className="relative w-20 h-20 rounded-md overflow-hidden shrink-0 bg-muted">
                           <Image
                             src={
                               item.koiFish?.images?.[0] ||

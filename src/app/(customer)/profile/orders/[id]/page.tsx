@@ -233,7 +233,7 @@ export default function OrderDetailPage() {
                 {getOrderStatusTimeline(order?.status).map((step) => (
                   <div key={step.status} className="flex items-start gap-3">
                     <div
-                      className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
+                      className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
                         step.active
                           ? "bg-primary text-primary-foreground"
                           : "bg-muted text-muted-foreground"
@@ -279,7 +279,7 @@ export default function OrderDetailPage() {
                   className="flex items-start gap-4 p-4 border rounded-lg hover:bg-muted/50 transition-colors"
                 >
                   {/* Product Image */}
-                  <div className="relative w-24 h-24 flex-shrink-0 rounded-lg overflow-hidden bg-muted border">
+                  <div className="relative w-24 h-24 shrink-0 rounded-lg overflow-hidden bg-muted border">
                     <Image
                       src={
                         item.koiFish?.images?.[0] ||
@@ -313,7 +313,7 @@ export default function OrderDetailPage() {
                   </div>
 
                   {/* Pricing */}
-                  <div className="text-right flex-shrink-0">
+                  <div className="text-right shrink-0">
                     <p className="text-sm text-muted-foreground">Đơn giá</p>
                     <p className="font-semibold">
                       {formatCurrency(item.unitPrice)}

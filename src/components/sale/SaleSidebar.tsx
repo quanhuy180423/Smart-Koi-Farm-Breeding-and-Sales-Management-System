@@ -75,7 +75,7 @@ export function SaleSidebar({ className }: SaleSidebarProps) {
   }) => (
     <div className="flex flex-col h-full">
       {showHeader && (
-        <SheetHeader className="px-4 pt-6 pb-4 border-b bg-gradient-to-r from-background to-muted/30">
+        <SheetHeader className="px-4 pt-6 pb-4 border-b bg-linear-to-r from-background to-muted/30">
           <div className="flex items-center gap-3">
             <Image
               src={Logo}
@@ -85,7 +85,7 @@ export function SaleSidebar({ className }: SaleSidebarProps) {
               className="w-12 h-12 rounded-lg"
             />
             <div>
-              <SheetTitle className="text-left text-xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+              <SheetTitle className="text-left text-xl font-bold bg-linear-to-r from-primary to-accent bg-clip-text text-transparent">
                 ZenKoi Sale
               </SheetTitle>
               <p className="text-xs text-muted-foreground">Quản lý bán hàng</p>

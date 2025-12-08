@@ -40,43 +40,39 @@ export const BreedingStageCard = ({
 
   switch (status) {
     case "Hoàn thành":
-      statusIcon = (
-        <CheckCircle2 className="h-5 w-5 text-green-600 flex-shrink-0" />
-      );
+      statusIcon = <CheckCircle2 className="h-5 w-5 text-green-600 shrink-0" />;
       statusTextColor = "text-green-700";
       statusBgColor = "bg-green-100";
       timelineLineColor = "bg-gradient-to-b from-green-300 to-green-100";
       borderColor = "border-green-300";
-      headerBgGradient = "bg-gradient-to-r from-green-50 to-emerald-50";
+      headerBgGradient = "bg-linear-to-r from-green-50 to-emerald-50";
       break;
     case "Đang diễn ra":
       statusIcon = (
-        <Zap className="h-5 w-5 text-blue-600 flex-shrink-0 animate-pulse" />
+        <Zap className="h-5 w-5 text-blue-600 shrink-0 animate-pulse" />
       );
       statusTextColor = "text-blue-700";
       statusBgColor = "bg-blue-100";
       timelineLineColor = "bg-gradient-to-b from-blue-300 to-blue-100";
       borderColor = "border-blue-300";
-      headerBgGradient = "bg-gradient-to-r from-blue-50 to-cyan-50";
+      headerBgGradient = "bg-linear-to-r from-blue-50 to-cyan-50";
       break;
     case "Thất bại":
-      statusIcon = (
-        <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0" />
-      );
+      statusIcon = <AlertCircle className="h-5 w-5 text-red-600 shrink-0" />;
       statusTextColor = "text-red-700";
       statusBgColor = "bg-red-100";
       timelineLineColor = "bg-gradient-to-b from-red-300 to-red-100";
       borderColor = "border-red-300";
-      headerBgGradient = "bg-gradient-to-r from-red-50 to-pink-50";
+      headerBgGradient = "bg-linear-to-r from-red-50 to-pink-50";
       break;
     case "Sắp tới":
     default:
-      statusIcon = <Circle className="h-5 w-5 text-gray-500 flex-shrink-0" />;
+      statusIcon = <Circle className="h-5 w-5 text-gray-500 shrink-0" />;
       statusTextColor = "text-gray-600";
       statusBgColor = "bg-gray-100";
       timelineLineColor = "bg-gradient-to-b from-gray-300 to-gray-100";
       borderColor = "border-gray-300";
-      headerBgGradient = "bg-gradient-to-r from-gray-50 to-slate-50";
+      headerBgGradient = "bg-linear-to-r from-gray-50 to-slate-50";
       break;
   }
 

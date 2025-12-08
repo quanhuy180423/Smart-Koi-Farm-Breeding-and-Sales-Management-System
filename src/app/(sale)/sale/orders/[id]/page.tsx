@@ -242,7 +242,7 @@ export default function OrderDetailPage() {
             <ArrowLeft className="h-4 w-4 mr-2" />
             Quay lại
           </Button>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+          <h1 className="text-3xl font-bold bg-linear-to-r from-primary to-accent bg-clip-text text-transparent">
             Chi tiết đơn hàng {order.orderNumber}
           </h1>
           <p className="text-muted-foreground">
@@ -325,7 +325,7 @@ export default function OrderDetailPage() {
                 className="flex items-start gap-4 p-4 border rounded-lg hover:bg-muted/50 transition-colors"
               >
                 {/* Product Image */}
-                <div className="relative w-24 h-24 flex-shrink-0 rounded-lg overflow-hidden bg-muted border">
+                <div className="relative w-24 h-24 shrink-0 rounded-lg overflow-hidden bg-muted border">
                   <Image
                     src={
                       item.koiFish?.images?.[0] ||
@@ -355,7 +355,7 @@ export default function OrderDetailPage() {
                 </div>
 
                 {/* Pricing */}
-                <div className="text-right flex-shrink-0">
+                <div className="text-right shrink-0">
                   <p className="text-sm text-muted-foreground">Đơn giá</p>
                   <p className="font-semibold">
                     {formatCurrency(item.unitPrice)}

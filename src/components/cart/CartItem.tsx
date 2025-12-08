@@ -22,7 +22,6 @@ import { useUpdateItem, useDeleteItem } from "@/hooks/useCart";
 import { formatCurrency } from "@/lib/utils/numbers/formatCurrency";
 import { getFishSizeLabel } from "@/lib/utils/enum";
 import { cn } from "@/lib/utils";
-import { SaleStatus } from "@/lib/api/services/fetchKoiFish";
 
 interface CartItemProps {
   item: CartItemResponse;
@@ -39,9 +38,7 @@ export function CartItem({ item }: CartItemProps) {
   const isKoi = !!item.koiFish; // Kiểm tra xem có phải cá Koi đơn lẻ không
 
   // Kiểm tra trạng thái stock
-  const isOutOfStock =
-    (isKoi && item.koiFish?.saleStatus === SaleStatus.SOLD) ||
-    (!isKoi && item.packetFish?.stockQuantity === 0);
+  const isOutOfStock = item.isAvailable === false;
 
   const handleQuantityChange = (newQuantity: number) => {
     if (newQuantity < 1) return;
@@ -56,7 +53,7 @@ export function CartItem({ item }: CartItemProps) {
       )}
     >
       {/* 1. Image Section */}
-      <div className="relative w-20 h-20 rounded-lg overflow-hidden flex-shrink-0 bg-muted border">
+      <div className="relative w-20 h-20 rounded-lg overflow-hidden shrink-0 bg-muted border">
         <Image
           src={
             item?.koiFish?.images[0] ||
@@ -96,7 +93,7 @@ export function CartItem({ item }: CartItemProps) {
                   variant="destructive"
                   className="mt-1 text-[10px] font-medium"
                 >
-                  {isKoi ? "Đã bán" : "Hết hàng"}
+                  {item.unavailableReason}
                 </Badge>
               )}
             </div>

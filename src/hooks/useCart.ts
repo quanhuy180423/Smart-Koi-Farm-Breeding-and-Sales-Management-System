@@ -115,10 +115,11 @@ export function useConverCartToOrder() {
         queryClient.invalidateQueries({ queryKey: ["cart"] });
       }
     },
-    onError: (error: ApiError) => {
+    onError: () => {
       toast.error(
-        error.error?.result || "Có lỗi xảy ra khi cập nhật thông tin",
+        "Hiện không thể thanh toán đơn hàng này do có sản phẩm đã hết hàng",
       );
+      queryClient.invalidateQueries({ queryKey: ["cart"] });
     },
   });
 }

@@ -86,6 +86,7 @@ const basePromotionSchema = z
   .object({
     code: z.string().min(1, "Mã khuyến mãi không được để trống"),
     description: z.string().min(1, "Mô tả không được để trống"),
+    discountType: z.nativeEnum(DiscountType),
     discountValue: z.number().gt(0, "Giá trị giảm phải lớn hơn 0"),
     minimumOrderAmount: z.number().gte(0, "Tối thiểu đơn hàng phải >= 0"),
     maxDiscountAmount: z.number().gt(0, "Tối đa giảm giá phải lớn hơn 0"),
@@ -95,7 +96,19 @@ const basePromotionSchema = z
   .refine((data) => new Date(data.validFrom) < new Date(data.validTo), {
     message: "Ngày kết thúc phải sau ngày bắt đầu",
     path: ["validTo"],
-  });
+  })
+  .refine(
+    (data) => {
+      if (data.discountType === DiscountType.Percentage) {
+        return data.discountValue >= 0 && data.discountValue <= 100;
+      }
+      return true;
+    },
+    {
+      message: "Giá trị giảm phần trăm phải trong khoảng 0-100",
+      path: ["discountValue"],
+    },
+  );
 
 // Schema for creating new promotions (with past date check)
 const promotionCreateSchema = basePromotionSchema.refine(
@@ -340,6 +353,7 @@ export default function PromotionManagement() {
     const validationResult = promotionCreateSchema.safeParse({
       code: formData.code,
       description: formData.description,
+      discountType: formData.discountType,
       discountValue: formData.discountValue,
       minimumOrderAmount: formData.minimumOrderAmount,
       maxDiscountAmount: formData.maxDiscountAmount,
@@ -392,6 +406,7 @@ export default function PromotionManagement() {
     const validationResult = promotionEditSchema.safeParse({
       code: formData.code,
       description: formData.description,
+      discountType: formData.discountType,
       discountValue: formData.discountValue,
       minimumOrderAmount: formData.minimumOrderAmount,
       maxDiscountAmount: formData.maxDiscountAmount,
@@ -993,6 +1008,11 @@ export default function PromotionManagement() {
                     clearFieldError("discountValue");
                   }}
                   min={0}
+                  max={
+                    formData.discountType === DiscountType.Percentage
+                      ? 100
+                      : undefined
+                  }
                   className={formErrors.discountValue ? "border-red-500" : ""}
                 />
                 {formErrors.discountValue && (
@@ -1304,6 +1324,11 @@ export default function PromotionManagement() {
                     clearFieldError("discountValue");
                   }}
                   min={0}
+                  max={
+                    formData.discountType === DiscountType.Percentage
+                      ? 100
+                      : undefined
+                  }
                   className={formErrors.discountValue ? "border-red-500" : ""}
                 />
                 {formErrors.discountValue && (

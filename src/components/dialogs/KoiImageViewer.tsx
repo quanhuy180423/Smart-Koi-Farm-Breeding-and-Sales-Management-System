@@ -115,7 +115,7 @@ export function KoiImageViewer({
                   e.stopPropagation();
                   onImageIdxChange(idx);
                 }}
-                className={`flex-shrink-0 relative w-20 h-20 rounded-lg overflow-hidden border-2 transition-all hover:scale-105 ${
+                className={`shrink-0 relative w-20 h-20 rounded-lg overflow-hidden border-2 transition-all hover:scale-105 ${
                   selectedImageIdx === idx
                     ? "border-white ring-2 ring-white"
                     : "border-gray-600 hover:border-gray-400"

@@ -154,7 +154,7 @@ export default function ManagerSidebar({ className }: ManagerSidebarProps) {
       {/* --- DESKTOP SIDEBAR --- */}
       <aside
         className={cn(
-          "hidden lg:flex flex-col border-r bg-card h-[calc(100vh-4rem)] sticky  transition-all duration-300 ease-in-out flex-shrink-0 z-30",
+          "hidden lg:flex flex-col border-r bg-card h-[calc(100vh-4rem)] sticky  transition-all duration-300 ease-in-out shrink-0 z-30",
           isCollapsed ? "w-[70px]" : "w-64",
           className,
         )}

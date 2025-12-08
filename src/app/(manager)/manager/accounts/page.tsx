@@ -378,7 +378,7 @@ export default function AccountManagement() {
         <CardContent>
           {/* Search and Filter */}
           <div className="flex space-x-4 mb-4">
-            <div className="relative flex-grow">
+            <div className="relative grow">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 placeholder="Tìm kiếm theo tên hoặc email..."
@@ -697,12 +697,12 @@ export default function AccountManagement() {
             <DialogTitle className="flex items-center gap-2 text-lg">
               {blockConfirmDialog.isCurrentlyBlocked ? (
                 <>
-                  <CheckCircle className="h-5 w-5 text-green-600 flex-shrink-0" />
+                  <CheckCircle className="h-5 w-5 text-green-600 shrink-0" />
                   <span>Bỏ chặn tài khoản?</span>
                 </>
               ) : (
                 <>
-                  <Ban className="h-5 w-5 text-red-600 flex-shrink-0" />
+                  <Ban className="h-5 w-5 text-red-600 shrink-0" />
                   <span>Chặn tài khoản?</span>
                 </>
               )}

@@ -22,7 +22,6 @@ import {
   HealthStatus,
   Gender,
   KoiType,
-  Pattern,
 } from "@/lib/api/services/fetchKoiFish";
 import { useUpdateKoiFish } from "@/hooks/useKoiFish";
 import { parseSizeToNumber } from "@/lib/utils/numbers/parseSize";
@@ -389,26 +388,16 @@ export function EditKoiModal({ isOpen, onOpenChange, koi }: EditKoiModalProps) {
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label className="text-sm font-semibold">Hoa văn</Label>
-                <Select
+                <Input
                   value={formData.pattern || ""}
-                  onValueChange={(value) =>
+                  onChange={(e) =>
                     setFormData((prev) => ({
                       ...prev,
-                      pattern: value as Pattern,
+                      pattern: e.target.value,
                     }))
                   }
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Chọn hoa văn" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {Object.values(Pattern).map((pat) => (
-                      <SelectItem key={pat} value={pat}>
-                        {pat}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  placeholder="Nhập hoa văn..."
+                />
               </div>
 
               <div className="space-y-2">
@@ -642,7 +631,7 @@ export function EditKoiModal({ isOpen, onOpenChange, koi }: EditKoiModalProps) {
                       }))
                     }
                     placeholder="Mô tả chi tiết về đột biến..."
-                    className="min-h-[80px]"
+                    className="min-h-20"
                   />
                 </div>
               )}

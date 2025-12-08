@@ -219,7 +219,7 @@ export function VerifyEmailDialog({
           <Button
             onClick={handleVerify}
             disabled={!isCodeComplete || isVerifying}
-            className="w-full bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary h-10 font-semibold transition-all duration-300 hover:scale-[1.02] hover:shadow-lg hover:shadow-primary/25 disabled:opacity-50 disabled:scale-100 disabled:shadow-none"
+            className="w-full bg-linear-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary h-10 font-semibold transition-all duration-300 hover:scale-[1.02] hover:shadow-lg hover:shadow-primary/25 disabled:opacity-50 disabled:scale-100 disabled:shadow-none"
           >
             {isVerifying ? (
               <div className="flex items-center justify-center gap-2">

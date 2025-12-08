@@ -253,7 +253,7 @@ export default function GenerateWorkScheduleModal({
                                     {/* Day Header - Dropdown Trigger */}
                                     <button
                                       onClick={() => toggleDayExpanded(dayEnum)}
-                                      className="w-full flex items-center justify-between px-3 py-2 bg-gradient-to-r from-blue-50 to-blue-25 hover:from-blue-100 hover:to-blue-50 transition-colors"
+                                      className="w-full flex items-center justify-between px-3 py-2 bg-linear-to-r from-blue-50 to-blue-25 hover:from-blue-100 hover:to-blue-50 transition-colors"
                                     >
                                       <div className="flex items-center gap-2">
                                         <span className="text-sm font-semibold text-blue-900">
@@ -281,7 +281,7 @@ export default function GenerateWorkScheduleModal({
                                             key={item.id}
                                             className="flex items-start gap-3 pb-2 last:pb-0 border-b last:border-b-0"
                                           >
-                                            <div className="flex-shrink-0 w-6 h-6 flex items-center justify-center bg-blue-100 text-blue-600 rounded-full text-xs font-semibold">
+                                            <div className="shrink-0 w-6 h-6 flex items-center justify-center bg-blue-100 text-blue-600 rounded-full text-xs font-semibold">
                                               {idx + 1}
                                             </div>
                                             <div className="flex-1 min-w-0">
