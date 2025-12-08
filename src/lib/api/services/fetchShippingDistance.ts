@@ -10,7 +10,6 @@ export interface ShippingDistance {
   pricePerKm: number;
   baseFee: number;
   description: string;
-  isActive: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -22,7 +21,6 @@ export interface CreateShippingDistanceRequest {
   pricePerKm: number;
   baseFee: number;
   description: string;
-  isActive: boolean;
 }
 
 export interface UpdateShippingDistanceRequest {
@@ -32,7 +30,6 @@ export interface UpdateShippingDistanceRequest {
   pricePerKm: number;
   baseFee: number;
   description: string;
-  isActive: boolean;
 }
 
 export const shippingDistanceService = {

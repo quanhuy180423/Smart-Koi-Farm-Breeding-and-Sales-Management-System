@@ -26,6 +26,7 @@ import {
   X,
   AlertCircle,
   MoreHorizontal,
+  CheckCircle,
 } from "lucide-react";
 import {
   Table,
@@ -62,8 +63,13 @@ import {
   KoiFishResponse,
   KoiFishSearchParams,
   SaleStatus,
+  KoiBreedingStatus,
 } from "@/lib/api/services/fetchKoiFish";
-import { useGetKoiFishes, useDeleteKoiFish } from "@/hooks/useKoiFish";
+import {
+  useGetKoiFishes,
+  useDeleteKoiFish,
+  useSetKoiReadyToSpawn,
+} from "@/hooks/useKoiFish";
 import formatCurrency from "@/lib/utils/numbers";
 import { PAGE_SIZE_OPTIONS_DEFAULT } from "@/components/common/PaginationSection";
 import { PaginationWithLinks } from "@/components/pagination";
@@ -75,6 +81,7 @@ import {
 } from "@/lib/utils/enum";
 import { useDebounce } from "@/hooks/useDebounce";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import PedigreeModal from "./components/PedigreeModal";
 import { KoiDetailDialog } from "@/components/dialogs/KoiDetailDialog";
 import { KoiIncidentHistoryDialog } from "@/components/dialogs/KoiIncidentHistoryDialog";
@@ -91,6 +98,8 @@ export default function KoiManagement() {
   const [selectedImageIdx, setSelectedImageIdx] = useState(0);
   const [isImageViewerOpen, setIsImageViewerOpen] = useState(false);
   const [isIncidentHistoryOpen, setIsIncidentHistoryOpen] = useState(false);
+  const [isSpawnConfirmOpen, setIsSpawnConfirmOpen] = useState(false);
+  const [koiToSpawn, setKoiToSpawn] = useState<KoiFishResponse | null>(null);
 
   const [searchTerm, setSearchTerm] = useState<string>("");
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
@@ -104,6 +113,8 @@ export default function KoiManagement() {
   const [varietyIdInput, setVarietyIdInput] = useState<string>("");
   const [pondIdInput, setPondIdInput] = useState<string>("");
   const [originInput, setOriginInput] = useState<string>("");
+  const [isPostSpawningInput, setIsPostSpawningInput] =
+    useState<boolean>(false);
 
   const [isPedigreeModalOpen, setIsPedigreeModalOpen] = useState(false);
   const [isVarietyDialogOpen, setIsVarietyDialogOpen] = useState(false);
@@ -131,6 +142,7 @@ export default function KoiManagement() {
     origin: undefined,
     minPrice: undefined,
     maxPrice: undefined,
+    isPostSpawning: undefined,
   });
 
   useEffect(() => {
@@ -143,6 +155,8 @@ export default function KoiManagement() {
 
   const { data: koiFishData, isLoading } = useGetKoiFishes(searchParams);
   const { mutate: deleteKoi, isPending: isDeletingKoi } = useDeleteKoiFish();
+  const { mutate: setKoiReadyToSpawn, isPending: isSettingReady } =
+    useSetKoiReadyToSpawn();
   const dataToDisplay: KoiFishResponse[] = koiFishData?.data || [];
   const totalItems = koiFishData?.totalItems || 0;
 
@@ -194,6 +208,7 @@ export default function KoiManagement() {
       varietyId: varietyId,
       pondId: pondId,
       origin: originInput || undefined,
+      isPostSpawning: isPostSpawningInput || undefined,
       pageIndex: 1,
     }));
 
@@ -210,6 +225,7 @@ export default function KoiManagement() {
     setVarietyIdInput("");
     setPondIdInput("");
     setOriginInput("");
+    setIsPostSpawningInput(false);
 
     setSearchParams((prev) => ({
       ...prev,
@@ -222,6 +238,7 @@ export default function KoiManagement() {
       varietyId: undefined,
       pondId: undefined,
       origin: undefined,
+      isPostSpawning: undefined,
       pageIndex: 1,
     }));
 
@@ -251,6 +268,19 @@ export default function KoiManagement() {
   const handleViewIncidentHistory = (koi: KoiFishResponse) => {
     setSelectedKoi(koi);
     setIsIncidentHistoryOpen(true);
+  };
+
+  const handleOpenSpawnConfirm = (koi: KoiFishResponse) => {
+    setKoiToSpawn(koi);
+    setIsSpawnConfirmOpen(true);
+  };
+
+  const handleConfirmSpawn = () => {
+    if (koiToSpawn) {
+      setKoiReadyToSpawn(koiToSpawn.id);
+      setIsSpawnConfirmOpen(false);
+      setKoiToSpawn(null);
+    }
   };
 
   const handleEditKoi = (koi: KoiFishResponse) => {
@@ -333,7 +363,7 @@ export default function KoiManagement() {
         </CardHeader>
         <CardContent>
           <div className="flex space-x-4 mb-4">
-            <div className="relative flex-grow">
+            <div className="relative grow">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 placeholder="Tìm kiếm theo tên hoặc mã cá..."
@@ -474,6 +504,16 @@ export default function KoiManagement() {
                                 <AlertCircle className="mr-2 h-4 w-4 hover:text-white" />
                                 Xem lịch sử sự cố
                               </DropdownMenuItem>
+                              {koi.koiBreedingStatus ===
+                                KoiBreedingStatus.POST_SPAWNING && (
+                                <DropdownMenuItem
+                                  onClick={() => handleOpenSpawnConfirm(koi)}
+                                  className="text-green-600 hover:text-white hover:bg-green-600 focus:text-white focus:bg-green-600 cursor-pointer"
+                                >
+                                  <CheckCircle className="mr-2 h-4 w-4 hover:text-white" />
+                                  Sẵn sàng sinh sản
+                                </DropdownMenuItem>
+                              )}
                               {canDeleteKoi(koi) && (
                                 <DropdownMenuItem
                                   onClick={() => handleOpenDeleteConfirm(koi)}
@@ -536,7 +576,7 @@ export default function KoiManagement() {
             </div>
 
             {/* Image Container */}
-            <div className="flex-1 w-full h-auto flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 p-4">
+            <div className="flex-1 w-full h-auto flex items-center justify-center bg-linear-to-br from-gray-50 to-gray-100 p-4">
               <Image
                 src={selectedKoi.images[selectedImageIdx]}
                 alt={`${selectedKoi.rfid} - Ảnh ${selectedImageIdx + 1}`}
@@ -566,7 +606,7 @@ export default function KoiManagement() {
                     <button
                       key={idx}
                       onClick={() => setSelectedImageIdx(idx)}
-                      className={`flex-shrink-0 relative w-16 h-16 rounded-md overflow-hidden border-2 transition-colors ${
+                      className={`shrink-0 relative w-16 h-16 rounded-md overflow-hidden border-2 transition-colors ${
                         selectedImageIdx === idx
                           ? "border-primary ring-2 ring-primary"
                           : "border-gray-300 hover:border-primary"
@@ -664,6 +704,7 @@ export default function KoiManagement() {
                 : "",
             );
             setOriginInput(searchParams.origin || "");
+            setIsPostSpawningInput(searchParams.isPostSpawning || false);
           }
         }}
       >
@@ -806,7 +847,7 @@ export default function KoiManagement() {
             </div>
 
             <div className="grid grid-cols-2 gap-4 border-t pt-4">
-              <p className="text-sm font-semibold col-span-full mb-[-8px] text-muted-foreground">
+              <p className="text-sm font-semibold col-span-full -mb-2 text-muted-foreground">
                 Lọc theo Giá bán (VNĐ)
               </p>
               <div className="space-y-2 col-span-1">
@@ -830,6 +871,24 @@ export default function KoiManagement() {
                 />
               </div>
             </div>
+
+            <div className="border-t pt-4">
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="isPostSpawning"
+                  checked={isPostSpawningInput}
+                  onCheckedChange={(checked) =>
+                    setIsPostSpawningInput(checked as boolean)
+                  }
+                />
+                <Label
+                  htmlFor="isPostSpawning"
+                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                >
+                  Lọc cá trong giai đoạn hậu sinh sản
+                </Label>
+              </div>
+            </div>
           </div>
           <DialogFooter className="mt-4 flex justify-between sm:justify-between">
             <Button variant="outline" onClick={handleResetFilters}>
@@ -846,6 +905,106 @@ export default function KoiManagement() {
         onOpenChange={setIsEditModalOpen}
         koi={editingKoi}
       />
+
+      {/* Spawn Ready Confirmation Dialog */}
+      <Dialog
+        open={isSpawnConfirmOpen}
+        onOpenChange={(open) => {
+          setIsSpawnConfirmOpen(open);
+          if (!open) {
+            setKoiToSpawn(null);
+          }
+        }}
+      >
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-green-600">
+              <CheckCircle className="h-5 w-5" />
+              Xác nhận sẵn sàng sinh sản
+            </DialogTitle>
+            <DialogDescription>
+              Bạn có chắc chắn muốn đánh dấu cá Koi này là sẵn sàng sinh sản?
+            </DialogDescription>
+          </DialogHeader>
+          {koiToSpawn && (
+            <div className="space-y-4">
+              <div className="rounded-lg border bg-muted/50 p-4 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium text-muted-foreground">
+                    RFID:
+                  </span>
+                  <span className="font-semibold text-primary">
+                    {koiToSpawn.rfid}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium text-muted-foreground">
+                    Giống:
+                  </span>
+                  <span className="font-medium">
+                    {koiToSpawn.variety.varietyName}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium text-muted-foreground">
+                    Giới tính:
+                  </span>
+                  <span className="font-medium">
+                    {getGenderLabel(koiToSpawn.gender).label}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium text-muted-foreground">
+                    Hồ:
+                  </span>
+                  <span className="font-medium">
+                    {koiToSpawn.pond.pondName}
+                  </span>
+                </div>
+              </div>
+              <div className="rounded-lg bg-green-50 border border-green-200 p-3">
+                <p className="text-sm text-green-800">
+                  <span className="font-semibold">Lưu ý:</span> Sau khi xác
+                  nhận, cá Koi này sẽ được chuyển sang trạng thái{" "}
+                  <span className="font-semibold">
+                    `&quot;`Sẵn sàng sinh sản`&quot;`
+                  </span>{" "}
+                  và có thể được sử dụng cho các quy trình lai tạo.
+                </p>
+              </div>
+            </div>
+          )}
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setIsSpawnConfirmOpen(false);
+                setKoiToSpawn(null);
+              }}
+              disabled={isSettingReady}
+            >
+              Hủy
+            </Button>
+            <Button
+              onClick={handleConfirmSpawn}
+              disabled={isSettingReady}
+              className="bg-green-600 hover:bg-green-700 text-white"
+            >
+              {isSettingReady ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Đang xử lý...
+                </>
+              ) : (
+                <>
+                  <CheckCircle className="mr-2 h-4 w-4" />
+                  Xác nhận
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Delete Confirmation Dialog */}
       <Dialog open={isDeleteConfirmOpen} onOpenChange={setIsDeleteConfirmOpen}>

@@ -257,7 +257,7 @@ export default function OrdersPage() {
                 className="flex gap-3 p-3 border rounded-lg hover:bg-muted/30 transition-colors"
               >
                 {/* Product Image */}
-                <div className="relative w-20 h-20 rounded-md overflow-hidden flex-shrink-0 bg-muted">
+                <div className="relative w-20 h-20 rounded-md overflow-hidden shrink-0 bg-muted">
                   <Image
                     src={
                       item?.koiFish?.images?.[0] ||
@@ -369,7 +369,7 @@ export default function OrdersPage() {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-md bg-primary/10 flex items-center justify-center flex-shrink-0">
+            <div className="w-12 h-12 rounded-md bg-primary/10 flex items-center justify-center shrink-0">
               <Package className="h-6 w-6" />
             </div>
             <div className="flex-1">

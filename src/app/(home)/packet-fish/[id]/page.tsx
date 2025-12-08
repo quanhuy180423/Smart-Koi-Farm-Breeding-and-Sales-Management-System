@@ -76,7 +76,7 @@ export default function PacketFishDetailPage() {
           <div className="lg:col-span-2 space-y-6 flex flex-col">
             {/* Main Image */}
             {packet.images && packet.images.length > 0 && (
-              <Card className="flex-shrink-0">
+              <Card className="shrink-0">
                 <CardContent className="p-4 space-y-4">
                   <div className="relative w-full h-96 bg-muted rounded-lg overflow-hidden">
                     <Image
@@ -95,7 +95,7 @@ export default function PacketFishDetailPage() {
                         <button
                           key={idx}
                           onClick={() => setSelectedImageIdx(idx)}
-                          className={`flex-shrink-0 relative w-20 h-20 rounded-md overflow-hidden border-2 transition-colors ${
+                          className={`shrink-0 relative w-20 h-20 rounded-md overflow-hidden border-2 transition-colors ${
                             selectedImageIdx === idx
                               ? "border-primary"
                               : "border-transparent hover:border-muted-foreground"
@@ -118,7 +118,7 @@ export default function PacketFishDetailPage() {
 
             {/* Videos */}
             {packet.videos && packet.videos.length > 0 && (
-              <Card className="flex-shrink-0">
+              <Card className="shrink-0">
                 <CardHeader>
                   <h3 className="font-semibold">Video</h3>
                 </CardHeader>
@@ -139,7 +139,7 @@ export default function PacketFishDetailPage() {
                         <button
                           key={idx}
                           onClick={() => setSelectedVideoIdx(idx)}
-                          className={`flex-shrink-0 relative w-20 h-20 rounded-md overflow-hidden border-2 bg-muted flex items-center justify-center transition-colors ${
+                          className={`shrink-0 relative w-20 h-20 rounded-md overflow-hidden border-2 bg-muted flex items-center justify-center transition-colors ${
                             selectedVideoIdx === idx
                               ? "border-primary"
                               : "border-transparent hover:border-muted-foreground"
@@ -160,7 +160,7 @@ export default function PacketFishDetailPage() {
 
             {/* Description */}
             {packet.description && (
-              <Card className="flex-shrink-0">
+              <Card className="shrink-0">
                 <CardHeader>
                   <h3 className="font-semibold">Mô tả</h3>
                 </CardHeader>
@@ -198,7 +198,7 @@ export default function PacketFishDetailPage() {
                 {/* Specifications */}
                 <div className="border-t pt-4 space-y-3">
                   <div className="flex items-center gap-3">
-                    <Ruler className="h-5 w-5 text-primary flex-shrink-0" />
+                    <Ruler className="h-5 w-5 text-primary shrink-0" />
                     <div className="flex-1">
                       <p className="text-xs text-muted-foreground">
                         Kích thước
@@ -210,7 +210,7 @@ export default function PacketFishDetailPage() {
                   </div>
 
                   <div className="flex items-center gap-3">
-                    <Calendar className="h-5 w-5 text-primary flex-shrink-0" />
+                    <Calendar className="h-5 w-5 text-primary shrink-0" />
                     <div className="flex-1">
                       <p className="text-xs text-muted-foreground">Tuổi</p>
                       <p className="font-semibold">{packet.ageMonths} tháng</p>
@@ -218,7 +218,7 @@ export default function PacketFishDetailPage() {
                   </div>
 
                   <div className="flex items-center gap-3">
-                    <Package className="h-5 w-5 text-primary flex-shrink-0" />
+                    <Package className="h-5 w-5 text-primary shrink-0" />
                     <div className="flex-1">
                       <p className="text-xs text-muted-foreground">Số lượng</p>
                       <p className="font-semibold">{packet.fishPerPacket} cá</p>

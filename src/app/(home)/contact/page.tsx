@@ -36,7 +36,7 @@ export default function ContactPage() {
   return (
     <div className="min-h-screen bg-background">
       {/* Hero Section */}
-      <section className="py-16 bg-gradient-to-br from-primary/5 to-accent/5">
+      <section className="py-16 bg-linear-to-br from-primary/5 to-accent/5">
         <div className="container mx-auto px-4">
           <div className="text-center space-y-4 max-w-3xl mx-auto">
             <Badge
@@ -147,7 +147,7 @@ export default function ContactPage() {
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="flex items-start gap-3">
-                  <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center shrink-0">
                     <MapPin className="h-5 w-5 text-primary" />
                   </div>
                   <div>
@@ -164,7 +164,7 @@ export default function ContactPage() {
                 </div>
 
                 <div className="flex items-start gap-3">
-                  <div className="w-10 h-10 bg-accent/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <div className="w-10 h-10 bg-accent/10 rounded-lg flex items-center justify-center shrink-0">
                     <Phone className="h-5 w-5 text-accent" />
                   </div>
                   <div>
@@ -186,7 +186,7 @@ export default function ContactPage() {
                 </div>
 
                 <div className="flex items-start gap-3">
-                  <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center shrink-0">
                     <Mail className="h-5 w-5 text-primary" />
                   </div>
                   <div>
@@ -214,7 +214,7 @@ export default function ContactPage() {
                 </div>
 
                 <div className="flex items-start gap-3">
-                  <div className="w-10 h-10 bg-accent/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <div className="w-10 h-10 bg-accent/10 rounded-lg flex items-center justify-center shrink-0">
                     <Clock className="h-5 w-5 text-accent" />
                   </div>
                   <div>

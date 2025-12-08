@@ -137,11 +137,11 @@ export default function CartPage() {
 
                 <div className="text-xs md:text-sm text-muted-foreground space-y-2 pt-2 border-t">
                   <div className="flex items-center gap-2">
-                    <Shield className="h-4 w-4 text-blue-600 flex-shrink-0" />
+                    <Shield className="h-4 w-4 text-blue-600 shrink-0" />
                     <span>Bảo hành sức khỏe cá 30 ngày</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Clock className="h-4 w-4 text-purple-600 flex-shrink-0" />
+                    <Clock className="h-4 w-4 text-purple-600 shrink-0" />
                     <span>Hỗ trợ kỹ thuật 24/7</span>
                   </div>
                 </div>

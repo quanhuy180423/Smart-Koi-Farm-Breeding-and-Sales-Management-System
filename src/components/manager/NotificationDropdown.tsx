@@ -269,7 +269,7 @@ export function NotificationDropdown() {
         className="w-96 max-h-[600px] overflow-hidden p-0 rounded-lg shadow-lg"
       >
         {/* Header */}
-        <div className="sticky top-0 bg-gradient-to-r from-blue-600 to-blue-500 px-4 py-3 border-b border-blue-400">
+        <div className="sticky top-0 bg-linear-to-r from-blue-600 to-blue-500 px-4 py-3 border-b border-blue-400">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Bell className="h-5 w-5 text-white" />
@@ -311,7 +311,7 @@ export function NotificationDropdown() {
                 >
                   <div className="flex gap-3">
                     {/* Icon */}
-                    <div className="flex-shrink-0 mt-0.5">{styles.icon}</div>
+                    <div className="shrink-0 mt-0.5">{styles.icon}</div>
 
                     {/* Content */}
                     <div className="flex-1 min-w-0">
@@ -321,7 +321,7 @@ export function NotificationDropdown() {
                             {alert.parameterName}
                           </h4>
                           <Badge
-                            className={`${styles.badge} text-xs font-medium flex-shrink-0`}
+                            className={`${styles.badge} text-xs font-medium shrink-0`}
                           >
                             {severityLabel}
                           </Badge>

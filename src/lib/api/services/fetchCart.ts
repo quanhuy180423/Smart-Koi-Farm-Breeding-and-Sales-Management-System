@@ -38,6 +38,9 @@ export interface CartItemResponse {
   itemTotalPrice: number;
   addedAt: string;
   updatedAt: string;
+  availableStock?: number;
+  isAvailable: boolean;
+  unavailableReason?: string;
 }
 
 export interface CartResponse {

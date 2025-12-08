@@ -36,7 +36,6 @@ import {
 } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
-import { Switch } from "@/components/ui/switch";
 import formatCurrency from "@/lib/utils/numbers";
 import {
   useGetAllShippingBoxes,
@@ -77,7 +76,6 @@ const shippingBoxSchema = z.object({
     message: "Cân nặng hộp phải lớn hơn 0",
   }),
   notes: z.string().min(1, "Vui lòng nhập ghi chú"),
-  isActive: z.boolean(),
 });
 
 const shippingDistanceSchema = z.object({
@@ -95,7 +93,6 @@ const shippingDistanceSchema = z.object({
     message: "Phí cơ sở phải lớn hơn 0",
   }),
   description: z.string().optional(),
-  isActive: z.boolean(),
 });
 
 const shippingBoxRuleSchema = z.object({
@@ -119,7 +116,6 @@ const shippingBoxRuleSchema = z.object({
     .refine((val) => val > 0, {
       message: "Ưu tiên phải lớn hơn 0",
     }),
-  isActive: z.boolean(),
 });
 
 export default function ShippingManagement() {
@@ -177,7 +173,6 @@ export default function ShippingManagement() {
     maxWeightLb: 0,
     extraInfo: "",
     priority: 0,
-    isActive: true,
   });
 
   // Form state for new distance
@@ -188,7 +183,6 @@ export default function ShippingManagement() {
     pricePerKm: 0,
     baseFee: 0,
     description: "",
-    isActive: true,
   });
 
   // Confirmation dialog states
@@ -205,7 +199,6 @@ export default function ShippingManagement() {
     fee: 0,
     weightCapacityLb: 0,
     notes: "",
-    isActive: true,
   });
 
   // Error state for box form
@@ -232,7 +225,6 @@ export default function ShippingManagement() {
       fee: box.fee,
       weightCapacityLb: box.weightCapacityLb,
       notes: box.notes,
-      isActive: box.isActive,
     });
     setIsBoxDialogOpen(true);
   };
@@ -245,7 +237,6 @@ export default function ShippingManagement() {
       fee: 0,
       weightCapacityLb: 0,
       notes: "",
-      isActive: true,
     });
   };
 
@@ -302,7 +293,6 @@ export default function ShippingManagement() {
         maxKoiCount: boxFormData.maxKoiCount,
         maxKoiSizeInch: boxFormData.maxKoiSizeInch,
         notes: boxFormData.notes,
-        isActive: boxFormData.isActive,
       };
 
       if (editingBox) {
@@ -346,7 +336,6 @@ export default function ShippingManagement() {
       maxWeightLb: rule.maxWeightLb ?? 0,
       extraInfo: rule.extraInfo,
       priority: rule.priority,
-      isActive: rule.isActive,
     });
     setIsRuleDialogOpen(true);
   };
@@ -360,7 +349,6 @@ export default function ShippingManagement() {
       maxWeightLb: 0,
       extraInfo: "",
       priority: 0,
-      isActive: true,
     });
   };
 
@@ -432,7 +420,6 @@ export default function ShippingManagement() {
         maxWeightLb: ruleFormData.maxWeightLb,
         extraInfo: ruleFormData.extraInfo,
         priority: ruleFormData.priority,
-        isActive: ruleFormData.isActive,
       };
 
       if (editingRule) {
@@ -479,7 +466,6 @@ export default function ShippingManagement() {
       pricePerKm: distance.pricePerKm,
       baseFee: distance.baseFee,
       description: distance.description,
-      isActive: distance.isActive,
     });
     setIsDistanceDialogOpen(true);
   };
@@ -492,7 +478,6 @@ export default function ShippingManagement() {
       pricePerKm: 0,
       baseFee: 0,
       description: "",
-      isActive: true,
     });
   };
 
@@ -566,7 +551,6 @@ export default function ShippingManagement() {
         pricePerKm: distanceFormData.pricePerKm,
         baseFee: distanceFormData.baseFee,
         description: distanceFormData.description,
-        isActive: distanceFormData.isActive,
       };
 
       if (editingDistance) {
@@ -1092,9 +1076,6 @@ export default function ShippingManagement() {
                               </span>
                             </Badge>
                           </div>
-                          {!box.isActive && (
-                            <Badge variant="destructive">Không hoạt động</Badge>
-                          )}
                         </div>
 
                         {/* Rules Expandable Section */}
@@ -1192,14 +1173,7 @@ export default function ShippingManagement() {
                                           </Button>
                                         </div>
                                       </div>
-                                      {!rule.isActive && (
-                                        <Badge
-                                          variant="secondary"
-                                          className="text-xs mb-1"
-                                        >
-                                          Vô hiệu
-                                        </Badge>
-                                      )}
+
                                       <div className="grid grid-cols-2 gap-1 text-xs text-muted-foreground">
                                         {rule.maxCount && (
                                           <span>Max: {rule.maxCount} cá</span>
@@ -1548,21 +1522,6 @@ export default function ShippingManagement() {
                     </p>
                   )}
                 </div>
-
-                <div className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    id="isActive"
-                    name="isActive"
-                    checked={ruleFormData.isActive}
-                    onChange={handleRuleFormChange}
-                    disabled={isCreatingRule || isUpdatingRule}
-                    className="h-4 w-4"
-                  />
-                  <Label htmlFor="isActive" className="text-sm font-medium">
-                    Kích hoạt quy tắc này
-                  </Label>
-                </div>
               </div>
               <div className="flex justify-end gap-3 pt-4 border-t">
                 <Button
@@ -1618,13 +1577,13 @@ export default function ShippingManagement() {
                     Thêm khoảng cách mới
                   </Button>
                   <DialogContent className="w-[95vw] max-w-[550px] max-h-[90vh] rounded-lg flex flex-col p-0">
-                    <DialogHeader className="flex-shrink-0 border-b bg-white rounded-t-lg px-4 sm:px-6 py-4 sm:py-5">
+                    <DialogHeader className="shrink-0 border-b bg-white rounded-t-lg px-4 sm:px-6 py-4 sm:py-5">
                       <div className="flex items-center gap-2 sm:gap-3">
-                        <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-primary/20">
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/20">
                           <Truck className="h-5 w-5 text-primary" />
                         </div>
                         <div className="min-w-0">
-                          <DialogTitle className="text-lg sm:text-xl break-words">
+                          <DialogTitle className="text-lg sm:text-xl wrap-break-word">
                             {editingDistance
                               ? "Chỉnh sửa khoảng cách vận chuyển"
                               : "Thêm khoảng cách vận chuyển mới"}
@@ -1685,7 +1644,7 @@ export default function ShippingManagement() {
 
                       <div className="border-t border-gray-200 my-4"></div>
 
-                      <div className="space-y-3 sm:space-y-4 bg-gradient-to-br from-blue-50 to-cyan-50 p-3 sm:p-5 rounded-lg border border-blue-100">
+                      <div className="space-y-3 sm:space-y-4 bg-linear-to-br from-blue-50 to-cyan-50 p-3 sm:p-5 rounded-lg border border-blue-100">
                         <Label className="text-xs sm:text-sm font-semibold text-gray-700">
                           Khoảng cách vận chuyển (km){" "}
                           <span className="text-red-500">*</span>
@@ -1957,33 +1916,9 @@ export default function ShippingManagement() {
 
                       <div className="border-t border-gray-200 my-3 sm:my-4"></div>
 
-                      <div className="flex items-center justify-between bg-gradient-to-r from-amber-50 to-orange-50 p-3 sm:p-4 rounded-lg border border-amber-100 gap-2">
-                        <div className="flex flex-col gap-1 min-w-0">
-                          <Label className="text-xs sm:text-sm font-semibold text-gray-700 truncate">
-                            Kích hoạt khoảng cách
-                          </Label>
-                          <p className="text-xs text-gray-500">
-                            {distanceFormData.isActive
-                              ? "✓ Hoạt động"
-                              : "✗ Chưa kích"}
-                          </p>
-                        </div>
-                        <Switch
-                          checked={distanceFormData.isActive}
-                          onCheckedChange={(checked) =>
-                            setDistanceFormData((prev) => ({
-                              ...prev,
-                              isActive: checked,
-                            }))
-                          }
-                          disabled={isCreatingDistance || isUpdatingDistance}
-                          className="flex-shrink-0"
-                        />
-                      </div>
-
                       <div className="rounded-lg bg-blue-50 p-3 sm:p-4 border border-blue-100">
                         <div className="flex items-start gap-2 sm:gap-3">
-                          <Info className="h-4 sm:h-5 w-4 sm:w-5 text-blue-600 mt-0.5 flex-shrink-0" />
+                          <Info className="h-4 sm:h-5 w-4 sm:w-5 text-blue-600 mt-0.5 shrink-0" />
                           <div className="text-xs sm:text-sm text-blue-800 min-w-0">
                             <p className="font-medium mb-2">
                               Công thức tính phí:
@@ -2012,7 +1947,7 @@ export default function ShippingManagement() {
                         </div>
                       </div>
                     </div>
-                    <div className="flex-shrink-0 border-t bg-white rounded-b-lg px-4 sm:px-6 py-3 sm:py-4 flex justify-end gap-2 sm:gap-3">
+                    <div className="shrink-0 border-t bg-white rounded-b-lg px-4 sm:px-6 py-3 sm:py-4 flex justify-end gap-2 sm:gap-3">
                       <Button
                         variant="outline"
                         onClick={handleCloseDistanceDialog}
@@ -2170,9 +2105,6 @@ export default function ShippingManagement() {
                               {formatCurrency(exampleCost)}
                             </span>
                           </div>
-                          {!distance.isActive && (
-                            <Badge variant="destructive">Không hoạt động</Badge>
-                          )}
                         </CardContent>
                       </Card>
                     );

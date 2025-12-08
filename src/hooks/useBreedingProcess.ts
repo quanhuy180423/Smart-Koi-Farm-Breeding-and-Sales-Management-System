@@ -47,6 +47,7 @@ export function useAddBreedingProcess() {
     onSuccess: (data: BaseResponse<BreedingProcessResponse>) => {
       if (data.isSuccess) {
         queryClient.invalidateQueries({ queryKey: ["breeding-processes"] });
+        queryClient.invalidateQueries({ queryKey: ["koi-fishes"] });
         queryClient.invalidateQueries({ queryKey: ["ponds"] });
       }
       toast.success(data.message || "Tạo quy trình thành công");
@@ -112,12 +113,14 @@ export function useCancelBreeding() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (id: number) => breedingProcessService.cancelBreeding(id),
+    mutationFn: ({ id, note }: { id: number; note: string }) =>
+      breedingProcessService.cancelBreeding(id, note),
     onSuccess: (data: BaseResponse<boolean>) => {
       if (data.isSuccess) {
         queryClient.invalidateQueries({ queryKey: ["breeding-processes"] });
+        queryClient.invalidateQueries({ queryKey: ["koi-fishes"] });
       }
-      toast.success(data.message || "Hủy quy trình thành công");
+      toast.success("Hủy quy trình thành công");
     },
     onError: (error: ApiError) => {
       toast.error(

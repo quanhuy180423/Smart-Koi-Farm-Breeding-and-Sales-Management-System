@@ -165,7 +165,7 @@ export default function FishForSalePage() {
     <div className="flex flex-col gap-4 sm:gap-6 p-4 sm:p-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+          <h1 className="text-2xl sm:text-3xl font-bold bg-linear-to-r from-primary to-accent bg-clip-text text-transparent">
             Quản lý cá bán
           </h1>
           <p className="text-sm sm:text-base text-muted-foreground">
@@ -252,7 +252,7 @@ export default function FishForSalePage() {
                             className="p-0 relative group cursor-pointer"
                             onClick={() => setSelectedKoi(koi)}
                           >
-                            <div className="relative w-full h-56 bg-gradient-to-br from-gray-100 to-gray-200 overflow-hidden">
+                            <div className="relative w-full h-56 bg-linear-to-br from-gray-100 to-gray-200 overflow-hidden">
                               <Image
                                 src={koi.images[0] || "/placeholder.svg"}
                                 alt={koi.rfid}
@@ -288,7 +288,7 @@ export default function FishForSalePage() {
                                 <DropdownMenuTrigger asChild>
                                   <Button
                                     variant="ghost"
-                                    className="h-8 w-8 p-0 flex-shrink-0 hover:bg-gray-100"
+                                    className="h-8 w-8 p-0 shrink-0 hover:bg-gray-100"
                                   >
                                     <MoreHorizontal className="h-4 w-4 text-gray-500" />
                                   </Button>
@@ -390,7 +390,7 @@ export default function FishForSalePage() {
                             </div>
 
                             {/* Price Section */}
-                            <div className="border-t pt-4 mt-auto bg-gradient-to-r from-blue-50 to-blue-50/0 -mx-4 -mb-4 px-4 py-4 rounded-b-lg">
+                            <div className="border-t pt-4 mt-auto bg-linear-to-r from-blue-50 to-blue-50/0 -mx-4 -mb-4 px-4 py-4 rounded-b-lg">
                               <p className="text-xs font-medium text-gray-600 uppercase tracking-wide">
                                 Giá bán
                               </p>

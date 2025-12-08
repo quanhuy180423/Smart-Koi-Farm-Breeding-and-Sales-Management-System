@@ -101,7 +101,7 @@ export default function AddressesPage() {
             </p>
           </div>
           <Link href="/profile/addresses/add">
-            <Button className="flex-shrink-0">
+            <Button className="shrink-0">
               <Plus className="h-4 w-4 mr-2" />
               Thêm địa chỉ
             </Button>
@@ -148,7 +148,7 @@ export default function AddressesPage() {
                           {address.customerName}
                         </CardTitle>
                         {address.isDefault && (
-                          <Badge className="bg-primary text-xs flex-shrink-0">
+                          <Badge className="bg-primary text-xs shrink-0">
                             Mặc định
                           </Badge>
                         )}
@@ -157,7 +157,7 @@ export default function AddressesPage() {
                   </div>
                 </CardHeader>
 
-                <CardContent className="space-y-2 flex-grow flex flex-col">
+                <CardContent className="space-y-2 grow flex flex-col">
                   {/* Full Address */}
                   <div>
                     <p className="text-xs text-muted-foreground mb-1">
@@ -171,7 +171,7 @@ export default function AddressesPage() {
                   {/* Phone */}
                   <div>
                     <p className="text-xs text-muted-foreground mb-1 flex items-center gap-1">
-                      <Phone className="h-3 w-3 flex-shrink-0" />
+                      <Phone className="h-3 w-3 shrink-0" />
                       Điện thoại
                     </p>
                     <p className="text-sm font-medium">
@@ -182,7 +182,7 @@ export default function AddressesPage() {
                   {/* Dates */}
                   <div className="space-y-0.5 text-xs text-muted-foreground">
                     <div className="flex items-center gap-1">
-                      <Calendar className="h-3 w-3 flex-shrink-0" />
+                      <Calendar className="h-3 w-3 shrink-0" />
                       <span>
                         Tạo:{" "}
                         {formatDate(
@@ -193,7 +193,7 @@ export default function AddressesPage() {
                     </div>
                     {address.updatedAt && (
                       <div className="flex items-center gap-1">
-                        <Calendar className="h-3 w-3 flex-shrink-0" />
+                        <Calendar className="h-3 w-3 shrink-0" />
                         <span>
                           Cập nhật:{" "}
                           {formatDate(

@@ -114,7 +114,7 @@ const KoiFishSelectionDialogForIncident = ({
                       className="group flex flex-col h-full rounded-xl overflow-hidden border border-gray-200 bg-white shadow-sm hover:shadow-lg transition-all duration-300 hover:border-primary/50 active:scale-95"
                     >
                       {/* Image Container */}
-                      <div className="relative w-full aspect-video bg-gradient-to-br from-gray-100 to-gray-200 overflow-hidden flex-shrink-0">
+                      <div className="relative w-full aspect-video bg-linear-to-br from-gray-100 to-gray-200 overflow-hidden shrink-0">
                         {imageUrl ? (
                           <Image
                             src={imageUrl}

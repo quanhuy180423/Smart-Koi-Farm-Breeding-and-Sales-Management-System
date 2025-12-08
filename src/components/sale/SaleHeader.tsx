@@ -38,7 +38,7 @@ export function SaleHeader() {
             />
           </div>
           <div className="hidden sm:block">
-            <h1 className="font-bold text-lg bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+            <h1 className="font-bold text-lg bg-linear-to-r from-primary to-accent bg-clip-text text-transparent">
               ZenKoi Sale
             </h1>
             <p className="text-xs text-muted-foreground leading-tight">
