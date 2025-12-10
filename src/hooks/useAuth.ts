@@ -393,6 +393,8 @@ export function useChangePassword(onSuccessCallback?: () => void) {
 }
 
 export function useConfirmEmail(onSuccessCallback?: () => void) {
+  const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: async (data: ConfirmEmailByOtpRequest) => {
       return await fetchAuth.confirmEmailByOtp(data);
@@ -405,6 +407,9 @@ export function useConfirmEmail(onSuccessCallback?: () => void) {
       } else {
         toast.error(response?.message || "Xác thực email thất bại");
       }
+      queryClient.invalidateQueries({
+        queryKey: ["farm-dashboard-statistics"],
+      });
     },
     onError: (err: ApiError) => {
       const errorMessage =
