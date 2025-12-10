@@ -29,19 +29,21 @@ export default function CartPage() {
   // Empty cart state
   if (!cart || cart.cartItems.length === 0) {
     return (
-      <div className="container mx-auto px-4 py-6 md:py-8">
-        <div className="max-w-2xl mx-auto">
-          <EmptyState
-            icon={ShoppingCart}
-            title="Giỏ hàng trống"
-            description="Bạn chưa có sản phẩm nào trong giỏ hàng. Hãy khám phá bộ sưu tập cá Koi tuyệt đẹp của chúng tôi."
-            action={{
-              label: "Xem danh mục sản phẩm",
-              onClick: () => (window.location.href = "/catalog"),
-            }}
-          />
+      <CustomerLayout>
+        <div className="container mx-auto px-4 py-6 md:py-8">
+          <div className="max-w-2xl mx-auto">
+            <EmptyState
+              icon={ShoppingCart}
+              title="Giỏ hàng trống"
+              description="Bạn chưa có sản phẩm nào trong giỏ hàng. Hãy khám phá bộ sưu tập cá Koi tuyệt đẹp của chúng tôi."
+              action={{
+                label: "Xem danh mục sản phẩm",
+                onClick: () => (window.location.href = "/catalog"),
+              }}
+            />
+          </div>
         </div>
-      </div>
+      </CustomerLayout>
     );
   }
 

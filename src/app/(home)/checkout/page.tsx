@@ -35,6 +35,7 @@ import {
   MapPin,
   Plus,
   Info,
+  AlertTriangle,
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -51,6 +52,7 @@ import { ShippingFeeCalculateResponse } from "@/lib/api/services/fetchShippingFe
 import { PaymentMethod } from "@/lib/api/services/fetchOrderPayment";
 import { formatCurrency } from "@/lib/utils/numbers/formatCurrency";
 import { getFishSizeLabel } from "@/lib/utils/enum";
+import { cn } from "@/lib/utils";
 import { ShippingFeeDetailDialog } from "@/components/checkout/ShippingFeeDetailDialog";
 import { LoadingState } from "@/components/common/LoadingState";
 import { ErrorState } from "@/components/common/ErrorState";
@@ -254,6 +256,9 @@ export default function CheckoutPage() {
   const discountAmount = cartData?.discountAmount || 0;
   const finalPrice = cartData?.finalPrice || 0;
 
+  // Kiểm tra xem có item nào hết hàng không
+  const hasOutOfStockItems = items.some((item) => !item.isAvailable);
+
   const getTotalItems = () => totalItems;
   const getTotalPrice = () => totalPrice;
   const getDiscountAmount = () => discountAmount;
@@ -273,6 +278,13 @@ export default function CheckoutPage() {
   const handleCalculateShippingAndContinue = async () => {
     if (!selectedAddressId) {
       toast.error("Vui lòng chọn địa chỉ giao hàng");
+      return;
+    }
+
+    if (hasOutOfStockItems) {
+      toast.error(
+        "Giỏ hàng của bạn có sản phẩm đã hết hàng. Vui lòng quay lại giỏ hàng và xóa những sản phẩm này.",
+      );
       return;
     }
 
@@ -615,7 +627,11 @@ export default function CheckoutPage() {
                     <div className="flex justify-end items-center pt-4">
                       <Button
                         onClick={handleCalculateShippingAndContinue}
-                        disabled={!isStep1Valid || isCalculatingShippingFee}
+                        disabled={
+                          !isStep1Valid ||
+                          isCalculatingShippingFee ||
+                          hasOutOfStockItems
+                        }
                         className="px-8"
                       >
                         {isCalculatingShippingFee ? (
@@ -845,7 +861,10 @@ export default function CheckoutPage() {
                         <Button
                           onClick={handleSubmitOrder}
                           disabled={
-                            !isStep2Valid || isSubmitting || isCreatingPayment
+                            !isStep2Valid ||
+                            isSubmitting ||
+                            isCreatingPayment ||
+                            hasOutOfStockItems
                           }
                           className="bg-linear-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 px-8 py-2.5 shadow-lg disabled:opacity-50"
                         >
@@ -882,6 +901,22 @@ export default function CheckoutPage() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4 px-4">
+                  {/* Warning banner nếu có item hết hàng */}
+                  {hasOutOfStockItems && (
+                    <div className="p-3 bg-destructive/10 border border-destructive/30 rounded-lg flex items-start gap-2">
+                      <AlertTriangle className="h-4 w-4 text-destructive shrink-0 mt-0.5" />
+                      <div className="flex-1 text-sm">
+                        <p className="font-medium text-destructive">
+                          Có sản phẩm đã hết hàng
+                        </p>
+                        <p className="text-destructive/80 text-xs mt-1">
+                          Vui lòng quay lại giỏ hàng và xóa những sản phẩm hết
+                          hàng trước khi thanh toán.
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
                   <div className="space-y-3">
                     {items.map((item) => {
                       const itemName =
@@ -899,24 +934,47 @@ export default function CheckoutPage() {
                           .join(", ") ||
                         "";
 
+                      // Kiểm tra trạng thái stock
+                      const isOutOfStock = item.isAvailable === false;
+
                       return (
                         <div
                           key={item.id}
-                          className="flex gap-3 p-3 bg-muted/30 rounded-lg border border-border/50"
+                          className={cn(
+                            "flex gap-3 p-3 bg-muted/30 rounded-lg border border-border/50",
+                            isOutOfStock &&
+                              "border-destructive/30 bg-destructive/5",
+                          )}
                         >
                           <div className="relative w-14 h-14 rounded-lg overflow-hidden shrink-0 bg-muted">
                             <Image
                               src={itemImage}
                               alt={itemName}
-                              className="object-cover"
+                              className={cn(
+                                "object-cover",
+                                isOutOfStock && "grayscale opacity-50",
+                              )}
                               fill
                               sizes="56px"
                             />
+                            {isOutOfStock && (
+                              <div className="absolute inset-0 flex items-center justify-center bg-black/40">
+                                <AlertTriangle className="h-5 w-5 text-white drop-shadow-md" />
+                              </div>
+                            )}
                           </div>
                           <div className="flex-1 min-w-0 space-y-1">
                             <p className="font-semibold text-sm truncate">
                               {itemName}
                             </p>
+                            {isOutOfStock && (
+                              <Badge
+                                variant="destructive"
+                                className="text-[10px] font-medium"
+                              >
+                                {item.unavailableReason || "Hết hàng"}
+                              </Badge>
+                            )}
                             {itemVariety && (
                               <div className="flex items-center gap-2">
                                 <Badge
@@ -932,10 +990,24 @@ export default function CheckoutPage() {
                               {getFishSizeLabel(item.koiFish?.size)}
                             </p>
                             <div className="flex justify-between items-center">
-                              <span className="text-xs font-medium bg-primary/10 text-primary px-2 py-0.5 rounded">
+                              <span
+                                className={cn(
+                                  "text-xs font-medium px-2 py-0.5 rounded",
+                                  isOutOfStock
+                                    ? "bg-destructive/10 text-destructive"
+                                    : "bg-primary/10 text-primary",
+                                )}
+                              >
                                 x{item.quantity}
                               </span>
-                              <span className="font-bold text-sm text-primary">
+                              <span
+                                className={cn(
+                                  "font-bold text-sm",
+                                  isOutOfStock
+                                    ? "text-muted-foreground line-through"
+                                    : "text-primary",
+                                )}
+                              >
                                 {formatCurrency(item.itemTotalPrice)}
                               </span>
                             </div>

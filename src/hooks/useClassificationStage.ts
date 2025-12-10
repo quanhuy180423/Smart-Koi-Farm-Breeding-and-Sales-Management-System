@@ -28,6 +28,7 @@ export function useCompleteClassification() {
         toast.success(data.message || "Hoàn thành phân loại thành công");
         // Invalidate breeding processes query to refetch data
         queryClient.invalidateQueries({ queryKey: ["breeding-processes"] });
+        queryClient.invalidateQueries({ queryKey: ["activity-feed"] });
       } else {
         toast.error(data.message || "Không thể hoàn thành phân loại");
       }
