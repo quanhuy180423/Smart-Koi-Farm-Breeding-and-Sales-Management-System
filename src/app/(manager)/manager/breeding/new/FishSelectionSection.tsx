@@ -99,10 +99,12 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
   const [motherSearchInput, setMotherSearchInput] = useState("");
   const [motherSearch, setMotherSearch] = useState("");
 
-  const { data: fatherRecommend, isFetching: isFatherFetching } =
-    useGetKoiFishById(selectedPairToFetch?.fatherId);
-  const { data: motherRecommend, isFetching: isMotherFetching } =
-    useGetKoiFishById(selectedPairToFetch?.motherId);
+  const { data: fatherRecommend } = useGetKoiFishById(
+    selectedPairToFetch?.fatherId,
+  );
+  const { data: motherRecommend } = useGetKoiFishById(
+    selectedPairToFetch?.motherId,
+  );
 
   const {
     mutate: getRecommends,
@@ -893,7 +895,7 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
                         <Button
                           className="w-full"
                           onClick={() => handleSelectRecommendedPair(pair)}
-                          disabled={isFatherFetching || isMotherFetching}
+                          disabled={isCurrentPairFetching}
                         >
                           {isCurrentPairFetching ? (
                             <>

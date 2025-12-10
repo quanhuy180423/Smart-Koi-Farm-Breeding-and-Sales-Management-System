@@ -7,7 +7,7 @@ import farmDashboardService, {
 
 export const useGetFarmDashboardStatistics = () => {
   return useQuery<FarmDashboardStatistics>({
-    queryKey: ["farmDashboardStatistics"],
+    queryKey: ["farm-dashboard-statistics"],
     queryFn: async () => {
       const response = await farmDashboardService.getStatistics();
       if (!response.isSuccess) {
@@ -24,7 +24,7 @@ export const useGetFarmDashboardStatistics = () => {
 
 export const useGetFarmDashboardQuickStats = () => {
   return useQuery<FarmDashboardQuickStats>({
-    queryKey: ["farmDashboardQuickStats"],
+    queryKey: ["farm-dashboard-quick-stats"],
     queryFn: async () => {
       const response = await farmDashboardService.getQuickStats();
       if (!response.isSuccess) {
@@ -41,7 +41,7 @@ export const useGetFarmDashboardQuickStats = () => {
 
 export const useGetActivityFeed = (limit: number = 5) => {
   return useQuery<ActivityFeed>({
-    queryKey: ["activityFeed", limit],
+    queryKey: ["activity-feed", limit],
     queryFn: async () => {
       const response = await farmDashboardService.getActivityFeed(limit);
       if (!response.isSuccess) {

@@ -298,7 +298,10 @@ export default function ComparisonSection({
                 <Mars className="w-6 h-6 text-blue-800" />
                 <span className="text-base font-bold text-blue-800">
                   Cá Bố - Tỷ lệ thụ tinh trung bình:{" "}
-                  {analysisData?.maleBreedingInfo?.avgFertilizationRate}%
+                  {analysisData?.maleBreedingInfo?.avgFertilizationRate?.toFixed(
+                    2,
+                  )}
+                  %
                 </span>
               </div>
               <div className="text-sm text-gray-700 mb-3 leading-relaxed">

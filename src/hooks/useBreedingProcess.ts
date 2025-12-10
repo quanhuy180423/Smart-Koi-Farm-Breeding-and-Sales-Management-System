@@ -49,6 +49,7 @@ export function useAddBreedingProcess() {
         queryClient.invalidateQueries({ queryKey: ["breeding-processes"] });
         queryClient.invalidateQueries({ queryKey: ["koi-fishes"] });
         queryClient.invalidateQueries({ queryKey: ["ponds"] });
+        queryClient.invalidateQueries({ queryKey: ["activity-feed"] });
       }
       toast.success(data.message || "Tạo quy trình thành công");
       router.push("/manager/breeding");
@@ -119,6 +120,7 @@ export function useCancelBreeding() {
       if (data.isSuccess) {
         queryClient.invalidateQueries({ queryKey: ["breeding-processes"] });
         queryClient.invalidateQueries({ queryKey: ["koi-fishes"] });
+        queryClient.invalidateQueries({ queryKey: ["activity-feed"] });
       }
       toast.success("Hủy quy trình thành công");
     },

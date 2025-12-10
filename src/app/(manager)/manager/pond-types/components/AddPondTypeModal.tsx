@@ -1,7 +1,6 @@
 import * as React from "react";
 import { Plus, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { InputNumber } from "@/components/ui/input-number";
 import {
   Dialog,
@@ -54,25 +53,8 @@ const AddPondTypeModal = ({
       <div className="space-y-6">
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label
-              htmlFor="typeName"
-              className="text-sm font-medium text-gray-700"
-            >
-              Tên loại hồ *
-            </Label>
-            <Input
-              id="typeName"
-              placeholder="Ví dụ: Ao sinh sản, Show Pond..."
-              value={newPondType.typeName}
-              onChange={(e) =>
-                setNewPondType({ ...newPondType, typeName: e.target.value })
-              }
-              className="border-2 border-gray-300 focus:border-blue-500"
-            />
-          </div>
-          <div className="space-y-2">
             <Label htmlFor="type" className="text-sm font-medium text-gray-700">
-              Loại Hồ *
+              Loại Hồ <span className="text-red-600">*</span>
             </Label>
             <Select
               value={newPondType.type}
@@ -95,29 +77,35 @@ const AddPondTypeModal = ({
               </SelectContent>
             </Select>
           </div>
+          <div className="space-y-2">
+            <Label
+              htmlFor="recommendedQuantity"
+              className="text-sm font-medium text-gray-700"
+            >
+              Sức chứa khuyến nghị <span className="text-red-600">*</span>
+            </Label>
+            <InputNumber
+              value={
+                newPondType.recommendedQuantity
+                  ? Number(newPondType.recommendedQuantity)
+                  : undefined
+              }
+              onChange={(value) =>
+                setNewPondType({
+                  ...newPondType,
+                  recommendedQuantity: value ? String(value) : "",
+                })
+              }
+              placeholder="Nhập số lượng cá khuyến nghị"
+              className="border-2 border-gray-300 focus:border-blue-500"
+            />
+          </div>
         </div>
         <div className="space-y-2">
-          <Label
-            htmlFor="recommendedQuantity"
-            className="text-sm font-medium text-gray-700"
-          >
-            Sức chứa khuyến nghị (Số lượng cá) *
-          </Label>
-          <InputNumber
-            value={
-              newPondType.recommendedQuantity
-                ? Number(newPondType.recommendedQuantity)
-                : undefined
-            }
-            onChange={(value) =>
-              setNewPondType({
-                ...newPondType,
-                recommendedQuantity: value ? String(value) : "",
-              })
-            }
-            placeholder="Nhập số lượng cá khuyến nghị"
-            className="border-2 border-gray-300 focus:border-blue-500"
-          />
+          <p className="text-xs text-muted-foreground italic">
+            * Tên loại hồ sẽ được tự động tạo từ Loại hồ và Sức chứa (VD: Ghép
+            cặp - 3)
+          </p>
         </div>
         <div className="space-y-2">
           <Label
@@ -147,10 +135,7 @@ const AddPondTypeModal = ({
           <Button
             onClick={handleAddPondType}
             disabled={
-              isPending ||
-              !newPondType.typeName ||
-              !newPondType.type ||
-              !newPondType.recommendedQuantity
+              isPending || !newPondType.type || !newPondType.recommendedQuantity
             }
           >
             {isPending ? (
