@@ -63,7 +63,6 @@ export default function EditWeeklyScheduleTemplatePage() {
     new Set(),
   );
   const [startTime, setStartTime] = useState<string>("06:00:00");
-  const [endTime, setEndTime] = useState<string>("06:30:00");
 
   // Load template data when it's available
   useEffect(() => {
@@ -77,7 +76,6 @@ export default function EditWeeklyScheduleTemplatePage() {
           taskTemplateId: item.taskTemplateId,
           dayOfWeek: item.dayOfWeek as DayOfWeekEnum,
           startTime: item.startTime,
-          endTime: item.endTime,
           taskTemplate: item.taskTemplate,
           tempId: `${item.id}-${idx}`,
         }),
@@ -97,7 +95,6 @@ export default function EditWeeklyScheduleTemplatePage() {
         taskTemplateId: task.id,
         dayOfWeek: day,
         startTime,
-        endTime,
         taskTemplate: task,
         tempId: `${Date.now()}-${Math.random()}-${day}`,
       }),
@@ -142,7 +139,6 @@ export default function EditWeeklyScheduleTemplatePage() {
         taskTemplateId: item.taskTemplateId,
         dayOfWeek: item.dayOfWeek,
         startTime: item.startTime,
-        endTime: item.endTime,
       })),
     };
 
@@ -283,35 +279,19 @@ export default function EditWeeklyScheduleTemplatePage() {
               </div>
 
               {/* Time and Task Selection */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div>
                   <Label
                     htmlFor="start-time"
                     className="text-xs font-medium text-gray-600"
                   >
-                    Bắt đầu
+                    Thời gian bắt đầu
                   </Label>
                   <Input
                     id="start-time"
                     type="time"
                     value={startTime.substring(0, 5)}
                     onChange={(e) => setStartTime(e.target.value + ":00")}
-                    className="mt-1 border-2 border-gray-300"
-                  />
-                </div>
-
-                <div>
-                  <Label
-                    htmlFor="end-time"
-                    className="text-xs font-medium text-gray-600"
-                  >
-                    Kết thúc
-                  </Label>
-                  <Input
-                    id="end-time"
-                    type="time"
-                    value={endTime.substring(0, 5)}
-                    onChange={(e) => setEndTime(e.target.value + ":00")}
                     className="mt-1 border-2 border-gray-300"
                   />
                 </div>
@@ -370,8 +350,7 @@ export default function EditWeeklyScheduleTemplatePage() {
                                 <div className="flex items-center gap-1 mt-1 text-gray-600">
                                   <Clock className="h-3 w-3" />
                                   <span>
-                                    {formatTimeToHHMM(task.startTime)} -{" "}
-                                    {formatTimeToHHMM(task.endTime)}
+                                    {formatTimeToHHMM(task.startTime)}
                                   </span>
                                 </div>
                                 <button

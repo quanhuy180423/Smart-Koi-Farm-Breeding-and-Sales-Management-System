@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import Image from "next/image";
 import {
   Card,
   CardContent,
@@ -17,6 +18,9 @@ import {
   Clock,
   Droplets,
   CheckCircle,
+  ImageIcon,
+  X,
+  Upload,
 } from "lucide-react";
 import {
   Dialog,
@@ -38,6 +42,9 @@ import {
 } from "@/lib/api/services/fetchWorkSchedule";
 import { getWorkScheduleStatusLabel } from "@/lib/utils/enum";
 import { formatTimeToHHMM } from "@/lib/utils/formatTime";
+import { useUploadImage } from "@/hooks/useUploadFile";
+import toast from "react-hot-toast";
+import { KoiImageViewer } from "@/components/dialogs/KoiImageViewer";
 
 export default function MySchedulesPage() {
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -45,6 +52,11 @@ export default function MySchedulesPage() {
   const [selectedScheduleForCompletion, setSelectedScheduleForCompletion] =
     useState<WorkSchedule | null>(null);
   const [completionNotes, setCompletionNotes] = useState<string>("");
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [isUploadingImages, setIsUploadingImages] = useState(false);
+  const [isImageViewerOpen, setIsImageViewerOpen] = useState(false);
+  const [selectedImages, setSelectedImages] = useState<string[]>([]);
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
   // Calculate week start and end dates (Monday to Sunday)
   const weekStart = useMemo(() => {
@@ -76,6 +88,8 @@ export default function MySchedulesPage() {
 
   const { mutate: completeAssignment, isPending: isCompleting } =
     useCompleteMyAssignment();
+
+  const { mutateAsync: uploadImage } = useUploadImage();
 
   // Group schedules by date
   const schedulesByDate = useMemo(() => {
@@ -134,25 +148,75 @@ export default function MySchedulesPage() {
   const handleOpenCompleteDialog = (schedule: WorkSchedule) => {
     setSelectedScheduleForCompletion(schedule);
     setCompletionNotes("");
+    setSelectedFiles([]);
     setIsCompleteDialogOpen(true);
   };
 
+  // Handle file selection
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (files) {
+      const newFiles = Array.from(files);
+      setSelectedFiles((prev) => [...prev, ...newFiles]);
+    }
+  };
+
+  // Remove selected file
+  const handleRemoveFile = (index: number) => {
+    setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  // Open image viewer
+  const handleOpenImageViewer = (images: string[], index: number) => {
+    setSelectedImages(images);
+    setSelectedImageIndex(index);
+    setIsImageViewerOpen(true);
+  };
+
   // Handle completing assignment
-  const handleCompleteAssignment = () => {
-    if (selectedScheduleForCompletion) {
+  const handleCompleteAssignment = async () => {
+    if (!selectedScheduleForCompletion) return;
+
+    try {
+      // Upload images first if any
+      let imageUrls: string[] = [];
+      if (selectedFiles.length > 0) {
+        setIsUploadingImages(true);
+        const uploadPromises = selectedFiles.map((file) =>
+          uploadImage({ file }),
+        );
+        const uploadResults = await Promise.all(uploadPromises);
+        imageUrls = uploadResults.map((result) => result.url);
+        setIsUploadingImages(false);
+      }
+
+      // Complete assignment with images
       completeAssignment(
         {
           id: selectedScheduleForCompletion.id,
-          request: { completionNotes },
+          request: {
+            completionNotes,
+            images: imageUrls.length > 0 ? imageUrls : undefined,
+          },
         },
         {
           onSuccess: () => {
+            toast.success("Hoàn thành công việc thành công!");
             setIsCompleteDialogOpen(false);
             setSelectedScheduleForCompletion(null);
             setCompletionNotes("");
+            setSelectedFiles([]);
+          },
+          onError: (error) => {
+            toast.error("Có lỗi xảy ra khi hoàn thành công việc");
+            console.error(error);
           },
         },
       );
+    } catch (error) {
+      setIsUploadingImages(false);
+      toast.error("Có lỗi xảy ra khi tải ảnh lên");
+      console.error(error);
     }
   };
 
@@ -367,11 +431,73 @@ export default function MySchedulesPage() {
                     <p className="text-sm font-semibold mb-2">
                       Nhân viên được gán:
                     </p>
-                    <div className="flex flex-wrap gap-2">
+                    <div className="space-y-2">
                       {schedule.staffAssignments.map((staff, idx) => (
-                        <Badge key={idx} variant="secondary">
-                          {staff.staffName}
-                        </Badge>
+                        <div
+                          key={idx}
+                          className="border rounded-md p-3 bg-muted/30 space-y-2"
+                        >
+                          <div className="flex items-center justify-between">
+                            <Badge variant="secondary">{staff.staffName}</Badge>
+                            {staff.completedAt ? (
+                              <span className="text-xs text-green-600 font-medium">
+                                ✓ Đã hoàn thành
+                              </span>
+                            ) : (
+                              <span className="text-xs text-yellow-600 font-medium">
+                                Chưa hoàn thành
+                              </span>
+                            )}
+                          </div>
+                          {staff.completedAt && (
+                            <div className="text-xs text-muted-foreground space-y-1">
+                              <p>
+                                Hoàn thành lúc:{" "}
+                                {new Date(staff.completedAt).toLocaleString(
+                                  "vi-VN",
+                                )}
+                              </p>
+                              {staff.completionNotes && (
+                                <p className="italic text-gray-700">
+                                  Ghi chú: {staff.completionNotes}
+                                </p>
+                              )}
+                              {staff.images && staff.images.length > 0 && (
+                                <div className="pt-2">
+                                  <div className="flex items-center gap-1 mb-2">
+                                    <ImageIcon className="h-3 w-3 text-blue-600" />
+                                    <p className="text-blue-600 font-medium">
+                                      Hình ảnh chứng minh ({staff.images.length}
+                                      )
+                                    </p>
+                                  </div>
+                                  <div className="grid grid-cols-4 gap-2">
+                                    {staff.images.map((imageUrl, imgIdx) => (
+                                      <div
+                                        key={imgIdx}
+                                        className="relative aspect-square rounded-md overflow-hidden border border-gray-200 hover:border-blue-400 transition-colors cursor-pointer group"
+                                        onClick={() =>
+                                          handleOpenImageViewer(
+                                            staff.images,
+                                            imgIdx,
+                                          )
+                                        }
+                                      >
+                                        <Image
+                                          src={imageUrl}
+                                          alt={`Hình ảnh chứng minh ${imgIdx + 1}`}
+                                          fill
+                                          className="object-cover group-hover:scale-105 transition-transform"
+                                          sizes="(max-width: 768px) 25vw, 100px"
+                                        />
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </div>
                       ))}
                     </div>
                   </div>
@@ -457,6 +583,70 @@ export default function MySchedulesPage() {
                   className="min-h-[100px]"
                 />
               </div>
+
+              {/* Image Upload Section */}
+              <div className="space-y-2">
+                <Label htmlFor="work-images">
+                  Hình Ảnh Chứng Minh (Tùy chọn)
+                </Label>
+                <div className="space-y-3">
+                  {/* Upload Button */}
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="file"
+                      id="work-images"
+                      accept="image/*"
+                      multiple
+                      onChange={handleFileSelect}
+                      className="hidden"
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() =>
+                        document.getElementById("work-images")?.click()
+                      }
+                      className="w-full"
+                    >
+                      <Upload className="h-4 w-4 mr-2" />
+                      Chọn Hình Ảnh
+                    </Button>
+                  </div>
+
+                  {/* Preview Selected Images */}
+                  {selectedFiles.length > 0 && (
+                    <div className="space-y-2">
+                      <p className="text-sm text-muted-foreground">
+                        {selectedFiles.length} ảnh đã chọn
+                      </p>
+                      <div className="grid grid-cols-3 gap-2">
+                        {selectedFiles.map((file, index) => (
+                          <div
+                            key={index}
+                            className="relative aspect-square rounded-md overflow-hidden border border-gray-200 group"
+                          >
+                            <Image
+                              src={URL.createObjectURL(file)}
+                              alt={`Preview ${index + 1}`}
+                              fill
+                              className="object-cover"
+                              sizes="(max-width: 768px) 33vw, 100px"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveFile(index)}
+                              className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600"
+                            >
+                              <X className="h-3 w-3" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
           )}
 
@@ -467,16 +657,23 @@ export default function MySchedulesPage() {
                 setIsCompleteDialogOpen(false);
                 setSelectedScheduleForCompletion(null);
                 setCompletionNotes("");
+                setSelectedFiles([]);
               }}
+              disabled={isCompleting || isUploadingImages}
             >
               Hủy
             </Button>
             <Button
               onClick={handleCompleteAssignment}
-              disabled={isCompleting}
+              disabled={isCompleting || isUploadingImages}
               className="bg-green-600 hover:bg-green-700"
             >
-              {isCompleting ? (
+              {isUploadingImages ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Đang Tải Ảnh...
+                </>
+              ) : isCompleting ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                   Đang Xử Lý...
@@ -491,6 +688,16 @@ export default function MySchedulesPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Image Viewer */}
+      <KoiImageViewer
+        isOpen={isImageViewerOpen}
+        onOpenChange={setIsImageViewerOpen}
+        images={selectedImages}
+        selectedImageIdx={selectedImageIndex}
+        onImageIdxChange={setSelectedImageIndex}
+        rfid="Hình ảnh công việc"
+      />
     </div>
   );
 }
