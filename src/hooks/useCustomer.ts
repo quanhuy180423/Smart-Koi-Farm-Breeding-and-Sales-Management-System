@@ -24,7 +24,6 @@ export function useGetCustomers(params: CustomerSearchParams) {
       params.pageIndex,
       params.pageSize,
       params.search,
-      params.isActive,
       params.minTotalSpent,
       params.maxTotalSpent,
       params.minTotalOrders,
