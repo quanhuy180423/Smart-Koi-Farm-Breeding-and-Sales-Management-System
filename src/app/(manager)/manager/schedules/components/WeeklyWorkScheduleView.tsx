@@ -254,6 +254,13 @@ export default function WeeklyWorkScheduleView({
             currentDayDate.toISOString().split("T")[0] ===
             new Date().toISOString().split("T")[0];
 
+          // Check if the date is in the past
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+          const currentDayDateNoTime = new Date(currentDayDate);
+          currentDayDateNoTime.setHours(0, 0, 0, 0);
+          const isPastDate = currentDayDateNoTime < today;
+
           return (
             <Card
               key={index}
@@ -271,20 +278,22 @@ export default function WeeklyWorkScheduleView({
                       {currentDayDate.toLocaleDateString("vi-VN")}
                     </div>
                   </CardTitle>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    className="h-7 w-7 p-0 hover:bg-blue-100 text-blue-600"
-                    onClick={() => {
-                      setSelectedCreateDate(
-                        currentDayDate.toISOString().split("T")[0],
-                      );
-                      setIsCreateModalOpen(true);
-                    }}
-                    title="Thêm công việc"
-                  >
-                    <Plus className="h-4 w-4" />
-                  </Button>
+                  {!isPastDate && (
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="h-7 w-7 p-0 hover:bg-blue-100 text-blue-600"
+                      onClick={() => {
+                        setSelectedCreateDate(
+                          currentDayDate.toISOString().split("T")[0],
+                        );
+                        setIsCreateModalOpen(true);
+                      }}
+                      title="Thêm công việc"
+                    >
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  )}
                 </div>
               </CardHeader>
 

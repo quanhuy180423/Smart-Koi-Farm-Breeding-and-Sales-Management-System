@@ -18,6 +18,7 @@ export interface StaffAssignment {
   role: Roles;
   completionNotes: string | null;
   completedAt: string | null;
+  images: string[];
 }
 
 export interface PondAssignment {
@@ -62,7 +63,6 @@ export interface UpdateWorkScheduleRequest {
   taskTemplateId: number;
   scheduledDate: string;
   startTime: string;
-  endTime: string;
   notes: string;
   staffIds: number[];
   pondIds: number[];
@@ -70,6 +70,7 @@ export interface UpdateWorkScheduleRequest {
 
 export interface CompleteAssignmentRequest {
   completionNotes: string;
+  images?: string[];
 }
 
 const baseUrl = "/api/WorkSchedule";

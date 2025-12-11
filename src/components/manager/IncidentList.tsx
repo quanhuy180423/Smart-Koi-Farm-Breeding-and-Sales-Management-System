@@ -25,7 +25,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Loader2, Filter, X } from "lucide-react";
-import { formatDate } from "@/lib/utils/dates/formatDate";
+import { DATE_FORMATS, formatDate } from "@/lib/utils/dates/formatDate";
 import { EmptyState } from "@/components/common/EmptyState";
 import { PAGE_SIZE_OPTIONS_DEFAULT } from "@/components/common/PaginationSection";
 import { PaginationWithLinks } from "@/components/pagination";
@@ -362,7 +362,10 @@ export function IncidentList() {
                       {incident.reportedByUserName}
                     </TableCell>
                     <TableCell className="text-sm">
-                      {formatDate(incident.occurredAt, "dd/MM HH:mm")}
+                      {formatDate(
+                        incident.occurredAt,
+                        DATE_FORMATS.MEDIUM_DATE,
+                      )}
                     </TableCell>
                   </TableRow>
                 ))}

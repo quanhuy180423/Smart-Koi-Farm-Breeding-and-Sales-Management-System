@@ -7,7 +7,6 @@ import axios, {
 import { getCookie, setCookie } from "cookies-next";
 import { LoginResponse, RenewTokenRequest } from "./services/fetchAuth";
 import { useAuthStore } from "@/store/auth-store";
-import { redirect } from "next/navigation";
 
 // API error response data structure
 export interface ApiErrorData {
@@ -135,8 +134,24 @@ export class ApiService {
 
   // Refresh access token using refresh token
   private async refreshAccessToken(): Promise<string | null> {
-    const refreshToken = getCookie("refresh-token")?.toString() || "";
-    const accessToken = getCookie("auth-token")?.toString() || "";
+    // Helper function to read cookie from document.cookie (fallback)
+    const readCookie = (name: string): string | null => {
+      if (typeof window === "undefined") return null;
+      const match = document.cookie
+        .split(";")
+        .map((c) => c.trim())
+        .find((c) => c.startsWith(name + "="));
+      if (!match) return null;
+      return decodeURIComponent(match.split("=")[1] || "");
+    };
+
+    // Try getCookie first, fallback to document.cookie
+    const refreshToken =
+      getCookie("refresh-token")?.toString() ||
+      readCookie("refresh-token") ||
+      "";
+    const accessToken =
+      getCookie("auth-token")?.toString() || readCookie("auth-token") || "";
 
     if (!refreshToken) {
       return null;
@@ -145,8 +160,19 @@ export class ApiService {
     const request: RenewTokenRequest = { accessToken, refreshToken };
 
     try {
+      // Get base URL from client config
+      const baseURL = this.client.defaults.baseURL;
+
+      if (!baseURL) {
+        return null;
+      }
+
+      // Ensure proper URL formatting (remove trailing slash from baseURL if exists)
+      const cleanBaseURL = baseURL.replace(/\/$/, "");
+      const renewTokenUrl = `${cleanBaseURL}/api/Accounts/renew-token`;
+
       const refreshResponse = await axios.post<BaseResponse<LoginResponse>>(
-        `${this.client.defaults.baseURL}api/Accounts/renew-token`,
+        renewTokenUrl,
         request,
         { headers: { "Content-Type": "application/json" } },
       );
@@ -171,7 +197,8 @@ export class ApiService {
         return newAccessToken;
       }
     } catch {
-      redirect("/login");
+      // Return null để interceptor xử lý logout đúng cách
+      return null;
     }
 
     return null;

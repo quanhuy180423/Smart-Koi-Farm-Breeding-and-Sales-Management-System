@@ -43,7 +43,6 @@ export default function CreateWorkScheduleModal({
   );
   const [notes, setNotes] = useState("");
   const [startTime, setStartTime] = useState("");
-  const [endTime, setEndTime] = useState("");
   const [selectedStaffIds, setSelectedStaffIds] = useState<Set<number>>(
     new Set(),
   );
@@ -89,15 +88,14 @@ export default function CreateWorkScheduleModal({
       setSelectedTask(null);
       setNotes("");
       setStartTime("");
-      setEndTime("");
       setSelectedStaffIds(new Set());
       setSelectedPondIds(new Set());
     }
   }, [isOpen]);
 
   const handleCreate = () => {
-    if (!selectedTask || !startTime || !endTime) {
-      toast.error("Vui lòng chọn công việc, giờ bắt đầu và giờ kết thúc");
+    if (!selectedTask || !startTime) {
+      toast.error("Vui lòng chọn công việc và giờ bắt đầu");
       return;
     }
 
@@ -111,7 +109,6 @@ export default function CreateWorkScheduleModal({
         taskTemplateId: selectedTask.id,
         scheduledDate: scheduledDate,
         startTime,
-        endTime,
         notes,
         staffIds: Array.from(selectedStaffIds),
         pondIds: Array.from(selectedPondIds),
@@ -147,14 +144,9 @@ export default function CreateWorkScheduleModal({
   const handleTaskSelect = (task: TaskTemplateResponse) => {
     setSelectedTask(task);
     setIsTaskModalOpen(false);
-    // Auto-fill start and end time from default duration
+    // Auto-fill start time
     if (!startTime) {
       setStartTime("06:00:00");
-      const duration = task.defaultDuration || 30;
-      const endDate = new Date(`2025-01-01T06:00:00`);
-      endDate.setMinutes(endDate.getMinutes() + duration);
-      const endTimeStr = endDate.toTimeString().slice(0, 8);
-      setEndTime(endTimeStr);
     }
   };
 
@@ -212,32 +204,15 @@ export default function CreateWorkScheduleModal({
             <Card>
               <CardContent className="pt-6 space-y-4">
                 <p className="text-sm font-medium text-gray-600">
-                  Giờ thực hiện *
+                  Thời gian bắt đầu *
                 </p>
-                <div className="flex items-center gap-3">
-                  <div className="flex-1">
-                    <label className="text-xs text-gray-500 block mb-1">
-                      Giờ bắt đầu
-                    </label>
-                    <Input
-                      type="time"
-                      value={startTime}
-                      onChange={(e) => setStartTime(e.target.value)}
-                      className="w-full"
-                    />
-                  </div>
-                  <span className="text-gray-400 mt-6">-</span>
-                  <div className="flex-1">
-                    <label className="text-xs text-gray-500 block mb-1">
-                      Giờ kết thúc
-                    </label>
-                    <Input
-                      type="time"
-                      value={endTime}
-                      onChange={(e) => setEndTime(e.target.value)}
-                      className="w-full"
-                    />
-                  </div>
+                <div>
+                  <Input
+                    type="time"
+                    value={startTime}
+                    onChange={(e) => setStartTime(e.target.value)}
+                    className="w-full"
+                  />
                 </div>
               </CardContent>
             </Card>
@@ -362,7 +337,7 @@ export default function CreateWorkScheduleModal({
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
                 placeholder="Nhập ghi chú..."
-                className="min-h-[80px] border border-gray-300"
+                className="min-h-20 border border-gray-300"
               />
             </div>
           </div>
