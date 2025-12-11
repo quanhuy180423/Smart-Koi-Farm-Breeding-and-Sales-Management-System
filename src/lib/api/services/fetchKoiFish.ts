@@ -4,7 +4,10 @@ import apiService, {
   PagedResponse,
   PagingRequest,
 } from "../apiClient";
-import { BreedingProcessBasicResponse } from "./fetchBreedingProcess";
+import {
+  BreedingProcessBasicResponse,
+  BreedingStatus,
+} from "./fetchBreedingProcess";
 import { PondBasicResponse } from "./fetchPond";
 import { VarietyResponse } from "./fetchVariety";
 
@@ -128,6 +131,41 @@ export interface KoiFishUpdateRequest {
   mutationDescription: string;
 }
 
+// Breeding History Types
+export interface BreedingPartner {
+  id: number;
+  rfid: string;
+  varietyName: string;
+  isMutated: boolean;
+  mutationDescription: string | null;
+  images: string[];
+}
+
+export interface BreedingHistoryItem {
+  breedingProcessId: number;
+  code: string;
+  partner: BreedingPartner;
+  totalEggs: number;
+  fertilizationRate: number;
+  hatchingRate: number | null;
+  survivalRate: number;
+  totalFishQualified: number;
+  mutationRate: number | null;
+  totalPackage: number;
+  status: BreedingStatus;
+  startDate: string;
+  endDate: string | null;
+}
+
+export interface KoiBreedingHistoryResponse {
+  koiId: number;
+  rfid: string;
+  varietyName: string;
+  gender: Gender;
+  images: string[];
+  breedingHistory: BreedingHistoryItem[];
+}
+
 const baseUrl = "/api/KoiFish";
 
 export const koiFishService = {
@@ -176,6 +214,14 @@ export const koiFishService = {
     const response = await apiService.put<BaseResponse<string>>(
       `${baseUrl}/koi-spawn/${koiId}`,
     );
+    return response.data;
+  },
+  getKoiBreedingHistory: async (
+    koiId: number,
+  ): Promise<BaseResponse<KoiBreedingHistoryResponse>> => {
+    const response = await apiService.get<
+      BaseResponse<KoiBreedingHistoryResponse>
+    >(`${baseUrl}/${koiId}/breeding-history`);
     return response.data;
   },
 };
