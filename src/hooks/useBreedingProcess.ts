@@ -8,6 +8,7 @@ import breedingProcessService, {
   BreedingRecommendRequest,
   AnalyzePairRequest,
 } from "@/lib/api/services/fetchBreedingProcess";
+import { KoiFishResponse } from "@/lib/api/services/fetchKoiFish";
 import { useAuthStore } from "@/store/auth-store";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
@@ -148,6 +149,29 @@ export function useAnalyzePair() {
       breedingProcessService.analyzePair(request),
     onError: (error: ApiError) => {
       toast.error(error.message || "Có lỗi xảy ra khi phân tích cặp cá");
+    },
+  });
+}
+
+export function useGetBreedingKoiFishes(breedingId: number | undefined) {
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+
+  return useQuery({
+    queryKey: ["breeding-koi-fishes", breedingId],
+    queryFn: () => breedingProcessService.getBreedingKoiFishes(breedingId!),
+    enabled: isAuthenticated && breedingId !== undefined && breedingId !== 0,
+    select: (data: BaseResponse<KoiFishResponse[]>): KoiFishResponse[] =>
+      data.result,
+    retry: (failureCount, error: unknown) => {
+      if (
+        error &&
+        typeof error === "object" &&
+        "status" in error &&
+        error.status === 401
+      ) {
+        return false;
+      }
+      return failureCount < 2;
     },
   });
 }

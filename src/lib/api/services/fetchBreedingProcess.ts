@@ -249,6 +249,14 @@ export const breedingProcessService = {
     >(`${baseUrl}/analyze-pair`, request);
     return response.data;
   },
+  getBreedingKoiFishes: async (
+    breedingId: number,
+  ): Promise<BaseResponse<KoiFishResponse[]>> => {
+    const response = await apiService.get<BaseResponse<KoiFishResponse[]>>(
+      `${baseUrl}/${breedingId}/koi-fishes`,
+    );
+    return response.data;
+  },
 };
 
 export default breedingProcessService;
