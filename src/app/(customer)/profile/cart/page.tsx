@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { ShoppingCart, Shield, Clock, Calculator } from "lucide-react";
+import { ShoppingCart, Clock, Calculator } from "lucide-react";
 import Link from "next/link";
 import { formatCurrency } from "@/lib/utils/numbers/formatCurrency";
 import { useGetCart } from "@/hooks/useCart";
@@ -138,10 +138,6 @@ export default function CartPage() {
                 </div>
 
                 <div className="text-xs md:text-sm text-muted-foreground space-y-2 pt-2 border-t">
-                  <div className="flex items-center gap-2">
-                    <Shield className="h-4 w-4 text-blue-600 shrink-0" />
-                    <span>Bảo hành sức khỏe cá 30 ngày</span>
-                  </div>
                   <div className="flex items-center gap-2">
                     <Clock className="h-4 w-4 text-purple-600 shrink-0" />
                     <span>Hỗ trợ kỹ thuật 24/7</span>
