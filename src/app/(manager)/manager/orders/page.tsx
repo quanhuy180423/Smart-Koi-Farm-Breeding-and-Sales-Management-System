@@ -51,7 +51,6 @@ import {
 import { formatCurrency } from "@/lib/utils/numbers/formatCurrency";
 import { useGetAllOrders, useUpdateOrderStatus } from "@/hooks/useOrder";
 import { OrderStatus, OrderSearchParams } from "@/lib/api/services/fetchOrder";
-import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { PaginationWithLinks } from "@/components/pagination";
 import {
@@ -75,7 +74,6 @@ export default function ManagerOrdersPage() {
 
   // Refund order dialog state
   const [isRefundDialogOpen, setIsRefundDialogOpen] = useState(false);
-  const [refundNote, setRefundNote] = useState<string>("");
 
   // Selected order for actions
   const [selectedOrderId, setSelectedOrderId] = useState<number | null>(null);
@@ -91,23 +89,28 @@ export default function ManagerOrdersPage() {
   // Handler for opening refund dialog
   const handleOpenRefundDialog = (orderId: number) => {
     setSelectedOrderId(orderId);
-    setRefundNote("");
     setIsRefundDialogOpen(true);
   };
 
   // Handler for refunding order (REJECTED/UNSHIPPING -> REFUND)
+  // Auto-use existing note from selected order
   const handleRefundOrder = () => {
     if (!selectedOrderId) {
       toast.error("Không tìm thấy đơn hàng");
       return;
     }
 
+    // Find the selected order to get its note
+    const selectedOrder = ordersData?.data?.find(
+      (order) => order.id === selectedOrderId,
+    );
+
     updateStatusMutation.mutate(
       {
         orderId: selectedOrderId,
         request: {
           status: OrderStatus.REFUND,
-          note: refundNote || undefined,
+          note: selectedOrder?.note || undefined,
         },
       },
       {
@@ -115,7 +118,6 @@ export default function ManagerOrdersPage() {
           toast.success("Đơn hàng đã được hoàn tiền");
           setIsRefundDialogOpen(false);
           setSelectedOrderId(null);
-          setRefundNote("");
         },
         onError: (error) => {
           toast.error(
@@ -484,7 +486,7 @@ export default function ManagerOrdersPage() {
       <Dialog open={isRefundDialogOpen} onOpenChange={setIsRefundDialogOpen}>
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
-            <DialogTitle>Hoàn tiền đơn hàng</DialogTitle>
+            <DialogTitle>Xác nhận hoàn tiền</DialogTitle>
             <DialogDescription>
               Xác nhận hoàn tiền và chuyển sang trạng thái &quot;Đã hoàn
               tiền&quot;
@@ -499,17 +501,26 @@ export default function ManagerOrdersPage() {
               </p>
             </div>
 
-            <div>
-              <label className="text-sm font-medium mb-2 block">
-                Ghi chú (tùy chọn)
-              </label>
-              <Textarea
-                placeholder="Thêm ghi chú khi hoàn tiền..."
-                value={refundNote}
-                onChange={(e) => setRefundNote(e.target.value)}
-                rows={3}
-              />
-            </div>
+            {(() => {
+              const selectedOrder = ordersData?.data?.find(
+                (order) => order.id === selectedOrderId,
+              );
+              return (
+                selectedOrder?.note && (
+                  <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg">
+                    <p className="text-sm font-medium text-amber-900 mb-1">
+                      Ghi chú hiện tại:
+                    </p>
+                    <p className="text-sm text-amber-800 italic">
+                      &quot;{selectedOrder.note}&quot;
+                    </p>
+                    <p className="text-xs text-amber-700 mt-2">
+                      Ghi chú này sẽ được giữ nguyên khi hoàn tiền.
+                    </p>
+                  </div>
+                )
+              );
+            })()}
           </div>
 
           <div className="flex justify-end gap-3">

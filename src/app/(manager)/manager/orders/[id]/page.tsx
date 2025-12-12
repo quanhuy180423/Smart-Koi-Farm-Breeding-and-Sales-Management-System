@@ -14,7 +14,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import {
   ArrowLeft,
@@ -42,7 +41,6 @@ export default function ManagerOrderDetailPage() {
 
   // Refund order dialog state
   const [isRefundDialogOpen, setIsRefundDialogOpen] = useState(false);
-  const [refundNote, setRefundNote] = useState<string>("");
 
   // Update order status mutation
   const updateStatusMutation = useUpdateOrderStatus();
@@ -53,6 +51,7 @@ export default function ManagerOrderDetailPage() {
   };
 
   // Handler for refunding order (REJECTED/CANCELLED/UNSHIPPING -> REFUND)
+  // Auto-use existing note from order
   const handleRefundOrder = () => {
     if (!orderId) {
       toast.error("Không tìm thấy đơn hàng");
@@ -64,14 +63,13 @@ export default function ManagerOrderDetailPage() {
         orderId: orderId,
         request: {
           status: OrderStatus.REFUND,
-          note: refundNote || undefined,
+          note: order?.note || undefined,
         },
       },
       {
         onSuccess: () => {
           toast.success("Đơn hàng đã được hoàn tiền");
           setIsRefundDialogOpen(false);
-          setRefundNote("");
         },
         onError: (error) => {
           toast.error(
@@ -198,6 +196,14 @@ export default function ManagerOrderDetailPage() {
                 {order.orderDetails.length} sản phẩm
               </p>
             </div>
+            {order.note && (
+              <div>
+                <p className="text-sm text-muted-foreground">Ghi chú</p>
+                <p className="font-medium text-amber-700 italic">
+                  {order.note}
+                </p>
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
@@ -342,7 +348,7 @@ export default function ManagerOrderDetailPage() {
         <Dialog open={isRefundDialogOpen} onOpenChange={setIsRefundDialogOpen}>
           <DialogContent className="sm:max-w-[500px]">
             <DialogHeader>
-              <DialogTitle>Hoàn tiền đơn hàng</DialogTitle>
+              <DialogTitle>Xác nhận hoàn tiền</DialogTitle>
               <DialogDescription>
                 Xác nhận hoàn tiền và chuyển sang trạng thái &quot;Đã hoàn
                 tiền&quot;
@@ -357,17 +363,19 @@ export default function ManagerOrderDetailPage() {
                 </p>
               </div>
 
-              <div>
-                <label className="text-sm font-medium mb-2 block">
-                  Ghi chú (tùy chọn)
-                </label>
-                <Textarea
-                  placeholder="Thêm ghi chú khi hoàn tiền..."
-                  value={refundNote}
-                  onChange={(e) => setRefundNote(e.target.value)}
-                  rows={3}
-                />
-              </div>
+              {order.note && (
+                <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg">
+                  <p className="text-sm font-medium text-amber-900 mb-1">
+                    Ghi chú hiện tại:
+                  </p>
+                  <p className="text-sm text-amber-800 italic">
+                    &quot;{order.note}&quot;
+                  </p>
+                  <p className="text-xs text-amber-700 mt-2">
+                    Ghi chú này sẽ được giữ nguyên khi hoàn tiền.
+                  </p>
+                </div>
+              )}
             </div>
 
             <div className="flex justify-end gap-3">
