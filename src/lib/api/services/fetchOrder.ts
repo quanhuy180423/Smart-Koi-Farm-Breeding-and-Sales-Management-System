@@ -6,6 +6,7 @@ import apiService, {
 } from "../apiClient";
 import { KoiFishResponse } from "./fetchKoiFish";
 import { PacketFishResponse } from "./fetchPacketFish";
+import { PromotionResponse } from "./fetchPromotion";
 
 export interface OrderDetailResponse {
   id: number;
@@ -41,12 +42,9 @@ export interface OrderResponse {
   shippingFee: number;
   discountAmount: number;
   totalAmount: number;
-  promotionId?: number;
-  promotion?: {
-    id: number;
-    code: string;
-    discountPercent: number;
-  } | null;
+  note?: string | null;
+  promotionId?: number | null;
+  promotion?: PromotionResponse | null;
   orderDetails: OrderDetailResponse[];
 }
 

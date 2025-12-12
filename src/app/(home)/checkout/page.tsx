@@ -27,7 +27,6 @@ import {
 import {
   ArrowLeft,
   CreditCard,
-  Truck,
   Shield,
   CheckCircle,
   ShoppingCart,
@@ -1093,18 +1092,6 @@ export default function CheckoutPage() {
                   <div className="space-y-3 pt-4 border-t">
                     <h4 className="font-medium text-sm">Chính sách & Ưu đãi</h4>
                     <div className="space-y-2">
-                      <div className="flex items-center gap-3 text-xs text-muted-foreground p-2 bg-green-50/50 rounded-lg border border-green-200/50">
-                        <div className="p-1 bg-green-100 rounded-full">
-                          <Shield className="h-3 w-3 text-green-600" />
-                        </div>
-                        <span>Bảo hành sức khỏe cá 30 ngày</span>
-                      </div>
-                      <div className="flex items-center gap-3 text-xs text-muted-foreground p-2 bg-blue-50/50 rounded-lg border border-blue-200/50">
-                        <div className="p-1 bg-blue-100 rounded-full">
-                          <Truck className="h-3 w-3 text-blue-600" />
-                        </div>
-                        <span>Miễn phí vận chuyển toàn quốc</span>
-                      </div>
                       <div className="flex items-center gap-3 text-xs text-muted-foreground p-2 bg-purple-50/50 rounded-lg border border-purple-200/50">
                         <div className="p-1 bg-purple-100 rounded-full">
                           <CheckCircle className="h-3 w-3 text-purple-600" />
