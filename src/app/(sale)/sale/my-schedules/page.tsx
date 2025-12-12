@@ -45,6 +45,7 @@ import { formatTimeToHHMM } from "@/lib/utils/formatTime";
 import { useUploadImage } from "@/hooks/useUploadFile";
 import toast from "react-hot-toast";
 import { KoiImageViewer } from "@/components/dialogs/KoiImageViewer";
+import { toLocalDateString } from "@/lib/utils/dates";
 
 export default function MySchedulesPage() {
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -73,9 +74,9 @@ export default function MySchedulesPage() {
     return date;
   }, [weekStart]);
 
-  // Format dates for API
-  const formattedDateFrom = weekStart.toISOString().split("T")[0];
-  const formattedDateTo = weekEnd.toISOString().split("T")[0];
+  // Format dates for API using local timezone
+  const formattedDateFrom = toLocalDateString(weekStart);
+  const formattedDateTo = toLocalDateString(weekEnd);
 
   const {
     data: schedules = [],
@@ -130,9 +131,9 @@ export default function MySchedulesPage() {
     setCurrentDate(new Date());
   };
 
-  // Check if schedule is for today
+  // Check if schedule is for today (using local timezone)
   const isToday = (scheduledDate: string): boolean => {
-    return new Date().toISOString().split("T")[0] === scheduledDate;
+    return toLocalDateString(new Date()) === scheduledDate;
   };
 
   // Check if schedule can be completed
@@ -289,12 +290,12 @@ export default function MySchedulesPage() {
       {/* Weekly View */}
       <div className="grid grid-cols-1 md:grid-cols-7 gap-3">
         {weekDays.map((date) => {
-          const dateStr = date.toISOString().split("T")[0];
+          const dateStr = toLocalDateString(date);
           const daySchedules = schedulesByDate[dateStr] || [];
           const dayName = date.toLocaleDateString("vi-VN", {
             weekday: "short",
           });
-          const isToday = new Date().toISOString().split("T")[0] === dateStr;
+          const isToday = toLocalDateString(new Date()) === dateStr;
           const isWeekend = date.getDay() === 0; // Sunday is the only weekend day
 
           return (

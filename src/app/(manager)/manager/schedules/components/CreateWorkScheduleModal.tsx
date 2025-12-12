@@ -11,7 +11,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
 import { Users, Droplets, Loader2, Plus } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import toast from "react-hot-toast";
@@ -26,6 +25,11 @@ import { Roles } from "@/lib/api/services/fetchAuth";
 import { User } from "@/lib/api/services/fetchUsers";
 import { getRoleLabel } from "@/lib/utils/enum";
 import { PondResponse } from "@/lib/api/services/fetchPond";
+import { z } from "zod";
+import { toLocalDateString } from "@/lib/utils/dates";
+import TimePicker from "react-time-picker";
+import "react-time-picker/dist/TimePicker.css";
+import "react-clock/dist/Clock.css";
 
 interface CreateWorkScheduleModalProps {
   isOpen: boolean;
@@ -43,6 +47,7 @@ export default function CreateWorkScheduleModal({
   );
   const [notes, setNotes] = useState("");
   const [startTime, setStartTime] = useState("");
+  const [timeError, setTimeError] = useState<string>("");
   const [selectedStaffIds, setSelectedStaffIds] = useState<Set<number>>(
     new Set(),
   );
@@ -88,14 +93,60 @@ export default function CreateWorkScheduleModal({
       setSelectedTask(null);
       setNotes("");
       setStartTime("");
+      setTimeError("");
       setSelectedStaffIds(new Set());
       setSelectedPondIds(new Set());
     }
   }, [isOpen]);
 
+  // Validate start time
+  useEffect(() => {
+    if (!startTime || !scheduledDate) {
+      setTimeError("");
+      return;
+    }
+
+    const today = toLocalDateString(new Date());
+    const isToday = scheduledDate === today;
+
+    if (isToday) {
+      // Create schema for time validation
+      const timeSchema = z.string().refine(
+        (time) => {
+          const now = new Date();
+          const currentHours = now.getHours();
+          const currentMinutes = now.getMinutes();
+
+          const [hours, minutes] = time.split(":").map(Number);
+          const selectedTimeInMinutes = hours * 60 + minutes;
+          const currentTimeInMinutes = currentHours * 60 + currentMinutes;
+
+          return selectedTimeInMinutes >= currentTimeInMinutes;
+        },
+        {
+          message: "Giờ bắt đầu không được trước giờ hiện tại",
+        },
+      );
+
+      const result = timeSchema.safeParse(startTime);
+      if (!result.success) {
+        setTimeError(result.error.errors[0].message);
+      } else {
+        setTimeError("");
+      }
+    } else {
+      setTimeError("");
+    }
+  }, [startTime, scheduledDate]);
+
   const handleCreate = () => {
     if (!selectedTask || !startTime) {
       toast.error("Vui lòng chọn công việc và giờ bắt đầu");
+      return;
+    }
+
+    if (timeError) {
+      toast.error(timeError);
       return;
     }
 
@@ -207,12 +258,32 @@ export default function CreateWorkScheduleModal({
                   Thời gian bắt đầu *
                 </p>
                 <div>
-                  <Input
-                    type="time"
-                    value={startTime}
-                    onChange={(e) => setStartTime(e.target.value)}
-                    className="w-full"
-                  />
+                  <div
+                    className={`rounded-md border ${timeError ? "border-red-500" : "border-gray-300"} focus-within:ring-2 focus-within:ring-offset-0 ${timeError ? "focus-within:ring-red-500" : "focus-within:ring-blue-500"}`}
+                  >
+                    <TimePicker
+                      onChange={(value) => {
+                        if (value) {
+                          // TimePicker returns "HH:MM" format, we need "HH:MM:SS" for the API
+                          setStartTime(`${value}:00`);
+                        } else {
+                          setStartTime("");
+                        }
+                      }}
+                      value={startTime ? startTime.substring(0, 5) : null}
+                      format="HH:mm"
+                      // Hiện đồng hồ khi chọn giờ (cho đẹp)
+                      disableClock={false}
+                      clearIcon={null}
+                      className="w-full"
+                      hourPlaceholder="HH"
+                      minutePlaceholder="MM"
+                      maxDetail="minute"
+                    />
+                  </div>
+                  {timeError && (
+                    <p className="text-sm text-red-500 mt-2">{timeError}</p>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -350,7 +421,7 @@ export default function CreateWorkScheduleModal({
             >
               Hủy
             </Button>
-            <Button onClick={handleCreate} disabled={isPending}>
+            <Button onClick={handleCreate} disabled={isPending || !!timeError}>
               {isPending ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />

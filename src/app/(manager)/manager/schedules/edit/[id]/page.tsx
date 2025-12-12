@@ -27,6 +27,9 @@ import {
 import { formatTimeToHHMM } from "@/lib/utils/formatTime";
 import TaskSelectionPopup from "../../components/TaskSelectionPopup";
 import toast from "react-hot-toast";
+import TimePicker from "react-time-picker";
+import "react-time-picker/dist/TimePicker.css";
+import "react-clock/dist/Clock.css";
 
 interface TemplateItemWithTask extends TemplateItemRequest {
   taskTemplate?: TaskTemplateResponse;
@@ -287,13 +290,25 @@ export default function EditWeeklyScheduleTemplatePage() {
                   >
                     Thời gian bắt đầu
                   </Label>
-                  <Input
-                    id="start-time"
-                    type="time"
-                    value={startTime.substring(0, 5)}
-                    onChange={(e) => setStartTime(e.target.value + ":00")}
-                    className="mt-1 border-2 border-gray-300"
-                  />
+                  <div className="rounded-md border border-gray-300 focus-within:ring-2 focus-within:ring-offset-0 focus-within:ring-blue-500 mt-1">
+                    <TimePicker
+                      onChange={(value) => {
+                        if (value) {
+                          setStartTime(`${value}:00`);
+                        } else {
+                          setStartTime("");
+                        }
+                      }}
+                      value={startTime ? startTime.substring(0, 5) : null}
+                      format="HH:mm"
+                      disableClock={false}
+                      clearIcon={null}
+                      className="w-full"
+                      hourPlaceholder="HH"
+                      minutePlaceholder="MM"
+                      maxDetail="minute"
+                    />
+                  </div>
                 </div>
 
                 <div className="flex items-end">
