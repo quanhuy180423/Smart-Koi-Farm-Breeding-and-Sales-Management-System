@@ -253,8 +253,7 @@ export default function WeeklyWorkScheduleView({
           currentDayDate.setDate(currentDayDate.getDate() + index);
           const tasksForDay = getTasksForDay(currentDayDate);
           const isToday =
-            toLocalDateString(currentDayDate) ===
-            toLocalDateString(new Date());
+            toLocalDateString(currentDayDate) === toLocalDateString(new Date());
 
           // Check if the date is in the past
           const today = new Date();
