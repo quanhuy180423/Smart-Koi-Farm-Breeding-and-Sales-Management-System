@@ -56,6 +56,7 @@ import WeeklyScheduleCalendarView from "./components/WeeklyScheduleCalendarView"
 import WeeklyWorkScheduleView from "./components/WeeklyWorkScheduleView";
 import GenerateWorkScheduleModal from "./components/GenerateWorkScheduleModal";
 import toast from "react-hot-toast";
+import { toLocalDateString } from "@/lib/utils/dates";
 
 interface TaskTemplateForm {
   taskName: string;
@@ -92,8 +93,8 @@ export default function ScheduleManagement() {
     weekEnd.setDate(weekEnd.getDate() + 6);
 
     return {
-      from: weekStart.toISOString().split("T")[0],
-      to: weekEnd.toISOString().split("T")[0],
+      from: toLocalDateString(weekStart),
+      to: toLocalDateString(weekEnd),
     };
   };
 
@@ -557,7 +558,7 @@ export default function ScheduleManagement() {
                     notesTask: e.target.value || null,
                   })
                 }
-                className="border-2 border-gray-300 focus:border-blue-500 min-h-[80px]"
+                className="border-2 border-gray-300 focus:border-blue-500 min-h-20"
               />
             </div>
 
@@ -674,7 +675,7 @@ export default function ScheduleManagement() {
                       notesTask: e.target.value || null,
                     })
                   }
-                  className="border-2 border-gray-300 focus:border-blue-500 min-h-[80px]"
+                  className="border-2 border-gray-300 focus:border-blue-500 min-h-20"
                 />
               </div>
 

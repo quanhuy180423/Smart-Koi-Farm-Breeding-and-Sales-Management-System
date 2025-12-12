@@ -26,6 +26,7 @@ import { DayOfWeekEnum } from "@/lib/api/services/fetchWeeklyScheduleTemplate";
 import { useGenerateWorkSchedules } from "@/hooks/useWeeklyScheduleTemplate";
 import { formatTimeToHHMM } from "@/lib/utils/formatTime";
 import { DatePickerFilter } from "@/components/ui/DatePickerFilter";
+import { toLocalDateString } from "@/lib/utils/dates";
 
 interface GenerateWorkScheduleModalProps {
   isOpen: boolean;
@@ -54,7 +55,7 @@ export default function GenerateWorkScheduleModal({
     null,
   );
   const [startDate, setStartDate] = useState<string>(
-    new Date().toISOString().split("T")[0],
+    toLocalDateString(new Date()),
   );
   const [expandedDays, setExpandedDays] = useState<Set<string>>(new Set());
   const [selectedStaffIds, setSelectedStaffIds] = useState<Set<number>>(
@@ -112,7 +113,7 @@ export default function GenerateWorkScheduleModal({
         onSuccess: () => {
           onOpenChange(false);
           setSelectedTemplateId(null);
-          setStartDate(new Date().toISOString().split("T")[0]);
+          setStartDate(toLocalDateString(new Date()));
           setSelectedStaffIds(new Set());
           setSelectedPondIds(new Set());
         },
@@ -285,7 +286,7 @@ export default function GenerateWorkScheduleModal({
                                               {idx + 1}
                                             </div>
                                             <div className="flex-1 min-w-0">
-                                              <p className="text-sm font-medium text-gray-900 break-words">
+                                              <p className="text-sm font-medium text-gray-900 wrap-break-word">
                                                 {item.taskTemplate.taskName}
                                               </p>
                                               <div className="flex items-center gap-2 mt-1">

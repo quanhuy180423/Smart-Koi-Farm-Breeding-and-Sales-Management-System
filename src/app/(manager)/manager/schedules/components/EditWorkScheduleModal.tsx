@@ -22,7 +22,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
 import {
   Clock,
   Users,
@@ -48,6 +47,9 @@ import { Textarea } from "@/components/ui/textarea";
 import TaskSelectionPopup from "./TaskSelectionPopup";
 import StaffSelectionModal from "./StaffSelectionModal";
 import PondSelectionModal from "./PondSelectionModal";
+import TimePicker from "react-time-picker";
+import "react-time-picker/dist/TimePicker.css";
+import "react-clock/dist/Clock.css";
 import { TaskTemplateResponse } from "@/lib/api/services/fetchTaskTemplate";
 import { getWorkScheduleStatusText, getRoleLabel } from "@/lib/utils/enum";
 import { User } from "@/lib/api/services/fetchUsers";
@@ -323,15 +325,26 @@ export default function EditWorkScheduleModal({
                   </p>
                   {isEditing && canEdit ? (
                     <div className="space-y-3">
-                      <div>
-                        <Input
-                          type="time"
-                          value={startTime}
-                          onChange={(e) => {
-                            setStartTime(e.target.value);
+                      <div
+                        className={`rounded-md border ${timeError ? "border-red-500" : "border-gray-300"} focus-within:ring-2 focus-within:ring-offset-0 ${timeError ? "focus-within:ring-red-500" : "focus-within:ring-blue-500"}`}
+                      >
+                        <TimePicker
+                          onChange={(value) => {
+                            if (value) {
+                              setStartTime(`${value}:00`);
+                            } else {
+                              setStartTime("");
+                            }
                             if (timeError) setTimeError(null);
                           }}
-                          className={`w-full ${timeError ? "border-red-500" : ""}`}
+                          value={startTime ? startTime.substring(0, 5) : null}
+                          format="HH:mm"
+                          disableClock={false}
+                          clearIcon={null}
+                          className="w-full"
+                          hourPlaceholder="HH"
+                          minutePlaceholder="MM"
+                          maxDetail="minute"
                         />
                       </div>
                       {timeError && (
