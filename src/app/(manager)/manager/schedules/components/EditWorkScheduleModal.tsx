@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import {
   Dialog,
   DialogContent,
@@ -21,7 +22,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
 import {
   Clock,
   Users,
@@ -32,6 +32,7 @@ import {
   Trash2,
   Repeat2,
   AlertTriangle,
+  ImageIcon,
 } from "lucide-react";
 import {
   WorkSchedule,
@@ -46,6 +47,9 @@ import { Textarea } from "@/components/ui/textarea";
 import TaskSelectionPopup from "./TaskSelectionPopup";
 import StaffSelectionModal from "./StaffSelectionModal";
 import PondSelectionModal from "./PondSelectionModal";
+import TimePicker from "react-time-picker";
+import "react-time-picker/dist/TimePicker.css";
+import "react-clock/dist/Clock.css";
 import { TaskTemplateResponse } from "@/lib/api/services/fetchTaskTemplate";
 import { getWorkScheduleStatusText, getRoleLabel } from "@/lib/utils/enum";
 import { User } from "@/lib/api/services/fetchUsers";
@@ -53,6 +57,7 @@ import { useGetUserByRole } from "@/hooks/useUsers";
 import { Roles } from "@/lib/api/services/fetchAuth";
 import { useGetPonds } from "@/hooks/usePond";
 import { PondResponse } from "@/lib/api/services/fetchPond";
+import { KoiImageViewer } from "@/components/dialogs/KoiImageViewer";
 
 interface EditWorkScheduleModalProps {
   isOpen: boolean;
@@ -80,7 +85,6 @@ export default function EditWorkScheduleModal({
   const [isEditing, setIsEditing] = useState(false);
   const [notes, setNotes] = useState(workSchedule?.notes || "");
   const [startTime, setStartTime] = useState(workSchedule?.startTime || "");
-  const [endTime, setEndTime] = useState(workSchedule?.endTime || "");
   const [selectedStaffIds, setSelectedStaffIds] = useState<Set<number>>(
     new Set(workSchedule?.staffAssignments?.map((s) => s.staffId) || []),
   );
@@ -94,6 +98,9 @@ export default function EditWorkScheduleModal({
   const [timeError, setTimeError] = useState<string | null>(null);
   const [selectedTaskForEditing, setSelectedTaskForEditing] =
     useState<TaskTemplateResponse | null>(null);
+  const [isImageViewerOpen, setIsImageViewerOpen] = useState(false);
+  const [selectedImages, setSelectedImages] = useState<string[]>([]);
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const { mutate: updateWorkSchedule, isPending } = useUpdateWorkSchedule();
   const { mutate: deleteWorkSchedule, isPending: isDeleting } =
     useDeleteWorkSchedule();
@@ -130,7 +137,6 @@ export default function EditWorkScheduleModal({
     if (workSchedule) {
       setNotes(workSchedule.notes || "");
       setStartTime(workSchedule.startTime || "");
-      setEndTime(workSchedule.endTime || "");
       setSelectedStaffIds(
         new Set(workSchedule.staffAssignments?.map((s) => s.staffId) || []),
       );
@@ -152,28 +158,15 @@ export default function EditWorkScheduleModal({
 
   const canEdit = isEditable(workSchedule);
 
-  const validateTime = () => {
-    if (!startTime || !endTime) {
-      setTimeError("Vui lòng nhập đầy đủ giờ bắt đầu và kết thúc");
-      return false;
-    }
-
-    const start = new Date(`1970-01-01T${startTime}`);
-    const end = new Date(`1970-01-01T${endTime}`);
-
-    if (start >= end) {
-      setTimeError("Giờ bắt đầu phải nhỏ hơn giờ kết thúc");
-      return false;
-    }
-
-    setTimeError(null);
-    return true;
-  };
-
   const handleSave = () => {
     if (!workSchedule || selectedStaffIds.size === 0) return;
 
-    if (!validateTime()) return;
+    if (!startTime) {
+      setTimeError("Vui lòng nhập giờ bắt đầu");
+      return;
+    }
+
+    setTimeError(null);
 
     updateWorkSchedule(
       {
@@ -183,7 +176,6 @@ export default function EditWorkScheduleModal({
             selectedTaskForEditing?.id || workSchedule.taskTemplateId,
           scheduledDate: workSchedule.scheduledDate,
           startTime,
-          endTime,
           notes,
           staffIds: Array.from(selectedStaffIds),
           pondIds: Array.from(selectedPondIds),
@@ -250,10 +242,15 @@ export default function EditWorkScheduleModal({
       );
       setNotes(workSchedule.notes || "");
       setStartTime(workSchedule.startTime || "");
-      setEndTime(workSchedule.endTime || "");
       setSelectedTaskForEditing(null);
     }
     setIsEditing(false);
+  };
+
+  const handleOpenImageViewer = (images: string[], index: number) => {
+    setSelectedImages(images);
+    setSelectedImageIndex(index);
+    setIsImageViewerOpen(true);
   };
 
   return (
@@ -324,40 +321,31 @@ export default function EditWorkScheduleModal({
                 {/* Time Section */}
                 <div>
                   <p className="text-sm font-medium text-gray-600 mb-3">
-                    Giờ thực hiện
+                    Thời gian bắt đầu
                   </p>
                   {isEditing && canEdit ? (
                     <div className="space-y-3">
-                      <div className="flex items-center gap-3">
-                        <div className="flex-1">
-                          <label className="text-xs text-gray-500 block mb-1">
-                            Giờ bắt đầu
-                          </label>
-                          <Input
-                            type="time"
-                            value={startTime}
-                            onChange={(e) => {
-                              setStartTime(e.target.value);
-                              if (timeError) setTimeError(null);
-                            }}
-                            className={`w-full ${timeError ? "border-red-500" : ""}`}
-                          />
-                        </div>
-                        <span className="text-gray-400 mt-6">-</span>
-                        <div className="flex-1">
-                          <label className="text-xs text-gray-500 block mb-1">
-                            Giờ kết thúc
-                          </label>
-                          <Input
-                            type="time"
-                            value={endTime}
-                            onChange={(e) => {
-                              setEndTime(e.target.value);
-                              if (timeError) setTimeError(null);
-                            }}
-                            className={`w-full ${timeError ? "border-red-500" : ""}`}
-                          />
-                        </div>
+                      <div
+                        className={`rounded-md border ${timeError ? "border-red-500" : "border-gray-300"} focus-within:ring-2 focus-within:ring-offset-0 ${timeError ? "focus-within:ring-red-500" : "focus-within:ring-blue-500"}`}
+                      >
+                        <TimePicker
+                          onChange={(value) => {
+                            if (value) {
+                              setStartTime(`${value}:00`);
+                            } else {
+                              setStartTime("");
+                            }
+                            if (timeError) setTimeError(null);
+                          }}
+                          value={startTime ? startTime.substring(0, 5) : null}
+                          format="HH:mm"
+                          disableClock={false}
+                          clearIcon={null}
+                          className="w-full"
+                          hourPlaceholder="HH"
+                          minutePlaceholder="MM"
+                          maxDetail="minute"
+                        />
                       </div>
                       {timeError && (
                         <div className="text-red-600 text-sm bg-red-50 border border-red-200 rounded p-2">
@@ -369,8 +357,7 @@ export default function EditWorkScheduleModal({
                     <div className="flex items-center gap-3">
                       <Clock className="h-5 w-5 text-gray-600" />
                       <p className="text-base font-semibold text-gray-900">
-                        {formatTimeToHHMM(startTime)} -{" "}
-                        {formatTimeToHHMM(endTime)}
+                        {formatTimeToHHMM(startTime)}
                       </p>
                     </div>
                   )}
@@ -478,15 +465,70 @@ export default function EditWorkScheduleModal({
                               <p className="font-medium text-gray-900">
                                 {assignment.staffName}
                               </p>
-                              <p className="text-xs text-gray-500 mt-1">
+                              <Badge
+                                variant="outline"
+                                className={`text-xs mt-2 ${getRoleLabel(assignment.role as Roles).colorClass}`}
+                              >
                                 {getRoleLabel(assignment.role as Roles).label}
-                              </p>
+                              </Badge>
                             </div>
                           </div>
-                          {assignment.completedAt && (
-                            <div className="pt-2 border-t border-blue-200">
-                              <span className="text-xs text-green-600 font-medium">
+                          {assignment.completedAt ? (
+                            <div className="pt-2 border-t border-blue-200 space-y-2 text-xs">
+                              <span className="text-green-600 font-medium">
                                 ✓ Đã hoàn thành
+                              </span>
+                              <p className="text-gray-600">
+                                {new Date(
+                                  assignment.completedAt,
+                                ).toLocaleString("vi-VN")}
+                              </p>
+                              {assignment.completionNotes && (
+                                <p className="italic text-gray-700">
+                                  {assignment.completionNotes}
+                                </p>
+                              )}
+                              {assignment.images &&
+                                assignment.images.length > 0 && (
+                                  <div className="pt-2">
+                                    <div className="flex items-center gap-1 mb-2">
+                                      <ImageIcon className="h-3 w-3 text-blue-600" />
+                                      <p className="text-blue-600 font-medium">
+                                        Hình ảnh chứng minh (
+                                        {assignment.images.length})
+                                      </p>
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-2">
+                                      {assignment.images.map(
+                                        (imageUrl, index) => (
+                                          <div
+                                            key={index}
+                                            className="relative aspect-square rounded-md overflow-hidden border border-gray-200 hover:border-blue-400 transition-colors cursor-pointer group"
+                                            onClick={() =>
+                                              handleOpenImageViewer(
+                                                assignment.images,
+                                                index,
+                                              )
+                                            }
+                                          >
+                                            <Image
+                                              src={imageUrl}
+                                              alt={`Hình ảnh chứng minh ${index + 1}`}
+                                              fill
+                                              className="object-cover group-hover:scale-105 transition-transform"
+                                              sizes="(max-width: 768px) 50vw, 150px"
+                                            />
+                                          </div>
+                                        ),
+                                      )}
+                                    </div>
+                                  </div>
+                                )}
+                            </div>
+                          ) : (
+                            <div className="pt-2 border-t border-blue-200">
+                              <span className="text-xs text-yellow-600 font-medium">
+                                Chưa hoàn thành
                               </span>
                             </div>
                           )}
@@ -726,6 +768,16 @@ export default function EditWorkScheduleModal({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Image Viewer */}
+      <KoiImageViewer
+        isOpen={isImageViewerOpen}
+        onOpenChange={setIsImageViewerOpen}
+        images={selectedImages}
+        selectedImageIdx={selectedImageIndex}
+        onImageIdxChange={setSelectedImageIndex}
+        rfid={workSchedule?.taskTemplateName || "Hình ảnh công việc"}
+      />
     </>
   );
 }

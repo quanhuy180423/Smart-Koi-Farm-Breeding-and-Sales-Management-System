@@ -88,7 +88,6 @@ export default function CustomersPage() {
   const [createdFromInput, setCreatedFromInput] = useState("");
   const [createdToInput, setCreatedToInput] = useState("");
   const [contactNumberInput, setContactNumberInput] = useState("");
-  const [isActiveInput, setIsActiveInput] = useState<boolean | undefined>();
 
   // Applied filter state (used for API calls)
   const [minTotalSpent, setMinTotalSpent] = useState<number | undefined>();
@@ -98,7 +97,6 @@ export default function CustomersPage() {
   const [createdFrom, setCreatedFrom] = useState("");
   const [createdTo, setCreatedTo] = useState("");
   const [contactNumber, setContactNumber] = useState("");
-  const [isActive, setIsActive] = useState<boolean | undefined>();
 
   const {
     data: customersData = defaultCustomerData,
@@ -108,7 +106,6 @@ export default function CustomersPage() {
     pageIndex: currentPage,
     pageSize: pageSize,
     search: debouncedSearchTerm,
-    isActive,
     minTotalSpent,
     maxTotalSpent,
     minTotalOrders,
@@ -146,7 +143,6 @@ export default function CustomersPage() {
     setCreatedFrom(createdFromInput);
     setCreatedTo(createdToInput);
     setContactNumber(contactNumberInput);
-    setIsActive(isActiveInput);
     setCurrentPage(1);
     setIsFilterOpen(false);
   };
@@ -160,7 +156,6 @@ export default function CustomersPage() {
     setCreatedFromInput("");
     setCreatedToInput("");
     setContactNumberInput("");
-    setIsActiveInput(undefined);
 
     setMinTotalSpent(undefined);
     setMaxTotalSpent(undefined);
@@ -169,7 +164,6 @@ export default function CustomersPage() {
     setCreatedFrom("");
     setCreatedTo("");
     setContactNumber("");
-    setIsActive(undefined);
     setCurrentPage(1);
   };
 
@@ -248,7 +242,6 @@ export default function CustomersPage() {
                       <TableHead className="text-right">
                         Tổng Chi Tiêu
                       </TableHead>
-                      <TableHead>Trạng Thái</TableHead>
                       <TableHead className="text-right">Hành Động</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -285,17 +278,6 @@ export default function CustomersPage() {
                         </TableCell>
                         <TableCell className="text-right font-medium">
                           {formatCurrency(customer.totalSpent)}
-                        </TableCell>
-                        <TableCell>
-                          <Badge
-                            variant={
-                              customer.isActive ? "default" : "secondary"
-                            }
-                          >
-                            {customer.isActive
-                              ? "Hoạt động"
-                              : "Không hoạt động"}
-                          </Badge>
                         </TableCell>
                         <TableCell className="text-right">
                           <Button
@@ -492,37 +474,6 @@ export default function CustomersPage() {
                 className="border-2 border-gray-300"
               />
             </div>
-
-            {/* Status Filter */}
-            <div className="space-y-2">
-              <Label>Trạng Thái</Label>
-              <div className="flex gap-2">
-                <Button
-                  variant={isActiveInput === undefined ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setIsActiveInput(undefined)}
-                  className="flex-1"
-                >
-                  Tất cả
-                </Button>
-                <Button
-                  variant={isActiveInput === true ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setIsActiveInput(true)}
-                  className="flex-1"
-                >
-                  Hoạt động
-                </Button>
-                <Button
-                  variant={isActiveInput === false ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setIsActiveInput(false)}
-                  className="flex-1"
-                >
-                  Không hoạt động
-                </Button>
-              </div>
-            </div>
           </div>
 
           <DialogFooter className="mt-4 flex justify-between sm:justify-between">
@@ -584,20 +535,6 @@ export default function CustomersPage() {
                       <p className="font-medium">
                         {selectedCustomer.contactNumber}
                       </p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">
-                        Trạng Thái
-                      </p>
-                      <Badge
-                        variant={
-                          selectedCustomer.isActive ? "default" : "secondary"
-                        }
-                      >
-                        {selectedCustomer.isActive
-                          ? "Hoạt động"
-                          : "Không hoạt động"}
-                      </Badge>
                     </div>
                   </div>
                 </div>

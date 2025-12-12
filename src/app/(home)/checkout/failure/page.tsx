@@ -31,10 +31,10 @@ import { getOrderStatusText } from "@/lib/utils/enum";
 export default function CheckoutFailurePage() {
   const searchParams = useSearchParams();
   const [orderId, setOrderId] = useState<number | null>(null);
-  const [errorCode, setErrorCode] = useState("");
+  // const [errorCode, setErrorCode] = useState("");
 
   useEffect(() => {
-    const paramCode = searchParams.get("code");
+    // const paramCode = searchParams.get("code");
     const paramOrderId = searchParams.get("orderId");
 
     if (paramOrderId) {
@@ -42,9 +42,9 @@ export default function CheckoutFailurePage() {
     }
 
     // Generate error code
-    setErrorCode(
-      paramCode ? `ERR_${paramCode}` : `ERR_${Date.now().toString().slice(-6)}`,
-    );
+    // setErrorCode(
+    //   paramCode ? `ERR_${paramCode}` : `ERR_${Date.now().toString().slice(-6)}`,
+    // );
   }, [searchParams]);
 
   const { data: order, isLoading } = useGetOrderById(orderId ?? undefined);
@@ -122,12 +122,12 @@ export default function CheckoutFailurePage() {
                 <CardContent className="space-y-4">
                   <div className="bg-red-100/50 p-4 rounded-lg border border-red-200">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                      <div>
+                      {/* <div>
                         <p className="text-muted-foreground">Mã lỗi:</p>
                         <p className="font-mono text-red-600 font-medium">
                           {errorCode}
                         </p>
-                      </div>
+                      </div> */}
                       <div>
                         <p className="text-muted-foreground">Mã đơn hàng:</p>
                         <p className="font-mono text-red-600 font-medium">
@@ -363,7 +363,7 @@ export default function CheckoutFailurePage() {
             </div>
           </div>
 
-          <div className="mt-8 p-4 bg-muted/50 rounded-lg border">
+          {/* <div className="mt-8 p-4 bg-muted/50 rounded-lg border">
             <p className="text-xs text-muted-foreground">
               Nếu bạn tiếp tục gặp vấn đề, vui lòng cung cấp mã lỗi{" "}
               <span className="font-mono bg-red-100 px-1 rounded">
@@ -371,7 +371,7 @@ export default function CheckoutFailurePage() {
               </span>{" "}
               khi liên hệ với bộ phận hỗ trợ để được xử lý nhanh chóng.
             </p>
-          </div>
+          </div> */}
         </div>
       </div>
     </div>

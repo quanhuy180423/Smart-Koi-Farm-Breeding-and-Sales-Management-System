@@ -11,7 +11,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
 import { Users, Droplets, Loader2, Plus } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import toast from "react-hot-toast";
@@ -26,6 +25,11 @@ import { Roles } from "@/lib/api/services/fetchAuth";
 import { User } from "@/lib/api/services/fetchUsers";
 import { getRoleLabel } from "@/lib/utils/enum";
 import { PondResponse } from "@/lib/api/services/fetchPond";
+import { z } from "zod";
+import { toLocalDateString } from "@/lib/utils/dates";
+import TimePicker from "react-time-picker";
+import "react-time-picker/dist/TimePicker.css";
+import "react-clock/dist/Clock.css";
 
 interface CreateWorkScheduleModalProps {
   isOpen: boolean;
@@ -43,7 +47,7 @@ export default function CreateWorkScheduleModal({
   );
   const [notes, setNotes] = useState("");
   const [startTime, setStartTime] = useState("");
-  const [endTime, setEndTime] = useState("");
+  const [timeError, setTimeError] = useState<string>("");
   const [selectedStaffIds, setSelectedStaffIds] = useState<Set<number>>(
     new Set(),
   );
@@ -89,15 +93,60 @@ export default function CreateWorkScheduleModal({
       setSelectedTask(null);
       setNotes("");
       setStartTime("");
-      setEndTime("");
+      setTimeError("");
       setSelectedStaffIds(new Set());
       setSelectedPondIds(new Set());
     }
   }, [isOpen]);
 
+  // Validate start time
+  useEffect(() => {
+    if (!startTime || !scheduledDate) {
+      setTimeError("");
+      return;
+    }
+
+    const today = toLocalDateString(new Date());
+    const isToday = scheduledDate === today;
+
+    if (isToday) {
+      // Create schema for time validation
+      const timeSchema = z.string().refine(
+        (time) => {
+          const now = new Date();
+          const currentHours = now.getHours();
+          const currentMinutes = now.getMinutes();
+
+          const [hours, minutes] = time.split(":").map(Number);
+          const selectedTimeInMinutes = hours * 60 + minutes;
+          const currentTimeInMinutes = currentHours * 60 + currentMinutes;
+
+          return selectedTimeInMinutes >= currentTimeInMinutes;
+        },
+        {
+          message: "Giờ bắt đầu không được trước giờ hiện tại",
+        },
+      );
+
+      const result = timeSchema.safeParse(startTime);
+      if (!result.success) {
+        setTimeError(result.error.errors[0].message);
+      } else {
+        setTimeError("");
+      }
+    } else {
+      setTimeError("");
+    }
+  }, [startTime, scheduledDate]);
+
   const handleCreate = () => {
-    if (!selectedTask || !startTime || !endTime) {
-      toast.error("Vui lòng chọn công việc, giờ bắt đầu và giờ kết thúc");
+    if (!selectedTask || !startTime) {
+      toast.error("Vui lòng chọn công việc và giờ bắt đầu");
+      return;
+    }
+
+    if (timeError) {
+      toast.error(timeError);
       return;
     }
 
@@ -111,7 +160,6 @@ export default function CreateWorkScheduleModal({
         taskTemplateId: selectedTask.id,
         scheduledDate: scheduledDate,
         startTime,
-        endTime,
         notes,
         staffIds: Array.from(selectedStaffIds),
         pondIds: Array.from(selectedPondIds),
@@ -147,14 +195,9 @@ export default function CreateWorkScheduleModal({
   const handleTaskSelect = (task: TaskTemplateResponse) => {
     setSelectedTask(task);
     setIsTaskModalOpen(false);
-    // Auto-fill start and end time from default duration
+    // Auto-fill start time
     if (!startTime) {
       setStartTime("06:00:00");
-      const duration = task.defaultDuration || 30;
-      const endDate = new Date(`2025-01-01T06:00:00`);
-      endDate.setMinutes(endDate.getMinutes() + duration);
-      const endTimeStr = endDate.toTimeString().slice(0, 8);
-      setEndTime(endTimeStr);
     }
   };
 
@@ -212,32 +255,35 @@ export default function CreateWorkScheduleModal({
             <Card>
               <CardContent className="pt-6 space-y-4">
                 <p className="text-sm font-medium text-gray-600">
-                  Giờ thực hiện *
+                  Thời gian bắt đầu *
                 </p>
-                <div className="flex items-center gap-3">
-                  <div className="flex-1">
-                    <label className="text-xs text-gray-500 block mb-1">
-                      Giờ bắt đầu
-                    </label>
-                    <Input
-                      type="time"
-                      value={startTime}
-                      onChange={(e) => setStartTime(e.target.value)}
+                <div>
+                  <div
+                    className={`rounded-md border ${timeError ? "border-red-500" : "border-gray-300"} focus-within:ring-2 focus-within:ring-offset-0 ${timeError ? "focus-within:ring-red-500" : "focus-within:ring-blue-500"}`}
+                  >
+                    <TimePicker
+                      onChange={(value) => {
+                        if (value) {
+                          // TimePicker returns "HH:MM" format, we need "HH:MM:SS" for the API
+                          setStartTime(`${value}:00`);
+                        } else {
+                          setStartTime("");
+                        }
+                      }}
+                      value={startTime ? startTime.substring(0, 5) : null}
+                      format="HH:mm"
+                      // Hiện đồng hồ khi chọn giờ (cho đẹp)
+                      disableClock={false}
+                      clearIcon={null}
                       className="w-full"
+                      hourPlaceholder="HH"
+                      minutePlaceholder="MM"
+                      maxDetail="minute"
                     />
                   </div>
-                  <span className="text-gray-400 mt-6">-</span>
-                  <div className="flex-1">
-                    <label className="text-xs text-gray-500 block mb-1">
-                      Giờ kết thúc
-                    </label>
-                    <Input
-                      type="time"
-                      value={endTime}
-                      onChange={(e) => setEndTime(e.target.value)}
-                      className="w-full"
-                    />
-                  </div>
+                  {timeError && (
+                    <p className="text-sm text-red-500 mt-2">{timeError}</p>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -362,7 +408,7 @@ export default function CreateWorkScheduleModal({
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
                 placeholder="Nhập ghi chú..."
-                className="min-h-[80px] border border-gray-300"
+                className="min-h-20 border border-gray-300"
               />
             </div>
           </div>
@@ -375,7 +421,7 @@ export default function CreateWorkScheduleModal({
             >
               Hủy
             </Button>
-            <Button onClick={handleCreate} disabled={isPending}>
+            <Button onClick={handleCreate} disabled={isPending || !!timeError}>
               {isPending ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />

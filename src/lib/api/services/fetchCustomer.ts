@@ -19,7 +19,6 @@ export interface Customer {
   contactNumber: string;
   totalOrders: number;
   totalSpent: number;
-  isActive: boolean;
   createdAt: string;
   updatedAt: string | null;
   recentOrders: RecentOrder[];
@@ -29,7 +28,6 @@ export interface CustomerSearchParams {
   pageIndex?: number;
   pageSize?: number;
   search?: string;
-  isActive?: boolean;
   minTotalSpent?: number;
   maxTotalSpent?: number;
   minTotalOrders?: number;
@@ -49,7 +47,6 @@ export const customerService = {
       pageIndex: params.pageIndex || 1,
       pageSize: params.pageSize || 10,
       search: params.search,
-      isActive: params.isActive,
       minTotalSpent: params.minTotalSpent,
       maxTotalSpent: params.maxTotalSpent,
       minTotalOrders: params.minTotalOrders,

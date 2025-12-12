@@ -35,7 +35,6 @@ export interface TemplateItemRequest {
   taskTemplateId: number;
   dayOfWeek: DayOfWeekEnum;
   startTime: string;
-  endTime: string;
 }
 
 export interface WeeklyScheduleTemplateRequest {

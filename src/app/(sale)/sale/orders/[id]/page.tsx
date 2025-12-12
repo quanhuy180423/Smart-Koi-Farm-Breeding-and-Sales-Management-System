@@ -305,6 +305,14 @@ export default function OrderDetailPage() {
                 {order.orderDetails.length} sản phẩm
               </p>
             </div>
+            {order.note && (
+              <div>
+                <p className="text-sm text-muted-foreground">Ghi chú</p>
+                <p className="font-medium text-amber-700 italic">
+                  {order.note}
+                </p>
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>

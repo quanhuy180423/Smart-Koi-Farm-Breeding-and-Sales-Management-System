@@ -38,6 +38,7 @@ import { useGetPonds } from "@/hooks/usePond";
 import { PondResponse } from "@/lib/api/services/fetchPond";
 import { Plus } from "lucide-react";
 import { PaginationWithLinks } from "@/components/pagination";
+import { toLocalDateString } from "@/lib/utils/dates";
 
 const PAGE_SIZE_OPTIONS = [5, 10, 20];
 
@@ -136,7 +137,8 @@ export default function WeeklyWorkScheduleView({
   weekEnd.setDate(weekEnd.getDate() + 6);
 
   const getTasksForDay = (date: Date) => {
-    const dateStr = date.toISOString().split("T")[0];
+    // Use local timezone instead of UTC to avoid timezone issues
+    const dateStr = toLocalDateString(date);
     return workSchedules.filter((ws) => ws.scheduledDate === dateStr);
   };
 
@@ -251,8 +253,14 @@ export default function WeeklyWorkScheduleView({
           currentDayDate.setDate(currentDayDate.getDate() + index);
           const tasksForDay = getTasksForDay(currentDayDate);
           const isToday =
-            currentDayDate.toISOString().split("T")[0] ===
-            new Date().toISOString().split("T")[0];
+            toLocalDateString(currentDayDate) === toLocalDateString(new Date());
+
+          // Check if the date is in the past
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+          const currentDayDateNoTime = new Date(currentDayDate);
+          currentDayDateNoTime.setHours(0, 0, 0, 0);
+          const isPastDate = currentDayDateNoTime < today;
 
           return (
             <Card
@@ -271,20 +279,22 @@ export default function WeeklyWorkScheduleView({
                       {currentDayDate.toLocaleDateString("vi-VN")}
                     </div>
                   </CardTitle>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    className="h-7 w-7 p-0 hover:bg-blue-100 text-blue-600"
-                    onClick={() => {
-                      setSelectedCreateDate(
-                        currentDayDate.toISOString().split("T")[0],
-                      );
-                      setIsCreateModalOpen(true);
-                    }}
-                    title="Thêm công việc"
-                  >
-                    <Plus className="h-4 w-4" />
-                  </Button>
+                  {!isPastDate && (
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="h-7 w-7 p-0 hover:bg-blue-100 text-blue-600"
+                      onClick={() => {
+                        setSelectedCreateDate(
+                          toLocalDateString(currentDayDate),
+                        );
+                        setIsCreateModalOpen(true);
+                      }}
+                      title="Thêm công việc"
+                    >
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  )}
                 </div>
               </CardHeader>
 

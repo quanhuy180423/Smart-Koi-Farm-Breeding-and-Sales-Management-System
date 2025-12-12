@@ -1,5 +1,6 @@
 import { BaseResponse, PagedResponse } from "@/lib/api/apiClient";
 import koiFishService, {
+  KoiBreedingHistoryResponse,
   KoiFishFamilyResponse,
   KoiFishResponse,
   KoiFishSearchParams,
@@ -131,6 +132,30 @@ export function useSetKoiReadyToSpawn() {
       toast.error(
         error.message || "Có lỗi xảy ra khi cập nhật trạng thái sinh sản",
       );
+    },
+  });
+}
+
+export function useGetKoiBreedingHistory(koiId: number | undefined) {
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+
+  return useQuery({
+    queryKey: ["koi-breeding-history", koiId],
+    queryFn: () => koiFishService.getKoiBreedingHistory(koiId!),
+    enabled: isAuthenticated && koiId !== undefined && koiId !== 0,
+    select: (
+      data: BaseResponse<KoiBreedingHistoryResponse>,
+    ): KoiBreedingHistoryResponse => data.result,
+    retry: (failureCount, error: unknown) => {
+      if (
+        error &&
+        typeof error === "object" &&
+        "status" in error &&
+        error.status === 401
+      ) {
+        return false;
+      }
+      return failureCount < 2;
     },
   });
 }
