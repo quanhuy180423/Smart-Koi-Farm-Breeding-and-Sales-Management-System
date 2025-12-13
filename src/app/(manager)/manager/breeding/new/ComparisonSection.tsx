@@ -124,7 +124,7 @@ export default function ComparisonSection({
   const riskAssessmentList = analysisData
     ? [
         {
-          message: `Nguy cơ cận huyết ${analysisData.percentInbreeding > 0 ? "ở mức " + analysisData.percentInbreeding.toFixed(1) + "%" : "rất thấp"}. ${analysisData.percentInbreeding < 2 ? "An toàn cho phối giống." : "Cần xem xét."}`,
+          message: `Nguy cơ cận huyết ${analysisData.percentInbreeding > 0 ? "ở mức " + analysisData.percentInbreeding?.toFixed(1) + "%" : "rất thấp"}. ${analysisData.percentInbreeding < 2 ? "An toàn cho phối giống." : "Cần xem xét."}`,
           percent: analysisData.percentInbreeding,
           ...getRiskLevel(analysisData.percentInbreeding),
         },
@@ -357,7 +357,7 @@ export default function ComparisonSection({
                       <div
                         className="bg-pink-500 h-2 rounded-full"
                         style={{
-                          width: `${analysisData?.femaleBreedingInfo?.breedingSuccessRate.toFixed(0)}%`,
+                          width: `${analysisData?.femaleBreedingInfo?.breedingSuccessRate?.toFixed(0)}%`,
                         }}
                       ></div>
                     </div>
