@@ -8,6 +8,25 @@ import { KoiFishResponse } from "./fetchKoiFish";
 import { PacketFishResponse } from "./fetchPacketFish";
 import { PromotionResponse } from "./fetchPromotion";
 
+export interface CustomerAddressResponse {
+  id: number;
+  customerId: number;
+  customerName: string;
+  fullAddress: string;
+  city: string;
+  ward: string;
+  streetAddress: string;
+  latitude: number;
+  longitude: number;
+  distanceFromFarmKm: number;
+  distanceCalculatedAt: string;
+  recipientPhone: string;
+  isDefault: boolean;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string | null;
+}
+
 export interface OrderDetailResponse {
   id: number;
   orderId: number;
@@ -36,6 +55,8 @@ export interface OrderResponse {
   orderNumber: string;
   customerId: number;
   customerName: string;
+  customerAddressId?: number;
+  customerAddress?: CustomerAddressResponse;
   createdAt: string;
   status: OrderStatus;
   subtotal: number;
