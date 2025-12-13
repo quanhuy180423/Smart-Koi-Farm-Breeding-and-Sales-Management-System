@@ -44,13 +44,19 @@ export interface PondIncident {
   fishDiedCount: number;
 }
 
+export interface IncidentTypeResponse {
+  id: number;
+  name: string;
+  description: string;
+  defaultSeverity: IncidentSeverity;
+  affectsBreeding: boolean;
+}
+
 export interface IncidentResponse {
   id: number;
-  incidentTypeId: number;
-  incidentTypeName: string;
+  incidentType: IncidentTypeResponse;
   incidentTitle: string;
   description: string;
-  severity: IncidentSeverity;
   status: IncidentStatus;
   occurredAt: string;
   createdAt: string;
@@ -61,6 +67,8 @@ export interface IncidentResponse {
   resolvedByUserId: number | null;
   resolvedByUserName: string | null;
   resolutionNotes: string | null;
+  reportImages: string[];
+  resolutionImages: string[];
   koiIncidents: KoiIncident[];
   pondIncidents: PondIncident[];
 }
