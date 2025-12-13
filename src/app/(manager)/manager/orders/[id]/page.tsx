@@ -198,7 +198,7 @@ export default function ManagerOrderDetailPage() {
                     Khoảng cách từ trại
                   </p>
                   <p className="font-medium text-primary">
-                    {order.customerAddress.distanceFromFarmKm.toFixed(2)} km
+                    {order.customerAddress.distanceFromFarmKm?.toFixed(2)} km
                   </p>
                 </div>
               </>

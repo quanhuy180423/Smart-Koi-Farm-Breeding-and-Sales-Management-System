@@ -2,7 +2,11 @@
 
 import { useState } from "react";
 import { useRouter, useParams } from "next/navigation";
-import { useGetOrderById, useUpdateOrderStatus } from "@/hooks/useOrder";
+import {
+  useGetOrderById,
+  useUpdateOrderStatus,
+  useRestockPacketFish,
+} from "@/hooks/useOrder";
 import { formatCurrency } from "@/lib/utils/numbers/formatCurrency";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -29,6 +33,7 @@ import {
   PackageX,
   MapPin,
   Phone,
+  PackagePlus,
 } from "lucide-react";
 import Image from "next/image";
 import { OrderStatus } from "@/lib/api/services/fetchOrder";
@@ -62,8 +67,14 @@ export default function OrderDetailPage() {
   const [isRejectDialogOpen, setIsRejectDialogOpen] = useState(false);
   const [rejectReason, setRejectReason] = useState<string>("");
 
+  // Restock packet fish dialog state
+  const [isRestockDialogOpen, setIsRestockDialogOpen] = useState(false);
+
   // Update order status mutation
   const updateStatusMutation = useUpdateOrderStatus();
+
+  // Restock packet fish mutation
+  const restockMutation = useRestockPacketFish();
 
   // Handler for confirming order (PROCESSING -> SHIPPED)
   const handleConfirmOrder = () => {
@@ -203,6 +214,23 @@ export default function OrderDetailPage() {
     );
   };
 
+  // Handler for restocking packet fish
+  const handleRestockPacketFish = () => {
+    if (!orderId) {
+      toast.error("Không tìm thấy đơn hàng");
+      return;
+    }
+
+    restockMutation.mutate(orderId, {
+      onSuccess: () => {
+        setIsRestockDialogOpen(false);
+      },
+      onError: () => {
+        setIsRestockDialogOpen(false);
+      },
+    });
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -307,7 +335,7 @@ export default function OrderDetailPage() {
                     Khoảng cách từ trại
                   </p>
                   <p className="font-medium text-primary">
-                    {order.customerAddress.distanceFromFarmKm.toFixed(2)} km
+                    {order.customerAddress.distanceFromFarmKm?.toFixed(2)} km
                   </p>
                 </div>
               </>
@@ -505,6 +533,21 @@ export default function OrderDetailPage() {
             </Button>
           </>
         )}
+
+        {/* Show restock button for UNSHIPPING and REJECTED status */}
+        {order &&
+          (order.status === OrderStatus.UNSHIPPING ||
+            order.status === OrderStatus.REJECTED) &&
+          !order.isRestocked &&
+          order.orderDetails.some((detail) => detail.packetFish) && (
+            <Button
+              onClick={() => setIsRestockDialogOpen(true)}
+              className="flex-1 bg-blue-600 hover:bg-blue-700"
+            >
+              <PackagePlus className="h-4 w-4 mr-2" />
+              Khôi phục gói cá
+            </Button>
+          )}
       </div>
 
       {/* Confirm Order Dialog */}
@@ -756,6 +799,104 @@ export default function OrderDetailPage() {
                   </>
                 ) : (
                   "Xác nhận từ chối"
+                )}
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {/* Restock Packet Fish Dialog */}
+      {order && (
+        <Dialog
+          open={isRestockDialogOpen}
+          onOpenChange={setIsRestockDialogOpen}
+        >
+          <DialogContent className="sm:max-w-[600px]">
+            <DialogHeader>
+              <DialogTitle>Khôi phục gói cá</DialogTitle>
+              <DialogDescription>
+                Khôi phục gói cá từ đơn hàng bị từ chối hoặc không giao
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="space-y-4">
+              <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <p className="text-sm text-blue-900">
+                  ℹ️ Gói cá trong đơn hàng này sẽ được khôi phục lại trạng thái
+                  có sẵn để bán.
+                </p>
+              </div>
+
+              {/* Display packet fish information */}
+              <div className="space-y-3">
+                <h4 className="font-semibold text-sm">
+                  Danh sách gói cá sẽ được khôi phục:
+                </h4>
+                <div className="max-h-60 overflow-y-auto space-y-2">
+                  {order.orderDetails
+                    .filter((detail) => detail.packetFish)
+                    .map((detail) => (
+                      <div
+                        key={detail.id}
+                        className="flex items-center gap-3 p-3 bg-white border rounded-lg"
+                      >
+                        {detail.packetFish?.images?.[0] && (
+                          <Image
+                            src={detail.packetFish.images[0]}
+                            alt={detail.packetFish.name}
+                            width={60}
+                            height={60}
+                            className="rounded object-cover"
+                          />
+                        )}
+                        <div className="flex-1">
+                          <p className="font-medium text-sm">
+                            {detail.packetFish?.name}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            Số lượng: {detail.quantity} gói
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <p className="font-semibold text-sm text-primary">
+                            {formatCurrency(detail.unitPrice)}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                </div>
+                {order.orderDetails.filter((detail) => detail.packetFish)
+                  .length === 0 && (
+                  <p className="text-sm text-muted-foreground text-center py-4">
+                    Đơn hàng này không có gói cá
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-3">
+              <Button
+                variant="outline"
+                onClick={() => setIsRestockDialogOpen(false)}
+              >
+                Hủy
+              </Button>
+              <Button
+                onClick={handleRestockPacketFish}
+                disabled={restockMutation.isPending}
+                className="bg-blue-600 hover:bg-blue-700"
+              >
+                {restockMutation.isPending ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Đang khôi phục...
+                  </>
+                ) : (
+                  <>
+                    <PackagePlus className="mr-2 h-4 w-4" />
+                    Xác nhận khôi phục
+                  </>
                 )}
               </Button>
             </div>
