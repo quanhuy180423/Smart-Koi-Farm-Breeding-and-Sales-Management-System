@@ -141,7 +141,6 @@ export default function PacketFishPage() {
         key: "priceRange" as const,
       });
     }
-    // ... Add other chips similarly
 
     if (chips.length === 0) return null;
 
@@ -176,7 +175,7 @@ export default function PacketFishPage() {
 
   return (
     <div className="min-h-screen bg-slate-50/50">
-      {/* Header với Pattern Cá Koi tinh tế */}
+      {/* Header */}
       <div className="relative bg-[#0A3D62] text-white overflow-hidden">
         <div className="absolute inset-0 opacity-10 pattern-dots"></div>
         <div className="absolute -right-10 -bottom-10 opacity-20">
@@ -253,7 +252,7 @@ export default function PacketFishPage() {
       <div className="container mx-auto px-4 py-8">
         <div className="flex gap-8 items-start">
           {/* Sidebar Desktop */}
-          <div className="hidden lg:block w-72 shrink-0 sticky top-24">
+          <div className="hidden lg:block w-80 shrink-0 sticky top-24">
             <FilterPanel {...filterPanelProps} />
           </div>
 

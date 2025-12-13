@@ -61,25 +61,41 @@ const waterParametersSchema = z.object({
   notes: z.string().optional(),
 });
 
-const pondSchema = z.object({
-  pondName: z.string().min(1, "Vui lòng nhập tên hồ"),
-  location: z.string().min(1, "Vui lòng nhập địa điểm"),
-  lengthMeters: z
-    .string()
-    .refine((val) => val && Number(val) > 0, "Chiều dài phải lớn hơn 0"),
-  widthMeters: z
-    .string()
-    .refine((val) => val && Number(val) > 0, "Chiều rộng phải lớn hơn 0"),
-  depthMeters: z
-    .string()
-    .refine((val) => val && Number(val) > 0, "Độ sâu phải lớn hơn 0"),
-  currentCapacity: z
-    .string()
-    .refine((val) => val && Number(val) > 0, "Dung tích phải lớn hơn 0"),
-  areaId: z.string().min(1, "Vui lòng chọn khu vực"),
-  pondTypeId: z.string().min(1, "Vui lòng chọn loại hồ"),
-  record: waterParametersSchema.optional(),
-});
+const pondSchema = z
+  .object({
+    pondName: z.string().min(1, "Vui lòng nhập tên hồ"),
+    location: z.string().min(1, "Vui lòng nhập địa điểm"),
+    lengthMeters: z
+      .string()
+      .refine((val) => val && Number(val) > 0, "Chiều dài phải lớn hơn 0"),
+    widthMeters: z
+      .string()
+      .refine((val) => val && Number(val) > 0, "Chiều rộng phải lớn hơn 0"),
+    depthMeters: z
+      .string()
+      .refine((val) => val && Number(val) > 0, "Độ sâu phải lớn hơn 0"),
+    currentCapacity: z
+      .string()
+      .refine((val) => val && Number(val) > 0, "Dung tích phải lớn hơn 0"),
+    areaId: z.string().min(1, "Vui lòng chọn khu vực"),
+    pondTypeId: z.string().min(1, "Vui lòng chọn loại hồ"),
+    record: waterParametersSchema.optional(),
+  })
+  .refine(
+    (data) => {
+      // Validate waterLevelMeters <= depthMeters
+      if (data.record?.waterLevelMeters && data.depthMeters) {
+        const waterLevel = Number(data.record.waterLevelMeters);
+        const depth = Number(data.depthMeters);
+        return waterLevel <= depth;
+      }
+      return true;
+    },
+    {
+      message: "Mức nước không được lớn hơn độ sâu của hồ",
+      path: ["record", "waterLevelMeters"],
+    },
+  );
 
 interface AddPondModalProps {
   isOpen: boolean;
@@ -137,7 +153,12 @@ const AddPondModal = ({
     if (!result.success) {
       const errors: Record<string, string> = {};
       result.error.errors.forEach((error) => {
-        errors[error.path[0] as string] = error.message;
+        // Handle nested paths like ["record", "waterLevelMeters"]
+        const pathKey =
+          error.path.length > 1
+            ? error.path.join(".")
+            : (error.path[0] as string);
+        errors[pathKey] = error.message;
       });
       setFormErrors(errors);
       return;
@@ -734,14 +755,17 @@ const AddPondModal = ({
                   placeholder="vd: 1.5"
                   allowDecimal={true}
                   className={`border-2 focus:border-blue-500 ${
-                    formErrors.waterLevelMeters
+                    formErrors.waterLevelMeters ||
+                    formErrors["record.waterLevelMeters"]
                       ? "border-red-500"
                       : "border-gray-300"
                   }`}
                 />
-                {formErrors.waterLevelMeters && (
+                {(formErrors.waterLevelMeters ||
+                  formErrors["record.waterLevelMeters"]) && (
                   <p className="text-sm text-red-500">
-                    {formErrors.waterLevelMeters}
+                    {formErrors.waterLevelMeters ||
+                      formErrors["record.waterLevelMeters"]}
                   </p>
                 )}
               </div>

@@ -73,6 +73,14 @@ export function Footer() {
               </li>
               <li>
                 <Link
+                  href="/shipping-info"
+                  className="hover:text-secondary-foreground transition-colors"
+                >
+                  Phí vận chuyển
+                </Link>
+              </li>
+              <li>
+                <Link
                   href="/polycies"
                   className="hover:text-secondary-foreground transition-colors"
                 >

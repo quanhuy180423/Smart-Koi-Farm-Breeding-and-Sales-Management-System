@@ -5,6 +5,7 @@ import {
   IncidentSeverity,
   IncidentStatus,
   IncidentSearchParams,
+  IncidentResponse,
 } from "@/lib/api/services/fetchIncident";
 import { useGetIncidents } from "@/hooks/useIncident";
 import { useDebounce } from "@/hooks/useDebounce";
@@ -24,13 +25,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Loader2, Filter, X } from "lucide-react";
+import { Loader2, Filter, X, Eye } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { DATE_FORMATS, formatDate } from "@/lib/utils/dates/formatDate";
 import { EmptyState } from "@/components/common/EmptyState";
 import { PAGE_SIZE_OPTIONS_DEFAULT } from "@/components/common/PaginationSection";
 import { PaginationWithLinks } from "@/components/pagination";
 import PondSelectionDialogForIncident from "./PondSelectionDialogForIncident";
 import KoiFishSelectionDialogForIncident from "./KoiFishSelectionDialogForIncident";
+import { IncidentDetailDialog } from "./IncidentDetailDialog";
 import {
   getIncidentSeverityColor,
   getIncidentSeverityText,
@@ -68,6 +71,9 @@ export function IncidentList() {
   >(undefined);
   const [isPondDialogOpen, setIsPondDialogOpen] = useState(false);
   const [isKoiFishDialogOpen, setIsKoiFishDialogOpen] = useState(false);
+  const [selectedIncident, setSelectedIncident] =
+    useState<IncidentResponse | null>(null);
+  const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
 
   const {
     data: incidentsData,
@@ -155,6 +161,11 @@ export function IncidentList() {
     if (value === "all" || isIncidentStatus(value)) {
       setFilterStatus(value === "all" ? "all" : value);
     }
+  };
+
+  const handleRowClick = (incident: IncidentResponse) => {
+    setSelectedIncident(incident);
+    setIsDetailDialogOpen(true);
   };
 
   return (
@@ -305,23 +316,24 @@ export function IncidentList() {
             <Table className="table-fixed w-full">
               <TableHeader>
                 <TableRow className="bg-muted/50">
-                  <TableHead className="font-semibold w-[5%]">#</TableHead>
-                  <TableHead className="font-semibold w-[15%]">
+                  <TableHead className="font-semibold w-[4%]">#</TableHead>
+                  <TableHead className="font-semibold w-[14%]">
                     Tiêu đề
                   </TableHead>
-                  <TableHead className="font-semibold w-[12%]">Loại</TableHead>
-                  <TableHead className="font-semibold w-[18%]">Mô tả</TableHead>
-                  <TableHead className="font-semibold w-[10%]">
-                    Mức độ
-                  </TableHead>
-                  <TableHead className="font-semibold w-[12%]">
+                  <TableHead className="font-semibold w-[11%]">Loại</TableHead>
+                  <TableHead className="font-semibold w-[16%]">Mô tả</TableHead>
+                  <TableHead className="font-semibold w-[9%]">Mức độ</TableHead>
+                  <TableHead className="font-semibold w-[11%]">
                     Trạng thái
                   </TableHead>
-                  <TableHead className="font-semibold w-[15%]">
+                  <TableHead className="font-semibold w-[13%]">
                     Báo cáo bởi
                   </TableHead>
-                  <TableHead className="font-semibold w-[13%]">
+                  <TableHead className="font-semibold w-[12%]">
                     Thời gian xảy ra
+                  </TableHead>
+                  <TableHead className="font-semibold w-[10%]">
+                    Thao tác
                   </TableHead>
                 </TableRow>
               </TableHeader>
@@ -337,7 +349,7 @@ export function IncidentList() {
                       {incident.incidentTitle}
                     </TableCell>
                     <TableCell className="text-sm truncate">
-                      {incident.incidentTypeName}
+                      {incident.incidentType.name}
                     </TableCell>
                     <TableCell className="text-sm truncate">
                       <p className="line-clamp-2 truncate">
@@ -346,9 +358,11 @@ export function IncidentList() {
                     </TableCell>
                     <TableCell>
                       <Badge
-                        className={`${getIncidentSeverityColor(incident.severity)} font-semibold text-xs`}
+                        className={`${getIncidentSeverityColor(incident.incidentType.defaultSeverity)} font-semibold text-xs`}
                       >
-                        {getIncidentSeverityText(incident.severity)}
+                        {getIncidentSeverityText(
+                          incident.incidentType.defaultSeverity,
+                        )}
                       </Badge>
                     </TableCell>
                     <TableCell>
@@ -366,6 +380,15 @@ export function IncidentList() {
                         incident.occurredAt,
                         DATE_FORMATS.MEDIUM_DATE,
                       )}
+                    </TableCell>
+                    <TableCell>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleRowClick(incident)}
+                      >
+                        <Eye className="h-4 w-4" />
+                      </Button>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -398,6 +421,12 @@ export function IncidentList() {
         onOpenChange={setIsKoiFishDialogOpen}
         onSelect={handleSelectKoiFish}
         initialSelectedId={searchParams.koiFishId}
+      />
+
+      <IncidentDetailDialog
+        isOpen={isDetailDialogOpen}
+        onOpenChange={setIsDetailDialogOpen}
+        incident={selectedIncident}
       />
     </div>
   );
