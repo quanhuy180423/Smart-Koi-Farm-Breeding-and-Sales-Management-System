@@ -88,28 +88,28 @@ export default function MotherFishInfo({ selectedFish }: MotherFishInfoProps) {
       label: "Tỷ lệ thụ tinh trung bình",
       value:
         breedingParentHistory?.fertilizationRate !== null
-          ? `${breedingParentHistory?.fertilizationRate.toFixed(2)}%`
+          ? `${breedingParentHistory?.fertilizationRate?.toFixed(2)}%`
           : "Chưa có",
     },
     {
       label: "Tỷ lệ nở trung bình",
       value:
         breedingParentHistory?.hatchRate !== null
-          ? `${breedingParentHistory?.hatchRate.toFixed(2)}%`
+          ? `${breedingParentHistory?.hatchRate?.toFixed(2)}%`
           : "Chưa có",
     },
     {
       label: "Tỷ lệ cá con sống sót trung bình",
       value:
         breedingParentHistory?.survivalRate !== null
-          ? `${breedingParentHistory?.survivalRate.toFixed(2)}%`
+          ? `${breedingParentHistory?.survivalRate?.toFixed(2)}%`
           : "Chưa có",
     },
     {
       label: "Tỷ lệ cá con chất lượng tốt trung bình",
       value:
         breedingParentHistory?.highQualifiedRate !== null
-          ? `${breedingParentHistory?.highQualifiedRate.toFixed(2)}%`
+          ? `${breedingParentHistory?.highQualifiedRate?.toFixed(2)}%`
           : "Chưa có",
     },
   ];

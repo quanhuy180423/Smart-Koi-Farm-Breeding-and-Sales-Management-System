@@ -878,7 +878,7 @@ export default function AccountManagement() {
                       {importFile.name}
                     </p>
                     <p className="text-xs text-green-700">
-                      {(importFile.size / 1024).toFixed(2)} KB
+                      {(importFile.size / 1024)?.toFixed(2)} KB
                     </p>
                   </div>
                 </div>

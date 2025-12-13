@@ -854,25 +854,25 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
                             <span>
                               Tỷ lệ thụ tinh:{" "}
                               <strong>
-                                {pair.predictedFertilizationRate.toFixed(2)}%
+                                {pair.predictedFertilizationRate?.toFixed(2)}%
                               </strong>
                             </span>
                             <span>
                               Tỷ lệ nở:{" "}
                               <strong>
-                                {pair.predictedHatchRate.toFixed(2)}%
+                                {pair.predictedHatchRate?.toFixed(2)}%
                               </strong>
                             </span>
                             <span>
                               Tỷ lệ sống:{" "}
                               <strong>
-                                {pair.predictedSurvivalRate.toFixed(2)}%
+                                {pair.predictedSurvivalRate?.toFixed(2)}%
                               </strong>
                             </span>
                             <span>
                               Tỷ lệ chất lượng cao:{" "}
                               <strong>
-                                {pair.predictedHighQualifiedRate.toFixed(2)}%
+                                {pair.predictedHighQualifiedRate?.toFixed(2)}%
                               </strong>
                             </span>
                             {pair.predictedMutationRate > 0 && (
@@ -883,7 +883,7 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
                                 </span>
                                 <span className="col-span-2 text-xs text-gray-700">
                                   <strong>Tỷ lệ đột biến:</strong>{" "}
-                                  {pair.predictedMutationRate.toFixed(2)}%
+                                  {pair.predictedMutationRate?.toFixed(2)}%
                                 </span>
                               </>
                             )}

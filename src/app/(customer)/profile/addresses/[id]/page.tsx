@@ -590,9 +590,9 @@ export default function EditAddressPage() {
                         position={[formData.latitude, formData.longitude]}
                       >
                         <Popup>
-                          Vĩ độ: {formData.latitude.toFixed(6)}
+                          Vĩ độ: {formData.latitude?.toFixed(6)}
                           <br />
-                          Kinh độ: {formData.longitude.toFixed(6)}
+                          Kinh độ: {formData.longitude?.toFixed(6)}
                         </Popup>
                       </Marker>
                     </MapContainer>

@@ -66,6 +66,7 @@ export interface OrderResponse {
   note?: string | null;
   promotionId?: number | null;
   promotion?: PromotionResponse | null;
+  isRestocked: boolean;
   orderDetails: OrderDetailResponse[];
 }
 
@@ -126,6 +127,15 @@ export const orderService = {
     >(
       `${baseUrl}/${orderId}/status`,
       request as unknown as Record<string, unknown>,
+    );
+    return response.data;
+  },
+
+  restockPacketFish: async (
+    orderId: number,
+  ): Promise<BaseResponse<boolean>> => {
+    const response = await apiService.post<BaseResponse<boolean>>(
+      `${baseUrl}/${orderId}/restock-packetfish`,
     );
     return response.data;
   },
