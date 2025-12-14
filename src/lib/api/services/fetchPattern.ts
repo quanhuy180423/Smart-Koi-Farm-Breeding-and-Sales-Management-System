@@ -112,12 +112,9 @@ const patternService = {
 
   getPatternsByVariety: async (
     varietyId: number,
-    request: PatternSearchParams,
-  ): Promise<BaseResponse<PagedResponse<Pattern>>> => {
-    const filter = toRequestParams(request);
-    const response = await apiService.get<BaseResponse<PagedResponse<Pattern>>>(
+  ): Promise<BaseResponse<Pattern[]>> => {
+    const response = await apiService.get<BaseResponse<Pattern[]>>(
       `${baseUrl}/by-variety/${varietyId}`,
-      { ...filter },
     );
     return response.data;
   },

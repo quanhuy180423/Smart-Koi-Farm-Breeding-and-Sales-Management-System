@@ -8,12 +8,14 @@ import {
 } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { DATE_FORMATS, formatDate } from "@/lib/utils/dates";
+import { vi } from "date-fns/locale";
 
 interface DatePickerFilterProps {
   label: string;
   value: string;
   onChange: (date: string) => void;
   placeholder?: string;
+  maxDate?: Date;
 }
 
 const getDateFromString = (dateString: string): Date | undefined => {
@@ -43,6 +45,7 @@ export function DatePickerFilter({
   value,
   onChange,
   placeholder = "Chọn ngày...",
+  maxDate,
 }: DatePickerFilterProps) {
   return (
     <div className="space-y-2 w-full">
@@ -66,6 +69,9 @@ export function DatePickerFilter({
                 onChange(formatDateToString(date));
               }
             }}
+            disabled={(date) => (maxDate ? date > maxDate : false)}
+            captionLayout="dropdown"
+            locale={vi}
           />
         </PopoverContent>
       </Popover>

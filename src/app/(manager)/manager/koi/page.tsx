@@ -224,6 +224,8 @@ export default function KoiManagement() {
     setMaxSizeInput("");
     setVarietyIdInput("");
     setPondIdInput("");
+    setSelectedVarietyName(undefined);
+    setSelectedPondName(undefined);
     setOriginInput("");
     setIsPostSpawningInput(false);
 
@@ -708,7 +710,7 @@ export default function KoiManagement() {
           }
         }}
       >
-        <DialogContent className="max-w-3xl">
+        <DialogContent className="sm:max-w-3xl">
           <DialogHeader>
             <DialogTitle>Bộ lọc Cá Koi</DialogTitle>
             <DialogDescription>
@@ -723,8 +725,8 @@ export default function KoiManagement() {
                   value={healthFilterInput}
                   onValueChange={setHealthFilterInput}
                 >
-                  <SelectTrigger>
-                    <span className="flex items-center gap-2 w-full">
+                  <SelectTrigger className="w-full">
+                    <span className="flex items-center gap-2">
                       {healthFilterInput === "all"
                         ? "Chọn trạng thái"
                         : getHealthStatusLabel(
@@ -749,7 +751,7 @@ export default function KoiManagement() {
                   value={genderFilterInput}
                   onValueChange={setGenderFilterInput}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="w-full">
                     <span className="flex items-center gap-2">
                       {genderFilterInput === "all"
                         ? "Chọn giới tính"
@@ -774,6 +776,7 @@ export default function KoiManagement() {
                       setMinSizeInput(value ? String(value) : "")
                     }
                     placeholder="Kích thước tối thiểu"
+                    className="w-full"
                   />
                   <InputNumber
                     value={maxSizeInput ? Number(maxSizeInput) : undefined}
@@ -781,6 +784,7 @@ export default function KoiManagement() {
                       setMaxSizeInput(value ? String(value) : "")
                     }
                     placeholder="Kích thước tối đa"
+                    className="w-full"
                   />
                 </div>
               </div>
@@ -792,6 +796,7 @@ export default function KoiManagement() {
                   placeholder="Nhập xuất xứ..."
                   value={originInput}
                   onChange={(e) => setOriginInput(e.target.value)}
+                  className="w-full"
                 />
               </div>
             </div>
@@ -802,18 +807,23 @@ export default function KoiManagement() {
                 <Button
                   variant="outline"
                   onClick={() => setIsVarietyDialogOpen(true)}
-                  className="w-full justify-start text-left"
+                  className="w-full justify-start text-left hover:bg-white hover:text-black"
                 >
                   {selectedVarietyName ? (
                     <span className="flex items-center justify-between w-full">
                       <span>{selectedVarietyName}</span>
-                      <X
-                        className="h-4 w-4"
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        type="button"
                         onClick={(e) => {
                           e.stopPropagation();
                           handleClearVariety();
                         }}
-                      />
+                        className="p-1 h-6 w-6 cursor-pointer hover:bg-white hover:text-black"
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
                     </span>
                   ) : (
                     <span className="text-muted-foreground">Chọn giống cá</span>
@@ -826,18 +836,23 @@ export default function KoiManagement() {
                 <Button
                   variant="outline"
                   onClick={() => setIsPondDialogOpen(true)}
-                  className="w-full justify-start text-left"
+                  className="w-full justify-start text-left hover:bg-white hover:text-black"
                 >
                   {selectedPondName ? (
                     <span className="flex items-center justify-between w-full">
                       <span>{selectedPondName}</span>
-                      <X
-                        className="h-4 w-4"
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        type="button"
                         onClick={(e) => {
                           e.stopPropagation();
                           handleClearPond();
                         }}
-                      />
+                        className="p-1 h-6 w-6 cursor-pointer hover:bg-white hover:text-black"
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
                     </span>
                   ) : (
                     <span className="text-muted-foreground">Chọn hồ cá</span>
@@ -858,6 +873,7 @@ export default function KoiManagement() {
                     setMinPriceInput(value ? String(value) : "")
                   }
                   placeholder="Giá thấp nhất"
+                  className="w-full"
                 />
               </div>
               <div className="space-y-2 col-span-1">
@@ -868,6 +884,7 @@ export default function KoiManagement() {
                     setMaxPriceInput(value ? String(value) : "")
                   }
                   placeholder="Giá cao nhất"
+                  className="w-full"
                 />
               </div>
             </div>
@@ -880,6 +897,7 @@ export default function KoiManagement() {
                   onCheckedChange={(checked) =>
                     setIsPostSpawningInput(checked as boolean)
                   }
+                  className="cursor-pointer flex items-center justify-center"
                 />
                 <Label
                   htmlFor="isPostSpawning"

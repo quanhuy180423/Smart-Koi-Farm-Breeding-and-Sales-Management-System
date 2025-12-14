@@ -103,7 +103,7 @@ export const KoiFilterPanel = ({
   };
 
   return (
-    <div className="bg-white p-4 rounded-xl border shadow-sm space-y-6">
+    <div className="bg-white p-4 rounded-xl border shadow-sm">
       <div className="flex items-center justify-between">
         <h3 className="font-bold text-lg text-[#0A3D62]">Bộ lọc</h3>
         {hasAnythingToReset() && (

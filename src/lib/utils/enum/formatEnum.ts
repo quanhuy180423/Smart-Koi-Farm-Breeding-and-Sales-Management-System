@@ -387,6 +387,30 @@ export function getFishSizeLabel(size?: FishSize | string): string {
   return sizeStr;
 }
 
+/**
+ * Format a size range string like "21-30" to "21cm - 30cm"
+ * @param rangeString The range string in format "min-max"
+ * @returns Formatted string with cm units
+ */
+export function formatSizeRange(rangeString?: string): string {
+  if (!rangeString) return "Không xác định";
+
+  // Check if it's already in the format "num-num"
+  const rangeMatch = rangeString.match(/^(\d+(?:\.\d+)?)-(\d+(?:\.\d+)?)$/);
+  if (rangeMatch) {
+    const [, min, max] = rangeMatch;
+    return `${min}cm - ${max}cm`;
+  }
+
+  // If already formatted, return as-is
+  if (rangeString.includes("cm")) {
+    return rangeString;
+  }
+
+  // Fallback
+  return rangeString;
+}
+
 export function getHealthStatusLabel(status?: HealthStatus): Label {
   return getLabelForEnum(status, healthStatusMeta);
 }

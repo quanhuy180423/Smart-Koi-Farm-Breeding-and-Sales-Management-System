@@ -16,7 +16,7 @@ import {
   CarouselPrevious,
   type CarouselApi,
 } from "@/components/ui/carousel";
-import { Zap, Award, ArrowRight, Play } from "lucide-react";
+import { Zap, Award, ArrowRight, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
@@ -53,84 +53,46 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-background">
       {/* Hero Section */}
-      <section className="relative py-10 lg:py-8 overflow-hidden">
-        <div className="absolute inset-0 bg-linear-to-br from-primary/5 to-accent/5"></div>
-        <div className="container mx-auto px-4 relative z-10">
+      <section className="relative min-h-screen flex items-center overflow-hidden">
+        {/* Background Image with Overlay */}
+        <div className="absolute inset-0 z-0">
+          <Image
+            src="http://res.cloudinary.com/dybm9d31m/image/upload/v1765608906/d6wiroqqmlxwlgrihukl.png"
+            alt="Cửu Ngư Quần Hội - Nine Koi Fish Gathering"
+            className="w-full h-full object-cover"
+            fill
+            priority
+          />
+          <div className="absolute inset-0 bg-linear-to-r from-black/70 via-black/50 to-black/30" />
+        </div>
+
+        {/* Content Container */}
+        <div className="container mx-auto px-4 relative z-10 py-20">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <div className="space-y-8">
-              <div className="space-y-4">
-                <Badge
-                  variant="secondary"
-                  className="bg-primary/10   border-primary/20"
-                >
-                  Công nghệ AI & RFID tiên tiến
-                </Badge>
-                <h1 className="text-4xl lg:text-6xl font-bold   text-balance">
+            {/* Left Content */}
+            <div className="space-y-8 text-white">
+              <div className="space-y-6">
+                <h1 className="text-3xl md:text-5xl lg:text-7xl font-bold leading-tight">
                   Cá Koi Nhật Bản
-                  <span className="text-primary block">Chất Lượng Cao</span>
+                  <span className="block ml-12">Chất Lượng Cao</span>
                 </h1>
-                <p className="text-xl text-muted-foreground text-pretty leading-relaxed">
-                  Trại cá Koi hàng đầu với hệ thống quản lý thông minh, đảm bảo
-                  chất lượng và nguồn gốc rõ ràng cho từng con cá.
+                <p className="text-base md:text-lg lg:text-xl text-gray-200 max-w-xl leading-relaxed">
+                  Trải nghiệm sự thịnh vượng và bình an mang đến bởi bộ sưu tập
+                  cá Koi Nhật Bản cao cấp. Được tuyển chọn để đạt sự hoàn hảo.
                 </p>
               </div>
-              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
-                <Link href="/catalog" className="w-full sm:w-auto">
+
+              {/* CTA Buttons */}
+              <div className="flex flex-col sm:flex-row gap-4">
+                <Link href="/catalog">
                   <Button
                     size="lg"
-                    className="w-full sm:w-auto bg-primary hover:bg-primary/90 text-primary-foreground"
+                    className="bg-primary rounded-2xl cursor-pointer hover:bg-primary/90 text-white px-8 h-14 text-base font-semibold"
                   >
-                    Khám phá cá Koi
-                    <ArrowRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5" />
+                    Khám Phá Bộ Sưu Tập
+                    <ChevronRight className="h-5 w-5" />
                   </Button>
                 </Link>
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="w-full sm:w-auto border-primary text-primary hover:bg-primary bg-transparent"
-                >
-                  <Play className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
-                  Xem video giới thiệu
-                </Button>
-              </div>
-              <div className="flex items-center justify-between sm:space-x-8 pt-4">
-                <div className="text-center">
-                  <div className="text-xl sm:text-2xl font-bold  ">500+</div>
-                  <div className="text-xs sm:text-sm text-muted-foreground">
-                    Cá Koi chất lượng
-                  </div>
-                </div>
-                <div className="text-center">
-                  <div className="text-xl sm:text-2xl font-bold  ">15+</div>
-                  <div className="text-xs sm:text-sm text-muted-foreground">
-                    Năm kinh nghiệm
-                  </div>
-                </div>
-                <div className="text-center">
-                  <div className="text-xl sm:text-2xl font-bold  ">1000+</div>
-                  <div className="text-xs sm:text-sm text-muted-foreground">
-                    Khách hàng hài lòng
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="relative">
-              <div className="aspect-square rounded-2xl overflow-hidden bg-linear-to-br from-primary/10 to-accent/10 p-4">
-                <Image
-                  src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/attachments/gen-images/public/beautiful-japanese-koi-fish-swimming-in-clear-pond-1MrDrpINIJ33x6iP0z7Xz4hMlnVc50.jpg"
-                  alt="Cá Koi Nhật Bản chất lượng cao"
-                  className="w-full h-full object-cover rounded-xl"
-                  width={500}
-                  height={500}
-                />
-              </div>
-              <div className="absolute -bottom-6 -right-3 sm:-right-6 bg-card border border-border rounded-xl p-4 shadow-lg">
-                <div className="flex items-center space-x-2">
-                  <div className="w-3 h-3 bg-accent rounded-full animate-pulse"></div>
-                  <span className="text-sm font-medium">
-                    Theo dõi trực tiếp
-                  </span>
-                </div>
               </div>
             </div>
           </div>
@@ -149,7 +111,7 @@ export default function HomePage() {
             </p>
           </div>
 
-          <div className="mb-12">
+          <div className="mb-8">
             <Carousel
               setApi={setApi}
               opts={{
@@ -185,7 +147,7 @@ export default function HomePage() {
                       key={koi.id}
                       className="pl-2 md:pl-4 md:basis-1/2 lg:basis-1/3"
                     >
-                      <Card className="border-border max-w-xl hover:shadow-lg transition-all group cursor-pointer pt-0">
+                      <Card className="border-border max-w-xl hover:shadow-lg transition-all group pt-0">
                         <div className="aspect-square overflow-hidden rounded-t-lg bg-muted/30">
                           {koi.images && koi.images.length > 0 ? (
                             <Image
@@ -203,24 +165,26 @@ export default function HomePage() {
                         </div>
                         <CardHeader>
                           <div className="flex justify-between items-start">
-                            <div>
-                              <CardTitle className="text-lg">
-                                {koi.variety.varietyName}
-                              </CardTitle>
+                            <div className="flex-1">
+                              <div className="flex items-center justify-between gap-2 mb-1">
+                                <CardTitle className="text-lg">
+                                  {koi.variety.varietyName}
+                                </CardTitle>
+                                <Badge
+                                  variant="secondary"
+                                  className="bg-primary/10 text-xs px-2 py-0.5"
+                                >
+                                  Có sẵn
+                                </Badge>
+                              </div>
                               <CardDescription
-                                className="text-sm truncate max-w-[180px]"
+                                className="text-sm truncate"
                                 title={`RFID: ${koi.rfid}${koi.size ? ` • Size: ${koi.size}` : ""}`}
                               >
                                 RFID: {koi.rfid}
                                 {koi.size && ` • Size: ${koi.size}`}
                               </CardDescription>
                             </div>
-                            <Badge
-                              variant="secondary"
-                              className="bg-primary/10  "
-                            >
-                              Có sẵn
-                            </Badge>
                           </div>
                           <div className="flex justify-between items-center pt-4">
                             <span className="text-2xl font-bold text-primary">
@@ -231,7 +195,7 @@ export default function HomePage() {
                             <Link href={`/koi/${koi.id}`}>
                               <Button
                                 size="sm"
-                                className="bg-primary hover:bg-primary/90 text-xs sm:text-sm"
+                                className="bg-primary hover:bg-primary/90 text-xs cursor-pointer sm:text-sm"
                               >
                                 Xem chi tiết
                               </Button>
@@ -249,8 +213,8 @@ export default function HomePage() {
                   </div>
                 )}
               </CarouselContent>
-              <CarouselPrevious className="hidden md:flex" />
-              <CarouselNext className="hidden md:flex" />
+              <CarouselPrevious className="hidden lg:flex cursor-pointer" />
+              <CarouselNext className="hidden lg:flex cursor-pointer" />
             </Carousel>
           </div>
 
@@ -259,7 +223,7 @@ export default function HomePage() {
               <Button
                 size="lg"
                 variant="outline"
-                className="w-full sm:w-auto border-primary text-primary hover:bg-primary bg-transparent"
+                className="w-full cursor-pointer sm:w-auto border-primary text-primary hover:bg-primary bg-transparent"
               >
                 Xem tất cả cá Koi
                 <ArrowRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5" />
@@ -270,16 +234,16 @@ export default function HomePage() {
       </section>
 
       {/* Promotion Banner */}
-      <section className="py-8 px-4">
+      <section className="pb-4 px-4">
         <div className="container mx-auto">
           <PromotionBanner variant="full" />
         </div>
       </section>
 
       {/* Technology Features */}
-      <section id="technology" className="py-10 bg-muted/30">
+      <section id="technology" className="pb-10 bg-muted/30">
         <div className="container mx-auto px-4">
-          <div className="text-center space-y-4 mb-16">
+          <div className="text-center space-y-4 mb-8">
             <Badge
               variant="secondary"
               className="bg-primary/10   border-primary/20"
@@ -289,7 +253,7 @@ export default function HomePage() {
             <h2 className="text-3xl lg:text-4xl font-bold   text-balance">
               Hệ thống quản lý thông minh
             </h2>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto text-pretty">
+            <p className="text-xl text-muted-foreground font-semibold max-w-2xl mx-auto text-pretty">
               Ứng dụng AI và RFID để đảm bảo chất lượng và truy xuất nguồn gốc
               hoàn hảo
             </p>
@@ -340,18 +304,11 @@ export default function HomePage() {
                 <Link href="/catalog" className="w-full sm:w-auto">
                   <Button
                     size="lg"
-                    className="w-full sm:w-auto bg-primary hover:bg-primary/90 text-primary-foreground"
+                    className="w-full cursor-pointer sm:w-auto bg-primary hover:bg-primary/90 text-primary-foreground"
                   >
                     Đặt hàng ngay
                   </Button>
                 </Link>
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="w-full sm:w-auto border-primary text-primary hover:bg-primary bg-transparent"
-                >
-                  Tư vấn miễn phí
-                </Button>
               </div>
             </div>
           </div>

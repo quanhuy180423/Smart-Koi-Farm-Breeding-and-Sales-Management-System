@@ -41,18 +41,10 @@ export function Footer() {
               </li>
               <li>
                 <Link
-                  href="/catalog"
+                  href="/packet-fish"
                   className="hover:text-secondary-foreground transition-colors"
                 >
                   Gói cá giống
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/catalog"
-                  className="hover:text-secondary-foreground transition-colors"
-                >
-                  Cá giống
                 </Link>
               </li>
             </ul>
@@ -63,14 +55,6 @@ export function Footer() {
               Dịch vụ
             </h3>
             <ul className="space-y-1.5 sm:space-y-2 text-muted-foreground text-sm sm:text-base">
-              <li>
-                <Link
-                  href="/about"
-                  className="hover:text-secondary-foreground transition-colors"
-                >
-                  Tư vấn chọn cá
-                </Link>
-              </li>
               <li>
                 <Link
                   href="/shipping-info"
@@ -85,14 +69,6 @@ export function Footer() {
                   className="hover:text-secondary-foreground transition-colors"
                 >
                   Chính sách
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/about"
-                  className="hover:text-secondary-foreground transition-colors"
-                >
-                  Bảo hành
                 </Link>
               </li>
             </ul>

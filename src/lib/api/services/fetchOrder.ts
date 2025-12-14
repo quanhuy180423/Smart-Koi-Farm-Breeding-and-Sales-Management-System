@@ -50,6 +50,25 @@ export enum OrderStatus {
   REFUND = "Refund",
 }
 
+export interface CustomerAddress {
+  id: number;
+  customerId: number;
+  customerName: string;
+  fullAddress: string;
+  city: string;
+  ward: string;
+  streetAddress: string;
+  latitude: number;
+  longitude: number;
+  distanceFromFarmKm: number;
+  distanceCalculatedAt: string;
+  recipientPhone: string;
+  isDefault: boolean;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string | null;
+}
+
 export interface OrderResponse {
   id: number;
   orderNumber: string;

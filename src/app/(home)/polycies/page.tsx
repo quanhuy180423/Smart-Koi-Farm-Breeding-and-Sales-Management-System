@@ -147,10 +147,8 @@ export default function PolicyPage() {
                 <div>
                   <h3 className="font-semibold mb-2">Phương thức thanh toán</h3>
                   <ul className="text-gray-600 space-y-1">
-                    <li>• Thanh toán khi nhận hàng (COD)</li>
                     <li>• Chuyển khoản ngân hàng</li>
-                    <li>• Ví điện tử (MoMo, ZaloPay, VNPay)</li>
-                    <li>• Thẻ tín dụng/ghi nợ</li>
+                    <li>• Ví điện tử (VNPay)</li>
                   </ul>
                 </div>
                 <div>
@@ -222,28 +220,18 @@ export default function PolicyPage() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid md:grid-cols-2 gap-6">
-                  <div>
-                    <h3 className="font-semibold mb-3">Trụ sở chính</h3>
-                    <div className="space-y-2 text-gray-600">
-                      <p>123 Đường Cá Koi, Quận 1, TP.HCM</p>
-                      <p className="flex items-center gap-2">
-                        <Phone className="h-4 w-4" />
-                        Hotline: 1900-KOIFARM
-                      </p>
-                      <p className="flex items-center gap-2">
-                        <Mail className="h-4 w-4" />
-                        Email: support@koifarm.vn
-                      </p>
-                    </div>
-                  </div>
-                  <div>
-                    <h3 className="font-semibold mb-3">Giờ làm việc</h3>
-                    <div className="space-y-2 text-gray-600">
-                      <p>Thứ 2 - Thứ 6: 8:00 - 18:00</p>
-                      <p>Thứ 7 - Chủ nhật: 8:00 - 17:00</p>
-                      <p>Hỗ trợ online: 24/7</p>
-                    </div>
+                <div>
+                  <h3 className="font-semibold mb-3">Trụ sở chính</h3>
+                  <div className="space-y-2 text-gray-600">
+                    <p>123 Đường Cá Koi, Quận 1, TP.HCM</p>
+                    <p className="flex items-center gap-2">
+                      <Phone className="h-4 w-4" />
+                      Hotline: 1900-123-456
+                    </p>
+                    <p className="flex items-center gap-2">
+                      <Mail className="h-4 w-4" />
+                      Email: support@koifarm.vn
+                    </p>
                   </div>
                 </div>
               </CardContent>

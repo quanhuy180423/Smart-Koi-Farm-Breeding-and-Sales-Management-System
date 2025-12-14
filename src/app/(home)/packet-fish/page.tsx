@@ -5,6 +5,8 @@ import { useDebounce } from "@/hooks/useDebounce";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Slider } from "@/components/ui/slider";
 import { Badge } from "@/components/ui/badge";
 import {
   Sheet,
@@ -21,25 +23,52 @@ import { useAddItemToCart } from "@/hooks/useCart";
 import { FilterPanel, initialFilterState } from "./components/FilterPanel";
 import PacketFishCard from "./components/PacketFishCard";
 import { PaginationWithLinks } from "@/components/pagination";
-import { PacketFishGridSkeleton } from "./components/PacketFishSkeleton"; // Import Skeleton mới
+import { PacketFishGridSkeleton } from "./components/PacketFishSkeleton";
 import formatCurrency from "@/lib/utils/numbers";
 
 const PAGE_SIZE_OPTIONS = [9, 12, 24];
 
 export default function PacketFishPage() {
   const [searchTerm, setSearchTerm] = useState("");
-  // ... (Giữ nguyên logic state filters)
   const [filters, setFilters] = useState(initialFilterState);
   const [appliedFilters, setAppliedFilters] = useState(initialFilterState);
   const [isCreated, setIsCreated] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(PAGE_SIZE_OPTIONS[0]);
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
 
   const { mutate: addToCart } = useAddItemToCart();
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
 
+  const handlePriceInputChange = (index: 0 | 1, value: string) => {
+    const num = parseInt(value.replace(/\D/g, "")) || 0;
+    const newRange = [...filters.priceRange] as [number, number];
+    newRange[index] = num;
+    setFilters((prev) => ({ ...prev, priceRange: newRange }));
+  };
+
+  const handleSizeInputChange = (index: 0 | 1, value: string) => {
+    const num = parseInt(value.replace(/\D/g, "")) || 0;
+    const newRange = [...filters.sizeRange] as [number, number];
+    newRange[index] = Math.min(Math.max(num, 0), 90);
+    setFilters((prev) => ({ ...prev, sizeRange: newRange }));
+  };
+
+  const handleAgeInputChange = (index: 0 | 1, value: string) => {
+    const num = parseInt(value.replace(/\D/g, "")) || 0;
+    const newRange = [...filters.ageRange] as [number, number];
+    newRange[index] = Math.min(Math.max(num, 0), 60);
+    setFilters((prev) => ({ ...prev, ageRange: newRange }));
+  };
+
+  const handleQuantityInputChange = (index: 0 | 1, value: string) => {
+    const num = parseInt(value.replace(/\D/g, "")) || 0;
+    const newRange = [...filters.quantityRange] as [number, number];
+    newRange[index] = Math.min(Math.max(num, 0), 100);
+    setFilters((prev) => ({ ...prev, quantityRange: newRange }));
+  };
+
   const filterParams = useMemo((): PacketFishSearchParams => {
-    // ... (Giữ nguyên logic mapping params)
     const params: PacketFishSearchParams = {
       pageIndex: currentPage,
       pageSize: pageSize,
@@ -73,7 +102,6 @@ export default function PacketFishPage() {
 
   const { data: packetData, isLoading } = useGetPacketFishes(filterParams);
 
-  // ... (Handlers cũ)
   const handleAddToCart = (packetFishId: number) => {
     try {
       setIsCreated(true);
@@ -87,6 +115,7 @@ export default function PacketFishPage() {
   const handleApplyFilters = () => {
     setCurrentPage(1);
     setAppliedFilters(filters);
+    setIsSheetOpen(false);
   };
   const resetFilters = () => {
     setSearchTerm("");
@@ -97,6 +126,15 @@ export default function PacketFishPage() {
   const hasAnythingToReset = () =>
     searchTerm !== "" ||
     JSON.stringify(filters) !== JSON.stringify(initialFilterState);
+
+  const getActiveFiltersCount = () => {
+    let count = 0;
+    if (filters.sizeRange[0] > 0 || filters.sizeRange[1] < 90) count++;
+    if (filters.ageRange[0] > 0 || filters.ageRange[1] < 60) count++;
+    if (filters.quantityRange[0] > 0 || filters.quantityRange[1] < 100) count++;
+    if (filters.priceRange[0] > 0 || filters.priceRange[1] < 50000000) count++;
+    return count;
+  };
 
   // Handlers for pagination
   const handlePageChange = (page: number) => {
@@ -217,28 +255,352 @@ export default function PacketFishPage() {
                   placeholder="Tìm kiếm theo tên, mã gói..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-11 h-14 rounded-full text-white shadow-lg border-0 bg-white/20 placeholder-white/70 focus:bg-white/30 focus:ring-0 focus:border-0 transition-all duration-200"
+                  className="pl-11 pr-14 h-14 rounded-full text-white shadow-lg border-0 bg-white/20 placeholder-white/70 focus:bg-white/30 focus:ring-0 focus:border-0 transition-all duration-200"
                 />
-                <div className="absolute right-2 top-1/2 -translate-y-1/2 md:hidden">
-                  <Sheet>
+                <div className="absolute right-2 top-1/2 -translate-y-1/2 lg:hidden">
+                  <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
                     <SheetTrigger asChild>
                       <Button
                         size="icon"
-                        variant="ghost"
-                        className="hover:bg-gray-100 rounded-full"
+                        className="relative hover:bg-white/20 rounded-full h-10 w-10 bg-white/10 border border-white/30"
                       >
-                        <Filter className="h-5 w-5 text-gray-500" />
+                        <Filter className="h-5 w-5 text-white" />
+                        {getActiveFiltersCount() > 0 && (
+                          <Badge className="absolute -top-1 -right-1 h-5 w-5 p-0 flex items-center justify-center bg-red-500 text-white text-xs border-2 border-[#0A3D62]">
+                            {getActiveFiltersCount()}
+                          </Badge>
+                        )}
                       </Button>
                     </SheetTrigger>
-                    <SheetContent side="left" className="w-80">
-                      <SheetHeader>
-                        <SheetTitle>Bộ lọc tìm kiếm</SheetTitle>
-                        <SheetDescription>
-                          Tùy chỉnh tiêu chí để tìm gói cá phù hợp
-                        </SheetDescription>
-                      </SheetHeader>
-                      <div className="mt-6">
-                        <FilterPanel {...filterPanelProps} />
+                    <SheetContent
+                      side="right"
+                      className="w-full sm:w-96 flex flex-col p-0 gap-0"
+                    >
+                      {/* Header with gradient */}
+                      <div className="bg-linear-to-r from-[#0A3D62] to-[#082d47] text-white">
+                        <SheetHeader>
+                          <SheetTitle className="text-white text-xl font-bold">
+                            Bộ lọc tìm kiếm
+                          </SheetTitle>
+                          <SheetDescription className="text-blue-100 text-sm">
+                            Tùy chỉnh tiêu chí tìm kiếm gói cá
+                          </SheetDescription>
+                        </SheetHeader>
+                        {getActiveFiltersCount() > 0 && (
+                          <div className="mt-2 flex items-center gap-2 text-sm">
+                            <Badge
+                              variant="secondary"
+                              className="bg-white/20 text-white border-white/30"
+                            >
+                              {getActiveFiltersCount()} bộ lọc đang áp dụng
+                            </Badge>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Scrollable content */}
+                      <div className="flex-1 overflow-y-auto">
+                        <div className="p-6 space-y-6">
+                          {/* Size Range */}
+                          <div className="space-y-3">
+                            <div className="flex items-center justify-between">
+                              <Label className="font-semibold text-base">
+                                Kích thước (cm)
+                              </Label>
+                              {(filters.sizeRange[0] > 0 ||
+                                filters.sizeRange[1] < 90) && (
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-6 px-2 text-xs text-muted-foreground"
+                                  onClick={() =>
+                                    setFilters((prev) => ({
+                                      ...prev,
+                                      sizeRange: [0, 90],
+                                    }))
+                                  }
+                                >
+                                  Xóa
+                                </Button>
+                              )}
+                            </div>
+                            <div className="bg-muted/30 rounded-lg space-y-4">
+                              <div className="flex items-center gap-2">
+                                <div className="space-y-1.5 flex-1">
+                                  <Label className="text-xs text-muted-foreground">
+                                    Từ
+                                  </Label>
+                                  <Input
+                                    className="h-9 text-sm"
+                                    value={filters.sizeRange[0]}
+                                    onChange={(e) =>
+                                      handleSizeInputChange(0, e.target.value)
+                                    }
+                                  />
+                                </div>
+                                <span className="text-muted-foreground pt-6">
+                                  -
+                                </span>
+                                <div className="space-y-1.5 flex-1">
+                                  <Label className="text-xs text-muted-foreground">
+                                    Đến
+                                  </Label>
+                                  <Input
+                                    className="h-9 text-sm"
+                                    value={filters.sizeRange[1]}
+                                    onChange={(e) =>
+                                      handleSizeInputChange(1, e.target.value)
+                                    }
+                                  />
+                                </div>
+                              </div>
+                              <Slider
+                                value={filters.sizeRange}
+                                max={90}
+                                step={1}
+                                onValueChange={(val) =>
+                                  setFilters((prev) => ({
+                                    ...prev,
+                                    sizeRange: val as [number, number],
+                                  }))
+                                }
+                                className="py-2"
+                              />
+                            </div>
+                          </div>
+
+                          {/* Age Range */}
+                          <div className="space-y-3">
+                            <div className="flex items-center justify-between">
+                              <Label className="font-semibold text-base">
+                                Tuổi (tháng)
+                              </Label>
+                              {(filters.ageRange[0] > 0 ||
+                                filters.ageRange[1] < 60) && (
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-6 px-2 text-xs text-muted-foreground"
+                                  onClick={() =>
+                                    setFilters((prev) => ({
+                                      ...prev,
+                                      ageRange: [0, 60],
+                                    }))
+                                  }
+                                >
+                                  Xóa
+                                </Button>
+                              )}
+                            </div>
+                            <div className="bg-muted/30 rounded-lg space-y-4">
+                              <div className="flex items-center gap-2">
+                                <div className="space-y-1.5 flex-1">
+                                  <Label className="text-xs text-muted-foreground">
+                                    Từ
+                                  </Label>
+                                  <Input
+                                    className="h-9 text-sm"
+                                    value={filters.ageRange[0]}
+                                    onChange={(e) =>
+                                      handleAgeInputChange(0, e.target.value)
+                                    }
+                                  />
+                                </div>
+                                <span className="text-muted-foreground pt-6">
+                                  -
+                                </span>
+                                <div className="space-y-1.5 flex-1">
+                                  <Label className="text-xs text-muted-foreground">
+                                    Đến
+                                  </Label>
+                                  <Input
+                                    className="h-9 text-sm"
+                                    value={filters.ageRange[1]}
+                                    onChange={(e) =>
+                                      handleAgeInputChange(1, e.target.value)
+                                    }
+                                  />
+                                </div>
+                              </div>
+                              <Slider
+                                value={filters.ageRange}
+                                max={60}
+                                step={1}
+                                onValueChange={(val) =>
+                                  setFilters((prev) => ({
+                                    ...prev,
+                                    ageRange: val as [number, number],
+                                  }))
+                                }
+                                className="py-2"
+                              />
+                            </div>
+                          </div>
+
+                          {/* Quantity Range */}
+                          <div className="space-y-3">
+                            <div className="flex items-center justify-between">
+                              <Label className="font-semibold text-base">
+                                Số lượng (con)
+                              </Label>
+                              {(filters.quantityRange[0] > 0 ||
+                                filters.quantityRange[1] < 100) && (
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-6 px-2 text-xs text-muted-foreground"
+                                  onClick={() =>
+                                    setFilters((prev) => ({
+                                      ...prev,
+                                      quantityRange: [0, 100],
+                                    }))
+                                  }
+                                >
+                                  Xóa
+                                </Button>
+                              )}
+                            </div>
+                            <div className="bg-muted/30 rounded-lg space-y-4">
+                              <div className="flex items-center gap-2">
+                                <div className="space-y-1.5 flex-1">
+                                  <Label className="text-xs text-muted-foreground">
+                                    Từ
+                                  </Label>
+                                  <Input
+                                    className="h-9 text-sm"
+                                    value={filters.quantityRange[0]}
+                                    onChange={(e) =>
+                                      handleQuantityInputChange(
+                                        0,
+                                        e.target.value,
+                                      )
+                                    }
+                                  />
+                                </div>
+                                <span className="text-muted-foreground pt-6">
+                                  -
+                                </span>
+                                <div className="space-y-1.5 flex-1">
+                                  <Label className="text-xs text-muted-foreground">
+                                    Đến
+                                  </Label>
+                                  <Input
+                                    className="h-9 text-sm"
+                                    value={filters.quantityRange[1]}
+                                    onChange={(e) =>
+                                      handleQuantityInputChange(
+                                        1,
+                                        e.target.value,
+                                      )
+                                    }
+                                  />
+                                </div>
+                              </div>
+                              <Slider
+                                value={filters.quantityRange}
+                                max={100}
+                                step={1}
+                                onValueChange={(val) =>
+                                  setFilters((prev) => ({
+                                    ...prev,
+                                    quantityRange: val as [number, number],
+                                  }))
+                                }
+                                className="py-2"
+                              />
+                            </div>
+                          </div>
+
+                          {/* Price Range */}
+                          <div className="space-y-3">
+                            <div className="flex items-center justify-between">
+                              <Label className="font-semibold text-base">
+                                Khoảng giá
+                              </Label>
+                              {(filters.priceRange[0] > 0 ||
+                                filters.priceRange[1] < 50000000) && (
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-6 px-2 text-xs text-muted-foreground"
+                                  onClick={() =>
+                                    setFilters((prev) => ({
+                                      ...prev,
+                                      priceRange: [0, 50000000],
+                                    }))
+                                  }
+                                >
+                                  Xóa
+                                </Button>
+                              )}
+                            </div>
+                            <div className="bg-muted/30 rounded-lg space-y-4">
+                              <div className="flex items-center gap-2">
+                                <div className="space-y-1.5 flex-1">
+                                  <Label className="text-xs text-muted-foreground">
+                                    Từ
+                                  </Label>
+                                  <Input
+                                    className="h-9 text-sm"
+                                    value={formatCurrency(filters.priceRange[0])
+                                      .replace("₫", "")
+                                      .trim()}
+                                    onChange={(e) =>
+                                      handlePriceInputChange(0, e.target.value)
+                                    }
+                                  />
+                                </div>
+                                <span className="text-muted-foreground pt-6">
+                                  -
+                                </span>
+                                <div className="space-y-1.5 flex-1">
+                                  <Label className="text-xs text-muted-foreground">
+                                    Đến
+                                  </Label>
+                                  <Input
+                                    className="h-9 text-sm"
+                                    value={formatCurrency(filters.priceRange[1])
+                                      .replace("₫", "")
+                                      .trim()}
+                                    onChange={(e) =>
+                                      handlePriceInputChange(1, e.target.value)
+                                    }
+                                  />
+                                </div>
+                              </div>
+                              <Slider
+                                value={filters.priceRange}
+                                max={50000000}
+                                step={100000}
+                                onValueChange={(val) =>
+                                  setFilters((prev) => ({
+                                    ...prev,
+                                    priceRange: val as [number, number],
+                                  }))
+                                }
+                                className="py-2"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Sticky footer with buttons */}
+                      <div className="border-t bg-background p-4 space-y-2">
+                        <Button
+                          onClick={handleApplyFilters}
+                          className="w-full h-11 bg-[#0A3D62] hover:bg-[#0A3D62]/90 font-semibold text-base"
+                        >
+                          Xem kết quả
+                        </Button>
+                        <Button
+                          onClick={resetFilters}
+                          variant="outline"
+                          className="w-full h-11 text-sm"
+                          disabled={!hasAnythingToReset()}
+                        >
+                          Đặt lại bộ lọc
+                        </Button>
                       </div>
                     </SheetContent>
                   </Sheet>

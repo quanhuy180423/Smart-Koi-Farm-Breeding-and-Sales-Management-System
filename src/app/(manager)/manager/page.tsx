@@ -289,7 +289,7 @@ export default function ManagerDashboard() {
                     <span className="text-sm">Quy trình sinh sản</span>
                   </div>
                   <span className="text-sm font-medium text-yellow-600">
-                    {quickStats.activeBreedingProcesses} đang thực hiện
+                    {quickStats.activeBreedingProcesses}
                   </span>
                 </div>
               </>

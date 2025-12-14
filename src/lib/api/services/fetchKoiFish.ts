@@ -107,6 +107,7 @@ export interface KoiFishFamilyResponse {
   rfid: string;
   varietyName: string;
   gender: Gender;
+  images: string[];
   father?: KoiFishFamilyResponse;
   mother?: KoiFishFamilyResponse;
 }

@@ -129,7 +129,7 @@ export default function ManagerOrderDetailPage() {
             Chi tiết đơn hàng {order.orderNumber}
           </h1>
           <p className="text-muted-foreground">
-            Xem thông tin chi tiết về đơn hàng - Chỉ có quyền hoàn tiền
+            Xem thông tin chi tiết về đơn hàng
           </p>
         </div>
         <div className="flex items-center gap-2">
