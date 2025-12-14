@@ -40,18 +40,18 @@ const baseUrl = "/api/Pattern";
 
 const patternService = {
   getPatterns: async (
-    request: PatternSearchParams
+    request: PatternSearchParams,
   ): Promise<BaseResponse<PagedResponse<Pattern>>> => {
     const filter = toRequestParams(request);
     const response = await apiService.get<BaseResponse<PagedResponse<Pattern>>>(
       `${baseUrl}`,
-      { ...filter }
+      { ...filter },
     );
     return response.data;
   },
 
   createPattern: async (
-    data: PatternRequest
+    data: PatternRequest,
   ): Promise<BaseResponse<Pattern>> => {
     const response = await apiService.post<
       BaseResponse<Pattern>,
@@ -62,7 +62,7 @@ const patternService = {
 
   updatePattern: async (
     id: number,
-    data: PatternRequest
+    data: PatternRequest,
   ): Promise<BaseResponse<Pattern>> => {
     const response = await apiService.put<
       BaseResponse<Pattern>,
@@ -73,13 +73,13 @@ const patternService = {
 
   deletePattern: async (id: number): Promise<BaseResponse<boolean>> => {
     const response = await apiService.delete<BaseResponse<boolean>>(
-      `${baseUrl}/${id}`
+      `${baseUrl}/${id}`,
     );
     return response.data;
   },
 
   assignVarietyToPattern: async (
-    data: AssignVarietyRequest
+    data: AssignVarietyRequest,
   ): Promise<BaseResponse<boolean>> => {
     const response = await apiService.post<
       BaseResponse<boolean>,
@@ -89,19 +89,19 @@ const patternService = {
   },
 
   removeVarietyFromPattern: async (
-    data: AssignVarietyRequest
+    data: AssignVarietyRequest,
   ): Promise<BaseResponse<boolean>> => {
     const params = toRequestParams(data);
     const response = await apiService.delete<BaseResponse<boolean>>(
       `${baseUrl}/remove`,
-      { ...params }
+      { ...params },
     );
     return response.data;
   },
 
   getPatternVarieties: async (
     patternId: number,
-    request: PatternVarietySearchParams
+    request: PatternVarietySearchParams,
   ): Promise<BaseResponse<PagedResponse<PatternVariety>>> => {
     const filter = toRequestParams(request);
     const response = await apiService.get<
@@ -111,10 +111,10 @@ const patternService = {
   },
 
   getPatternsByVariety: async (
-    varietyId: number
+    varietyId: number,
   ): Promise<BaseResponse<Pattern[]>> => {
     const response = await apiService.get<BaseResponse<Pattern[]>>(
-      `${baseUrl}/by-variety/${varietyId}`
+      `${baseUrl}/by-variety/${varietyId}`,
     );
     return response.data;
   },

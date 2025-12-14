@@ -90,7 +90,7 @@ export function CustomerSidebar({ className }: CustomerSidebarProps) {
                   <div
                     className={cn(
                       "flex items-center justify-center w-12 h-12 rounded-lg transition-all duration-200 hover:bg-accent/50 cursor-pointer",
-                      isActive && "bg-primary text-primary-foreground"
+                      isActive && "bg-primary text-primary-foreground",
                     )}
                   >
                     <Icon className="h-5 w-5" />
@@ -151,7 +151,7 @@ export function CustomerSidebar({ className }: CustomerSidebarProps) {
                       className={cn(
                         "flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-200 group hover:bg-accent/50 cursor-pointer",
                         isActive &&
-                          "bg-primary/10 border border-primary/20 my-1"
+                          "bg-primary/10 border border-primary/20 my-1",
                       )}
                     >
                       <div
@@ -159,7 +159,7 @@ export function CustomerSidebar({ className }: CustomerSidebarProps) {
                           "flex items-center justify-center w-10 h-10 rounded-lg transition-colors",
                           isActive
                             ? "bg-primary text-primary-foreground"
-                            : "bg-muted text-muted-foreground group-hover:bg-primary/20 group-hover:text-primary"
+                            : "bg-muted text-muted-foreground group-hover:bg-primary/20 group-hover:text-primary",
                         )}
                       >
                         <Icon className="h-5 w-5" />
@@ -170,7 +170,7 @@ export function CustomerSidebar({ className }: CustomerSidebarProps) {
                             "font-medium truncate",
                             isActive
                               ? "text-primary"
-                              : "text-secondary-foreground"
+                              : "text-secondary-foreground",
                           )}
                         >
                           {item.title}
@@ -206,7 +206,7 @@ export function CustomerSidebar({ className }: CustomerSidebarProps) {
                       className={cn(
                         "flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-200 group hover:bg-accent/50 cursor-pointer",
                         isActive &&
-                          "bg-primary/10 border border-primary/20 my-1"
+                          "bg-primary/10 border border-primary/20 my-1",
                       )}
                     >
                       <div
@@ -214,7 +214,7 @@ export function CustomerSidebar({ className }: CustomerSidebarProps) {
                           "flex items-center justify-center w-10 h-10 rounded-lg transition-colors",
                           isActive
                             ? "bg-primary text-primary-foreground"
-                            : "bg-muted text-muted-foreground group-hover:bg-primary/20 group-hover:text-primary"
+                            : "bg-muted text-muted-foreground group-hover:bg-primary/20 group-hover:text-primary",
                         )}
                       >
                         <Icon className="h-5 w-5" />
@@ -225,7 +225,7 @@ export function CustomerSidebar({ className }: CustomerSidebarProps) {
                             "font-medium truncate",
                             isActive
                               ? "text-primary"
-                              : "text-secondary-foreground"
+                              : "text-secondary-foreground",
                           )}
                         >
                           {item.title}

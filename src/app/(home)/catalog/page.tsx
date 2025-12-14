@@ -213,7 +213,7 @@ function CatalogContent() {
       {/* Header */}
       <div className="relative bg-linear-to-br from-[#0A3D62] via-[#0A3D62] to-[#082d47] py-12 text-white mb-8">
         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAxMCAwIEwgMCAwIDAgMTAiIGZpbGw9Im5vbmUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS1vcGFjaXR5PSIwLjA1IiBzdHJva2Utd2lkdGg9IjEiLz48L3BhdHRlcm4+PC9kZWZzPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JpZCkiLz48L3N2Zz4=')] opacity-30"></div>
-        
+
         <div className="container mx-auto px-4 text-center space-y-12 relative z-10">
           <div className="space-y-3">
             <h1 className="text-4xl md:text-5xl font-bold bg-linear-to-r from-white to-blue-100 bg-clip-text text-transparent">
@@ -237,7 +237,7 @@ function CatalogContent() {
               }}
               className="pl-11 pr-14 h-14 rounded-full text-white shadow-lg border-0 bg-white/20 placeholder-white/70 focus:bg-white/30 focus:ring-2 focus:ring-white/50 transition-all duration-200"
             />
-            
+
             {/* Mobile Filter Button */}
             <div className="absolute right-2 top-1/2 -translate-y-1/2 lg:hidden">
               <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
@@ -254,9 +254,9 @@ function CatalogContent() {
                     )}
                   </Button>
                 </SheetTrigger>
-                
-                <SheetContent 
-                  side="right" 
+
+                <SheetContent
+                  side="right"
                   className="w-full sm:w-96 flex flex-col p-0 gap-0"
                 >
                   {/* Header with gradient */}
@@ -269,11 +269,14 @@ function CatalogContent() {
                         Tùy chỉnh tiêu chí tìm kiếm của bạn
                       </SheetDescription>
                     </SheetHeader>
-                    
+
                     {/* Active filters count */}
                     {getActiveFiltersCount() > 0 && (
                       <div className="mt-4 flex items-center gap-2 text-sm">
-                        <Badge variant="secondary" className="bg-white/20 text-white border-white/30">
+                        <Badge
+                          variant="secondary"
+                          className="bg-white/20 text-white border-white/30"
+                        >
                           {getActiveFiltersCount()} bộ lọc đang áp dụng
                         </Badge>
                       </div>
@@ -286,7 +289,9 @@ function CatalogContent() {
                       {/* Variety */}
                       <div className="space-y-2">
                         <div className="flex items-center justify-between">
-                          <Label className="font-semibold text-base">Giống cá</Label>
+                          <Label className="font-semibold text-base">
+                            Giống cá
+                          </Label>
                           {filters.selectedVariety !== "Tất cả" && (
                             <Button
                               variant="ghost"
@@ -306,7 +311,10 @@ function CatalogContent() {
                         <VarietyFilterSelect
                           selectedVariety={filters.selectedVariety}
                           onVarietyChange={(val) =>
-                            setFilters((prev) => ({ ...prev, selectedVariety: val }))
+                            setFilters((prev) => ({
+                              ...prev,
+                              selectedVariety: val,
+                            }))
                           }
                         />
                       </div>
@@ -314,7 +322,9 @@ function CatalogContent() {
                       {/* Gender */}
                       <div className="space-y-2">
                         <div className="flex items-center justify-between">
-                          <Label className="font-semibold text-base">Giới tính</Label>
+                          <Label className="font-semibold text-base">
+                            Giới tính
+                          </Label>
                           {filters.selectedGender !== "Tất cả" && (
                             <Button
                               variant="ghost"
@@ -337,11 +347,16 @@ function CatalogContent() {
                               key={g}
                               type="button"
                               variant={
-                                filters.selectedGender === g ? "default" : "outline"
+                                filters.selectedGender === g
+                                  ? "default"
+                                  : "outline"
                               }
                               size="sm"
                               onClick={() =>
-                                setFilters((prev) => ({ ...prev, selectedGender: g }))
+                                setFilters((prev) => ({
+                                  ...prev,
+                                  selectedGender: g,
+                                }))
                               }
                               className={`text-sm ${filters.selectedGender === g ? "bg-[#0A3D62] hover:bg-[#0A3D62]/90" : ""}`}
                             >
@@ -358,7 +373,9 @@ function CatalogContent() {
                       {/* Price */}
                       <div className="space-y-3">
                         <div className="flex items-center justify-between">
-                          <Label className="font-semibold text-base">Khoảng giá</Label>
+                          <Label className="font-semibold text-base">
+                            Khoảng giá
+                          </Label>
                           {(filters.priceRange[0] > 0 ||
                             filters.priceRange[1] < 100000000) && (
                             <Button
@@ -392,7 +409,9 @@ function CatalogContent() {
                                 }
                               />
                             </div>
-                            <span className="text-muted-foreground pt-6">-</span>
+                            <span className="text-muted-foreground pt-6">
+                              -
+                            </span>
                             <div className="space-y-1.5 flex-1">
                               <Label className="text-xs text-muted-foreground">
                                 Đến
@@ -429,7 +448,8 @@ function CatalogContent() {
                           <Label className="font-semibold text-base">
                             Kích thước (cm)
                           </Label>
-                          {(filters.sizeRange[0] > 0 || filters.sizeRange[1] < 90) && (
+                          {(filters.sizeRange[0] > 0 ||
+                            filters.sizeRange[1] < 90) && (
                             <Button
                               variant="ghost"
                               size="sm"
@@ -459,7 +479,9 @@ function CatalogContent() {
                                 }
                               />
                             </div>
-                            <span className="text-muted-foreground pt-6">-</span>
+                            <span className="text-muted-foreground pt-6">
+                              -
+                            </span>
                             <div className="space-y-1.5 flex-1">
                               <Label className="text-xs text-muted-foreground">
                                 Đến

@@ -434,7 +434,9 @@ export function EditKoiModal({ isOpen, onOpenChange, koi }: EditKoiModalProps) {
             {/* Size and Type */}
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label className="text-sm font-semibold">Kích thước (cm) *</Label>
+                <Label className="text-sm font-semibold">
+                  Kích thước (cm) *
+                </Label>
                 <InputNumber
                   value={formData.size ? Number(formData.size) : undefined}
                   onChange={(value) => {
@@ -462,7 +464,10 @@ export function EditKoiModal({ isOpen, onOpenChange, koi }: EditKoiModalProps) {
                 <Select
                   value={formData.type || ""}
                   onValueChange={(value) => {
-                    setFormData((prev) => ({ ...prev, type: value as KoiType }));
+                    setFormData((prev) => ({
+                      ...prev,
+                      type: value as KoiType,
+                    }));
                     setErrors((prev) => {
                       const next = { ...prev };
                       delete next.type;
@@ -508,7 +513,10 @@ export function EditKoiModal({ isOpen, onOpenChange, koi }: EditKoiModalProps) {
                 <Input
                   value={formData.origin || ""}
                   onChange={(e) => {
-                    setFormData((prev) => ({ ...prev, origin: e.target.value }));
+                    setFormData((prev) => ({
+                      ...prev,
+                      origin: e.target.value,
+                    }));
                     setErrors((prev) => {
                       const next = { ...prev };
                       delete next.origin;
@@ -526,7 +534,9 @@ export function EditKoiModal({ isOpen, onOpenChange, koi }: EditKoiModalProps) {
             {/* Sale Status and Price */}
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label className="text-sm font-semibold">Trạng thái bán *</Label>
+                <Label className="text-sm font-semibold">
+                  Trạng thái bán *
+                </Label>
                 <Select
                   value={formData.saleStatus || ""}
                   onValueChange={(value) => {
@@ -772,7 +782,9 @@ export function EditKoiModal({ isOpen, onOpenChange, koi }: EditKoiModalProps) {
                     className="min-h-20 border-amber-200 focus:border-amber-400 focus:ring-amber-400 bg-amber-50/50"
                   />
                   {errors.mutationDescription && (
-                    <p className="text-xs text-red-500">{errors.mutationDescription}</p>
+                    <p className="text-xs text-red-500">
+                      {errors.mutationDescription}
+                    </p>
                   )}
                 </div>
               )}

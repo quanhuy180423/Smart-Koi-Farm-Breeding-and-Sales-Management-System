@@ -63,7 +63,7 @@ export default function PacketFishDetailPage() {
         {/* Breadcrumb */}
         <Link href="/packet-fish">
           <Button
-            variant="outline" 
+            variant="outline"
             className="inline-flex items-center gap-2 mb-8 px-3 py-2 h-auto cursor-pointer"
           >
             <ChevronLeft className="h-4 w-4" />
@@ -175,7 +175,9 @@ export default function PacketFishDetailPage() {
             <div className="space-y-3 text-sm">
               <div className="flex justify-between">
                 <span className="text-gray-600">Kích thước</span>
-                <span className="font-medium">{formatSizeRange(packet.size)}</span>
+                <span className="font-medium">
+                  {formatSizeRange(packet.size)}
+                </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">Tuổi</span>

@@ -272,7 +272,10 @@ export default function PacketFishPage() {
                         )}
                       </Button>
                     </SheetTrigger>
-                    <SheetContent side="right" className="w-full sm:w-96 flex flex-col p-0 gap-0">
+                    <SheetContent
+                      side="right"
+                      className="w-full sm:w-96 flex flex-col p-0 gap-0"
+                    >
                       {/* Header with gradient */}
                       <div className="bg-linear-to-r from-[#0A3D62] to-[#082d47] text-white">
                         <SheetHeader>
@@ -285,7 +288,10 @@ export default function PacketFishPage() {
                         </SheetHeader>
                         {getActiveFiltersCount() > 0 && (
                           <div className="mt-2 flex items-center gap-2 text-sm">
-                            <Badge variant="secondary" className="bg-white/20 text-white border-white/30">
+                            <Badge
+                              variant="secondary"
+                              className="bg-white/20 text-white border-white/30"
+                            >
                               {getActiveFiltersCount()} bộ lọc đang áp dụng
                             </Badge>
                           </div>
@@ -298,8 +304,11 @@ export default function PacketFishPage() {
                           {/* Size Range */}
                           <div className="space-y-3">
                             <div className="flex items-center justify-between">
-                              <Label className="font-semibold text-base">Kích thước (cm)</Label>
-                              {(filters.sizeRange[0] > 0 || filters.sizeRange[1] < 90) && (
+                              <Label className="font-semibold text-base">
+                                Kích thước (cm)
+                              </Label>
+                              {(filters.sizeRange[0] > 0 ||
+                                filters.sizeRange[1] < 90) && (
                                 <Button
                                   variant="ghost"
                                   size="sm"
@@ -318,20 +327,30 @@ export default function PacketFishPage() {
                             <div className="bg-muted/30 rounded-lg space-y-4">
                               <div className="flex items-center gap-2">
                                 <div className="space-y-1.5 flex-1">
-                                  <Label className="text-xs text-muted-foreground">Từ</Label>
+                                  <Label className="text-xs text-muted-foreground">
+                                    Từ
+                                  </Label>
                                   <Input
                                     className="h-9 text-sm"
                                     value={filters.sizeRange[0]}
-                                    onChange={(e) => handleSizeInputChange(0, e.target.value)}
+                                    onChange={(e) =>
+                                      handleSizeInputChange(0, e.target.value)
+                                    }
                                   />
                                 </div>
-                                <span className="text-muted-foreground pt-6">-</span>
+                                <span className="text-muted-foreground pt-6">
+                                  -
+                                </span>
                                 <div className="space-y-1.5 flex-1">
-                                  <Label className="text-xs text-muted-foreground">Đến</Label>
+                                  <Label className="text-xs text-muted-foreground">
+                                    Đến
+                                  </Label>
                                   <Input
                                     className="h-9 text-sm"
                                     value={filters.sizeRange[1]}
-                                    onChange={(e) => handleSizeInputChange(1, e.target.value)}
+                                    onChange={(e) =>
+                                      handleSizeInputChange(1, e.target.value)
+                                    }
                                   />
                                 </div>
                               </div>
@@ -353,8 +372,11 @@ export default function PacketFishPage() {
                           {/* Age Range */}
                           <div className="space-y-3">
                             <div className="flex items-center justify-between">
-                              <Label className="font-semibold text-base">Tuổi (tháng)</Label>
-                              {(filters.ageRange[0] > 0 || filters.ageRange[1] < 60) && (
+                              <Label className="font-semibold text-base">
+                                Tuổi (tháng)
+                              </Label>
+                              {(filters.ageRange[0] > 0 ||
+                                filters.ageRange[1] < 60) && (
                                 <Button
                                   variant="ghost"
                                   size="sm"
@@ -373,20 +395,30 @@ export default function PacketFishPage() {
                             <div className="bg-muted/30 rounded-lg space-y-4">
                               <div className="flex items-center gap-2">
                                 <div className="space-y-1.5 flex-1">
-                                  <Label className="text-xs text-muted-foreground">Từ</Label>
+                                  <Label className="text-xs text-muted-foreground">
+                                    Từ
+                                  </Label>
                                   <Input
                                     className="h-9 text-sm"
                                     value={filters.ageRange[0]}
-                                    onChange={(e) => handleAgeInputChange(0, e.target.value)}
+                                    onChange={(e) =>
+                                      handleAgeInputChange(0, e.target.value)
+                                    }
                                   />
                                 </div>
-                                <span className="text-muted-foreground pt-6">-</span>
+                                <span className="text-muted-foreground pt-6">
+                                  -
+                                </span>
                                 <div className="space-y-1.5 flex-1">
-                                  <Label className="text-xs text-muted-foreground">Đến</Label>
+                                  <Label className="text-xs text-muted-foreground">
+                                    Đến
+                                  </Label>
                                   <Input
                                     className="h-9 text-sm"
                                     value={filters.ageRange[1]}
-                                    onChange={(e) => handleAgeInputChange(1, e.target.value)}
+                                    onChange={(e) =>
+                                      handleAgeInputChange(1, e.target.value)
+                                    }
                                   />
                                 </div>
                               </div>
@@ -408,8 +440,11 @@ export default function PacketFishPage() {
                           {/* Quantity Range */}
                           <div className="space-y-3">
                             <div className="flex items-center justify-between">
-                              <Label className="font-semibold text-base">Số lượng (con)</Label>
-                              {(filters.quantityRange[0] > 0 || filters.quantityRange[1] < 100) && (
+                              <Label className="font-semibold text-base">
+                                Số lượng (con)
+                              </Label>
+                              {(filters.quantityRange[0] > 0 ||
+                                filters.quantityRange[1] < 100) && (
                                 <Button
                                   variant="ghost"
                                   size="sm"
@@ -428,20 +463,36 @@ export default function PacketFishPage() {
                             <div className="bg-muted/30 rounded-lg space-y-4">
                               <div className="flex items-center gap-2">
                                 <div className="space-y-1.5 flex-1">
-                                  <Label className="text-xs text-muted-foreground">Từ</Label>
+                                  <Label className="text-xs text-muted-foreground">
+                                    Từ
+                                  </Label>
                                   <Input
                                     className="h-9 text-sm"
                                     value={filters.quantityRange[0]}
-                                    onChange={(e) => handleQuantityInputChange(0, e.target.value)}
+                                    onChange={(e) =>
+                                      handleQuantityInputChange(
+                                        0,
+                                        e.target.value,
+                                      )
+                                    }
                                   />
                                 </div>
-                                <span className="text-muted-foreground pt-6">-</span>
+                                <span className="text-muted-foreground pt-6">
+                                  -
+                                </span>
                                 <div className="space-y-1.5 flex-1">
-                                  <Label className="text-xs text-muted-foreground">Đến</Label>
+                                  <Label className="text-xs text-muted-foreground">
+                                    Đến
+                                  </Label>
                                   <Input
                                     className="h-9 text-sm"
                                     value={filters.quantityRange[1]}
-                                    onChange={(e) => handleQuantityInputChange(1, e.target.value)}
+                                    onChange={(e) =>
+                                      handleQuantityInputChange(
+                                        1,
+                                        e.target.value,
+                                      )
+                                    }
                                   />
                                 </div>
                               </div>
@@ -463,8 +514,11 @@ export default function PacketFishPage() {
                           {/* Price Range */}
                           <div className="space-y-3">
                             <div className="flex items-center justify-between">
-                              <Label className="font-semibold text-base">Khoảng giá</Label>
-                              {(filters.priceRange[0] > 0 || filters.priceRange[1] < 50000000) && (
+                              <Label className="font-semibold text-base">
+                                Khoảng giá
+                              </Label>
+                              {(filters.priceRange[0] > 0 ||
+                                filters.priceRange[1] < 50000000) && (
                                 <Button
                                   variant="ghost"
                                   size="sm"
@@ -483,24 +537,34 @@ export default function PacketFishPage() {
                             <div className="bg-muted/30 rounded-lg space-y-4">
                               <div className="flex items-center gap-2">
                                 <div className="space-y-1.5 flex-1">
-                                  <Label className="text-xs text-muted-foreground">Từ</Label>
+                                  <Label className="text-xs text-muted-foreground">
+                                    Từ
+                                  </Label>
                                   <Input
                                     className="h-9 text-sm"
                                     value={formatCurrency(filters.priceRange[0])
                                       .replace("₫", "")
                                       .trim()}
-                                    onChange={(e) => handlePriceInputChange(0, e.target.value)}
+                                    onChange={(e) =>
+                                      handlePriceInputChange(0, e.target.value)
+                                    }
                                   />
                                 </div>
-                                <span className="text-muted-foreground pt-6">-</span>
+                                <span className="text-muted-foreground pt-6">
+                                  -
+                                </span>
                                 <div className="space-y-1.5 flex-1">
-                                  <Label className="text-xs text-muted-foreground">Đến</Label>
+                                  <Label className="text-xs text-muted-foreground">
+                                    Đến
+                                  </Label>
                                   <Input
                                     className="h-9 text-sm"
                                     value={formatCurrency(filters.priceRange[1])
                                       .replace("₫", "")
                                       .trim()}
-                                    onChange={(e) => handlePriceInputChange(1, e.target.value)}
+                                    onChange={(e) =>
+                                      handlePriceInputChange(1, e.target.value)
+                                    }
                                   />
                                 </div>
                               </div>

@@ -138,7 +138,7 @@ export function useRemoveVarietyFromPattern() {
 
 export function useGetPatternVarieties(
   patternId: number | null,
-  params: PatternVarietySearchParams
+  params: PatternVarietySearchParams,
 ) {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 

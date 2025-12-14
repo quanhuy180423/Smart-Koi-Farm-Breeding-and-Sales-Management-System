@@ -36,7 +36,7 @@ export const PacketFishCard = ({
             className="object-cover transition-transform duration-500 group-hover:scale-110"
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           />
-          
+
           {/* Subtle Overlay on Hover */}
           <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-all duration-300" />
         </Link>
@@ -78,14 +78,17 @@ export const PacketFishCard = ({
         </Link>
 
         {/* Variety */}
-        {packet.varietyPacketFishes && packet.varietyPacketFishes.length > 0 && (
-          <div className="flex items-center gap-2 text-sm">
-            <span className="font-medium text-gray-500">Giống:</span>
-            <span className="font-semibold text-gray-700 truncate">
-              {packet.varietyPacketFishes.map((v) => v.varietyName).join(", ")}
-            </span>
-          </div>
-        )}
+        {packet.varietyPacketFishes &&
+          packet.varietyPacketFishes.length > 0 && (
+            <div className="flex items-center gap-2 text-sm">
+              <span className="font-medium text-gray-500">Giống:</span>
+              <span className="font-semibold text-gray-700 truncate">
+                {packet.varietyPacketFishes
+                  .map((v) => v.varietyName)
+                  .join(", ")}
+              </span>
+            </div>
+          )}
 
         {/* Info Grid - Simplified */}
         <div className="flex items-center gap-4 pt-2 border-t border-gray-100">
@@ -95,8 +98,12 @@ export const PacketFishCard = ({
               <Users className="h-5 w-5 text-blue-600" />
             </div>
             <div className="flex flex-col">
-              <span className="text-xs text-gray-500 font-medium">Số lượng</span>
-              <span className="text-sm font-bold text-gray-900">{packet.fishPerPacket} con</span>
+              <span className="text-xs text-gray-500 font-medium">
+                Số lượng
+              </span>
+              <span className="text-sm font-bold text-gray-900">
+                {packet.fishPerPacket} con
+              </span>
             </div>
           </div>
 
@@ -107,7 +114,9 @@ export const PacketFishCard = ({
             </div>
             <div className="flex flex-col">
               <span className="text-xs text-gray-500 font-medium">Tuổi</span>
-              <span className="text-sm font-bold text-gray-900">{packet.ageMonths} tháng</span>
+              <span className="text-sm font-bold text-gray-900">
+                {packet.ageMonths} tháng
+              </span>
             </div>
           </div>
         </div>
@@ -118,7 +127,9 @@ export const PacketFishCard = ({
             <Package className="h-4 w-4 text-gray-600" />
             <span className="text-sm font-medium text-gray-600">Tồn kho</span>
           </div>
-          <span className="text-sm font-bold text-gray-900">{packet.stockQuantity} gói</span>
+          <span className="text-sm font-bold text-gray-900">
+            {packet.stockQuantity} gói
+          </span>
         </div>
       </CardContent>
 

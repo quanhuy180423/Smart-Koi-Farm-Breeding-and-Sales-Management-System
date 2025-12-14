@@ -29,7 +29,11 @@ import {
 import Link from "next/link";
 import Image from "next/image";
 import { formatCurrency } from "@/lib/utils/numbers/formatCurrency";
-import { useGetKoiFishById, useGetKoiFishFamily, useGetKoiBreedingHistory } from "@/hooks/useKoiFish";
+import {
+  useGetKoiFishById,
+  useGetKoiFishFamily,
+  useGetKoiBreedingHistory,
+} from "@/hooks/useKoiFish";
 import { formatKoiAge } from "@/lib/utils/dates/age";
 import { useAddItemToCart, useGetCart } from "@/hooks/useCart";
 import {
@@ -72,7 +76,7 @@ const PedigreeNode = ({
           )}
         </div>
       </div>
-      
+
       <p className="text-[10px] font-medium text-indigo-500 mb-1">{role}</p>
       <p className="font-bold text-sm truncate text-indigo-800 mb-1">
         {koi?.rfid?.split(" ")[0] ?? "—"}
@@ -585,8 +589,8 @@ export default function KoiDetailPage() {
                               />
                               {(koiFishFamily.mother?.father ||
                                 koiFishFamily.mother?.mother) && (
-                                  <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 w-0.5 h-6 bg-indigo-500"></div>
-                                )}
+                                <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 w-0.5 h-6 bg-indigo-500"></div>
+                              )}
                             </div>
                           )}
 
@@ -724,11 +728,16 @@ export default function KoiDetailPage() {
                       <Loader2 className="w-5 h-5 mr-2 animate-spin" />
                       Đang tải dữ liệu...
                     </div>
-                  ) : !breedingHistory?.breedingHistory || breedingHistory.breedingHistory.length === 0 ? (
+                  ) : !breedingHistory?.breedingHistory ||
+                    breedingHistory.breedingHistory.length === 0 ? (
                     <div className="text-center py-10 text-gray-500">
                       <Fish className="w-12 h-12 mx-auto mb-4 text-gray-300" />
-                      <p className="text-lg font-medium">Chưa có lịch sử sinh sản</p>
-                      <p className="text-sm">Cá Koi này chưa tham gia vào quá trình sinh sản nào.</p>
+                      <p className="text-lg font-medium">
+                        Chưa có lịch sử sinh sản
+                      </p>
+                      <p className="text-sm">
+                        Cá Koi này chưa tham gia vào quá trình sinh sản nào.
+                      </p>
                     </div>
                   ) : (
                     <div className="space-y-6">
@@ -739,175 +748,235 @@ export default function KoiDetailPage() {
                             <div className="text-2xl font-bold text-blue-600">
                               {breedingHistory.breedingHistory.length}
                             </div>
-                            <div className="text-sm text-blue-700">Lần sinh sản</div>
+                            <div className="text-sm text-blue-700">
+                              Lần sinh sản
+                            </div>
                           </div>
                           <div className="text-center">
                             <div className="text-2xl font-bold text-green-600">
-                              {breedingHistory.breedingHistory.reduce((total, item) => total + item.totalFishQualified, 0)}
+                              {breedingHistory.breedingHistory.reduce(
+                                (total, item) =>
+                                  total + item.totalFishQualified,
+                                0,
+                              )}
                             </div>
-                            <div className="text-sm text-green-700">Tổng cá con đạt chuẩn</div>
+                            <div className="text-sm text-green-700">
+                              Tổng cá con đạt chuẩn
+                            </div>
                           </div>
                           <div className="text-center">
                             <div className="text-2xl font-bold text-purple-600">
-                              {breedingHistory.breedingHistory.reduce((total, item) => total + item.totalPackage, 0)}
+                              {breedingHistory.breedingHistory.reduce(
+                                (total, item) => total + item.totalPackage,
+                                0,
+                              )}
                             </div>
-                            <div className="text-sm text-purple-700">Tổng gói cá</div>
+                            <div className="text-sm text-purple-700">
+                              Tổng gói cá
+                            </div>
                           </div>
                         </div>
                       </div>
 
                       {/* Danh sách lịch sử */}
                       <div className="space-y-4">
-                        {breedingHistory.breedingHistory.map((history, index) => (
-                          <Card key={history.breedingProcessId} className="border-l-4 border-l-blue-500">
-                            <CardHeader>
-                              <div className="flex items-start justify-between">
-                                <div>
-                                  <CardTitle className="text-lg flex items-center gap-2">
-                                    <Badge variant="outline" className="text-xs">
-                                      #{index + 1}
-                                    </Badge>
-                                    Quy trình sinh sản {history.code}
-                                  </CardTitle>
-                                  <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
-                                    <div className="flex items-center gap-1">
-                                      <Calendar className="h-4 w-4" />
-                                      Bắt đầu: {formatDate(history.startDate, DATE_FORMATS.MEDIUM_DATE)}
-                                    </div>
-                                    {history.endDate && (
+                        {breedingHistory.breedingHistory.map(
+                          (history, index) => (
+                            <Card
+                              key={history.breedingProcessId}
+                              className="border-l-4 border-l-blue-500"
+                            >
+                              <CardHeader>
+                                <div className="flex items-start justify-between">
+                                  <div>
+                                    <CardTitle className="text-lg flex items-center gap-2">
+                                      <Badge
+                                        variant="outline"
+                                        className="text-xs"
+                                      >
+                                        #{index + 1}
+                                      </Badge>
+                                      Quy trình sinh sản {history.code}
+                                    </CardTitle>
+                                    <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
                                       <div className="flex items-center gap-1">
                                         <Calendar className="h-4 w-4" />
-                                        Kết thúc: {formatDate(history.endDate, DATE_FORMATS.MEDIUM_DATE)}
+                                        Bắt đầu:{" "}
+                                        {formatDate(
+                                          history.startDate,
+                                          DATE_FORMATS.MEDIUM_DATE,
+                                        )}
                                       </div>
-                                    )}
+                                      {history.endDate && (
+                                        <div className="flex items-center gap-1">
+                                          <Calendar className="h-4 w-4" />
+                                          Kết thúc:{" "}
+                                          {formatDate(
+                                            history.endDate,
+                                            DATE_FORMATS.MEDIUM_DATE,
+                                          )}
+                                        </div>
+                                      )}
+                                    </div>
                                   </div>
+                                  <Badge
+                                    variant={
+                                      getBreedingStatusLabel(history.status)
+                                        .variant
+                                    }
+                                  >
+                                    {
+                                      getBreedingStatusLabel(history.status)
+                                        .label
+                                    }
+                                  </Badge>
                                 </div>
-                                <Badge 
-                                  variant={getBreedingStatusLabel(history.status).variant}
-                                >
-                                  {getBreedingStatusLabel(history.status).label}
-                                </Badge>
-                              </div>
-                            </CardHeader>
-                            <CardContent className="space-y-4">
-                              {/* Thông tin đối tác sinh sản */}
-                              <div>
-                                <h5 className="font-semibold mb-2 flex items-center gap-2">
-                                  <Heart className="h-4 w-4 text-pink-500" />
-                                  Đối tác sinh sản
-                                </h5>
-                                <div className="flex items-center gap-4 p-3 bg-gray-50 rounded-lg">
-                                  {history.partner.images && history.partner.images.length > 0 ? (
-                                    <div className="relative w-12 h-12 rounded-full overflow-hidden border-2 border-gray-200">
-                                      <Image
-                                        src={history.partner.images[0]}
-                                        alt={history.partner.rfid}
-                                        fill
-                                        className="object-cover"
-                                        unoptimized
-                                      />
-                                    </div>
-                                  ) : (
-                                    <div className="w-12 h-12 bg-linear-to-br from-gray-200 to-gray-300 rounded-full flex items-center justify-center">
-                                      <Fish className="h-6 w-6 text-gray-500" />
-                                    </div>
-                                  )}
-                                  <div className="flex-1">
-                                    <p className="font-medium">{history.partner.rfid}</p>
-                                    <p className="text-sm text-gray-600">{history.partner.varietyName}</p>
-                                    {history.partner.isMutated && (
-                                      <Badge variant="secondary" className="text-xs mt-1">
-                                        Đột biến
-                                      </Badge>
-                                    )}
-                                  </div>
-                                </div>
-                              </div>
-
-                              {/* Thống kê sinh sản */}
-                              <div>
-                                <h5 className="font-semibold mb-3 flex items-center gap-2">
-                                  <Shield className="h-4 w-4 text-green-500" />
-                                  Thống kê sinh sản
-                                </h5>
-                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                  <div className="bg-blue-50 p-3 rounded-lg text-center border border-blue-200">
-                                    <div className="text-lg font-bold text-blue-600">
-                                      {history.totalEggs.toLocaleString()}
-                                    </div>
-                                    <div className="text-xs text-blue-700">Tổng trứng</div>
-                                  </div>
-                                  <div className="bg-green-50 p-3 rounded-lg text-center border border-green-200">
-                                    <div className="text-lg font-bold text-green-600">
-                                      {(history.fertilizationRate).toFixed(1)}%
-                                    </div>
-                                    <div className="text-xs text-green-700">Tỷ lệ thụ tinh</div>
-                                  </div>
-                                  {history.hatchingRate !== null && (
-                                    <div className="bg-yellow-50 p-3 rounded-lg text-center border border-yellow-200">
-                                      <div className="text-lg font-bold text-yellow-600">
-                                        {(history.hatchingRate).toFixed(1)}%
-                                      </div>
-                                      <div className="text-xs text-yellow-700">Tỷ lệ nở</div>
-                                    </div>
-                                  )}
-                                  <div className="bg-purple-50 p-3 rounded-lg text-center border border-purple-200">
-                                    <div className="text-lg font-bold text-purple-600">
-                                      {(history.survivalRate).toFixed(1)}%
-                                    </div>
-                                    <div className="text-xs text-purple-700">Tỷ lệ sống sót</div>
-                                  </div>
-                                </div>
-                              </div>
-
-                              {/* Kết quả */}
-                              <div>
-                                <h5 className="font-semibold mb-3 flex items-center gap-2">
-                                  <Fish className="h-4 w-4 text-indigo-500" />
-                                  Kết quả
-                                </h5>
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                  <div className="bg-indigo-50 p-3 rounded-lg border border-indigo-200">
-                                    <div className="text-center">
-                                      <div className="text-lg font-bold text-indigo-600">
-                                        {history.totalFishQualified}
-                                      </div>
-                                      <div className="text-xs text-indigo-700">Cá con đạt chuẩn</div>
-                                    </div>
-                                  </div>
-                                  <div className="bg-orange-50 p-3 rounded-lg border border-orange-200">
-                                    <div className="text-center">
-                                      <div className="text-lg font-bold text-orange-600">
-                                        {history.mutationRate !== null ? `${(history.mutationRate * 100).toFixed(1)}%` : 'N/A'}
-                                      </div>
-                                      <div className="text-xs text-orange-700">Tỷ lệ đột biến</div>
-                                    </div>
-                                  </div>
-                                  <div className="bg-teal-50 p-3 rounded-lg border border-teal-200">
-                                    <div className="text-center">
-                                      <div className="text-lg font-bold text-teal-600">
-                                        {history.totalPackage}
-                                      </div>
-                                      <div className="text-xs text-teal-700">Gói cá được tạo</div>
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-
-                              {/* Mutation Description nếu có */}
-                              {history.partner.isMutated && history.partner.mutationDescription && (
-                                <div className="bg-amber-50 border border-amber-200 p-3 rounded-lg">
-                                  <h5 className="font-semibold mb-1 text-amber-700">
-                                    Mô tả đột biến của đối tác:
+                              </CardHeader>
+                              <CardContent className="space-y-4">
+                                {/* Thông tin đối tác sinh sản */}
+                                <div>
+                                  <h5 className="font-semibold mb-2 flex items-center gap-2">
+                                    <Heart className="h-4 w-4 text-pink-500" />
+                                    Đối tác sinh sản
                                   </h5>
-                                  <p className="text-sm text-amber-600">
-                                    {history.partner.mutationDescription}
-                                  </p>
+                                  <div className="flex items-center gap-4 p-3 bg-gray-50 rounded-lg">
+                                    {history.partner.images &&
+                                    history.partner.images.length > 0 ? (
+                                      <div className="relative w-12 h-12 rounded-full overflow-hidden border-2 border-gray-200">
+                                        <Image
+                                          src={history.partner.images[0]}
+                                          alt={history.partner.rfid}
+                                          fill
+                                          className="object-cover"
+                                          unoptimized
+                                        />
+                                      </div>
+                                    ) : (
+                                      <div className="w-12 h-12 bg-linear-to-br from-gray-200 to-gray-300 rounded-full flex items-center justify-center">
+                                        <Fish className="h-6 w-6 text-gray-500" />
+                                      </div>
+                                    )}
+                                    <div className="flex-1">
+                                      <p className="font-medium">
+                                        {history.partner.rfid}
+                                      </p>
+                                      <p className="text-sm text-gray-600">
+                                        {history.partner.varietyName}
+                                      </p>
+                                      {history.partner.isMutated && (
+                                        <Badge
+                                          variant="secondary"
+                                          className="text-xs mt-1"
+                                        >
+                                          Đột biến
+                                        </Badge>
+                                      )}
+                                    </div>
+                                  </div>
                                 </div>
-                              )}
-                            </CardContent>
-                          </Card>
-                        ))}
+
+                                {/* Thống kê sinh sản */}
+                                <div>
+                                  <h5 className="font-semibold mb-3 flex items-center gap-2">
+                                    <Shield className="h-4 w-4 text-green-500" />
+                                    Thống kê sinh sản
+                                  </h5>
+                                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                    <div className="bg-blue-50 p-3 rounded-lg text-center border border-blue-200">
+                                      <div className="text-lg font-bold text-blue-600">
+                                        {history.totalEggs.toLocaleString()}
+                                      </div>
+                                      <div className="text-xs text-blue-700">
+                                        Tổng trứng
+                                      </div>
+                                    </div>
+                                    <div className="bg-green-50 p-3 rounded-lg text-center border border-green-200">
+                                      <div className="text-lg font-bold text-green-600">
+                                        {history.fertilizationRate.toFixed(1)}%
+                                      </div>
+                                      <div className="text-xs text-green-700">
+                                        Tỷ lệ thụ tinh
+                                      </div>
+                                    </div>
+                                    {history.hatchingRate !== null && (
+                                      <div className="bg-yellow-50 p-3 rounded-lg text-center border border-yellow-200">
+                                        <div className="text-lg font-bold text-yellow-600">
+                                          {history.hatchingRate.toFixed(1)}%
+                                        </div>
+                                        <div className="text-xs text-yellow-700">
+                                          Tỷ lệ nở
+                                        </div>
+                                      </div>
+                                    )}
+                                    <div className="bg-purple-50 p-3 rounded-lg text-center border border-purple-200">
+                                      <div className="text-lg font-bold text-purple-600">
+                                        {history.survivalRate.toFixed(1)}%
+                                      </div>
+                                      <div className="text-xs text-purple-700">
+                                        Tỷ lệ sống sót
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+
+                                {/* Kết quả */}
+                                <div>
+                                  <h5 className="font-semibold mb-3 flex items-center gap-2">
+                                    <Fish className="h-4 w-4 text-indigo-500" />
+                                    Kết quả
+                                  </h5>
+                                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <div className="bg-indigo-50 p-3 rounded-lg border border-indigo-200">
+                                      <div className="text-center">
+                                        <div className="text-lg font-bold text-indigo-600">
+                                          {history.totalFishQualified}
+                                        </div>
+                                        <div className="text-xs text-indigo-700">
+                                          Cá con đạt chuẩn
+                                        </div>
+                                      </div>
+                                    </div>
+                                    <div className="bg-orange-50 p-3 rounded-lg border border-orange-200">
+                                      <div className="text-center">
+                                        <div className="text-lg font-bold text-orange-600">
+                                          {history.mutationRate !== null
+                                            ? `${(history.mutationRate * 100).toFixed(1)}%`
+                                            : "N/A"}
+                                        </div>
+                                        <div className="text-xs text-orange-700">
+                                          Tỷ lệ đột biến
+                                        </div>
+                                      </div>
+                                    </div>
+                                    <div className="bg-teal-50 p-3 rounded-lg border border-teal-200">
+                                      <div className="text-center">
+                                        <div className="text-lg font-bold text-teal-600">
+                                          {history.totalPackage}
+                                        </div>
+                                        <div className="text-xs text-teal-700">
+                                          Gói cá được tạo
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+
+                                {/* Mutation Description nếu có */}
+                                {history.partner.isMutated &&
+                                  history.partner.mutationDescription && (
+                                    <div className="bg-amber-50 border border-amber-200 p-3 rounded-lg">
+                                      <h5 className="font-semibold mb-1 text-amber-700">
+                                        Mô tả đột biến của đối tác:
+                                      </h5>
+                                      <p className="text-sm text-amber-600">
+                                        {history.partner.mutationDescription}
+                                      </p>
+                                    </div>
+                                  )}
+                              </CardContent>
+                            </Card>
+                          ),
+                        )}
                       </div>
                     </div>
                   )}

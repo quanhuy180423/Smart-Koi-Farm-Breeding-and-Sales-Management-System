@@ -38,7 +38,7 @@ export default function PatternSelectionDialog({
 }: PatternSelectionDialogProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedId, setSelectedId] = useState<number | undefined>(
-    initialSelectedId
+    initialSelectedId,
   );
   useEffect(() => {
     setSelectedId(initialSelectedId);
@@ -58,15 +58,23 @@ export default function PatternSelectionDialog({
 
     // BaseResponse<Pattern[]> or BaseResponse<PagedResponse<Pattern>>
     if ("result" in data) {
-      const result = (data as BaseResponse<Pattern[] | PagedResponse<Pattern>>).result;
+      const result = (data as BaseResponse<Pattern[] | PagedResponse<Pattern>>)
+        .result;
       if (Array.isArray(result)) return result as Pattern[];
-      if (result && "data" in result && Array.isArray((result as PagedResponse<Pattern>).data)) {
+      if (
+        result &&
+        "data" in result &&
+        Array.isArray((result as PagedResponse<Pattern>).data)
+      ) {
         return (result as PagedResponse<Pattern>).data;
       }
     }
 
     // PagedResponse<Pattern>
-    if ("data" in data && Array.isArray((data as PagedResponse<Pattern>).data)) {
+    if (
+      "data" in data &&
+      Array.isArray((data as PagedResponse<Pattern>).data)
+    ) {
       return (data as PagedResponse<Pattern>).data;
     }
 

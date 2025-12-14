@@ -77,7 +77,8 @@ export default function HomePage() {
                   <span className="block ml-12">Chất Lượng Cao</span>
                 </h1>
                 <p className="text-base md:text-lg lg:text-xl text-gray-200 max-w-xl leading-relaxed">
-                  Trải nghiệm sự thịnh vượng và bình an mang đến bởi bộ sưu tập cá Koi Nhật Bản cao cấp. Được tuyển chọn để đạt sự hoàn hảo.
+                  Trải nghiệm sự thịnh vượng và bình an mang đến bởi bộ sưu tập
+                  cá Koi Nhật Bản cao cấp. Được tuyển chọn để đạt sự hoàn hảo.
                 </p>
               </div>
 

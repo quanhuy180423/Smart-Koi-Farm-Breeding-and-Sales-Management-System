@@ -11,11 +11,11 @@ import {
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { 
-  Loader2, 
-  Play, 
-  Calendar, 
-  MapPin, 
+import {
+  Loader2,
+  Play,
+  Calendar,
+  MapPin,
   Heart,
   Activity,
   Eye,
@@ -187,21 +187,30 @@ export function KoiDetailDialog({
                           key={`${media.type}-${media.index}`}
                           onClick={() => {
                             setSelectedMediaIdx(idx);
-                            if (media.type === "image") setIsImageViewerOpen(true);
+                            if (media.type === "image")
+                              setIsImageViewerOpen(true);
                             else setIsVideoViewerOpen(true);
                           }}
                           className={cn(
                             "shrink-0 relative w-16 h-16 rounded-lg overflow-hidden border-2 transition-all",
                             selectedMediaIdx === idx
                               ? "border-primary ring-2 ring-primary/20 scale-105"
-                              : "border-gray-300 hover:border-primary/50"
+                              : "border-gray-300 hover:border-primary/50",
                           )}
                         >
                           {media.type === "image" ? (
-                            <Image src={media.src} alt={`Thumbnail ${idx + 1}`} fill className="object-cover" />
+                            <Image
+                              src={media.src}
+                              alt={`Thumbnail ${idx + 1}`}
+                              fill
+                              className="object-cover"
+                            />
                           ) : (
                             <>
-                              <video src={media.src} className="w-full h-full object-cover" />
+                              <video
+                                src={media.src}
+                                className="w-full h-full object-cover"
+                              />
                               <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
                                 <Play className="h-4 w-4 text-white drop-shadow-lg" />
                               </div>
@@ -221,21 +230,29 @@ export function KoiDetailDialog({
                     <Calendar className="h-4 w-4 text-blue-600" />
                     <p className="text-xs font-medium text-blue-700">Tuổi</p>
                   </div>
-                  <p className="font-bold text-blue-900">{formatKoiAge(koi.birthDate)}</p>
+                  <p className="font-bold text-blue-900">
+                    {formatKoiAge(koi.birthDate)}
+                  </p>
                 </div>
 
                 <div className="p-3 bg-linear-to-br from-purple-50 to-purple-100/50 rounded-lg border border-purple-200">
                   <div className="flex items-center gap-2 mb-1">
                     <Fish className="h-4 w-4 text-purple-600" />
-                    <p className="text-xs font-medium text-purple-700">Kích thước</p>
+                    <p className="text-xs font-medium text-purple-700">
+                      Kích thước
+                    </p>
                   </div>
-                  <p className="font-bold text-purple-900">{getFishSizeLabel(koi.size)}</p>
+                  <p className="font-bold text-purple-900">
+                    {getFishSizeLabel(koi.size)}
+                  </p>
                 </div>
 
                 <div className="p-3 bg-linear-to-br from-green-50 to-green-100/50 rounded-lg border border-green-200">
                   <div className="flex items-center gap-2 mb-1">
                     <Heart className="h-4 w-4 text-green-600" />
-                    <p className="text-xs font-medium text-green-700">Sức khỏe</p>
+                    <p className="text-xs font-medium text-green-700">
+                      Sức khỏe
+                    </p>
                   </div>
                   <Badge className={cn("text-xs", healthStatusInfo.colorClass)}>
                     {healthStatusInfo.label}
@@ -254,10 +271,22 @@ export function KoiDetailDialog({
                     <h4 className="font-semibold">Thông tin cơ bản</h4>
                   </div>
                   <div className="grid grid-cols-2 gap-3 text-sm">
-                    <InfoRow label="Ngày sinh" value={formatDate(koi.birthDate, DATE_FORMATS.MEDIUM_DATE)} />
-                    <InfoRow label="Giới tính" value={getGenderLabel(koi.gender).label} />
+                    <InfoRow
+                      label="Ngày sinh"
+                      value={formatDate(
+                        koi.birthDate,
+                        DATE_FORMATS.MEDIUM_DATE,
+                      )}
+                    />
+                    <InfoRow
+                      label="Giới tính"
+                      value={getGenderLabel(koi.gender).label}
+                    />
                     <InfoRow label="Loại cá" value={koi.type} />
-                    <InfoRow label="Hoa văn" value={koi.pattern || "Không xác định"} />
+                    <InfoRow
+                      label="Hoa văn"
+                      value={koi.pattern || "Không xác định"}
+                    />
                   </div>
                 </div>
 
@@ -271,8 +300,14 @@ export function KoiDetailDialog({
                   </div>
                   <div className="grid grid-cols-2 gap-3 text-sm">
                     <InfoRow label="Hồ nước" value={koi.pond.pondName} />
-                    <InfoRow label="Xuất xứ" value={koi.origin || koi.variety.originCountry} />
-                    <InfoRow label="Giống loại" value={koi.variety.varietyName} />
+                    <InfoRow
+                      label="Xuất xứ"
+                      value={koi.origin || koi.variety.originCountry}
+                    />
+                    <InfoRow
+                      label="Giống loại"
+                      value={koi.variety.varietyName}
+                    />
                   </div>
                 </div>
 
@@ -283,9 +318,15 @@ export function KoiDetailDialog({
                       <div className="flex items-center justify-between gap-2">
                         <div className="flex items-center gap-2">
                           <TrendingUp className="h-4 w-4 text-amber-600" />
-                          <p className="text-xs font-medium text-amber-700">Trạng thái bán</p>
+                          <p className="text-xs font-medium text-amber-700">
+                            Trạng thái bán
+                          </p>
                         </div>
-                        <Badge className={getSaleStatusLabel(koi.saleStatus).colorClass}>
+                        <Badge
+                          className={
+                            getSaleStatusLabel(koi.saleStatus).colorClass
+                          }
+                        >
                           {getSaleStatusLabel(koi.saleStatus).label}
                         </Badge>
                       </div>
@@ -296,10 +337,20 @@ export function KoiDetailDialog({
                       <div className="flex items-center justify-between gap-2">
                         <div className="flex items-center gap-2">
                           <Activity className="h-4 w-4 text-pink-600" />
-                          <p className="text-xs font-medium text-pink-700">Sinh sản</p>
+                          <p className="text-xs font-medium text-pink-700">
+                            Sinh sản
+                          </p>
                         </div>
-                        <Badge className={getKoiBreedingStatusLabel(koi.koiBreedingStatus).colorClass}>
-                          {getKoiBreedingStatusLabel(koi.koiBreedingStatus).label}
+                        <Badge
+                          className={
+                            getKoiBreedingStatusLabel(koi.koiBreedingStatus)
+                              .colorClass
+                          }
+                        >
+                          {
+                            getKoiBreedingStatusLabel(koi.koiBreedingStatus)
+                              .label
+                          }
                         </Badge>
                       </div>
                     </div>
@@ -311,11 +362,17 @@ export function KoiDetailDialog({
                   <div className="p-4 bg-linear-to-br from-red-50 to-red-100/50 rounded-xl border border-red-200">
                     <div className="flex items-center gap-2 mb-2">
                       <AlertCircle className="h-5 w-5 text-red-600" />
-                      <h4 className="font-semibold text-red-900">Thông tin đột biến</h4>
+                      <h4 className="font-semibold text-red-900">
+                        Thông tin đột biến
+                      </h4>
                     </div>
-                    <Badge variant="destructive" className="mb-2">Đột biến</Badge>
+                    <Badge variant="destructive" className="mb-2">
+                      Đột biến
+                    </Badge>
                     {koi.mutationDescription && (
-                      <p className="text-sm text-red-800 italic">{koi.mutationDescription}</p>
+                      <p className="text-sm text-red-800 italic">
+                        {koi.mutationDescription}
+                      </p>
                     )}
                   </div>
                 )}
@@ -327,7 +384,9 @@ export function KoiDetailDialog({
                       <FileText className="h-4 w-4 text-gray-600" />
                       <h4 className="font-semibold">Mô tả</h4>
                     </div>
-                    <p className="text-sm text-gray-700 italic leading-relaxed">{koi.description}</p>
+                    <p className="text-sm text-gray-700 italic leading-relaxed">
+                      {koi.description}
+                    </p>
                   </div>
                 )}
 
@@ -359,7 +418,9 @@ export function KoiDetailDialog({
               ) : isErrorBreedingHistory ? (
                 <div className="text-center py-16">
                   <AlertCircle className="h-12 w-12 text-red-400 mx-auto mb-3" />
-                  <p className="text-gray-600">Không thể tải lịch sử sinh sản</p>
+                  <p className="text-gray-600">
+                    Không thể tải lịch sử sinh sản
+                  </p>
                 </div>
               ) : !breedingHistory?.breedingHistory?.length ? (
                 <div className="text-center py-16">
@@ -369,47 +430,92 @@ export function KoiDetailDialog({
               ) : (
                 <div className="space-y-3">
                   {breedingHistory.breedingHistory.map((item) => (
-                    <div key={item.breedingProcessId} className="border rounded-xl p-4 hover:shadow-md transition-shadow">
+                    <div
+                      key={item.breedingProcessId}
+                      className="border rounded-xl p-4 hover:shadow-md transition-shadow"
+                    >
                       {/* Header */}
                       <div className="flex items-start justify-between mb-3">
                         <div>
-                          <h4 className="font-bold text-lg">Quy trình {item.code}</h4>
+                          <h4 className="font-bold text-lg">
+                            Quy trình {item.code}
+                          </h4>
                           <p className="text-xs text-gray-500 flex items-center gap-1 mt-1">
                             <Calendar className="h-3 w-3" />
-                            {formatDate(item.startDate, DATE_FORMATS.MEDIUM_DATE)}
-                            {item.endDate && ` - ${formatDate(item.endDate, DATE_FORMATS.MEDIUM_DATE)}`}
+                            {formatDate(
+                              item.startDate,
+                              DATE_FORMATS.MEDIUM_DATE,
+                            )}
+                            {item.endDate &&
+                              ` - ${formatDate(item.endDate, DATE_FORMATS.MEDIUM_DATE)}`}
                           </p>
                         </div>
-                        <Badge className={getBreedingStatusLabel(item.status).colorClass}>
+                        <Badge
+                          className={
+                            getBreedingStatusLabel(item.status).colorClass
+                          }
+                        >
                           {getBreedingStatusLabel(item.status).label}
                         </Badge>
                       </div>
 
                       {/* Partner */}
                       <div className="p-3 bg-gray-50 rounded-lg mb-3">
-                        <p className="text-xs font-medium text-gray-600 mb-2">Cá đối tác</p>
+                        <p className="text-xs font-medium text-gray-600 mb-2">
+                          Cá đối tác
+                        </p>
                         <div className="flex items-center gap-3">
                           {item.partner.images?.[0] && (
                             <div className="relative w-12 h-12 rounded-lg overflow-hidden border-2 border-gray-200">
-                              <Image src={item.partner.images[0]} alt={item.partner.rfid} fill className="object-cover" />
+                              <Image
+                                src={item.partner.images[0]}
+                                alt={item.partner.rfid}
+                                fill
+                                className="object-cover"
+                              />
                             </div>
                           )}
                           <div>
-                            <p className="font-semibold text-sm">{item.partner.rfid}</p>
-                            <p className="text-xs text-gray-500">{item.partner.varietyName}</p>
+                            <p className="font-semibold text-sm">
+                              {item.partner.rfid}
+                            </p>
+                            <p className="text-xs text-gray-500">
+                              {item.partner.varietyName}
+                            </p>
                           </div>
                         </div>
                       </div>
 
                       {/* Stats */}
                       <div className="grid grid-cols-4 gap-2 text-xs">
-                        <StatCard label="Tổng trứng" value={item.totalEggs.toLocaleString()} />
-                        <StatCard label="Thụ tinh" value={`${item.fertilizationRate?.toFixed(1) || 0}%`} />
-                        <StatCard label="Nở trứng" value={`${item.hatchingRate?.toFixed(1) || 0}%`} />
-                        <StatCard label="Sống sót" value={`${item.survivalRate?.toFixed(1) || 0}%`} />
-                        <StatCard label="Cá đủ tiêu chuẩn" value={item.totalFishQualified.toLocaleString()} />
-                        <StatCard label="Đột biến" value={`${item.mutationRate?.toFixed(1) || 0}%`} />
-                        <StatCard label="Tổng gói" value={item.totalPackage.toLocaleString()} />
+                        <StatCard
+                          label="Tổng trứng"
+                          value={item.totalEggs.toLocaleString()}
+                        />
+                        <StatCard
+                          label="Thụ tinh"
+                          value={`${item.fertilizationRate?.toFixed(1) || 0}%`}
+                        />
+                        <StatCard
+                          label="Nở trứng"
+                          value={`${item.hatchingRate?.toFixed(1) || 0}%`}
+                        />
+                        <StatCard
+                          label="Sống sót"
+                          value={`${item.survivalRate?.toFixed(1) || 0}%`}
+                        />
+                        <StatCard
+                          label="Cá đủ tiêu chuẩn"
+                          value={item.totalFishQualified.toLocaleString()}
+                        />
+                        <StatCard
+                          label="Đột biến"
+                          value={`${item.mutationRate?.toFixed(1) || 0}%`}
+                        />
+                        <StatCard
+                          label="Tổng gói"
+                          value={item.totalPackage.toLocaleString()}
+                        />
                       </div>
                     </div>
                   ))}
@@ -433,7 +539,9 @@ export function KoiDetailDialog({
                 disabled={isSelectLoading}
                 className="flex-1 px-4 py-2.5 font-medium bg-primary text-white rounded-lg hover:bg-primary/90 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
               >
-                {isSelectLoading && <Loader2 className="h-4 w-4 animate-spin" />}
+                {isSelectLoading && (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                )}
                 {onSelectLabel}
               </button>
             </div>
@@ -446,41 +554,49 @@ export function KoiDetailDialog({
           isOpen={isImageViewerOpen}
           onOpenChange={setIsImageViewerOpen}
           images={koi.images}
-          selectedImageIdx={koi.images.indexOf((mediaList[selectedMediaIdx]?.src || "") as never)}
+          selectedImageIdx={koi.images.indexOf(
+            (mediaList[selectedMediaIdx]?.src || "") as never,
+          )}
           onImageIdxChange={(idx) => {
-            const imagePosition = mediaList.findIndex((m) => m.type === "image" && m.index === idx);
+            const imagePosition = mediaList.findIndex(
+              (m) => m.type === "image" && m.index === idx,
+            );
             if (imagePosition !== -1) setSelectedMediaIdx(imagePosition);
           }}
           rfid={koi.rfid}
         />
       )}
-        {mediaList.length > 0 && (
-          <Dialog open={isVideoViewerOpen} onOpenChange={setIsVideoViewerOpen}>
-            <DialogContent className="max-w-5xl max-h-[95vh] flex flex-col p-0 border-0 gap-0 overflow-hidden bg-linear-to-br from-gray-900 via-gray-800 to-gray-900">
-              <div className="flex items-center justify-between px-6 py-4 bg-linear-to-r from-primary/90 to-primary border-b border-primary/20 backdrop-blur-sm">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-white/20 rounded-lg backdrop-blur-sm">
-                    <Play className="h-5 w-5 text-white" />
-                  </div>
-                  <div>
-                    <DialogTitle className="text-lg font-bold text-white">Video Cá Koi</DialogTitle>
-                    <p className="text-xs text-white/80 font-medium">RFID: {koi.rfid}</p>
-                  </div>
+      {mediaList.length > 0 && (
+        <Dialog open={isVideoViewerOpen} onOpenChange={setIsVideoViewerOpen}>
+          <DialogContent className="max-w-5xl max-h-[95vh] flex flex-col p-0 border-0 gap-0 overflow-hidden bg-linear-to-br from-gray-900 via-gray-800 to-gray-900">
+            <div className="flex items-center justify-between px-6 py-4 bg-linear-to-r from-primary/90 to-primary border-b border-primary/20 backdrop-blur-sm">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-white/20 rounded-lg backdrop-blur-sm">
+                  <Play className="h-5 w-5 text-white" />
+                </div>
+                <div>
+                  <DialogTitle className="text-lg font-bold text-white">
+                    Video Cá Koi
+                  </DialogTitle>
+                  <p className="text-xs text-white/80 font-medium">
+                    RFID: {koi.rfid}
+                  </p>
                 </div>
               </div>
-              <div className="flex-1 w-full flex items-center justify-center p-6 bg-linear-to-br from-gray-900 via-black to-gray-900">
-                <div className="relative w-full h-full flex items-center justify-center">
-                  <video
-                    src={mediaList[selectedMediaIdx]?.src}
-                    controls
-                    autoPlay
-                    className="w-full h-auto max-h-[75vh] rounded-lg shadow-2xl ring-2 ring-white/10"
-                  />
-                </div>
+            </div>
+            <div className="flex-1 w-full flex items-center justify-center p-6 bg-linear-to-br from-gray-900 via-black to-gray-900">
+              <div className="relative w-full h-full flex items-center justify-center">
+                <video
+                  src={mediaList[selectedMediaIdx]?.src}
+                  controls
+                  autoPlay
+                  className="w-full h-auto max-h-[75vh] rounded-lg shadow-2xl ring-2 ring-white/10"
+                />
               </div>
-            </DialogContent>
-          </Dialog>
-        )}
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
     </>
   );
 }

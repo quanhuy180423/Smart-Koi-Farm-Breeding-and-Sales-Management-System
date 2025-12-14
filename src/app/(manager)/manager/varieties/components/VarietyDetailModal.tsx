@@ -52,7 +52,9 @@ const VarietyDetailModal = ({
           <Tabs defaultValue="info" className="w-full">
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="info">Thông tin chung</TabsTrigger>
-              <TabsTrigger value="patterns">Hoa văn ({patterns.length})</TabsTrigger>
+              <TabsTrigger value="patterns">
+                Hoa văn ({patterns.length})
+              </TabsTrigger>
             </TabsList>
 
             <TabsContent value="info" className="space-y-4">

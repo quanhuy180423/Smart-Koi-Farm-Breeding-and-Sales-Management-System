@@ -69,7 +69,7 @@ export function DatePickerFilter({
                 onChange(formatDateToString(date));
               }
             }}
-            disabled={(date) => maxDate ? date > maxDate : false}
+            disabled={(date) => (maxDate ? date > maxDate : false)}
             captionLayout="dropdown"
             locale={vi}
           />

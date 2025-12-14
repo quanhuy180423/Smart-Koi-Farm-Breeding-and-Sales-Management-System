@@ -74,7 +74,7 @@ export default function CustomerProfilePage() {
   const [isEditing, setIsEditing] = useState(false);
   const [isAvatarDialogOpen, setIsAvatarDialogOpen] = useState(false);
   const [selectedAvatarFile, setSelectedAvatarFile] = useState<File | null>(
-    null
+    null,
   );
   const [previewAvatarUrl, setPreviewAvatarUrl] = useState<string | null>(null);
   const [passwordForm, setPasswordForm] = useState({
@@ -102,7 +102,7 @@ export default function CustomerProfilePage() {
 
   const [profile, setProfile] = useState<CustomerProfile | null>(null);
   const [editedProfile, setEditedProfile] = useState<CustomerProfile | null>(
-    null
+    null,
   );
 
   React.useEffect(() => {
@@ -229,7 +229,7 @@ export default function CustomerProfilePage() {
           setPreviewAvatarUrl(null);
           setIsAvatarDialogOpen(false);
         },
-      }
+      },
     );
   };
 
@@ -563,7 +563,7 @@ export default function CustomerProfilePage() {
                         <div className="bg-muted/50 border-2 border-border rounded-lg px-4 py-2 text-sm font-medium">
                           {
                             getUserGenderLabelForPerson(
-                              editedProfile?.gender as Gender | undefined
+                              editedProfile?.gender as Gender | undefined,
                             ).label
                           }
                         </div>
@@ -599,7 +599,7 @@ export default function CustomerProfilePage() {
                         {profile.dateOfBirth
                           ? formatDate(
                               profile.dateOfBirth,
-                              DATE_FORMATS.MEDIUM_DATE
+                              DATE_FORMATS.MEDIUM_DATE,
                             )
                           : "Chưa có"}
                       </div>
@@ -762,7 +762,7 @@ export default function CustomerProfilePage() {
                         onChange={(e) =>
                           handlePasswordChange(
                             "confirmedNewPassword",
-                            e.target.value
+                            e.target.value,
                           )
                         }
                         disabled={isChangingPassword}

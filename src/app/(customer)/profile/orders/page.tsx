@@ -143,10 +143,10 @@ export default function OrdersPage() {
         },
         onError: (error) => {
           toast.error(
-            error instanceof Error ? error.message : "Không thể tạo thanh toán"
+            error instanceof Error ? error.message : "Không thể tạo thanh toán",
           );
         },
-      }
+      },
     );
   };
 
@@ -174,10 +174,10 @@ export default function OrdersPage() {
         },
         onError: (error) => {
           toast.error(
-            error instanceof Error ? error.message : "Không thể hủy đơn hàng"
+            error instanceof Error ? error.message : "Không thể hủy đơn hàng",
           );
         },
-      }
+      },
     );
   };
 
@@ -240,7 +240,9 @@ export default function OrdersPage() {
                 </div>
                 <p className="text-xs font-medium text-blue-700">Mã đơn hàng</p>
               </div>
-              <p className="font-bold text-blue-900 truncate">{order.orderNumber}</p>
+              <p className="font-bold text-blue-900 truncate">
+                {order.orderNumber}
+              </p>
             </div>
           </div>
 
@@ -315,9 +317,14 @@ export default function OrdersPage() {
 
                 {/* Product Image */}
                 <div className="relative w-20 h-20 rounded-lg overflow-hidden bg-gray-100 shrink-0 ring-2 ring-gray-200 group-hover:ring-primary transition-all">
-                  {(item?.koiFish?.images?.[0] || item?.packetFish?.images?.[0]) ? (
+                  {item?.koiFish?.images?.[0] ||
+                  item?.packetFish?.images?.[0] ? (
                     <Image
-                      src={item?.koiFish?.images?.[0] || item?.packetFish?.images?.[0] || ""}
+                      src={
+                        item?.koiFish?.images?.[0] ||
+                        item?.packetFish?.images?.[0] ||
+                        ""
+                      }
                       alt={
                         item?.koiFish?.rfid ||
                         item?.packetFish?.name ||

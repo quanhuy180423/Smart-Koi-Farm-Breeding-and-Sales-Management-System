@@ -171,12 +171,20 @@ export default function ManagerOrderDetailPage() {
             {order.customerAddress && (
               <>
                 <div>
-                  <p className="text-sm text-muted-foreground">Địa chỉ giao hàng</p>
-                  <p className="font-medium">{order.customerAddress.fullAddress}</p>
+                  <p className="text-sm text-muted-foreground">
+                    Địa chỉ giao hàng
+                  </p>
+                  <p className="font-medium">
+                    {order.customerAddress.fullAddress}
+                  </p>
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Số điện thoại người nhận</p>
-                  <p className="font-medium">{order.customerAddress.recipientPhone}</p>
+                  <p className="text-sm text-muted-foreground">
+                    Số điện thoại người nhận
+                  </p>
+                  <p className="font-medium">
+                    {order.customerAddress.recipientPhone}
+                  </p>
                 </div>
               </>
             )}

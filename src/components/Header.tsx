@@ -32,13 +32,13 @@ export function Header() {
 
   useEffect(() => {
     if (isMenuOpen) {
-      document.body.style.overflow = 'hidden';
+      document.body.style.overflow = "hidden";
     } else {
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = "unset";
     }
 
     return () => {
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = "unset";
     };
   }, [isMenuOpen]);
 
@@ -168,7 +168,9 @@ export function Header() {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end" className="w-56">
-                        <DropdownMenuItem onClick={() => router.push("/profile")}>
+                        <DropdownMenuItem
+                          onClick={() => router.push("/profile")}
+                        >
                           <User className="mr-2 h-4 w-4 hover:text-secondary-foreground" />
                           <span>Thông tin cá nhân</span>
                         </DropdownMenuItem>
@@ -248,19 +250,19 @@ export function Header() {
       {isMenuOpen && (
         <div className="lg:hidden">
           {/* Backdrop */}
-          <div 
+          <div
             className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40"
             onClick={closeMobileMenu}
-            style={{ top: '80px' }}
+            style={{ top: "80px" }}
           />
-          
+
           {/* Mobile Menu */}
           <div
             ref={mobileMenuRef}
             className="fixed left-0 right-0 bg-background border-t border-border/40 shadow-2xl z-50 overflow-y-auto"
-            style={{ 
-              top: '80px',
-              maxHeight: 'calc(100vh - 80px)'
+            style={{
+              top: "80px",
+              maxHeight: "calc(100vh - 80px)",
             }}
           >
             <div className="container mx-auto px-4 py-6">
