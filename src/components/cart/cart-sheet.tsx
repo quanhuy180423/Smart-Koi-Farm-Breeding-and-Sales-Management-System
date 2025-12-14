@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ScrollArea } from "@/components/ui/scroll-area"; // Cần thêm ScrollArea
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
 
 import { useGetCart } from "@/hooks/useCart";
@@ -94,7 +94,7 @@ export function CartSheet({ isOpen, onOpenChange }: CartSheetProps) {
         </Button>
       </SheetTrigger>
 
-      <SheetContent className="w-full sm:max-w-md flex flex-col p-0 bg-slate-50/50">
+      <SheetContent className="w-full sm:max-w-md flex flex-col p-0 bg-white shadow-2xl">
         <SheetHeader className="px-6 py-4 border-b bg-white shrink-0">
           <SheetTitle className="flex items-center gap-2">
             <ShoppingCart className="h-5 w-5" />
@@ -169,7 +169,7 @@ export function CartSheet({ isOpen, onOpenChange }: CartSheetProps) {
                 <div className="px-6 py-4 z-10 bottom-0 bg-white border-t shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] shrink-0">
                   <div className="w-full space-y-4">
                     {/* Tạm tính */}
-                    <div className="flex justify-between items-center text-sm">
+                    <div className="flex justify-between items-center text-base">
                       <span className="text-muted-foreground">Tạm tính:</span>
                       <span className="font-semibold">
                         {formatCurrency(totalPrice)}
@@ -178,7 +178,7 @@ export function CartSheet({ isOpen, onOpenChange }: CartSheetProps) {
 
                     {/* Giảm giá */}
                     {discountAmount > 0 && (
-                      <div className="flex justify-between items-center text-sm">
+                      <div className="flex justify-between items-center text-base">
                         <span className="text-muted-foreground">Giảm giá:</span>
                         <span className="font-semibold text-red-600">
                           -{formatCurrency(discountAmount)}
@@ -198,11 +198,12 @@ export function CartSheet({ isOpen, onOpenChange }: CartSheetProps) {
                       <Button
                         variant="outline"
                         onClick={() => onOpenChange?.(false)}
+                        className="text-base"
                       >
                         Chọn thêm
                       </Button>
                       <Button
-                        className="bg-[#0A3D62] hover:bg-[#0A3D62]/90"
+                        className="bg-[#0A3D62] hover:bg-[#0A3D62]/90 text-base"
                         onClick={handleCheckout}
                       >
                         Thanh toán

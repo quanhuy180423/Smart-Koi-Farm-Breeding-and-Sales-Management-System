@@ -4,6 +4,15 @@ import { useState, useMemo, Suspense } from "react";
 import { useDebounce } from "@/hooks/useDebounce";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Slider } from "@/components/ui/slider";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Sheet,
   SheetContent,
@@ -12,8 +21,8 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-
-import { Search, FishOff, Fish, Filter } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Search, FishOff, Filter, RotateCcw } from "lucide-react";
 import { useGetKoiFishes } from "@/hooks/useKoiFish";
 import {
   KoiFishSearchParams,
@@ -28,11 +37,13 @@ import {
   initialFilterState,
 } from "./components/KoiFilterPanel";
 import { KoiGridSkeleton } from "./components/KoiSkeleton";
+import { formatCurrency } from "@/lib/utils/numbers/formatCurrency";
+import { useGetVarieties } from "@/hooks/useVariety";
+import { VarietyResponse } from "@/lib/api/services/fetchVariety";
 
 const PAGE_SIZE_OPTIONS = [9, 12, 24];
 
 function CatalogContent() {
-  // 1. Initialize state without URL dependency
   const [filters, setFilters] = useState(initialFilterState);
   const [appliedFilters, setAppliedFilters] = useState(initialFilterState);
   const [searchTerm, setSearchTerm] = useState("");
@@ -40,26 +51,73 @@ function CatalogContent() {
   const debouncedSearchTerm = useDebounce(appliedSearchTerm, 500);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(PAGE_SIZE_OPTIONS[0]);
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
 
   const [addingId, setAddingId] = useState<number | null>(null);
   const { mutate: addToCard } = useAddItemToCart();
   const { data: cart } = useGetCart();
 
-  // Check if item is in cart
+  const handlePriceInputChange = (index: 0 | 1, value: string) => {
+    const num = parseInt(value.replace(/\D/g, "")) || 0;
+    const newRange = [...filters.priceRange] as [number, number];
+    newRange[index] = num;
+    setFilters((prev) => ({ ...prev, priceRange: newRange }));
+  };
+
+  const handleSizeInputChange = (index: 0 | 1, value: string) => {
+    const num = parseInt(value.replace(/\D/g, "")) || 0;
+    const newRange = [...filters.sizeRange] as [number, number];
+    newRange[index] = Math.min(Math.max(num, 0), 90);
+    setFilters((prev) => ({ ...prev, sizeRange: newRange }));
+  };
+
+  const VarietyFilterSelect = ({
+    selectedVariety,
+    onVarietyChange,
+  }: {
+    selectedVariety: string;
+    onVarietyChange: (value: string) => void;
+  }) => {
+    const { data: varietiesData, isLoading } = useGetVarieties({
+      pageIndex: 1,
+      pageSize: 100,
+    });
+    return (
+      <Select
+        value={selectedVariety}
+        onValueChange={onVarietyChange}
+        disabled={isLoading}
+      >
+        <SelectTrigger className="h-10 text-sm w-full">
+          <SelectValue
+            placeholder={isLoading ? "Đang tải..." : "Chọn giống cá"}
+          />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="Tất cả">Tất cả giống</SelectItem>
+          {varietiesData?.data.map((variety: VarietyResponse) => (
+            <SelectItem key={variety.id} value={variety.id.toString()}>
+              {variety.varietyName}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    );
+  };
+
   const isInCart = (koiFishId: number) => {
     return (
       cart?.cartItems?.some((item) => item.koiFishId === koiFishId) || false
     );
   };
 
-  // 2. Handle filter application - apply filters when button clicked
   const handleApplyFilters = () => {
     setAppliedFilters(filters);
     setAppliedSearchTerm(searchTerm);
-    setCurrentPage(1); // Reset to first page when filters change
+    setCurrentPage(1);
+    setIsSheetOpen(false); // Close sheet after applying
   };
 
-  // 3. Reset all filters to initial state
   const resetFilters = () => {
     setSearchTerm("");
     setAppliedSearchTerm("");
@@ -68,17 +126,15 @@ function CatalogContent() {
     setCurrentPage(1);
   };
 
-  // Pagination handlers
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
   };
 
   const handlePageSizeChange = (newPageSize: number) => {
     setPageSize(newPageSize);
-    setCurrentPage(1); // Reset to first page when page size changes
+    setCurrentPage(1);
   };
 
-  // 5. Create API params from APPLIED filter state
   const apiParams = useMemo((): KoiFishSearchParams => {
     const params: KoiFishSearchParams = {
       pageIndex: currentPage,
@@ -110,10 +166,8 @@ function CatalogContent() {
     return params;
   }, [appliedFilters, debouncedSearchTerm, currentPage, pageSize]);
 
-  // Fetch Data
   const { data: koiData, isLoading } = useGetKoiFishes(apiParams);
 
-  // Handlers
   const handleAddToCart = (koiFishId: number, e?: React.MouseEvent) => {
     if (e) {
       e.preventDefault();
@@ -129,7 +183,6 @@ function CatalogContent() {
     );
   };
 
-  // Check xem có gì để reset không (So sánh state UI với initial)
   const hasAnythingToReset = () => {
     return (
       searchTerm !== "" ||
@@ -137,117 +190,44 @@ function CatalogContent() {
     );
   };
 
-  // Remove individual filter
-  // const removeFilter = (key: string) => {
-  //   switch (key) {
-  //     case "gender":
-  //       setFilters((prev) => ({ ...prev, selectedGender: "Tất cả" }));
-  //       break;
-  //     case "variety":
-  //       setFilters((prev) => ({ ...prev, selectedVariety: "Tất cả" }));
-  //       break;
-  //     case "size":
-  //       setFilters((prev) => ({ ...prev, sizeRange: [0, 90] }));
-  //       break;
-  //     case "price":
-  //       setFilters((prev) => ({ ...prev, priceRange: [0, 100000000] }));
-  //       break;
-  //   }
-  //   setCurrentPage(1); // Reset to first page when removing filter
-  // };
-
-  // Active Filters Bar (Display based on current filter state)
-  // const ActiveFiltersBar = () => {
-  //   const chips = [];
-  //   if (filters.selectedGender !== "Tất cả")
-  //     chips.push({
-  //       label: `Giới tính: ${filters.selectedGender === Gender.MALE ? "Đực" : "Cái"}`,
-  //       key: "gender",
-  //     });
-  //   if (filters.selectedVariety !== "Tất cả")
-  //     chips.push({
-  //       label: `Giống: ${filters.selectedVariety}`,
-  //       key: "variety",
-  //     });
-  //   if (filters.sizeRange[0] > 0 || filters.sizeRange[1] < 90) {
-  //     chips.push({
-  //       label: `Size: ${filters.sizeRange[0]}-${filters.sizeRange[1]}cm`,
-  //       key: "size",
-  //     });
-  //   }
-  //   if (filters.priceRange[0] > 0 || filters.priceRange[1] < 100000000) {
-  //     chips.push({
-  //       label: `Giá: ${formatCurrency(filters.priceRange[0])} - ${formatCurrency(filters.priceRange[1])}`,
-  //       key: "price",
-  //     });
-  //   }
-
-  //   if (chips.length === 0) return null;
-
-  //   return (
-  //     <div className="flex flex-wrap gap-2 mb-4 animate-in fade-in slide-in-from-top-2">
-  //       {chips.map((chip) => (
-  //         <Badge
-  //           key={chip.key}
-  //           variant="secondary"
-  //           className="px-3 py-1 bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 cursor-default"
-  //         >
-  //           {chip.label}
-  //           <button
-  //             onClick={() => removeFilter(chip.key)}
-  //             className="ml-2 hover:text-red-500"
-  //           >
-  //             <X className="h-3 w-3" />
-  //           </button>
-  //         </Badge>
-  //       ))}
-  //       <Button
-  //         variant="link"
-  //         size="sm"
-  //         onClick={resetFilters}
-  //         className="h-auto p-0 ml-2 text-muted-foreground"
-  //       >
-  //         Xóa tất cả
-  //       </Button>
-  //     </div>
-  //   );
-  // };
+  const getActiveFiltersCount = () => {
+    let count = 0;
+    if (filters.selectedGender !== "Tất cả") count++;
+    if (filters.selectedVariety !== "Tất cả") count++;
+    if (filters.selectedOrigin !== "Tất cả") count++;
+    if (filters.sizeRange[0] > 0 || filters.sizeRange[1] < 90) count++;
+    if (filters.priceRange[0] > 0 || filters.priceRange[1] < 100000000) count++;
+    return count;
+  };
 
   const filterPanelProps = {
     filters,
     setFilters,
-    handleApplyFilters, // Bây giờ hàm này sẽ push URL
-    resetFilters, // Hàm này sẽ push pathname
+    handleApplyFilters,
+    resetFilters,
     hasAnythingToReset,
   };
 
   return (
     <>
-      {/* Header... (Giữ nguyên code cũ) */}
-      <div className="relative bg-[#0A3D62] py-12 text-white mb-8">
-        {/* ... nội dung header ... */}
-        <div className="absolute inset-0 opacity-10 pattern-dots"></div>
-        <div className="absolute -right-10 -bottom-10 opacity-20">
-          <Fish className="w-64 h-64 text-white" />
-        </div>
-        <div className="absolute right-50 bottom-10 opacity-20">
-          <Fish className="w-64 h-64 text-white" />
-        </div>
-        <div className="absolute -left-10 bottom-40 opacity-20">
-          <Fish className="w-64 h-64 text-white" />
-        </div>
-        <div className="absolute left-50 -bottom-25 opacity-20">
-          <Fish className="w-64 h-64 text-white" />
-        </div>
-        <div className="absolute left-1/3 bottom-1/3 opacity-20">
-          <Fish className="w-64 h-64 text-white" />
-        </div>
+      {/* Header */}
+      <div className="relative bg-linear-to-br from-[#0A3D62] via-[#0A3D62] to-[#082d47] py-12 text-white mb-8">
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAxMCAwIEwgMCAwIDAgMTAiIGZpbGw9Im5vbmUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS1vcGFjaXR5PSIwLjA1IiBzdHJva2Utd2lkdGg9IjEiLz48L3BhdHRlcm4+PC9kZWZzPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JpZCkiLz48L3N2Zz4=')] opacity-30"></div>
+        
         <div className="container mx-auto px-4 text-center space-y-12 relative z-10">
-          <h1 className="text-4xl font-bold">Danh Mục Cá Koi</h1>
+          <div className="space-y-3">
+            <h1 className="text-4xl md:text-5xl font-bold bg-linear-to-r from-white to-blue-100 bg-clip-text text-transparent">
+              Danh Mục Cá Koi
+            </h1>
+            <p className="text-blue-100 text-sm md:text-base max-w-2xl mx-auto">
+              Khám phá bộ sưu tập cá Koi Nhật Bản chất lượng cao
+            </p>
+          </div>
+
           <div className="max-w-lg mx-auto relative mt-6">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-white group-focus-within:text-white transition-colors" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-white/70 group-focus-within:text-white transition-colors" />
             <Input
-              placeholder="Tìm kiếm..."
+              placeholder="Tìm kiếm theo tên, giống, RFID..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               onKeyDown={(e) => {
@@ -255,29 +235,278 @@ function CatalogContent() {
                   handleApplyFilters();
                 }
               }}
-              className="pl-11 pr-12 h-14 rounded-full text-white shadow-lg border-0 bg-white/20 placeholder-white/70 focus:bg-white/30 focus:ring-0 focus:border-0 transition-all duration-200"
+              className="pl-11 pr-14 h-14 rounded-full text-white shadow-lg border-0 bg-white/20 placeholder-white/70 focus:bg-white/30 focus:ring-2 focus:ring-white/50 transition-all duration-200"
             />
+            
             {/* Mobile Filter Button */}
             <div className="absolute right-2 top-1/2 -translate-y-1/2 lg:hidden">
-              <Sheet>
+              <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
                 <SheetTrigger asChild>
                   <Button
                     size="icon"
-                    variant="ghost"
-                    className="hover:bg-white/20 rounded-full h-10 w-10"
+                    className="relative hover:bg-white/20 rounded-full h-10 w-10 bg-white/10 border border-white/30"
                   >
                     <Filter className="h-5 w-5 text-white" />
+                    {getActiveFiltersCount() > 0 && (
+                      <Badge className="absolute -top-1 -right-1 h-5 w-5 p-0 flex items-center justify-center bg-red-500 text-white text-xs border-2 border-[#0A3D62]">
+                        {getActiveFiltersCount()}
+                      </Badge>
+                    )}
                   </Button>
                 </SheetTrigger>
-                <SheetContent side="left" className="w-80 flex flex-col">
-                  <SheetHeader>
-                    <SheetTitle>Bộ lọc tìm kiếm</SheetTitle>
-                    <SheetDescription>
-                      Tùy chỉnh tiêu chí để tìm cá phù hợp
-                    </SheetDescription>
-                  </SheetHeader>
-                  <div className="flex-1 overflow-y-auto mt-6">
-                    <KoiFilterPanel {...filterPanelProps} />
+                
+                <SheetContent 
+                  side="right" 
+                  className="w-full sm:w-96 flex flex-col p-0 gap-0"
+                >
+                  {/* Header with gradient */}
+                  <div className="bg-linear-to-r from-[#0A3D62] to-[#082d47] text-white">
+                    <SheetHeader className="py-2">
+                      <SheetTitle className="text-white text-xl font-bold">
+                        Bộ lọc tìm kiếm
+                      </SheetTitle>
+                      <SheetDescription className="text-blue-100 text-sm">
+                        Tùy chỉnh tiêu chí tìm kiếm của bạn
+                      </SheetDescription>
+                    </SheetHeader>
+                    
+                    {/* Active filters count */}
+                    {getActiveFiltersCount() > 0 && (
+                      <div className="mt-4 flex items-center gap-2 text-sm">
+                        <Badge variant="secondary" className="bg-white/20 text-white border-white/30">
+                          {getActiveFiltersCount()} bộ lọc đang áp dụng
+                        </Badge>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Scrollable content */}
+                  <div className="flex-1 overflow-y-auto">
+                    <div className="p-6 space-y-6">
+                      {/* Variety */}
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <Label className="font-semibold text-base">Giống cá</Label>
+                          {filters.selectedVariety !== "Tất cả" && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-6 px-2 text-xs text-muted-foreground"
+                              onClick={() =>
+                                setFilters((prev) => ({
+                                  ...prev,
+                                  selectedVariety: "Tất cả",
+                                }))
+                              }
+                            >
+                              Xóa
+                            </Button>
+                          )}
+                        </div>
+                        <VarietyFilterSelect
+                          selectedVariety={filters.selectedVariety}
+                          onVarietyChange={(val) =>
+                            setFilters((prev) => ({ ...prev, selectedVariety: val }))
+                          }
+                        />
+                      </div>
+
+                      {/* Gender */}
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <Label className="font-semibold text-base">Giới tính</Label>
+                          {filters.selectedGender !== "Tất cả" && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-6 px-2 text-xs text-muted-foreground"
+                              onClick={() =>
+                                setFilters((prev) => ({
+                                  ...prev,
+                                  selectedGender: "Tất cả",
+                                }))
+                              }
+                            >
+                              Xóa
+                            </Button>
+                          )}
+                        </div>
+                        <div className="grid grid-cols-3 gap-2">
+                          {["Tất cả", Gender.MALE, Gender.FEMALE].map((g) => (
+                            <Button
+                              key={g}
+                              type="button"
+                              variant={
+                                filters.selectedGender === g ? "default" : "outline"
+                              }
+                              size="sm"
+                              onClick={() =>
+                                setFilters((prev) => ({ ...prev, selectedGender: g }))
+                              }
+                              className={`text-sm ${filters.selectedGender === g ? "bg-[#0A3D62] hover:bg-[#0A3D62]/90" : ""}`}
+                            >
+                              {g === "Tất cả"
+                                ? "Tất cả"
+                                : g === Gender.MALE
+                                  ? "Đực"
+                                  : "Cái"}
+                            </Button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Price */}
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between">
+                          <Label className="font-semibold text-base">Khoảng giá</Label>
+                          {(filters.priceRange[0] > 0 ||
+                            filters.priceRange[1] < 100000000) && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-6 px-2 text-xs text-muted-foreground"
+                              onClick={() =>
+                                setFilters((prev) => ({
+                                  ...prev,
+                                  priceRange: [0, 100000000],
+                                }))
+                              }
+                            >
+                              Xóa
+                            </Button>
+                          )}
+                        </div>
+                        <div className="bg-muted/30 rounded-lg space-y-4">
+                          <div className="flex items-center gap-2">
+                            <div className="space-y-1.5 flex-1">
+                              <Label className="text-xs text-muted-foreground">
+                                Từ
+                              </Label>
+                              <Input
+                                className="h-9 text-sm"
+                                value={formatCurrency(filters.priceRange[0])
+                                  .replace("₫", "")
+                                  .trim()}
+                                onChange={(e) =>
+                                  handlePriceInputChange(0, e.target.value)
+                                }
+                              />
+                            </div>
+                            <span className="text-muted-foreground pt-6">-</span>
+                            <div className="space-y-1.5 flex-1">
+                              <Label className="text-xs text-muted-foreground">
+                                Đến
+                              </Label>
+                              <Input
+                                className="h-9 text-sm"
+                                value={formatCurrency(filters.priceRange[1])
+                                  .replace("₫", "")
+                                  .trim()}
+                                onChange={(e) =>
+                                  handlePriceInputChange(1, e.target.value)
+                                }
+                              />
+                            </div>
+                          </div>
+                          <Slider
+                            value={filters.priceRange}
+                            max={100000000}
+                            step={1000000}
+                            onValueChange={(val) =>
+                              setFilters((prev) => ({
+                                ...prev,
+                                priceRange: val as [number, number],
+                              }))
+                            }
+                            className="py-2"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Size */}
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between">
+                          <Label className="font-semibold text-base">
+                            Kích thước (cm)
+                          </Label>
+                          {(filters.sizeRange[0] > 0 || filters.sizeRange[1] < 90) && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-6 px-2 text-xs text-muted-foreground"
+                              onClick={() =>
+                                setFilters((prev) => ({
+                                  ...prev,
+                                  sizeRange: [0, 90],
+                                }))
+                              }
+                            >
+                              Xóa
+                            </Button>
+                          )}
+                        </div>
+                        <div className="bg-muted/30 rounded-lg space-y-4">
+                          <div className="flex items-center gap-2">
+                            <div className="space-y-1.5 flex-1">
+                              <Label className="text-xs text-muted-foreground">
+                                Từ
+                              </Label>
+                              <Input
+                                className="h-9 text-sm"
+                                value={filters.sizeRange[0]}
+                                onChange={(e) =>
+                                  handleSizeInputChange(0, e.target.value)
+                                }
+                              />
+                            </div>
+                            <span className="text-muted-foreground pt-6">-</span>
+                            <div className="space-y-1.5 flex-1">
+                              <Label className="text-xs text-muted-foreground">
+                                Đến
+                              </Label>
+                              <Input
+                                className="h-9 text-sm"
+                                value={filters.sizeRange[1]}
+                                onChange={(e) =>
+                                  handleSizeInputChange(1, e.target.value)
+                                }
+                              />
+                            </div>
+                          </div>
+                          <Slider
+                            value={filters.sizeRange}
+                            max={90}
+                            step={1}
+                            onValueChange={(val) =>
+                              setFilters((prev) => ({
+                                ...prev,
+                                sizeRange: val as [number, number],
+                              }))
+                            }
+                            className="py-2"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Sticky footer with buttons */}
+                  <div className="border-t bg-background p-4 space-y-2">
+                    <Button
+                      onClick={handleApplyFilters}
+                      className="w-full h-11 bg-[#0A3D62] hover:bg-[#0A3D62]/90 font-semibold text-base"
+                    >
+                      Xem kết quả
+                    </Button>
+                    <Button
+                      onClick={resetFilters}
+                      variant="outline"
+                      className="w-full h-11 text-sm"
+                      disabled={!hasAnythingToReset()}
+                    >
+                      <RotateCcw className="w-4 h-4 mr-2" />
+                      Đặt lại bộ lọc
+                    </Button>
                   </div>
                 </SheetContent>
               </Sheet>
@@ -293,7 +522,7 @@ function CatalogContent() {
           </div>
 
           <div className="flex-1 min-w-0">
-            <div className="flex justify-between items-center mb-4">
+            <div className="flex justify-between items-center mb-6">
               <h2 className="font-bold text-xl text-gray-800">
                 Kết quả tìm kiếm
               </h2>
@@ -304,13 +533,9 @@ function CatalogContent() {
               )}
             </div>
 
-            {/* Hiển thị các filter đang active dựa trên URL */}
-            {/* <ActiveFiltersBar /> */}
-
             {isLoading ? (
               <KoiGridSkeleton />
             ) : koiData?.data.length === 0 ? (
-              // Empty State
               <div className="text-center py-16 bg-white rounded-xl border border-dashed">
                 <div className="bg-gray-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                   <FishOff className="h-8 w-8 text-gray-400" />
@@ -318,11 +543,15 @@ function CatalogContent() {
                 <h3 className="text-lg font-semibold text-gray-900">
                   Không tìm thấy cá phù hợp
                 </h3>
+                <p className="text-sm text-muted-foreground mt-1 mb-4">
+                  Thử điều chỉnh bộ lọc hoặc tìm kiếm khác
+                </p>
                 <Button
                   onClick={resetFilters}
                   variant="outline"
-                  className="mt-4"
+                  className="mt-2"
                 >
+                  <RotateCcw className="w-4 h-4 mr-2" />
                   Xóa bộ lọc
                 </Button>
               </div>
@@ -358,7 +587,6 @@ function CatalogContent() {
   );
 }
 
-// Export Default bọc Suspense
 export default function CatalogPage() {
   return (
     <div className="min-h-screen bg-slate-50/50">

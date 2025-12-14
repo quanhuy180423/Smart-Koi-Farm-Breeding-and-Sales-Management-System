@@ -14,7 +14,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
 import {
   Edit,
   Camera,
@@ -23,7 +22,16 @@ import {
   Loader2,
   Eye,
   EyeOff,
-  CalendarIcon,
+  User,
+  Mail,
+  Phone,
+  MapPin,
+  Calendar,
+  Shield,
+  Lock,
+  CheckCircle2,
+  AlertCircle,
+  Upload,
 } from "lucide-react";
 import {
   Dialog,
@@ -49,6 +57,7 @@ import { getUserGenderLabelForPerson } from "@/lib/utils/enum";
 import toast from "react-hot-toast";
 import { DatePickerFilter } from "@/components/ui/DatePickerFilter";
 import CustomerLayout from "@/components/customer/CustomerLayout";
+import { DATE_FORMATS, formatDate } from "@/lib/utils/dates";
 
 interface CustomerProfile {
   id: number;
@@ -65,7 +74,7 @@ export default function CustomerProfilePage() {
   const [isEditing, setIsEditing] = useState(false);
   const [isAvatarDialogOpen, setIsAvatarDialogOpen] = useState(false);
   const [selectedAvatarFile, setSelectedAvatarFile] = useState<File | null>(
-    null,
+    null
   );
   const [previewAvatarUrl, setPreviewAvatarUrl] = useState<string | null>(null);
   const [passwordForm, setPasswordForm] = useState({
@@ -76,8 +85,8 @@ export default function CustomerProfilePage() {
   const [showOldPassword, setShowOldPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
-  // Fetch user details from API
   const { data: userDetails, isLoading, error } = useGetUserDetails();
   const { mutate: updateProfile, isPending: isUpdating } = useUpdateProfile();
   const { mutate: uploadImage, isPending: isUploading } = useUploadImage();
@@ -91,24 +100,22 @@ export default function CustomerProfilePage() {
       toast.success("Đổi mật khẩu thành công");
     });
 
-  // Convert API response to component state
   const [profile, setProfile] = useState<CustomerProfile | null>(null);
   const [editedProfile, setEditedProfile] = useState<CustomerProfile | null>(
-    null,
+    null
   );
 
-  // Update profile when user details are fetched
   React.useEffect(() => {
     if (userDetails) {
       const profileData: CustomerProfile = {
         id: userDetails.id,
-        fullName: userDetails.fullName,
-        email: userDetails.email,
-        phoneNumber: userDetails.phoneNumber,
-        avatarURL: userDetails.avatarURL,
-        dateOfBirth: userDetails.dateOfBirth,
-        address: userDetails.address,
-        gender: userDetails.gender,
+        fullName: userDetails.fullName || "",
+        email: userDetails.email || "",
+        phoneNumber: userDetails.phoneNumber || "",
+        avatarURL: userDetails.avatarURL || "",
+        dateOfBirth: userDetails.dateOfBirth || "",
+        address: userDetails.address || "",
+        gender: userDetails.gender || "",
       };
       setProfile(profileData);
       setEditedProfile(profileData);
@@ -118,7 +125,33 @@ export default function CustomerProfilePage() {
   const handleSave = () => {
     if (!editedProfile) return;
 
-    // Prepare update request
+    const newErrors: Record<string, string> = {};
+    if (!editedProfile.fullName.trim()) {
+      newErrors.fullName = "Họ và tên không được để trống";
+    }
+    if (!editedProfile.email.trim()) {
+      newErrors.email = "Email không được để trống";
+    }
+    if (!editedProfile.phoneNumber.trim()) {
+      newErrors.phoneNumber = "Số điện thoại không được để trống";
+    }
+    if (!editedProfile.gender) {
+      newErrors.gender = "Giới tính không được để trống";
+    }
+    if (!editedProfile.dateOfBirth) {
+      newErrors.dateOfBirth = "Ngày sinh không được để trống";
+    }
+    if (!editedProfile.address.trim()) {
+      newErrors.address = "Địa chỉ không được để trống";
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+
+    setErrors({});
+
     const updateRequest: UpdateProfileRequest = {
       fullName: editedProfile.fullName,
       phoneNumber: editedProfile.phoneNumber,
@@ -139,6 +172,7 @@ export default function CustomerProfilePage() {
   const handleCancel = () => {
     setEditedProfile(profile);
     setIsEditing(false);
+    setErrors({});
   };
 
   const handleInputChange = (field: keyof CustomerProfile, value: string) => {
@@ -157,7 +191,6 @@ export default function CustomerProfilePage() {
     const file = e.target.files?.[0];
     if (file) {
       setSelectedAvatarFile(file);
-      // Create preview URL
       const reader = new FileReader();
       reader.onload = (e) => {
         setPreviewAvatarUrl(e.target?.result as string);
@@ -179,7 +212,6 @@ export default function CustomerProfilePage() {
           };
           setEditedProfile(updatedProfile);
 
-          // If not editing, call updateProfile immediately
           if (!isEditing) {
             const updateRequest = {
               fullName: updatedProfile.fullName,
@@ -197,7 +229,7 @@ export default function CustomerProfilePage() {
           setPreviewAvatarUrl(null);
           setIsAvatarDialogOpen(false);
         },
-      },
+      }
     );
   };
 
@@ -206,7 +238,6 @@ export default function CustomerProfilePage() {
   };
 
   const handleChangePassword = () => {
-    // Validate form
     if (
       !passwordForm.oldPassword ||
       !passwordForm.newPassword ||
@@ -221,7 +252,6 @@ export default function CustomerProfilePage() {
       return;
     }
 
-    // Call API
     changePassword({
       oldPassword: passwordForm.oldPassword,
       newPassword: passwordForm.newPassword,
@@ -232,9 +262,9 @@ export default function CustomerProfilePage() {
   if (isLoading) {
     return (
       <CustomerLayout>
-        <div className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8 items-center justify-center">
-          <Loader2 className="h-8 w-8 animate-spin" />
-          <p className="text-muted-foreground">Đang tải thông tin...</p>
+        <div className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8 items-center justify-center min-h-[60vh]">
+          <Loader2 className="h-12 w-12 animate-spin text-primary" />
+          <p className="text-muted-foreground text-lg">Đang tải thông tin...</p>
         </div>
       </CustomerLayout>
     );
@@ -243,8 +273,9 @@ export default function CustomerProfilePage() {
   if (error || !profile) {
     return (
       <CustomerLayout>
-        <div className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8 items-center justify-center">
-          <p className="text-red-600">
+        <div className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8 items-center justify-center min-h-[60vh]">
+          <AlertCircle className="h-12 w-12 text-red-500" />
+          <p className="text-red-600 text-lg">
             Có lỗi xảy ra khi tải thông tin cá nhân
           </p>
         </div>
@@ -254,38 +285,45 @@ export default function CustomerProfilePage() {
 
   return (
     <CustomerLayout>
-      <div className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
+      <div className="flex flex-1 flex-col gap-6 px-4 md:gap-8 md:px-8">
+        {/* Header */}
         <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">
+          <div className="space-y-1">
+            <h1 className="text-3xl font-bold tracking-tight bg-linear-to-r from-primary to-primary/60 bg-clip-text text-transparent">
               Thông tin cá nhân
             </h1>
             <p className="text-muted-foreground">
-              Quản lý thông tin cá nhân và hồ sơ của bạn
+              Quản lý thông tin cá nhân và bảo mật tài khoản của bạn
             </p>
           </div>
         </div>
 
-        <Tabs defaultValue="profile" className="space-y-3">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="profile">Thông tin</TabsTrigger>
-            <TabsTrigger value="security">Bảo mật</TabsTrigger>
+        <Tabs defaultValue="profile" className="space-y-4">
+          <TabsList className="grid w-full grid-cols-2 h-10">
+            <TabsTrigger value="profile" className="gap-2">
+              <User className="h-4 w-4" />
+              Thông tin
+            </TabsTrigger>
+            <TabsTrigger value="security" className="gap-2">
+              <Shield className="h-4 w-4" />
+              Bảo mật
+            </TabsTrigger>
           </TabsList>
 
           {/* Profile Tab */}
           <TabsContent value="profile" className="space-y-6">
-            <div className="grid gap-6 md:grid-cols-3">
+            <div className="grid gap-6 lg:grid-cols-12">
               {/* Profile Card */}
-              <Card className="md:col-span-1">
-                <CardHeader className="text-center">
+              <Card className="lg:col-span-4 border-2 hover:shadow-lg transition-shadow">
+                <CardHeader className="text-center pb-4">
                   <div className="flex flex-col items-center space-y-4">
-                    <div className="relative">
-                      <Avatar className="h-24 w-24">
+                    <div className="relative group">
+                      <Avatar className="h-36 w-36 border-4 border-background shadow-xl ring-2 ring-primary/20">
                         <AvatarImage
                           src={profile.avatarURL}
                           alt={profile.fullName}
                         />
-                        <AvatarFallback className="text-lg">
+                        <AvatarFallback className="text-2xl bg-linear-to-br from-primary to-primary/60 text-white">
                           {profile.fullName
                             .split(" ")
                             .map((n) => n[0])
@@ -294,63 +332,61 @@ export default function CustomerProfilePage() {
                       </Avatar>
                       <Button
                         size="icon"
-                        variant="outline"
-                        className="absolute -bottom-2 -right-2 h-8 w-8 rounded-full"
+                        className="absolute -bottom-2 -right-2 h-10 w-10 rounded-full shadow-lg hover:scale-110 transition-transform"
                         onClick={() => setIsAvatarDialogOpen(true)}
                       >
-                        <Camera className="h-4 w-4" />
+                        <Camera className="h-5 w-5" />
                       </Button>
                     </div>
-                    <div className="space-y-1">
-                      <h3 className="text-xl font-semibold">
-                        {profile.fullName}
-                      </h3>
-                      <Badge
-                        variant="secondary"
-                        className="flex items-center gap-1 w-fit mx-auto"
-                      >
+                    <div className="space-y-2 w-full">
+                      <h3 className="text-2xl font-bold">{profile.fullName}</h3>
+                      <Badge variant="secondary" className="px-4 py-1">
+                        <User className="h-3 w-3 mr-1" />
                         Khách hàng
                       </Badge>
                     </div>
                   </div>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex items-center gap-3 text-sm">
-                    <CalendarIcon className="h-4 w-4 text-muted-foreground" />
-                    <span>
-                      Ngày sinh:{" "}
-                      {new Date(profile.dateOfBirth).toLocaleDateString(
-                        "vi-VN",
-                      )}
-                    </span>
+                <CardContent className="space-y-3 pt-0">
+                  <div className="flex items-center gap-3 text-sm text-muted-foreground bg-muted/50 p-3 rounded-lg">
+                    <Mail className="h-4 w-4 shrink-0" />
+                    <span className="truncate">{profile.email}</span>
                   </div>
-                  <Separator />
-                  <div className="space-y-2">
-                    <h4 className="font-medium text-sm">Giới tính</h4>
-                    <p className="text-sm text-muted-foreground">
-                      {
-                        getUserGenderLabelForPerson(
-                          profile.gender as Gender | undefined,
-                        ).label
-                      }
-                    </p>
+                  <div className="flex items-center gap-3 text-sm text-muted-foreground bg-muted/50 p-3 rounded-lg">
+                    <Phone className="h-4 w-4 shrink-0" />
+                    <span>{profile.phoneNumber || "Chưa cập nhật"}</span>
+                  </div>
+                  <div className="flex items-center gap-3 text-sm text-muted-foreground bg-muted/50 p-3 rounded-lg">
+                    <MapPin className="h-4 w-4 shrink-0" />
+                    <span className="truncate">
+                      {profile.address || "Chưa cập nhật"}
+                    </span>
                   </div>
                 </CardContent>
               </Card>
 
               {/* Profile Details */}
-              <Card className="md:col-span-2">
+              <Card className="lg:col-span-8 border-2 hover:shadow-lg transition-shadow">
                 <CardHeader>
                   <div className="flex items-center justify-between">
                     <div>
-                      <CardTitle>Thông tin chi tiết</CardTitle>
-                      <CardDescription>
-                        Cập nhật thông tin cá nhân của bạn
+                      <CardTitle className="text-2xl">
+                        Thông tin chi tiết
+                      </CardTitle>
+                      <CardDescription className="mt-1">
+                        Cập nhật và quản lý thông tin cá nhân của bạn
                       </CardDescription>
                     </div>
                     {!isEditing ? (
-                      <Button onClick={() => setIsEditing(true)}>
-                        <Edit className="mr-2 h-4 w-4" />
+                      <Button
+                        onClick={() => {
+                          setIsEditing(true);
+                          setErrors({});
+                        }}
+                        size="lg"
+                        className="gap-2"
+                      >
+                        <Edit className="h-4 w-4" />
                         Chỉnh sửa
                       </Button>
                     ) : (
@@ -359,19 +395,26 @@ export default function CustomerProfilePage() {
                           variant="outline"
                           onClick={handleCancel}
                           disabled={isUpdating}
+                          size="lg"
+                          className="gap-2 bg-red-500 text-white hover:bg-red-600 focus:ring-red-600"
                         >
-                          <X className="mr-2 h-4 w-4" />
+                          <X className="h-4 w-4" />
                           Hủy
                         </Button>
-                        <Button onClick={handleSave} disabled={isUpdating}>
+                        <Button
+                          onClick={handleSave}
+                          disabled={isUpdating}
+                          size="lg"
+                          className="gap-2"
+                        >
                           {isUpdating ? (
                             <>
-                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                              <Loader2 className="h-4 w-4 animate-spin" />
                               Đang lưu...
                             </>
                           ) : (
                             <>
-                              <Save className="mr-2 h-4 w-4" />
+                              <Save className="h-4 w-4" />
                               Lưu
                             </>
                           )}
@@ -381,61 +424,113 @@ export default function CustomerProfilePage() {
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-6">
-                  <div className="grid gap-4 md:grid-cols-2">
+                  <div className="grid gap-6 md:grid-cols-2">
+                    {/* Full Name */}
                     <div className="space-y-2">
-                      <Label htmlFor="fullName">Họ và tên</Label>
-                      <Input
-                        id="fullName"
-                        value={
-                          isEditing ? editedProfile?.fullName : profile.fullName
-                        }
-                        onChange={(e) =>
-                          handleInputChange("fullName", e.target.value)
-                        }
-                        disabled={!isEditing}
-                        className={
-                          !isEditing ? "bg-muted/50" : "border border-primary"
-                        }
-                      />
+                      <Label
+                        htmlFor="fullName"
+                        className="flex items-center gap-2 text-base"
+                      >
+                        <User className="h-4 w-4 text-primary" />
+                        Họ và tên
+                      </Label>
+                      {isEditing ? (
+                        <Input
+                          id="fullName"
+                          value={editedProfile?.fullName}
+                          onChange={(e) =>
+                            handleInputChange("fullName", e.target.value)
+                          }
+                          className="h-10 rounded-lg border-2 focus:ring-2 focus:ring-primary/20"
+                          placeholder="Nhập họ và tên"
+                        />
+                      ) : (
+                        <div className="bg-muted/50 border-2 border-border rounded-lg px-4 py-2 text-sm font-medium">
+                          {profile.fullName || "Chưa có"}
+                        </div>
+                      )}
+                      {errors.fullName && (
+                        <p className="text-red-500 text-sm flex items-center gap-1">
+                          <AlertCircle className="h-3 w-3" />
+                          {errors.fullName}
+                        </p>
+                      )}
                     </div>
 
+                    {/* Email */}
                     <div className="space-y-2">
-                      <Label htmlFor="email">Email</Label>
-                      <Input
-                        id="email"
-                        type="email"
-                        value={isEditing ? editedProfile?.email : profile.email}
-                        onChange={(e) =>
-                          handleInputChange("email", e.target.value)
-                        }
-                        disabled={!isEditing}
-                        className={
-                          !isEditing ? "bg-muted/50" : "border border-primary"
-                        }
-                      />
+                      <Label
+                        htmlFor="email"
+                        className="flex items-center gap-2 text-base"
+                      >
+                        <Mail className="h-4 w-4 text-primary" />
+                        Email
+                      </Label>
+                      {isEditing ? (
+                        <Input
+                          id="email"
+                          type="email"
+                          value={editedProfile?.email}
+                          onChange={(e) =>
+                            handleInputChange("email", e.target.value)
+                          }
+                          className="h-10 rounded-lg border-2 focus:ring-2 focus:ring-primary/20"
+                          placeholder="Nhập email"
+                        />
+                      ) : (
+                        <div className="bg-muted/50 border-2 border-border rounded-lg px-4 py-2 text-sm font-medium">
+                          {profile.email || "Chưa có"}
+                        </div>
+                      )}
+                      {errors.email && (
+                        <p className="text-red-500 text-sm flex items-center gap-1">
+                          <AlertCircle className="h-3 w-3" />
+                          {errors.email}
+                        </p>
+                      )}
                     </div>
 
+                    {/* Phone Number */}
                     <div className="space-y-2">
-                      <Label htmlFor="phoneNumber">Số điện thoại</Label>
-                      <Input
-                        id="phoneNumber"
-                        value={
-                          isEditing
-                            ? editedProfile?.phoneNumber
-                            : profile.phoneNumber
-                        }
-                        onChange={(e) =>
-                          handleInputChange("phoneNumber", e.target.value)
-                        }
-                        disabled={!isEditing}
-                        className={
-                          !isEditing ? "bg-muted/50" : "border border-primary"
-                        }
-                      />
+                      <Label
+                        htmlFor="phoneNumber"
+                        className="flex items-center gap-2 text-base"
+                      >
+                        <Phone className="h-4 w-4 text-primary" />
+                        Số điện thoại
+                      </Label>
+                      {isEditing ? (
+                        <Input
+                          id="phoneNumber"
+                          value={editedProfile?.phoneNumber}
+                          onChange={(e) =>
+                            handleInputChange("phoneNumber", e.target.value)
+                          }
+                          className="h-10 rounded-lg border-2 focus:ring-2 focus:ring-primary/20"
+                          placeholder="Nhập số điện thoại"
+                        />
+                      ) : (
+                        <div className="bg-muted/50 border-2 border-border rounded-lg px-4 py-2 text-sm font-medium">
+                          {profile.phoneNumber || "Chưa có"}
+                        </div>
+                      )}
+                      {errors.phoneNumber && (
+                        <p className="text-red-500 text-sm flex items-center gap-1">
+                          <AlertCircle className="h-3 w-3" />
+                          {errors.phoneNumber}
+                        </p>
+                      )}
                     </div>
 
-                    <div className="space-y-2 md:col-span-2">
-                      <Label htmlFor="gender">Giới tính</Label>
+                    {/* Gender */}
+                    <div className="space-y-2">
+                      <Label
+                        htmlFor="gender"
+                        className="flex items-center gap-2 text-base"
+                      >
+                        <User className="h-4 w-4 text-primary" />
+                        Giới tính
+                      </Label>
                       {isEditing ? (
                         <Select
                           value={editedProfile?.gender || ""}
@@ -445,7 +540,7 @@ export default function CustomerProfilePage() {
                         >
                           <SelectTrigger
                             id="gender"
-                            className="border border-primary w-full"
+                            className="h-10 w-full rounded-lg border-2 focus:ring-2 focus:ring-primary/20"
                           >
                             <SelectValue placeholder="Chọn giới tính" />
                           </SelectTrigger>
@@ -465,19 +560,32 @@ export default function CustomerProfilePage() {
                           </SelectContent>
                         </Select>
                       ) : (
-                        <div className="bg-muted/50 border border-gray-200 rounded-md px-3 py-2 text-sm">
+                        <div className="bg-muted/50 border-2 border-border rounded-lg px-4 py-2 text-sm font-medium">
                           {
                             getUserGenderLabelForPerson(
-                              editedProfile?.gender as Gender | undefined,
+                              editedProfile?.gender as Gender | undefined
                             ).label
                           }
                         </div>
                       )}
+                      {errors.gender && (
+                        <p className="text-red-500 text-sm flex items-center gap-1">
+                          <AlertCircle className="h-3 w-3" />
+                          {errors.gender}
+                        </p>
+                      )}
                     </div>
                   </div>
 
+                  {/* Date of Birth */}
                   <div className="space-y-2">
-                    <Label htmlFor="dateOfBirth">Ngày sinh</Label>
+                    <Label
+                      htmlFor="dateOfBirth"
+                      className="flex items-center gap-2 text-base"
+                    >
+                      <Calendar className="h-4 w-4 text-primary" />
+                      Ngày sinh
+                    </Label>
                     {isEditing ? (
                       <DatePickerFilter
                         label=""
@@ -487,13 +595,52 @@ export default function CustomerProfilePage() {
                         }
                       />
                     ) : (
-                      <div className="bg-muted/50 border border-gray-200 rounded-md px-3 py-2 text-sm">
+                      <div className="bg-muted/50 border-2 border-border rounded-lg px-4 py-2 text-sm font-medium">
                         {profile.dateOfBirth
-                          ? new Date(profile.dateOfBirth).toLocaleDateString(
-                              "vi-VN",
+                          ? formatDate(
+                              profile.dateOfBirth,
+                              DATE_FORMATS.MEDIUM_DATE
                             )
                           : "Chưa có"}
                       </div>
+                    )}
+                    {errors.dateOfBirth && (
+                      <p className="text-red-500 text-sm flex items-center gap-1">
+                        <AlertCircle className="h-3 w-3" />
+                        {errors.dateOfBirth}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Address */}
+                  <div className="space-y-2">
+                    <Label
+                      htmlFor="address"
+                      className="flex items-center gap-2 text-base"
+                    >
+                      <MapPin className="h-4 w-4 text-primary" />
+                      Địa chỉ
+                    </Label>
+                    {isEditing ? (
+                      <Input
+                        id="address"
+                        value={editedProfile?.address || ""}
+                        onChange={(e) =>
+                          handleInputChange("address", e.target.value)
+                        }
+                        className="h-10 rounded-lg border-2 focus:ring-2 focus:ring-primary/20"
+                        placeholder="Nhập địa chỉ"
+                      />
+                    ) : (
+                      <div className="bg-muted/50 border-2 border-border rounded-lg px-4 py-2 text-sm font-medium">
+                        {profile.address || "Chưa có"}
+                      </div>
+                    )}
+                    {errors.address && (
+                      <p className="text-red-500 text-sm flex items-center gap-1">
+                        <AlertCircle className="h-3 w-3" />
+                        {errors.address}
+                      </p>
                     )}
                   </div>
                 </CardContent>
@@ -503,33 +650,50 @@ export default function CustomerProfilePage() {
 
           {/* Security Tab */}
           <TabsContent value="security">
-            <Card>
+            <Card className="border-2 hover:shadow-lg transition-shadow">
               <CardHeader>
-                <CardTitle>Bảo mật tài khoản</CardTitle>
+                <div className="flex items-center gap-3">
+                  <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
+                    <Lock className="h-6 w-6 text-primary" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-2xl">
+                      Bảo mật tài khoản
+                    </CardTitle>
+                    <CardDescription className="mt-1">
+                      Thay đổi mật khẩu để bảo vệ tài khoản của bạn
+                    </CardDescription>
+                  </div>
+                </div>
               </CardHeader>
               <CardContent className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div>
-                    <Label htmlFor="currentPassword" className="mb-2">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  {/* Current Password */}
+                  <div className="space-y-2">
+                    <Label
+                      htmlFor="currentPassword"
+                      className="flex items-center gap-2 text-base"
+                    >
+                      <Lock className="h-4 w-4 text-primary" />
                       Mật khẩu hiện tại
                     </Label>
                     <div className="relative">
                       <Input
                         id="currentPassword"
                         type={showOldPassword ? "text" : "password"}
-                        placeholder="Nhập mật khẩu hiện tại"
+                        placeholder="••••••••"
                         value={passwordForm.oldPassword}
                         onChange={(e) =>
                           handlePasswordChange("oldPassword", e.target.value)
                         }
                         disabled={isChangingPassword}
-                        className="border-2 border-border hover:border-primary/50 focus:border-primary transition-colors pr-11"
+                        className="h-10 rounded-lg border-2 focus:ring-2 focus:ring-primary/20 pr-11"
                       />
                       <Button
                         type="button"
                         variant="ghost"
                         size="icon"
-                        className="absolute right-2 top-1/2 -translate-y-1/2 h-6 w-6"
+                        className="absolute right-1 top-1/2 -translate-y-1/2 h-9 w-9 hover:bg-transparent"
                         onClick={() => setShowOldPassword(!showOldPassword)}
                         disabled={isChangingPassword}
                       >
@@ -541,27 +705,33 @@ export default function CustomerProfilePage() {
                       </Button>
                     </div>
                   </div>
-                  <div>
-                    <Label htmlFor="newPassword" className="mb-2">
+
+                  {/* New Password */}
+                  <div className="space-y-2">
+                    <Label
+                      htmlFor="newPassword"
+                      className="flex items-center gap-2 text-base"
+                    >
+                      <Lock className="h-4 w-4 text-primary" />
                       Mật khẩu mới
                     </Label>
                     <div className="relative">
                       <Input
                         id="newPassword"
                         type={showNewPassword ? "text" : "password"}
-                        placeholder="Nhập mật khẩu mới"
+                        placeholder="••••••••"
                         value={passwordForm.newPassword}
                         onChange={(e) =>
                           handlePasswordChange("newPassword", e.target.value)
                         }
                         disabled={isChangingPassword}
-                        className="border-2 border-border hover:border-primary/50 focus:border-primary transition-colors pr-11"
+                        className="h-10 rounded-lg border-2 focus:ring-2 focus:ring-primary/20 pr-11"
                       />
                       <Button
                         type="button"
                         variant="ghost"
                         size="icon"
-                        className="absolute right-2 top-1/2 -translate-y-1/2 h-6 w-6"
+                        className="absolute right-1 top-1/2 -translate-y-1/2 h-9 w-9 hover:bg-transparent"
                         onClick={() => setShowNewPassword(!showNewPassword)}
                         disabled={isChangingPassword}
                       >
@@ -573,30 +743,36 @@ export default function CustomerProfilePage() {
                       </Button>
                     </div>
                   </div>
-                  <div>
-                    <Label htmlFor="confirmPassword" className="mb-2">
-                      Xác nhận mật khẩu mới
+
+                  {/* Confirm Password */}
+                  <div className="space-y-2">
+                    <Label
+                      htmlFor="confirmPassword"
+                      className="flex items-center gap-2 text-base"
+                    >
+                      <CheckCircle2 className="h-4 w-4 text-primary" />
+                      Xác nhận mật khẩu
                     </Label>
                     <div className="relative">
                       <Input
                         id="confirmPassword"
                         type={showConfirmPassword ? "text" : "password"}
-                        placeholder="Xác nhận mật khẩu mới"
+                        placeholder="••••••••"
                         value={passwordForm.confirmedNewPassword}
                         onChange={(e) =>
                           handlePasswordChange(
                             "confirmedNewPassword",
-                            e.target.value,
+                            e.target.value
                           )
                         }
                         disabled={isChangingPassword}
-                        className="border-2 border-border hover:border-primary/50 focus:border-primary transition-colors pr-11"
+                        className="h-10 rounded-lg border-2 focus:ring-2 focus:ring-primary/20 pr-11"
                       />
                       <Button
                         type="button"
                         variant="ghost"
                         size="icon"
-                        className="absolute right-2 top-1/2 -translate-y-1/2 h-6 w-6"
+                        className="absolute right-1 top-1/2 -translate-y-1/2 h-9 w-9 hover:bg-transparent"
                         onClick={() =>
                           setShowConfirmPassword(!showConfirmPassword)
                         }
@@ -611,6 +787,19 @@ export default function CustomerProfilePage() {
                     </div>
                   </div>
                 </div>
+
+                {passwordForm.newPassword &&
+                  passwordForm.confirmedNewPassword &&
+                  passwordForm.newPassword !==
+                    passwordForm.confirmedNewPassword && (
+                    <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-start gap-3">
+                      <AlertCircle className="h-5 w-5 text-red-600 shrink-0 mt-0.5" />
+                      <p className="text-sm text-red-700">
+                        Mật khẩu mới không khớp với xác nhận
+                      </p>
+                    </div>
+                  )}
+
                 <Button
                   onClick={handleChangePassword}
                   disabled={
@@ -621,27 +810,21 @@ export default function CustomerProfilePage() {
                     passwordForm.newPassword !==
                       passwordForm.confirmedNewPassword
                   }
+                  size="lg"
+                  className="w-full md:w-auto gap-2"
                 >
                   {isChangingPassword ? (
                     <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      <Loader2 className="h-4 w-4 animate-spin" />
                       Đang xử lý...
                     </>
                   ) : (
                     <>
-                      <Save className="mr-2 h-4 w-4" />
+                      <CheckCircle2 className="h-4 w-4" />
                       Đổi mật khẩu
                     </>
                   )}
                 </Button>
-                {passwordForm.newPassword &&
-                  passwordForm.confirmedNewPassword &&
-                  passwordForm.newPassword !==
-                    passwordForm.confirmedNewPassword && (
-                    <p className="text-sm text-red-500">
-                      Mật khẩu mới không khớp với xác nhận
-                    </p>
-                  )}
               </CardContent>
             </Card>
           </TabsContent>
@@ -649,27 +832,32 @@ export default function CustomerProfilePage() {
 
         {/* Avatar Change Dialog */}
         <Dialog open={isAvatarDialogOpen} onOpenChange={setIsAvatarDialogOpen}>
-          <DialogContent>
+          <DialogContent className="sm:max-w-md">
             <DialogHeader>
-              <DialogTitle>Thay đổi ảnh đại diện</DialogTitle>
+              <DialogTitle className="text-2xl flex items-center gap-2">
+                <Camera className="h-6 w-6 text-primary" />
+                Thay đổi ảnh đại diện
+              </DialogTitle>
               <DialogDescription>
-                Chọn ảnh mới cho hồ sơ của bạn
+                Chọn ảnh mới để cập nhật hồ sơ của bạn
               </DialogDescription>
             </DialogHeader>
-            <div className="space-y-4">
+            <div className="space-y-6 py-4">
               <div className="flex justify-center">
-                <Avatar className="h-32 w-32">
-                  <AvatarImage
-                    src={previewAvatarUrl || editedProfile?.avatarURL}
-                    alt={profile?.fullName}
-                  />
-                  <AvatarFallback className="text-2xl">
-                    {profile?.fullName
-                      .split(" ")
-                      .map((n) => n[0])
-                      .join("")}
-                  </AvatarFallback>
-                </Avatar>
+                <div className="relative group">
+                  <Avatar className="h-40 w-40 border-4 border-background shadow-xl ring-4 ring-primary/20">
+                    <AvatarImage
+                      src={previewAvatarUrl || editedProfile?.avatarURL}
+                      alt={profile?.fullName}
+                    />
+                    <AvatarFallback className="text-3xl bg-linear-to-br from-primary to-primary/60 text-white">
+                      {profile?.fullName
+                        .split(" ")
+                        .map((n) => n[0])
+                        .join("")}
+                    </AvatarFallback>
+                  </Avatar>
+                </div>
               </div>
               <div className="flex gap-2 justify-center">
                 <input
@@ -688,18 +876,11 @@ export default function CustomerProfilePage() {
                     document.getElementById("avatar-upload")?.click()
                   }
                   disabled={isUploading || previewAvatarUrl !== null}
+                  size="lg"
+                  className="gap-2"
                 >
-                  {isUploading ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Đang tải...
-                    </>
-                  ) : (
-                    <>
-                      <Camera className="mr-2 h-4 w-4" />
-                      Chọn ảnh
-                    </>
-                  )}
+                  <Upload className="h-4 w-4" />
+                  Chọn ảnh
                 </Button>
               </div>
             </div>
@@ -712,20 +893,28 @@ export default function CustomerProfilePage() {
                   setPreviewAvatarUrl(null);
                 }}
                 disabled={isUploading}
+                size="lg"
+                className="gap-2 bg-red-500 text-white hover:bg-red-600 focus:ring-red-600"
               >
+                <X className="h-4 w-4" />
                 Hủy
               </Button>
               <Button
                 onClick={handleAvatarConfirm}
                 disabled={isUploading || !selectedAvatarFile}
+                size="lg"
+                className="gap-2"
               >
                 {isUploading ? (
                   <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    <Loader2 className="h-4 w-4 animate-spin" />
                     Đang tải...
                   </>
                 ) : (
-                  "Xong"
+                  <>
+                    <CheckCircle2 className="h-4 w-4" />
+                    Xác nhận
+                  </>
                 )}
               </Button>
             </div>

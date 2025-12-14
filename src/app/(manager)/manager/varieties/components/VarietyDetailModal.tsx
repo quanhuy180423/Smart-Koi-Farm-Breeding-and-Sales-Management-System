@@ -1,7 +1,6 @@
 "use client";
 
 import * as React from "react";
-import { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -22,7 +21,6 @@ import { Label } from "@/components/ui/label";
 import { Loader2 } from "lucide-react";
 import { VarietyResponse } from "@/lib/api/services/fetchVariety";
 import { useGetPatternsByVariety } from "@/hooks/usePattern";
-import { PAGE_SIZE_OPTIONS_DEFAULT } from "@/components/common/PaginationSection";
 
 interface VarietyDetailModalProps {
   isOpen: boolean;
@@ -35,17 +33,11 @@ const VarietyDetailModal = ({
   onOpenChange,
   selectedVariety,
 }: VarietyDetailModalProps) => {
-  const [patternPage] = useState(1);
   const { data: patternsData, isLoading } = useGetPatternsByVariety(
     selectedVariety?.id || null,
-    {
-      pageIndex: patternPage,
-      pageSize: PAGE_SIZE_OPTIONS_DEFAULT[0],
-      search: "",
-    },
   );
 
-  const patterns = patternsData?.data || [];
+  const patterns = patternsData || [];
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
@@ -60,9 +52,7 @@ const VarietyDetailModal = ({
           <Tabs defaultValue="info" className="w-full">
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="info">Thông tin chung</TabsTrigger>
-              <TabsTrigger value="patterns">
-                Hoa văn ({patternsData?.totalItems || 0})
-              </TabsTrigger>
+              <TabsTrigger value="patterns">Hoa văn ({patterns.length})</TabsTrigger>
             </TabsList>
 
             <TabsContent value="info" className="space-y-4">

@@ -24,8 +24,18 @@ import {
   CreditCard,
   Filter,
   XCircle,
+  Info,
+  Wallet,
+  Percent,
+  Truck,
+  ReceiptText,
+  DollarSign,
+  Tag,
+  ShoppingCart,
+  CheckCircle,
+  ShoppingBag,
+  Calendar,
 } from "lucide-react";
-// Date picker is used in the filter sheet component
 import { OrderFilterSheet } from "./components/OrdersFilterSheet";
 import { toast } from "sonner";
 import Image from "next/image";
@@ -46,6 +56,7 @@ import {
   getOrderStatusColor,
 } from "@/lib/utils/enum/formatEnum";
 import { formatDate, DATE_FORMATS } from "@/lib/utils/dates";
+import { cn } from "@/lib/utils";
 
 export default function OrdersPage() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -132,10 +143,10 @@ export default function OrdersPage() {
         },
         onError: (error) => {
           toast.error(
-            error instanceof Error ? error.message : "Không thể tạo thanh toán",
+            error instanceof Error ? error.message : "Không thể tạo thanh toán"
           );
         },
-      },
+      }
     );
   };
 
@@ -163,10 +174,10 @@ export default function OrdersPage() {
         },
         onError: (error) => {
           toast.error(
-            error instanceof Error ? error.message : "Không thể hủy đơn hàng",
+            error instanceof Error ? error.message : "Không thể hủy đơn hàng"
           );
         },
-      },
+      }
     );
   };
 
@@ -214,124 +225,224 @@ export default function OrdersPage() {
   const { data: ordersData, isLoading } = useGetCustomerOrders(searchParams);
 
   const OrderDetailsModal = ({ orderId }: { orderId: number }) => {
-    // Find the specific order from the current data
-    const specificOrder = ordersData?.data?.find((o) => o.id === orderId);
-
-    if (!specificOrder) return null;
+    const order = ordersData?.data?.find((o) => o.id === orderId);
+    if (!order) return null;
 
     return (
-      <div className="space-y-4 md:space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4 text-sm">
-          <div className="p-3 bg-gray-50 rounded-lg">
-            <p className="text-muted-foreground text-xs">Mã đơn hàng</p>
-            <p className="font-medium">{specificOrder.orderNumber}</p>
+      <div className="space-y-6">
+        {/* Order Info Cards */}
+        <div className="grid grid-cols-2 gap-3">
+          <div className="col-span-2 sm:col-span-1 group">
+            <div className="p-4 bg-linear-to-br from-blue-50 to-blue-100/50 rounded-xl border border-blue-200 hover:shadow-md transition-all">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="p-1.5 bg-blue-500 rounded-lg">
+                  <Package className="h-4 w-4 text-white" />
+                </div>
+                <p className="text-xs font-medium text-blue-700">Mã đơn hàng</p>
+              </div>
+              <p className="font-bold text-blue-900 truncate">{order.orderNumber}</p>
+            </div>
           </div>
-          <div className="p-3 bg-gray-50 rounded-lg">
-            <p className="text-muted-foreground text-xs">Trạng thái</p>
-            <Badge
-              className={`${getOrderStatusColor(specificOrder.status)} mt-1`}
-            >
-              {getOrderStatusText(specificOrder.status)}
-            </Badge>
+
+          <div className="col-span-2 sm:col-span-1 group">
+            <div className="p-4 bg-linear-to-br from-purple-50 to-purple-100/50 rounded-xl border border-purple-200 hover:shadow-md transition-all">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="p-1.5 bg-purple-500 rounded-lg">
+                  <Calendar className="h-4 w-4 text-white" />
+                </div>
+                <p className="text-xs font-medium text-purple-700">Ngày đặt</p>
+              </div>
+              <p className="font-bold text-purple-900">
+                {formatDate(order.createdAt, DATE_FORMATS.MEDIUM_DATE)}
+              </p>
+            </div>
           </div>
-          <div className="p-3 bg-gray-50 rounded-lg">
-            <p className="text-muted-foreground text-xs">Ngày đặt hàng</p>
-            <p className="font-medium">
-              {formatDate(specificOrder.createdAt, DATE_FORMATS.MEDIUM_DATE)}
-            </p>
+
+          <div className="col-span-2 sm:col-span-1 group">
+            <div className="p-4 bg-linear-to-br from-amber-50 to-amber-100/50 rounded-xl border border-amber-200 hover:shadow-md transition-all">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="p-1.5 bg-amber-500 rounded-lg">
+                  <ShoppingBag className="h-4 w-4 text-white" />
+                </div>
+                <p className="text-xs font-medium text-amber-700">Sản phẩm</p>
+              </div>
+              <p className="font-bold text-amber-900">
+                {order.orderDetails.length} món
+              </p>
+            </div>
           </div>
-          <div className="p-3 bg-gray-50 rounded-lg">
-            <p className="text-muted-foreground text-xs">Số sản phẩm</p>
-            <p className="font-medium">{specificOrder.orderDetails.length}</p>
+
+          <div className="col-span-2 sm:col-span-1 group">
+            <div className="p-4 bg-linear-to-br from-emerald-50 to-emerald-100/50 rounded-xl border border-emerald-200 hover:shadow-md transition-all">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="p-1.5 bg-emerald-500 rounded-lg">
+                  <CheckCircle className="h-4 w-4 text-white" />
+                </div>
+                <p className="text-xs font-medium text-emerald-700">
+                  Trạng thái
+                </p>
+              </div>
+              <Badge
+                className={cn("font-bold", getOrderStatusColor(order.status))}
+              >
+                {getOrderStatusText(order.status)}
+              </Badge>
+            </div>
           </div>
         </div>
 
-        <Separator />
+        <Separator className="my-4" />
 
+        {/* Products Section */}
         <div>
-          <h4 className="font-semibold mb-3 text-base">Sản phẩm đã đặt</h4>
+          <div className="flex items-center gap-2 mb-4">
+            <div className="p-2 bg-primary/10 rounded-lg">
+              <ShoppingCart className="h-5 w-5 text-primary" />
+            </div>
+            <h4 className="font-bold text-lg">Sản phẩm đã đặt</h4>
+          </div>
+
           <div className="space-y-3">
-            {specificOrder.orderDetails.map((item, idx) => (
+            {order.orderDetails.map((item, idx) => (
               <div
                 key={idx}
-                className="flex gap-3 p-3 border rounded-lg hover:bg-muted/30 transition-colors"
+                className="group relative flex gap-3 p-3 bg-linear-to-r from-gray-50 to-white rounded-xl border border-gray-200 hover:border-primary/50 hover:shadow-md transition-all"
               >
-                {/* Product Image */}
-                <div className="relative w-20 h-20 rounded-md overflow-hidden shrink-0 bg-muted">
-                  <Image
-                    src={
-                      item?.koiFish?.images?.[0] ||
-                      item?.packetFish?.images?.[0] ||
-                      ""
-                    }
-                    alt={
-                      item?.koiFish?.rfid ||
-                      item?.packetFish?.name ||
-                      "Sản phẩm"
-                    }
-                    fill
-                    className="object-cover"
-                    sizes="80px"
-                  />
+                {/* Index Badge */}
+                <div className="absolute -top-2 -left-2 w-6 h-6 bg-primary rounded-full flex items-center justify-center text-white text-xs font-bold shadow-md">
+                  {idx + 1}
                 </div>
 
-                {/* Product Details */}
-                <div className="flex-1 min-w-0">
-                  <p className="font-medium text-sm md:text-base truncate">
-                    {item?.koiFish?.rfid || item.packetFish?.name || "Sản phẩm"}
-                  </p>
-                  <p className="text-xs md:text-sm text-muted-foreground">
-                    Số lượng: {item.quantity}
-                  </p>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Đơn giá: {formatCurrency(item.unitPrice)}
-                  </p>
+                {/* Product Image */}
+                <div className="relative w-20 h-20 rounded-lg overflow-hidden bg-gray-100 shrink-0 ring-2 ring-gray-200 group-hover:ring-primary transition-all">
+                  {(item?.koiFish?.images?.[0] || item?.packetFish?.images?.[0]) ? (
+                    <Image
+                      src={item?.koiFish?.images?.[0] || item?.packetFish?.images?.[0] || ""}
+                      alt={
+                        item?.koiFish?.rfid ||
+                        item?.packetFish?.name ||
+                        "Sản phẩm"
+                      }
+                      fill
+                      className="object-cover"
+                      sizes="80px"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <Package className="h-8 w-8 text-gray-400" />
+                    </div>
+                  )}
+                </div>
+
+                {/* Product Info */}
+                <div className="flex-1 min-w-0 flex flex-col justify-between">
+                  <div>
+                    <p className="font-semibold text-sm truncate mb-1">
+                      {item?.koiFish?.rfid ||
+                        item.packetFish?.name ||
+                        "Sản phẩm"}
+                    </p>
+                    <div className="flex items-center gap-2 text-xs text-gray-500">
+                      <div className="flex items-center gap-1">
+                        <Package className="h-3 w-3" />
+                        <span>SL: {item.quantity}</span>
+                      </div>
+                      <span>•</span>
+                      <div className="flex items-center gap-1">
+                        <Tag className="h-3 w-3" />
+                        <span>{formatCurrency(item.unitPrice)}</span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
 
                 {/* Total Price */}
-                <div className="flex flex-col items-end justify-center min-w-0">
-                  <span className="text-xs text-muted-foreground mb-1">
-                    Tổng cộng
+                <div className="flex flex-col items-end justify-center">
+                  <span className="text-[10px] text-gray-400 uppercase tracking-wide mb-1">
+                    Tổng
                   </span>
-                  <span className="font-semibold text-sm md:text-base text-primary">
-                    {formatCurrency(item.totalPrice)}
-                  </span>
+                  <div className="px-3 py-1.5 bg-primary/10 rounded-lg">
+                    <span className="font-bold text-sm text-primary">
+                      {formatCurrency(item.totalPrice)}
+                    </span>
+                  </div>
                 </div>
               </div>
             ))}
           </div>
         </div>
 
-        <Separator />
+        <Separator className="my-4" />
 
-        <div className="space-y-2">
-          <div className="flex justify-between items-center text-sm">
-            <span className="text-muted-foreground">Tạm tính:</span>
-            <span className="font-medium">
-              {formatCurrency(specificOrder.subtotal)}
-            </span>
+        {/* Price Summary */}
+        <div className="space-y-3">
+          <div className="flex items-center gap-2 mb-3">
+            <div className="p-2 bg-green-100 rounded-lg">
+              <DollarSign className="h-5 w-5 text-green-600" />
+            </div>
+            <h4 className="font-bold text-lg">Tổng kết đơn hàng</h4>
           </div>
-          <div className="flex justify-between items-center text-sm">
-            <span className="text-muted-foreground">Phí vận chuyển:</span>
-            <span className="font-medium">
-              {formatCurrency(specificOrder.shippingFee)}
-            </span>
-          </div>
-          {specificOrder.discountAmount > 0 && (
+
+          <div className="space-y-2 p-4 bg-gray-50 rounded-xl">
+            {/* Subtotal */}
             <div className="flex justify-between items-center text-sm">
-              <span className="text-muted-foreground">Khuyến mãi:</span>
-              <span className="font-medium text-green-600">
-                -{formatCurrency(specificOrder.discountAmount)}
+              <div className="flex items-center gap-2 text-gray-600">
+                <ReceiptText className="h-4 w-4" />
+                <span>Tạm tính</span>
+              </div>
+              <span className="font-semibold">
+                {formatCurrency(order.subtotal)}
               </span>
             </div>
-          )}
-          <Separator />
-          <div className="flex justify-between items-center p-3 bg-primary/5 rounded-lg">
-            <span className="font-bold text-base md:text-lg">Tổng cộng:</span>
-            <span className="font-bold text-lg md:text-xl text-primary">
-              {formatCurrency(specificOrder.totalAmount)}
-            </span>
+
+            {/* Shipping */}
+            <div className="flex justify-between items-center text-sm">
+              <div className="flex items-center gap-2 text-gray-600">
+                <Truck className="h-4 w-4" />
+                <span>Phí vận chuyển</span>
+              </div>
+              <span className="font-semibold">
+                {formatCurrency(order.shippingFee)}
+              </span>
+            </div>
+
+            {/* Discount */}
+            {order.discountAmount > 0 && (
+              <div className="flex justify-between items-center text-sm">
+                <div className="flex items-center gap-2 text-green-600">
+                  <Percent className="h-4 w-4" />
+                  <span>Giảm giá</span>
+                </div>
+                <span className="font-semibold text-green-600">
+                  -{formatCurrency(order.discountAmount)}
+                </span>
+              </div>
+            )}
+
+            <Separator className="my-2" />
+
+            {/* Total */}
+            <div className="flex justify-between items-center p-3 bg-linear-to-r from-primary/10 to-primary/5 rounded-lg mt-3">
+              <div className="flex items-center gap-2">
+                <div className="p-1.5 bg-primary rounded-lg">
+                  <Wallet className="h-4 w-4 text-white" />
+                </div>
+                <span className="font-bold text-base">Tổng cộng</span>
+              </div>
+              <span className="font-bold text-xl text-primary">
+                {formatCurrency(order.totalAmount)}
+              </span>
+            </div>
           </div>
+        </div>
+
+        {/* Footer Note */}
+        <div className="flex items-start gap-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+          <Info className="h-4 w-4 text-blue-600 shrink-0 mt-0.5" />
+          <p className="text-xs text-blue-800">
+            Đơn hàng của bạn đang được xử lý. Vui lòng kiểm tra email để nhận
+            thông tin chi tiết về đơn hàng.
+          </p>
         </div>
       </div>
     );
@@ -369,8 +480,28 @@ export default function OrdersPage() {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-md bg-primary/10 flex items-center justify-center shrink-0">
-              <Package className="h-6 w-6" />
+            <div className="w-16 h-16 rounded-md overflow-hidden shrink-0 bg-gray-100 flex items-center justify-center">
+              {order.orderDetails[0]?.koiFish?.images?.[0] ? (
+                <Image
+                  src={order.orderDetails[0].koiFish.images[0]}
+                  alt={order.orderDetails[0].koiFish.rfid}
+                  width={48}
+                  height={48}
+                  className="w-full h-full object-cover"
+                  unoptimized
+                />
+              ) : order.orderDetails[0]?.packetFish?.images?.[0] ? (
+                <Image
+                  src={order.orderDetails[0].packetFish.images[0]}
+                  alt={order.orderDetails[0].packetFish.name}
+                  width={48}
+                  height={48}
+                  className="w-full h-full object-cover"
+                  unoptimized
+                />
+              ) : (
+                <Package className="h-6 w-6 text-gray-400" />
+              )}
             </div>
             <div className="flex-1">
               <p className="font-medium">
@@ -407,10 +538,10 @@ export default function OrdersPage() {
                     Chi tiết
                   </Button>
                 </DialogTrigger>
-                <DialogContent className="max-w-4xl w-[95vw] md:w-3xl max-h-[90vh] overflow-y-auto p-4 md:p-6">
+                <DialogContent className="max-w-5xl w-sm md:w-4xl lg:w-4xl lg:max-w-5xl max-h-[90vh] overflow-y-auto p-4 md:p-6">
                   <DialogHeader>
                     <DialogTitle className="text-lg md:text-xl">
-                      Chi tiết đơn hàng #{order.orderNumber}
+                      Chi tiết đơn hàng
                     </DialogTitle>
                   </DialogHeader>
                   <OrderDetailsModal orderId={order.id} />

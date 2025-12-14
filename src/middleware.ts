@@ -23,6 +23,7 @@ const ROLE_DASHBOARD: Record<string, string> = {
 const PROTECTED_ROUTES = {
   "/manager": [Roles.Manager],
   "/sale": [Roles.SaleStaff],
+  "/profile": [Roles.Customer],
   // Thêm các route khác nếu cần, ví dụ: "/profile": [Roles.Customer, Roles.Manager...]
 };
 
@@ -65,7 +66,7 @@ export function middleware(request: NextRequest) {
   // === BƯỚC 4: XỬ LÝ CÁC TRANG ĐƯỢC BẢO VỆ (PROTECTED ROUTES) ===
   // Tìm xem URL hiện tại có khớp với route nào trong PROTECTED_ROUTES không
   const matchedRoute = Object.keys(PROTECTED_ROUTES).find((route) =>
-    pathname.startsWith(route),
+    pathname.startsWith(route)
   );
 
   if (matchedRoute) {
@@ -84,7 +85,7 @@ export function middleware(request: NextRequest) {
     // Chuyển userRole từ cookie về dạng Enum để so sánh chính xác
     // Lưu ý: Cookie là string, cần đảm bảo so sánh đúng (Case sensitive)
     const hasPermission = allowedRoles.some(
-      (role) => role.toLowerCase() === userRole.toLowerCase(),
+      (role) => role.toLowerCase() === userRole.toLowerCase()
     );
 
     if (!hasPermission) {

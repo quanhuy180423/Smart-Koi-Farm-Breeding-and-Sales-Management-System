@@ -127,7 +127,7 @@ export default function ManagerOrderDetailPage() {
             Chi tiết đơn hàng {order.orderNumber}
           </h1>
           <p className="text-muted-foreground">
-            Xem thông tin chi tiết về đơn hàng - Chỉ có quyền hoàn tiền
+            Xem thông tin chi tiết về đơn hàng
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -168,6 +168,18 @@ export default function ManagerOrderDetailPage() {
               <p className="text-sm text-muted-foreground">Tên khách hàng</p>
               <p className="font-medium text-lg">{order.customerName}</p>
             </div>
+            {order.customerAddress && (
+              <>
+                <div>
+                  <p className="text-sm text-muted-foreground">Địa chỉ giao hàng</p>
+                  <p className="font-medium">{order.customerAddress.fullAddress}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Số điện thoại người nhận</p>
+                  <p className="font-medium">{order.customerAddress.recipientPhone}</p>
+                </div>
+              </>
+            )}
           </CardContent>
         </Card>
 

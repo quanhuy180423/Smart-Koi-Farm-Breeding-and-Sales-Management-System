@@ -138,7 +138,7 @@ export function useRemoveVarietyFromPattern() {
 
 export function useGetPatternVarieties(
   patternId: number | null,
-  params: PatternVarietySearchParams,
+  params: PatternVarietySearchParams
 ) {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
@@ -179,35 +179,14 @@ export function useGetPatternVarieties(
   });
 }
 
-export function useGetPatternsByVariety(
-  varietyId: number | null,
-  params: PatternSearchParams,
-) {
+export function useGetPatternsByVariety(varietyId: number | null) {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
-  return useQuery<
-    BaseResponse<PagedResponse<Pattern>>,
-    ApiError,
-    PagedResponse<Pattern>
-  >({
-    queryKey: [
-      "patterns-by-variety",
-      varietyId,
-      params.search,
-      params.pageIndex,
-      params.pageSize,
-    ],
-    queryFn: () => patternService.getPatternsByVariety(varietyId!, params),
+  return useQuery<BaseResponse<Pattern[]>, ApiError, Pattern[]>({
+    queryKey: ["patterns-by-variety", varietyId],
+    queryFn: () => patternService.getPatternsByVariety(varietyId!),
     enabled: isAuthenticated && varietyId !== null,
-    select: (data: BaseResponse<PagedResponse<Pattern>>) =>
-      data?.result || {
-        pageIndex: 1,
-        totalPages: 0,
-        totalItems: 0,
-        hasPreviousPage: false,
-        hasNextPage: false,
-        data: [],
-      },
+    select: (data: BaseResponse<Pattern[]>) => data?.result || [],
     retry: (failureCount, error: unknown) => {
       if (
         error &&
