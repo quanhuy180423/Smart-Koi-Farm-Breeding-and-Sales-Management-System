@@ -15,7 +15,8 @@ export function CustomerLayout({ children }: CustomerLayoutProps) {
 
       <div className="flex">
         <CustomerSidebar className="fixed left-0 top-16 z-30 h-[calc(100vh-4rem)]" />
-        <div className="flex-1 lg:ml-80">
+        {/* Add padding-left for collapsed sidebar on mobile/tablet, and full sidebar on desktop */}
+        <div className="flex-1 ml-16 lg:ml-80">
           <div className="container mx-auto px-4 py-8 lg:px-8">{children}</div>
         </div>
       </div>

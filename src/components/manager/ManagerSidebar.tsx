@@ -115,7 +115,7 @@ export default function ManagerSidebar({ className }: ManagerSidebarProps) {
       >
         <Icon
           className={cn(
-            "h-5 w-5 flex-shrink-2",
+            "h-5 w-5 flexshrink-2",
             isActive && "text-primary hover:text-white",
           )}
         />
@@ -123,8 +123,8 @@ export default function ManagerSidebar({ className }: ManagerSidebarProps) {
         {/* Text Container với hiệu ứng transition */}
         <span
           className={cn(
-            "whitespace-nowrap transition-all duration-300 overflow-hidden",
-            showText ? "w-auto opacity-100 ml-0" : "w-0 opacity-0 ml-0",
+            "whitespace-nowrap transition-all duration-300 overflow-hidden block",
+            showText ? "w-auto opacity-100 ml-0" : "w-0 opacity-0 hidden ml-0",
           )}
         >
           {item.title}

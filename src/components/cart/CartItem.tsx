@@ -53,7 +53,7 @@ export function CartItem({ item }: CartItemProps) {
       )}
     >
       {/* 1. Image Section */}
-      <div className="relative w-20 h-20 rounded-lg overflow-hidden shrink-0 bg-muted border">
+      <div className="relative w-24 h-24 rounded-lg overflow-hidden shrink-0 bg-muted border">
         <Image
           src={
             item?.koiFish?.images[0] ||
@@ -81,7 +81,7 @@ export function CartItem({ item }: CartItemProps) {
           <div className="flex justify-between items-start gap-2">
             <div className="flex-1 min-w-0">
               <h4
-                className="font-semibold text-sm truncate pr-4 max-w-[180px]"
+                className="font-semibold text-sm truncate pr-4"
                 title={item?.koiFish?.rfid || item?.packetFish?.name}
               >
                 {item?.koiFish?.rfid
@@ -103,7 +103,7 @@ export function CartItem({ item }: CartItemProps) {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-6 w-6 text-muted-foreground hover:text-red-500 -mt-1 -mr-2"
+                  className="h-6 w-6 cursor-pointer text-red-500 hover:text-white hover:bg-red-500 -mt-1 -mr-2"
                 >
                   {isDeleting ? (
                     <Loader2 className="h-3 w-3 animate-spin" />
@@ -138,14 +138,14 @@ export function CartItem({ item }: CartItemProps) {
             </Popover>
           </div>
 
-          <p className="text-xs text-muted-foreground line-clamp-1 mt-0.5">
+          <p className="text-sm text-muted-foreground line-clamp-1">
             {item.koiFish?.variety?.varietyName ||
               item.packetFish?.varietyPacketFishes
                 .map((v) => v?.varietyName)
                 .join(", ")}
           </p>
 
-          <div className="text-xs text-muted-foreground mt-1">
+          <div className="text-sm text-muted-foreground">
             {item.koiFish ? (
               <span>Size: {getFishSizeLabel(item.koiFish?.size)} cm</span>
             ) : (
@@ -155,9 +155,9 @@ export function CartItem({ item }: CartItemProps) {
         </div>
 
         {/* 3. Footer: Price & Quantity Controls */}
-        <div className="space-y-1 mt-2">
+        <div className="space-y-1">
           <div className="flex items-end justify-between">
-            <div className="text-xs text-muted-foreground">
+            <div className="text-sm text-muted-foreground">
               {formatCurrency(item.unitPrice)}/sp
             </div>
             <p className="font-bold text-primary text-sm">
@@ -170,7 +170,7 @@ export function CartItem({ item }: CartItemProps) {
             {isKoi ? (
               <div
                 className={cn(
-                  "px-2 py-1 rounded text-[10px] font-medium flex items-center gap-1",
+                  "px-2 py-1 rounded text-sm font-medium flex items-center gap-1",
                   isOutOfStock
                     ? "bg-destructive/20 text-destructive"
                     : "bg-muted/50 text-muted-foreground",

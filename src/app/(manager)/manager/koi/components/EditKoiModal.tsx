@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { InputNumber } from "@/components/ui/input-number";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2, X, Upload, Play } from "lucide-react";
+import { Loader2, X, Upload, Play, AlertTriangle } from "lucide-react";
 import toast from "react-hot-toast";
 import {
   KoiFishResponse,
@@ -35,6 +35,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { DatePickerFilter } from "@/components/ui/DatePickerFilter";
 import VarietySelectionDialog from "@/components/manager/VarietySelectionDialog";
+import PatternSelectionDialog from "@/components/manager/PatternSelectionDialog";
 import Image from "next/image";
 import { useUploadImage, useUploadVideo } from "@/hooks/useUploadFile";
 
@@ -56,9 +57,20 @@ export function EditKoiModal({ isOpen, onOpenChange, koi }: EditKoiModalProps) {
   const [selectedImageFiles, setSelectedImageFiles] = useState<File[]>([]);
   const [selectedVideoFiles, setSelectedVideoFiles] = useState<File[]>([]);
   const [isSaving, setIsSaving] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isPatternDialogOpen, setIsPatternDialogOpen] = useState(false);
   const { mutate: updateKoiFish, isPending } = useUpdateKoiFish();
   const uploadImageMutation = useUploadImage();
   const uploadVideoMutation = useUploadVideo();
+  const handleSelectPattern = (patternId: number, patternName: string) => {
+    setFormData((prev) => ({ ...prev, pattern: patternName }));
+    setErrors((prev) => {
+      const next = { ...prev };
+      delete next.pattern;
+      return next;
+    });
+    setIsPatternDialogOpen(false);
+  };
 
   useEffect(() => {
     if (koi) {
@@ -95,12 +107,22 @@ export function EditKoiModal({ isOpen, onOpenChange, koi }: EditKoiModalProps) {
   const handleBirthDateChange = (dateString: string) => {
     setBirthDateInput(dateString);
     setFormData((prev) => ({ ...prev, birthDate: dateString }));
+    setErrors((prev) => {
+      const next = { ...prev };
+      delete next.birthDate;
+      return next;
+    });
   };
 
   const handleSelectVariety = (varietyId: number, varietyName: string) => {
     setFormData((prev) => ({ ...prev, varietyId }));
     setSelectedVarietyName(varietyName);
     setIsVarietyDialogOpen(false);
+    setErrors((prev) => {
+      const next = { ...prev };
+      delete next.varietyId;
+      return next;
+    });
   };
 
   const handleImageSelect = async (files: FileList) => {
@@ -163,11 +185,51 @@ export function EditKoiModal({ isOpen, onOpenChange, koi }: EditKoiModalProps) {
     if (input) input.value = "";
   };
 
+  const validateForm = (): boolean => {
+    const newErrors: Record<string, string> = {};
+
+    if (!formData.birthDate) {
+      newErrors.birthDate = "Vui lòng chọn ngày sinh";
+    }
+    if (!formData.varietyId) {
+      newErrors.varietyId = "Vui lòng chọn giống";
+    }
+    if (!formData.gender) {
+      newErrors.gender = "Vui lòng chọn giới tính";
+    }
+    if (!formData.healthStatus) {
+      newErrors.healthStatus = "Vui lòng chọn tình trạng sức khỏe";
+    }
+    if (!formData.size || formData.size <= 0) {
+      newErrors.size = "Vui lòng nhập kích thước hợp lệ";
+    }
+    if (!formData.type) {
+      newErrors.type = "Vui lòng chọn loại cá";
+    }
+    if (!formData.pattern?.trim()) {
+      newErrors.pattern = "Vui lòng nhập hoa văn";
+    }
+    if (!formData.origin?.trim()) {
+      newErrors.origin = "Vui lòng nhập nguồn gốc";
+    }
+    if (!formData.saleStatus) {
+      newErrors.saleStatus = "Vui lòng chọn trạng thái bán";
+    }
+    if (!formData.sellingPrice || formData.sellingPrice <= 0) {
+      newErrors.sellingPrice = "Vui lòng nhập giá bán lớn hơn 0";
+    }
+    if (formData.isMutated && !formData.mutationDescription?.trim()) {
+      newErrors.mutationDescription = "Vui lòng mô tả đột biến";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleSave = async () => {
     if (!koi) return;
 
-    if (!formData.rfid || !formData.birthDate) {
-      toast.error("Vui lòng điền đầy đủ các trường bắt buộc");
+    if (!validateForm()) {
       return;
     }
 
@@ -284,30 +346,44 @@ export function EditKoiModal({ isOpen, onOpenChange, koi }: EditKoiModalProps) {
                 >
                   {selectedVarietyName || "Chọn giống"}
                 </Button>
+                {errors.varietyId && (
+                  <p className="text-xs text-red-500">{errors.varietyId}</p>
+                )}
               </div>
 
               {/* Birth Date */}
-              <DatePickerFilter
-                label="Ngày sinh *"
-                value={birthDateInput}
-                onChange={handleBirthDateChange}
-              />
+              <div className="space-y-2">
+                <DatePickerFilter
+                  label="Ngày sinh *"
+                  value={birthDateInput}
+                  onChange={handleBirthDateChange}
+                  maxDate={new Date()}
+                />
+                {errors.birthDate && (
+                  <p className="text-xs text-red-500">{errors.birthDate}</p>
+                )}
+              </div>
             </div>
 
             {/* Gender and Health Status */}
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label className="text-sm font-semibold">Giới tính</Label>
+                <Label className="text-sm font-semibold">Giới tính *</Label>
                 <Select
                   value={formData.gender || ""}
-                  onValueChange={(value) =>
+                  onValueChange={(value) => {
                     setFormData((prev) => ({
                       ...prev,
                       gender: value as Gender,
-                    }))
-                  }
+                    }));
+                    setErrors((prev) => {
+                      const next = { ...prev };
+                      delete next.gender;
+                      return next;
+                    });
+                  }}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="w-full">
                     <SelectValue placeholder="Chọn giới tính" />
                   </SelectTrigger>
                   <SelectContent>
@@ -316,22 +392,30 @@ export function EditKoiModal({ isOpen, onOpenChange, koi }: EditKoiModalProps) {
                     <SelectItem value="Unknown">Không xác định</SelectItem>
                   </SelectContent>
                 </Select>
+                {errors.gender && (
+                  <p className="text-xs text-red-500">{errors.gender}</p>
+                )}
               </div>
 
               <div className="space-y-2">
                 <Label className="text-sm font-semibold">
-                  Tình trạng sức khỏe
+                  Tình trạng sức khỏe *
                 </Label>
                 <Select
                   value={formData.healthStatus || ""}
-                  onValueChange={(value) =>
+                  onValueChange={(value) => {
                     setFormData((prev) => ({
                       ...prev,
                       healthStatus: value as HealthStatus,
-                    }))
-                  }
+                    }));
+                    setErrors((prev) => {
+                      const next = { ...prev };
+                      delete next.healthStatus;
+                      return next;
+                    });
+                  }}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="w-full">
                     <SelectValue placeholder="Chọn tình trạng sức khỏe" />
                   </SelectTrigger>
                   <SelectContent>
@@ -341,36 +425,57 @@ export function EditKoiModal({ isOpen, onOpenChange, koi }: EditKoiModalProps) {
                     <SelectItem value="Dead">Chết</SelectItem>
                   </SelectContent>
                 </Select>
+                {errors.healthStatus && (
+                  <p className="text-xs text-red-500">{errors.healthStatus}</p>
+                )}
               </div>
             </div>
 
             {/* Size and Type */}
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label className="text-sm font-semibold">Kích thước (cm)</Label>
+                <Label className="text-sm font-semibold">
+                  Kích thước (cm) *
+                </Label>
                 <InputNumber
                   value={formData.size ? Number(formData.size) : undefined}
-                  onChange={(value) =>
+                  onChange={(value) => {
                     setFormData((prev) => ({
                       ...prev,
                       size: value || 0,
-                    }))
-                  }
+                    }));
+                    setErrors((prev) => {
+                      const next = { ...prev };
+                      delete next.size;
+                      return next;
+                    });
+                  }}
                   placeholder="Nhập kích thước"
                   allowDecimal={true}
                   decimalPlaces={2}
                 />
+                {errors.size && (
+                  <p className="text-xs text-red-500">{errors.size}</p>
+                )}
               </div>
 
               <div className="space-y-2">
-                <Label className="text-sm font-semibold">Loại cá</Label>
+                <Label className="text-sm font-semibold">Loại cá *</Label>
                 <Select
                   value={formData.type || ""}
-                  onValueChange={(value) =>
-                    setFormData((prev) => ({ ...prev, type: value as KoiType }))
-                  }
+                  onValueChange={(value) => {
+                    setFormData((prev) => ({
+                      ...prev,
+                      type: value as KoiType,
+                    }));
+                    setErrors((prev) => {
+                      const next = { ...prev };
+                      delete next.type;
+                      return next;
+                    });
+                  }}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="w-full">
                     <SelectValue placeholder="Chọn loại cá" />
                   </SelectTrigger>
                   <SelectContent>
@@ -381,6 +486,9 @@ export function EditKoiModal({ isOpen, onOpenChange, koi }: EditKoiModalProps) {
                     ))}
                   </SelectContent>
                 </Select>
+                {errors.type && (
+                  <p className="text-xs text-red-500">{errors.type}</p>
+                )}
               </div>
             </div>
 
@@ -388,44 +496,62 @@ export function EditKoiModal({ isOpen, onOpenChange, koi }: EditKoiModalProps) {
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label className="text-sm font-semibold">Hoa văn</Label>
-                <Input
-                  value={formData.pattern || ""}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      pattern: e.target.value,
-                    }))
-                  }
-                  placeholder="Nhập hoa văn..."
-                />
+                <Button
+                  variant="outline"
+                  className="justify-start text-left font-normal w-full"
+                  onClick={() => setIsPatternDialogOpen(true)}
+                >
+                  {formData.pattern || "Chọn hoa văn"}
+                </Button>
+                {errors.pattern && (
+                  <p className="text-xs text-red-500">{errors.pattern}</p>
+                )}
               </div>
 
               <div className="space-y-2">
                 <Label className="text-sm font-semibold">Nguồn gốc</Label>
                 <Input
                   value={formData.origin || ""}
-                  onChange={(e) =>
-                    setFormData((prev) => ({ ...prev, origin: e.target.value }))
-                  }
+                  onChange={(e) => {
+                    setFormData((prev) => ({
+                      ...prev,
+                      origin: e.target.value,
+                    }));
+                    setErrors((prev) => {
+                      const next = { ...prev };
+                      delete next.origin;
+                      return next;
+                    });
+                  }}
                   placeholder="Nhập nguồn gốc"
                 />
+                {errors.origin && (
+                  <p className="text-xs text-red-500">{errors.origin}</p>
+                )}
               </div>
             </div>
 
             {/* Sale Status and Price */}
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label className="text-sm font-semibold">Trạng thái bán</Label>
+                <Label className="text-sm font-semibold">
+                  Trạng thái bán *
+                </Label>
                 <Select
                   value={formData.saleStatus || ""}
-                  onValueChange={(value) =>
+                  onValueChange={(value) => {
                     setFormData((prev) => ({
                       ...prev,
                       saleStatus: value as SaleStatus,
-                    }))
-                  }
+                    }));
+                    setErrors((prev) => {
+                      const next = { ...prev };
+                      delete next.saleStatus;
+                      return next;
+                    });
+                  }}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="w-full">
                     <SelectValue placeholder="Chọn trạng thái" />
                   </SelectTrigger>
                   <SelectContent>
@@ -435,6 +561,9 @@ export function EditKoiModal({ isOpen, onOpenChange, koi }: EditKoiModalProps) {
                     <SelectItem value="Sold">Đã bán</SelectItem>
                   </SelectContent>
                 </Select>
+                {errors.saleStatus && (
+                  <p className="text-xs text-red-500">{errors.saleStatus}</p>
+                )}
               </div>
 
               <div className="space-y-2">
@@ -445,16 +574,24 @@ export function EditKoiModal({ isOpen, onOpenChange, koi }: EditKoiModalProps) {
                       ? Number(formData.sellingPrice)
                       : undefined
                   }
-                  onChange={(value) =>
+                  onChange={(value) => {
                     setFormData((prev) => ({
                       ...prev,
                       sellingPrice: value || 0,
-                    }))
-                  }
+                    }));
+                    setErrors((prev) => {
+                      const next = { ...prev };
+                      delete next.sellingPrice;
+                      return next;
+                    });
+                  }}
                   placeholder="Nhập giá bán"
                   allowDecimal={true}
                   decimalPlaces={2}
                 />
+                {errors.sellingPrice && (
+                  <p className="text-xs text-red-500">{errors.sellingPrice}</p>
+                )}
               </div>
             </div>
 
@@ -514,9 +651,9 @@ export function EditKoiModal({ isOpen, onOpenChange, koi }: EditKoiModalProps) {
                         <button
                           type="button"
                           onClick={() => handleRemoveImage(index)}
-                          className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition rounded-lg"
+                          className="absolute top-2 right-2 cursor-pointer bg-red-500 hover:bg-red-600 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
                         >
-                          <X className="h-5 w-5 text-white" />
+                          <X className="h-3 w-3" />
                         </button>
                       </div>
                     ))}
@@ -579,9 +716,9 @@ export function EditKoiModal({ isOpen, onOpenChange, koi }: EditKoiModalProps) {
                         <button
                           type="button"
                           onClick={() => handleRemoveVideo(index)}
-                          className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition rounded-lg"
+                          className="absolute top-2 right-2 cursor-pointer bg-red-500 hover:bg-red-600 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
                         >
-                          <X className="h-5 w-5 text-white" />
+                          <X className="h-3 w-3" />
                         </button>
                       </div>
                     ))}
@@ -592,47 +729,63 @@ export function EditKoiModal({ isOpen, onOpenChange, koi }: EditKoiModalProps) {
 
             {/* Mutation Section */}
             <div className="space-y-3 border-t pt-4">
-              <div className="flex items-center gap-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
-                <input
-                  type="checkbox"
-                  id="isMutated"
-                  checked={formData.isMutated || false}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      isMutated: e.target.checked,
-                    }))
-                  }
-                  className="w-5 h-5 cursor-pointer accent-blue-600"
-                />
-                <Label
-                  htmlFor="isMutated"
-                  className="font-semibold cursor-pointer"
-                >
-                  Cá bị đột biến
-                </Label>
+              <div className="flex items-center gap-3 p-4 bg-linear-to-br from-amber-50 to-orange-50 rounded-xl border-2 border-amber-200 hover:border-amber-300 transition-all duration-200 shadow-sm hover:shadow-md">
+                <div className="shrink-0">
+                  <AlertTriangle className="h-5 w-5 text-amber-600" />
+                </div>
+                <div className="flex items-center gap-3 flex-1">
+                  <input
+                    type="checkbox"
+                    id="isMutated"
+                    checked={formData.isMutated || false}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        isMutated: e.target.checked,
+                      }))
+                    }
+                    className="w-5 h-5 cursor-pointer accent-amber-600 rounded border-2 border-amber-300 focus:ring-2 focus:ring-amber-500 focus:ring-offset-2"
+                  />
+                  <Label
+                    htmlFor="isMutated"
+                    className="font-semibold cursor-pointer text-amber-900 hover:text-amber-800 transition-colors"
+                  >
+                    Cá bị đột biến
+                  </Label>
+                </div>
               </div>
 
               {formData.isMutated && (
-                <div className="space-y-2">
+                <div className="space-y-2 animate-in slide-in-from-top-2 duration-300">
                   <Label
                     htmlFor="mutationDesc"
-                    className="text-sm font-semibold"
+                    className="text-sm font-semibold text-amber-900 flex items-center gap-2"
                   >
-                    Mô tả đột biến
+                    <AlertTriangle className="h-4 w-4" />
+                    Mô tả đột biến *
                   </Label>
                   <Textarea
                     id="mutationDesc"
                     value={formData.mutationDescription || ""}
-                    onChange={(e) =>
+                    onChange={(e) => {
                       setFormData((prev) => ({
                         ...prev,
                         mutationDescription: e.target.value,
-                      }))
-                    }
+                      }));
+                      setErrors((prev) => {
+                        const next = { ...prev };
+                        delete next.mutationDescription;
+                        return next;
+                      });
+                    }}
                     placeholder="Mô tả chi tiết về đột biến..."
-                    className="min-h-20"
+                    className="min-h-20 border-amber-200 focus:border-amber-400 focus:ring-amber-400 bg-amber-50/50"
                   />
+                  {errors.mutationDescription && (
+                    <p className="text-xs text-red-500">
+                      {errors.mutationDescription}
+                    </p>
+                  )}
                 </div>
               )}
             </div>
@@ -685,6 +838,13 @@ export function EditKoiModal({ isOpen, onOpenChange, koi }: EditKoiModalProps) {
         onOpenChange={setIsVarietyDialogOpen}
         onSelect={handleSelectVariety}
         initialSelectedId={formData.varietyId}
+      />
+      <PatternSelectionDialog
+        isOpen={isPatternDialogOpen}
+        onOpenChange={setIsPatternDialogOpen}
+        onSelect={handleSelectPattern}
+        varietyId={(formData.varietyId as number) ?? null}
+        initialSelectedId={undefined}
       />
     </>
   );

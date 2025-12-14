@@ -23,6 +23,7 @@ const ROLE_DASHBOARD: Record<string, string> = {
 const PROTECTED_ROUTES = {
   "/manager": [Roles.Manager],
   "/sale": [Roles.SaleStaff],
+  "/profile": [Roles.Customer],
   // Thêm các route khác nếu cần, ví dụ: "/profile": [Roles.Customer, Roles.Manager...]
 };
 

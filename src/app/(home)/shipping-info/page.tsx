@@ -293,7 +293,7 @@ export default function ShippingInfoPage() {
         </div>
 
         {/* Total Fee Formula Section */}
-        <Card className="border-2 border-primary/20 bg-gradient-to-br from-primary/5 to-primary/10">
+        <Card className="border-2 border-primary/20 bg-linear-to-br from-primary/5 to-primary/10">
           <CardHeader>
             <div className="flex items-center gap-2">
               <Calculator className="h-5 w-5 text-primary" />

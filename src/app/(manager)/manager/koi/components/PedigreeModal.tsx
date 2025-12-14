@@ -15,6 +15,7 @@ import {
 } from "@/lib/api/services/fetchKoiFish";
 import { getGenderLabel } from "@/lib/utils/enum";
 import { Loader2 } from "lucide-react";
+import Image from "next/image";
 
 interface PedigreeNodeProps {
   koi?: KoiFishFamilyResponse | null;
@@ -26,6 +27,18 @@ const PedigreeNode = ({ koi, role }: PedigreeNodeProps) => {
 
   return (
     <div className="border border-indigo-300 rounded-lg p-2 text-center shadow-lg bg-white min-w-[150px] transform transition-all hover:scale-[1.02] hover:shadow-xl relative z-10">
+      {koi.images && koi.images.length > 0 && (
+        <div className="mb-2 flex justify-center">
+          <div className="relative w-14 h-14 rounded-full overflow-hidden border-2 border-indigo-200">
+            <Image
+              src={koi.images[0]}
+              alt={`Ảnh ${koi.rfid}`}
+              fill
+              className="object-cover"
+            />
+          </div>
+        </div>
+      )}
       <p className="text-[10px] font-medium text-indigo-500">{role}</p>
       <p className="font-bold text-sm truncate text-indigo-800">
         {koi?.rfid?.split(" ")[0] ?? "—"}
@@ -93,7 +106,7 @@ const PedigreeModal = ({ isOpen, onOpenChange, koi }: PedigreeModalProps) => {
             <div className="relative flex flex-col items-center">
               <PedigreeNode koi={fish} role="Cá Hiện tại" />
               {(fish?.father || fish?.mother) && (
-                <div className="w-0.5 h-6 bg-indigo-500 absolute top-[-1.5rem]"></div>
+                <div className="w-0.5 h-6 bg-indigo-500 absolute -top-6"></div>
               )}
             </div>
 
@@ -104,7 +117,7 @@ const PedigreeModal = ({ isOpen, onOpenChange, koi }: PedigreeModalProps) => {
                   <div className="relative flex flex-col items-center w-1/2">
                     <PedigreeNode koi={fish.father} role="Bố (P1)" />
                     {(fish.father?.father || fish.father?.mother) && (
-                      <div className="absolute top-[-1.5rem] left-1/2 transform -translate-x-1/2 w-0.5 h-6 bg-indigo-500"></div>
+                      <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 w-0.5 h-6 bg-indigo-500"></div>
                     )}
                   </div>
                 )}
@@ -113,7 +126,7 @@ const PedigreeModal = ({ isOpen, onOpenChange, koi }: PedigreeModalProps) => {
                   <div className="relative flex flex-col items-center w-1/2">
                     <PedigreeNode koi={fish.mother} role="Mẹ (P1)" />
                     {(fish.mother?.father || fish.mother?.mother) && (
-                      <div className="absolute top-[-1.5rem] left-1/2 transform -translate-x-1/2 w-0.5 h-6 bg-indigo-500"></div>
+                      <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 w-0.5 h-6 bg-indigo-500"></div>
                     )}
                   </div>
                 )}
@@ -166,21 +179,21 @@ const PedigreeModal = ({ isOpen, onOpenChange, koi }: PedigreeModalProps) => {
 
                   {/* Đường ngang nối 2 ông bà bên cha */}
                   {fish?.father?.father && fish?.father?.mother && (
-                    <div className="absolute bottom-[-1.5rem] left-1/4 right-1/4 h-0.5 bg-indigo-500"></div>
+                    <div className="absolute -bottom-6 left-1/4 right-1/4 h-0.5 bg-indigo-500"></div>
                   )}
 
                   {/* Đường dọc xuống ông */}
                   {fish?.father?.father && fish?.father?.mother ? (
-                    <div className="absolute bottom-[-1.5rem] left-1/4 w-0.5 h-6 bg-indigo-500"></div>
+                    <div className="absolute -bottom-6 left-1/4 w-0.5 h-6 bg-indigo-500"></div>
                   ) : fish?.father?.father ? (
-                    <div className="absolute bottom-[-1.5rem] left-1/4 w-0.5 h-6 bg-indigo-500"></div>
+                    <div className="absolute -bottom-6 left-1/4 w-0.5 h-6 bg-indigo-500"></div>
                   ) : null}
 
                   {/* Đường dọc xuống bà */}
                   {fish?.father?.father && fish?.father?.mother ? (
-                    <div className="absolute bottom-[-1.5rem] right-1/4 w-0.5 h-6 bg-indigo-500"></div>
+                    <div className="absolute -bottom-6 right-1/4 w-0.5 h-6 bg-indigo-500"></div>
                   ) : fish?.father?.mother ? (
-                    <div className="absolute bottom-[-1.5rem] right-1/4 w-0.5 h-6 bg-indigo-500"></div>
+                    <div className="absolute -bottom-6 right-1/4 w-0.5 h-6 bg-indigo-500"></div>
                   ) : null}
                 </div>
 
@@ -207,21 +220,21 @@ const PedigreeModal = ({ isOpen, onOpenChange, koi }: PedigreeModalProps) => {
 
                   {/* Đường ngang nối 2 ông bà bên mẹ */}
                   {fish?.mother?.father && fish?.mother?.mother && (
-                    <div className="absolute bottom-[-1.5rem] left-1/4 right-1/4 h-0.5 bg-indigo-500"></div>
+                    <div className="absolute -bottom-6 left-1/4 right-1/4 h-0.5 bg-indigo-500"></div>
                   )}
 
                   {/* Đường dọc xuống ông */}
                   {fish?.mother?.father && fish?.mother?.mother ? (
-                    <div className="absolute bottom-[-1.5rem] left-1/4 w-0.5 h-6 bg-indigo-500"></div>
+                    <div className="absolute -bottom-6 left-1/4 w-0.5 h-6 bg-indigo-500"></div>
                   ) : fish?.mother?.father ? (
-                    <div className="absolute bottom-[-1.5rem] left-1/4 w-0.5 h-6 bg-indigo-500"></div>
+                    <div className="absolute -bottom-6 left-1/4 w-0.5 h-6 bg-indigo-500"></div>
                   ) : null}
 
                   {/* Đường dọc xuống bà */}
                   {fish?.mother?.father && fish?.mother?.mother ? (
-                    <div className="absolute bottom-[-1.5rem] right-1/4 w-0.5 h-6 bg-indigo-500"></div>
+                    <div className="absolute -bottom-6 right-1/4 w-0.5 h-6 bg-indigo-500"></div>
                   ) : fish?.mother?.mother ? (
-                    <div className="absolute bottom-[-1.5rem] right-1/4 w-0.5 h-6 bg-indigo-500"></div>
+                    <div className="absolute -bottom-6 right-1/4 w-0.5 h-6 bg-indigo-500"></div>
                   ) : null}
                 </div>
               </div>

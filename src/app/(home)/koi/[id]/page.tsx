@@ -29,7 +29,11 @@ import {
 import Link from "next/link";
 import Image from "next/image";
 import { formatCurrency } from "@/lib/utils/numbers/formatCurrency";
-import { useGetKoiFishById, useGetKoiFishFamily } from "@/hooks/useKoiFish";
+import {
+  useGetKoiFishById,
+  useGetKoiFishFamily,
+  useGetKoiBreedingHistory,
+} from "@/hooks/useKoiFish";
 import { formatKoiAge } from "@/lib/utils/dates/age";
 import { useAddItemToCart, useGetCart } from "@/hooks/useCart";
 import {
@@ -40,6 +44,7 @@ import {
 } from "@/lib/utils/enum";
 import { DATE_FORMATS, formatDate } from "@/lib/utils/dates";
 import { Gender, KoiFishFamilyResponse } from "@/lib/api/services/fetchKoiFish";
+import { BreedingStatus } from "@/lib/api/services/fetchBreedingProcess";
 
 // Pedigree Node Component
 const PedigreeNode = ({
@@ -52,14 +57,33 @@ const PedigreeNode = ({
   if (!koi) return null;
 
   return (
-    <div className="border border-indigo-300 rounded-lg p-2 text-center shadow-lg bg-white min-w-[150px] transform transition-all hover:scale-[1.02] hover:shadow-xl relative z-10">
-      <p className="text-[10px] font-medium text-indigo-500">{role}</p>
-      <p className="font-bold text-sm truncate text-indigo-800">
+    <div className="border border-indigo-300 rounded-lg p-3 text-center shadow-lg bg-white min-w-40 transform transition-all hover:scale-[1.02] hover:shadow-xl relative z-10">
+      {/* Image */}
+      <div className="flex justify-center mb-2">
+        <div className="relative w-14 h-14 rounded-full overflow-hidden border-2 border-indigo-200">
+          {koi.images && koi.images.length > 0 ? (
+            <Image
+              src={koi.images[0]}
+              alt={koi.rfid}
+              fill
+              className="object-cover"
+              unoptimized
+            />
+          ) : (
+            <div className="w-full h-full bg-linear-to-br from-indigo-100 to-indigo-200 flex items-center justify-center">
+              <Fish className="h-6 w-6 text-indigo-400" />
+            </div>
+          )}
+        </div>
+      </div>
+
+      <p className="text-[10px] font-medium text-indigo-500 mb-1">{role}</p>
+      <p className="font-bold text-sm truncate text-indigo-800 mb-1">
         {koi?.rfid?.split(" ")[0] ?? "—"}
       </p>
-      <p className="text-xs text-gray-600">{koi?.varietyName ?? "—"}</p>
+      <p className="text-xs text-gray-600 mb-1">{koi?.varietyName ?? "—"}</p>
       <p
-        className={`text-xs mt-1 font-bold ${
+        className={`text-xs font-bold ${
           koi?.gender === Gender.MALE ? "text-blue-600" : "text-pink-600"
         }`}
       >
@@ -71,6 +95,28 @@ const PedigreeNode = ({
 import { useCheckFavorite, useToggleFavorite } from "@/hooks/useFavoriteKoi";
 import { useAuthStore } from "@/store/auth-store";
 
+// Helper function to get breeding status label
+const getBreedingStatusLabel = (status: BreedingStatus) => {
+  switch (status) {
+    case BreedingStatus.COMPLETE:
+      return { label: "Hoàn thành", variant: "default" as const };
+    case BreedingStatus.FAILED:
+      return { label: "Thất bại", variant: "destructive" as const };
+    case BreedingStatus.PAIRING:
+      return { label: "Đang ghép cặp", variant: "secondary" as const };
+    case BreedingStatus.SPAWNED:
+      return { label: "Đã sinh sản", variant: "secondary" as const };
+    case BreedingStatus.EGG_BATCH:
+      return { label: "Ốp trứng", variant: "secondary" as const };
+    case BreedingStatus.FRY_FISH:
+      return { label: "Cá bột", variant: "secondary" as const };
+    case BreedingStatus.CLASSIFICATION:
+      return { label: "Phân loại", variant: "secondary" as const };
+    default:
+      return { label: status, variant: "outline" as const };
+  }
+};
+
 export default function KoiDetailPage() {
   const params = useParams();
   const koiId = parseInt(params.id as string);
@@ -78,6 +124,8 @@ export default function KoiDetailPage() {
   const { data: koi, isLoading, isError } = useGetKoiFishById(koiId);
   const { data: koiFishFamily, isLoading: isPedigreeLoading } =
     useGetKoiFishFamily(koiId);
+  const { data: breedingHistory, isLoading: isBreedingHistoryLoading } =
+    useGetKoiBreedingHistory(koiId);
   const { mutate: addToCart, isPending: isAddPending } = useAddItemToCart();
   const { data: cart } = useGetCart();
 
@@ -354,10 +402,11 @@ export default function KoiDetailPage() {
         {/* Detailed Information Tabs */}
         <div className="mt-12">
           <Tabs defaultValue="details" className="w-full">
-            <TabsList className="grid w-full grid-cols-4">
+            <TabsList className="grid w-full grid-cols-5">
               <TabsTrigger value="details">Thông tin chi tiết</TabsTrigger>
               <TabsTrigger value="health">Sức khỏe</TabsTrigger>
               <TabsTrigger value="pedigree">Gia phả</TabsTrigger>
+              <TabsTrigger value="breeding">Lịch sử sinh sản</TabsTrigger>
               <TabsTrigger value="care">Hướng dẫn chăm sóc</TabsTrigger>
             </TabsList>
 
@@ -512,7 +561,7 @@ export default function KoiDetailPage() {
                       <div className="relative flex flex-col items-center">
                         <PedigreeNode koi={koiFishFamily} role="Cá Hiện tại" />
                         {(koiFishFamily?.father || koiFishFamily?.mother) && (
-                          <div className="w-0.5 h-6 bg-indigo-500 absolute top-[-1.5rem]"></div>
+                          <div className="w-0.5 h-6 bg-indigo-500 absolute -top-6"></div>
                         )}
                       </div>
 
@@ -527,7 +576,7 @@ export default function KoiDetailPage() {
                               />
                               {(koiFishFamily.father?.father ||
                                 koiFishFamily.father?.mother) && (
-                                <div className="absolute top-[-1.5rem] left-1/2 transform -translate-x-1/2 w-0.5 h-6 bg-indigo-500"></div>
+                                <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 w-0.5 h-6 bg-indigo-500"></div>
                               )}
                             </div>
                           )}
@@ -540,7 +589,7 @@ export default function KoiDetailPage() {
                               />
                               {(koiFishFamily.mother?.father ||
                                 koiFishFamily.mother?.mother) && (
-                                <div className="absolute top-[-1.5rem] left-1/2 transform -translate-x-1/2 w-0.5 h-6 bg-indigo-500"></div>
+                                <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 w-0.5 h-6 bg-indigo-500"></div>
                               )}
                             </div>
                           )}
@@ -594,23 +643,23 @@ export default function KoiDetailPage() {
                             {/* Đường ngang nối 2 ông bà bên cha */}
                             {koiFishFamily?.father?.father &&
                               koiFishFamily?.father?.mother && (
-                                <div className="absolute bottom-[-1.5rem] left-1/4 right-1/4 h-0.5 bg-indigo-500"></div>
+                                <div className="absolute -bottom-6 left-1/4 right-1/4 h-0.5 bg-indigo-500"></div>
                               )}
 
                             {/* Đường dọc xuống ông */}
                             {koiFishFamily?.father?.father &&
                             koiFishFamily?.father?.mother ? (
-                              <div className="absolute bottom-[-1.5rem] left-1/4 w-0.5 h-6 bg-indigo-500"></div>
+                              <div className="absolute -bottom-6 left-1/4 w-0.5 h-6 bg-indigo-500"></div>
                             ) : koiFishFamily?.father?.father ? (
-                              <div className="absolute bottom-[-1.5rem] left-1/4 w-0.5 h-6 bg-indigo-500"></div>
+                              <div className="absolute -bottom-6 left-1/4 w-0.5 h-6 bg-indigo-500"></div>
                             ) : null}
 
                             {/* Đường dọc xuống bà */}
                             {koiFishFamily?.father?.father &&
                             koiFishFamily?.father?.mother ? (
-                              <div className="absolute bottom-[-1.5rem] right-1/4 w-0.5 h-6 bg-indigo-500"></div>
+                              <div className="absolute -bottom-6 right-1/4 w-0.5 h-6 bg-indigo-500"></div>
                             ) : koiFishFamily?.father?.mother ? (
-                              <div className="absolute bottom-[-1.5rem] right-1/4 w-0.5 h-6 bg-indigo-500"></div>
+                              <div className="absolute -bottom-6 right-1/4 w-0.5 h-6 bg-indigo-500"></div>
                             ) : null}
                           </div>
 
@@ -638,27 +687,297 @@ export default function KoiDetailPage() {
                             {/* Đường ngang nối 2 ông bà bên mẹ */}
                             {koiFishFamily?.mother?.father &&
                               koiFishFamily?.mother?.mother && (
-                                <div className="absolute bottom-[-1.5rem] left-1/4 right-1/4 h-0.5 bg-indigo-500"></div>
+                                <div className="absolute -bottom-6 left-1/4 right-1/4 h-0.5 bg-indigo-500"></div>
                               )}
 
                             {/* Đường dọc xuống ông */}
                             {koiFishFamily?.mother?.father &&
                             koiFishFamily?.mother?.mother ? (
-                              <div className="absolute bottom-[-1.5rem] left-1/4 w-0.5 h-6 bg-indigo-500"></div>
+                              <div className="absolute -bottom-6 left-1/4 w-0.5 h-6 bg-indigo-500"></div>
                             ) : koiFishFamily?.mother?.father ? (
-                              <div className="absolute bottom-[-1.5rem] left-1/4 w-0.5 h-6 bg-indigo-500"></div>
+                              <div className="absolute -bottom-6 left-1/4 w-0.5 h-6 bg-indigo-500"></div>
                             ) : null}
 
                             {/* Đường dọc xuống bà */}
                             {koiFishFamily?.mother?.father &&
                             koiFishFamily?.mother?.mother ? (
-                              <div className="absolute bottom-[-1.5rem] right-1/4 w-0.5 h-6 bg-indigo-500"></div>
+                              <div className="absolute -bottom-6 right-1/4 w-0.5 h-6 bg-indigo-500"></div>
                             ) : koiFishFamily?.mother?.mother ? (
-                              <div className="absolute bottom-[-1.5rem] right-1/4 w-0.5 h-6 bg-indigo-500"></div>
+                              <div className="absolute -bottom-6 right-1/4 w-0.5 h-6 bg-indigo-500"></div>
                             ) : null}
                           </div>
                         </div>
                       )}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="breeding" className="mt-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Fish className="h-5 w-5" />
+                    Lịch sử sinh sản
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {isBreedingHistoryLoading ? (
+                    <div className="flex items-center justify-center py-10 text-gray-500">
+                      <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                      Đang tải dữ liệu...
+                    </div>
+                  ) : !breedingHistory?.breedingHistory ||
+                    breedingHistory.breedingHistory.length === 0 ? (
+                    <div className="text-center py-10 text-gray-500">
+                      <Fish className="w-12 h-12 mx-auto mb-4 text-gray-300" />
+                      <p className="text-lg font-medium">
+                        Chưa có lịch sử sinh sản
+                      </p>
+                      <p className="text-sm">
+                        Cá Koi này chưa tham gia vào quá trình sinh sản nào.
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="space-y-6">
+                      {/* Thông tin tổng quan */}
+                      <div className="bg-linear-to-r from-blue-50 to-indigo-50 p-4 rounded-lg border border-blue-200">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                          <div className="text-center">
+                            <div className="text-2xl font-bold text-blue-600">
+                              {breedingHistory.breedingHistory.length}
+                            </div>
+                            <div className="text-sm text-blue-700">
+                              Lần sinh sản
+                            </div>
+                          </div>
+                          <div className="text-center">
+                            <div className="text-2xl font-bold text-green-600">
+                              {breedingHistory.breedingHistory.reduce(
+                                (total, item) =>
+                                  total + item.totalFishQualified,
+                                0,
+                              )}
+                            </div>
+                            <div className="text-sm text-green-700">
+                              Tổng cá con đạt chuẩn
+                            </div>
+                          </div>
+                          <div className="text-center">
+                            <div className="text-2xl font-bold text-purple-600">
+                              {breedingHistory.breedingHistory.reduce(
+                                (total, item) => total + item.totalPackage,
+                                0,
+                              )}
+                            </div>
+                            <div className="text-sm text-purple-700">
+                              Tổng gói cá
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Danh sách lịch sử */}
+                      <div className="space-y-4">
+                        {breedingHistory.breedingHistory.map(
+                          (history, index) => (
+                            <Card
+                              key={history.breedingProcessId}
+                              className="border-l-4 border-l-blue-500"
+                            >
+                              <CardHeader>
+                                <div className="flex items-start justify-between">
+                                  <div>
+                                    <CardTitle className="text-lg flex items-center gap-2">
+                                      <Badge
+                                        variant="outline"
+                                        className="text-xs"
+                                      >
+                                        #{index + 1}
+                                      </Badge>
+                                      Quy trình sinh sản {history.code}
+                                    </CardTitle>
+                                    <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
+                                      <div className="flex items-center gap-1">
+                                        <Calendar className="h-4 w-4" />
+                                        Bắt đầu:{" "}
+                                        {formatDate(
+                                          history.startDate,
+                                          DATE_FORMATS.MEDIUM_DATE,
+                                        )}
+                                      </div>
+                                      {history.endDate && (
+                                        <div className="flex items-center gap-1">
+                                          <Calendar className="h-4 w-4" />
+                                          Kết thúc:{" "}
+                                          {formatDate(
+                                            history.endDate,
+                                            DATE_FORMATS.MEDIUM_DATE,
+                                          )}
+                                        </div>
+                                      )}
+                                    </div>
+                                  </div>
+                                  <Badge
+                                    variant={
+                                      getBreedingStatusLabel(history.status)
+                                        .variant
+                                    }
+                                  >
+                                    {
+                                      getBreedingStatusLabel(history.status)
+                                        .label
+                                    }
+                                  </Badge>
+                                </div>
+                              </CardHeader>
+                              <CardContent className="space-y-4">
+                                {/* Thông tin đối tác sinh sản */}
+                                <div>
+                                  <h5 className="font-semibold mb-2 flex items-center gap-2">
+                                    <Heart className="h-4 w-4 text-pink-500" />
+                                    Đối tác sinh sản
+                                  </h5>
+                                  <div className="flex items-center gap-4 p-3 bg-gray-50 rounded-lg">
+                                    {history.partner.images &&
+                                    history.partner.images.length > 0 ? (
+                                      <div className="relative w-12 h-12 rounded-full overflow-hidden border-2 border-gray-200">
+                                        <Image
+                                          src={history.partner.images[0]}
+                                          alt={history.partner.rfid}
+                                          fill
+                                          className="object-cover"
+                                          unoptimized
+                                        />
+                                      </div>
+                                    ) : (
+                                      <div className="w-12 h-12 bg-linear-to-br from-gray-200 to-gray-300 rounded-full flex items-center justify-center">
+                                        <Fish className="h-6 w-6 text-gray-500" />
+                                      </div>
+                                    )}
+                                    <div className="flex-1">
+                                      <p className="font-medium">
+                                        {history.partner.rfid}
+                                      </p>
+                                      <p className="text-sm text-gray-600">
+                                        {history.partner.varietyName}
+                                      </p>
+                                      {history.partner.isMutated && (
+                                        <Badge
+                                          variant="secondary"
+                                          className="text-xs mt-1"
+                                        >
+                                          Đột biến
+                                        </Badge>
+                                      )}
+                                    </div>
+                                  </div>
+                                </div>
+
+                                {/* Thống kê sinh sản */}
+                                <div>
+                                  <h5 className="font-semibold mb-3 flex items-center gap-2">
+                                    <Shield className="h-4 w-4 text-green-500" />
+                                    Thống kê sinh sản
+                                  </h5>
+                                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                    <div className="bg-blue-50 p-3 rounded-lg text-center border border-blue-200">
+                                      <div className="text-lg font-bold text-blue-600">
+                                        {history.totalEggs.toLocaleString()}
+                                      </div>
+                                      <div className="text-xs text-blue-700">
+                                        Tổng trứng
+                                      </div>
+                                    </div>
+                                    <div className="bg-green-50 p-3 rounded-lg text-center border border-green-200">
+                                      <div className="text-lg font-bold text-green-600">
+                                        {history.fertilizationRate.toFixed(1)}%
+                                      </div>
+                                      <div className="text-xs text-green-700">
+                                        Tỷ lệ thụ tinh
+                                      </div>
+                                    </div>
+                                    {history.hatchingRate !== null && (
+                                      <div className="bg-yellow-50 p-3 rounded-lg text-center border border-yellow-200">
+                                        <div className="text-lg font-bold text-yellow-600">
+                                          {history.hatchingRate.toFixed(1)}%
+                                        </div>
+                                        <div className="text-xs text-yellow-700">
+                                          Tỷ lệ nở
+                                        </div>
+                                      </div>
+                                    )}
+                                    <div className="bg-purple-50 p-3 rounded-lg text-center border border-purple-200">
+                                      <div className="text-lg font-bold text-purple-600">
+                                        {history.survivalRate.toFixed(1)}%
+                                      </div>
+                                      <div className="text-xs text-purple-700">
+                                        Tỷ lệ sống sót
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+
+                                {/* Kết quả */}
+                                <div>
+                                  <h5 className="font-semibold mb-3 flex items-center gap-2">
+                                    <Fish className="h-4 w-4 text-indigo-500" />
+                                    Kết quả
+                                  </h5>
+                                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <div className="bg-indigo-50 p-3 rounded-lg border border-indigo-200">
+                                      <div className="text-center">
+                                        <div className="text-lg font-bold text-indigo-600">
+                                          {history.totalFishQualified}
+                                        </div>
+                                        <div className="text-xs text-indigo-700">
+                                          Cá con đạt chuẩn
+                                        </div>
+                                      </div>
+                                    </div>
+                                    <div className="bg-orange-50 p-3 rounded-lg border border-orange-200">
+                                      <div className="text-center">
+                                        <div className="text-lg font-bold text-orange-600">
+                                          {history.mutationRate !== null
+                                            ? `${(history.mutationRate * 100).toFixed(1)}%`
+                                            : "N/A"}
+                                        </div>
+                                        <div className="text-xs text-orange-700">
+                                          Tỷ lệ đột biến
+                                        </div>
+                                      </div>
+                                    </div>
+                                    <div className="bg-teal-50 p-3 rounded-lg border border-teal-200">
+                                      <div className="text-center">
+                                        <div className="text-lg font-bold text-teal-600">
+                                          {history.totalPackage}
+                                        </div>
+                                        <div className="text-xs text-teal-700">
+                                          Gói cá được tạo
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+
+                                {/* Mutation Description nếu có */}
+                                {history.partner.isMutated &&
+                                  history.partner.mutationDescription && (
+                                    <div className="bg-amber-50 border border-amber-200 p-3 rounded-lg">
+                                      <h5 className="font-semibold mb-1 text-amber-700">
+                                        Mô tả đột biến của đối tác:
+                                      </h5>
+                                      <p className="text-sm text-amber-600">
+                                        {history.partner.mutationDescription}
+                                      </p>
+                                    </div>
+                                  )}
+                              </CardContent>
+                            </Card>
+                          ),
+                        )}
+                      </div>
                     </div>
                   )}
                 </CardContent>
