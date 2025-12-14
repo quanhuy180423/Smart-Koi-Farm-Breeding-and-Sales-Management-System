@@ -110,7 +110,7 @@ const baseUrl = "/api/Order";
 
 export const orderService = {
   getAllOrders: async (
-    request: OrderSearchParams
+    request: OrderSearchParams,
   ): Promise<BaseResponse<PagedResponse<OrderResponse>>> => {
     const filter = toRequestParams(request);
     const response = await apiService.get<
@@ -120,7 +120,7 @@ export const orderService = {
   },
 
   getCustomerOrders: async (
-    request: OrderSearchParams
+    request: OrderSearchParams,
   ): Promise<BaseResponse<PagedResponse<OrderResponse>>> => {
     const filter = toRequestParams(request);
     const response = await apiService.get<
@@ -131,30 +131,30 @@ export const orderService = {
 
   getOrderById: async (id: number): Promise<BaseResponse<OrderResponse>> => {
     const response = await apiService.get<BaseResponse<OrderResponse>>(
-      `${baseUrl}/${id}`
+      `${baseUrl}/${id}`,
     );
     return response.data;
   },
 
   updateOrderStatus: async (
     orderId: number,
-    request: UpdateOrderStatusRequest
+    request: UpdateOrderStatusRequest,
   ): Promise<BaseResponse<OrderResponse>> => {
     const response = await apiService.put<
       BaseResponse<OrderResponse>,
       Record<string, unknown>
     >(
       `${baseUrl}/${orderId}/status`,
-      request as unknown as Record<string, unknown>
+      request as unknown as Record<string, unknown>,
     );
     return response.data;
   },
 
   restockPacketFish: async (
-    orderId: number
+    orderId: number,
   ): Promise<BaseResponse<boolean>> => {
     const response = await apiService.post<BaseResponse<boolean>>(
-      `${baseUrl}/${orderId}/restock-packetfish`
+      `${baseUrl}/${orderId}/restock-packetfish`,
     );
     return response.data;
   },
