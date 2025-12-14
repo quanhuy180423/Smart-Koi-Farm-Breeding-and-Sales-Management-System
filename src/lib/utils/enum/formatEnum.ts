@@ -89,6 +89,10 @@ const saleStatusMeta: Record<SaleStatus, Label> = {
     label: "Không bán",
     colorClass: "bg-gray-200 text-gray-800",
   },
+  [SaleStatus.PENDING_SALE]: {
+    label: "Chờ bán",
+    colorClass: "bg-yellow-100 text-yellow-800",
+  },
 };
 
 const koiBreedingStatusMeta: Record<KoiBreedingStatus, Label> = {

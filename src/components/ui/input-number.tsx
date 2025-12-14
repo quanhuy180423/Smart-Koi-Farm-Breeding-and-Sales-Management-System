@@ -76,7 +76,7 @@ const InputNumber = React.forwardRef<HTMLInputElement, InputNumberProps>(
             numValue = min;
             setDisplayValue(
               typeof decimalPlaces === "number"
-                ? min.toFixed(decimalPlaces)
+                ? min?.toFixed(decimalPlaces)
                 : min.toString(),
             );
             onChange?.(numValue);
@@ -84,7 +84,7 @@ const InputNumber = React.forwardRef<HTMLInputElement, InputNumberProps>(
             numValue = max;
             setDisplayValue(
               typeof decimalPlaces === "number"
-                ? max.toFixed(decimalPlaces)
+                ? max?.toFixed(decimalPlaces)
                 : max.toString(),
             );
             onChange?.(numValue);

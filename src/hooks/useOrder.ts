@@ -93,3 +93,21 @@ export function useUpdateOrderStatus() {
     },
   });
 }
+
+export function useRestockPacketFish() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (orderId: number) => orderService.restockPacketFish(orderId),
+    onSuccess: (data) => {
+      // Invalidate all order-related queries to refetch updated data
+      queryClient.invalidateQueries({ queryKey: ["orders"] });
+      queryClient.invalidateQueries({ queryKey: ["customer-orders"] });
+      toast.success(data.message || "Khôi phục gói cá thành công");
+    },
+    onError: (error: unknown) => {
+      const err = error as { message?: string };
+      toast.error(err?.message || "Có lỗi xảy ra khi khôi phục gói cá");
+    },
+  });
+}

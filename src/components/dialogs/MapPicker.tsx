@@ -259,9 +259,9 @@ export default function MapPicker({
           <MapClickHandler onMapClick={handleMapClick} />
           <Marker position={[latitude, longitude]}>
             <Popup>
-              Vĩ độ: {latitude.toFixed(6)}
+              Vĩ độ: {latitude?.toFixed(6)}
               <br />
-              Kinh độ: {longitude.toFixed(6)}
+              Kinh độ: {longitude?.toFixed(6)}
             </Popup>
           </Marker>
         </MapContainer>

@@ -22,6 +22,8 @@ import {
   Package,
   User,
   Fish,
+  MapPin,
+  Phone,
 } from "lucide-react";
 import Image from "next/image";
 import { OrderStatus } from "@/lib/api/services/fetchOrder";
@@ -171,19 +173,32 @@ export default function ManagerOrderDetailPage() {
             {order.customerAddress && (
               <>
                 <div>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm text-muted-foreground flex items-center gap-1">
+                    <MapPin className="h-4 w-4" />
                     Địa chỉ giao hàng
                   </p>
                   <p className="font-medium">
                     {order.customerAddress.fullAddress}
                   </p>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    {order.customerAddress.ward}, {order.customerAddress.city}
+                  </p>
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm text-muted-foreground flex items-center gap-1">
+                    <Phone className="h-4 w-4" />
                     Số điện thoại người nhận
                   </p>
                   <p className="font-medium">
                     {order.customerAddress.recipientPhone}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">
+                    Khoảng cách từ trại
+                  </p>
+                  <p className="font-medium text-primary">
+                    {order.customerAddress.distanceFromFarmKm?.toFixed(2)} km
                   </p>
                 </div>
               </>

@@ -82,6 +82,7 @@ export enum SaleStatus {
   NOT_FOR_SALE = "NotForSale",
   AVAILABLE = "Available",
   SOLD = "Sold",
+  PENDING_SALE = "PendingSale",
 }
 
 export interface KoiFishSearchParams extends PagingRequest {

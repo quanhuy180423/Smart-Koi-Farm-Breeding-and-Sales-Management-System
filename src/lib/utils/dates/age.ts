@@ -32,5 +32,5 @@ export function formatKoiAge(birthDate?: string | null): string {
   if (Math.abs(yearsExact - Math.round(yearsExact)) < 1e-9) {
     return `${Math.round(yearsExact)} năm`;
   }
-  return `${yearsExact.toFixed(1)} năm`;
+  return `${yearsExact?.toFixed(1)} năm`;
 }
