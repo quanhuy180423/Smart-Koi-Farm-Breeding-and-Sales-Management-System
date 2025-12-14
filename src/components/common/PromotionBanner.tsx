@@ -64,7 +64,7 @@ export function PromotionBanner({
 
   const daysUntilExpiry = Math.ceil(
     (new Date(promotion.validTo).getTime() - new Date().getTime()) /
-      (1000 * 60 * 60 * 24),
+      (1000 * 60 * 60 * 24)
   );
 
   if (variant === "compact") {
@@ -72,7 +72,7 @@ export function PromotionBanner({
       <div
         className={cn(
           "bg-linear-to-r from-primary via-primary/90 to-accent text-white py-2 px-3 rounded-lg shadow-md",
-          className,
+          className
         )}
       >
         <div className="flex items-center justify-center gap-2">
@@ -112,7 +112,7 @@ export function PromotionBanner({
     <Card
       className={cn(
         "border-border overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300 p-0 group",
-        className,
+        className
       )}
     >
       <div className="relative">
@@ -121,42 +121,47 @@ export function PromotionBanner({
 
         <div className="grid lg:grid-cols-5 gap-0 relative">
           {/* Left: Promotion Images Carousel - Takes 3 columns */}
-          <div className="lg:col-span-3 relative">
+          <div className="lg:col-span-3 relative min-h-[300px] lg:min-h-[400px]">
             {promotion.images && promotion.images.length > 0 ? (
               <div
-                className="relative aspect-video overflow-hidden bg-linear-to-br from-muted/50 to-muted/30"
+                className="relative w-full h-full aspect-video overflow-hidden bg-linear-to-br from-muted/50 to-muted/30"
                 onMouseEnter={() => setIsHovered(true)}
                 onMouseLeave={() => setIsHovered(false)}
               >
                 <Carousel
-                  className="w-full h-full"
+                  className="w-full h-full p-0"
                   opts={{
                     align: "center",
                     loop: true,
                   }}
                   setApi={setCarouselApi}
                 >
-                  <CarouselContent className="h-full">
+                  <CarouselContent className="h-full ml-0">
                     {promotion.images.map((image, index) => (
-                      <CarouselItem key={index} className="h-full">
-                        <div className="relative w-full h-full">
+                      <CarouselItem
+                        key={index}
+                        className="h-full pl-0 basis-full"
+                      >
+                        <div className="relative w-full h-full min-h-[300px] lg:min-h-[435px] group">
                           <Image
                             src={image}
                             alt={`${promotion.code} - Hình ${index + 1}`}
                             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                             fill
+                            sizes="(max-width: 768px) 100vw, (max-width: 1024px) 60vw, 800px"
                             priority={index === 0}
+                            unoptimized
                           />
                           {/* Subtle overlay gradient */}
-                          <div className="absolute inset-0 bg-linear-to-t from-black/20 to-transparent" />
+                          <div className="absolute inset-0 bg-linear-to-t from-black/20 to-transparent pointer-events-none" />
                         </div>
                       </CarouselItem>
                     ))}
                   </CarouselContent>
                   {promotion.images.length > 1 && (
                     <>
-                      <CarouselPrevious className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white shadow-lg opacity-0 group-hover:opacity-100 transition-opacity border-0" />
-                      <CarouselNext className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white shadow-lg opacity-0 group-hover:opacity-100 transition-opacity border-0" />
+                      <CarouselPrevious className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white shadow-lg hover:opacity-100 transition-all border-0 z-30" />
+                      <CarouselNext className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white shadow-lg hover:opacity-100 transition-all border-0 z-30" />
                     </>
                   )}
                 </Carousel>
@@ -167,14 +172,15 @@ export function PromotionBanner({
                     {promotion.images.map((_, idx) => (
                       <div
                         key={idx}
-                        className="w-2 h-2 rounded-full bg-white/50 transition-all"
+                        className="w-2 h-2 rounded-full bg-white/70 hover:bg-white transition-all cursor-pointer"
+                        onClick={() => carouselApi?.scrollTo(idx)}
                       />
                     ))}
                   </div>
                 )}
               </div>
             ) : (
-              <div className="w-full h-full flex items-center justify-center bg-linear-to-br from-primary/10 via-primary/5 to-accent/10">
+              <div className="w-full h-full min-h-[300px] lg:min-h-[400px] flex items-center justify-center bg-linear-to-br from-primary/10 via-primary/5 to-accent/10">
                 <div className="text-center space-y-3">
                   <div className="w-16 h-16 mx-auto bg-white/50 rounded-xl flex items-center justify-center">
                     <Gift className="h-8 w-8 text-primary" />

@@ -16,7 +16,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { Search, Filter, X, FishOff, Sparkles, Fish } from "lucide-react";
+import { Search, Filter, X, FishOff, Sparkles } from "lucide-react";
 import { useGetPacketFishes } from "@/hooks/usePacketFish";
 import { PacketFishSearchParams } from "@/lib/api/services/fetchPacketFish";
 import { useAddItemToCart } from "@/hooks/useCart";
@@ -215,28 +215,12 @@ export default function PacketFishPage() {
     <div className="min-h-screen bg-slate-50/50">
       {/* Header */}
       <div className="relative bg-[#0A3D62] text-white overflow-hidden">
-        <div className="absolute inset-0 opacity-10 pattern-dots"></div>
-        <div className="absolute -right-10 -bottom-10 opacity-20">
-          <Fish className="w-64 h-64 text-white" />
-        </div>
-        <div className="absolute right-50 bottom-10 opacity-20">
-          <Fish className="w-64 h-64 text-white" />
-        </div>
-        <div className="absolute -left-10 bottom-40 opacity-20">
-          <Fish className="w-64 h-64 text-white" />
-        </div>
-        <div className="absolute left-50 -bottom-25 opacity-20">
-          <Fish className="w-64 h-64 text-white" />
-        </div>
-        <div className="absolute left-1/3 bottom-1/3 opacity-20">
-          <Fish className="w-64 h-64 text-white" />
-        </div>
         <div className="container mx-auto px-4 py-12 relative z-10">
           <div className="flex flex-col items-center text-center space-y-4">
             <div className="inline-flex items-center justify-center p-2 bg-white/10 backdrop-blur-md rounded-full mb-2">
               <Sparkles className="w-4 h-4 text-yellow-400 mr-2" />
               <span className="text-sm font-medium text-blue-100">
-                Tuyển chọn đặc biệt từ ZenKoi
+                Tuyển chọn đặc biệt từ trang trại ZenKoi
               </span>
             </div>
             <h1 className="text-4xl md:text-5xl font-bold tracking-tight">
@@ -472,7 +456,7 @@ export default function PacketFishPage() {
                                     onChange={(e) =>
                                       handleQuantityInputChange(
                                         0,
-                                        e.target.value,
+                                        e.target.value
                                       )
                                     }
                                   />
@@ -490,7 +474,7 @@ export default function PacketFishPage() {
                                     onChange={(e) =>
                                       handleQuantityInputChange(
                                         1,
-                                        e.target.value,
+                                        e.target.value
                                       )
                                     }
                                   />

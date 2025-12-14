@@ -71,7 +71,7 @@ export const PacketFishCard = ({
         {/* Title */}
         <Link
           href={`/packet-fish/${packet.id}`}
-          className="block font-bold text-xl text-gray-900 hover:text-primary transition-colors line-clamp-2 leading-tight"
+          className="block font-bold text-xl text-gray-900 hover:text-primary transition-colors truncate line-clamp-2 leading-tight"
           title={packet.name}
         >
           {packet.name}

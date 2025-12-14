@@ -38,12 +38,12 @@ export function useGetKoiFishes(request: KoiFishSearchParams) {
 }
 
 export function useGetKoiFishFamily(id: number | undefined) {
-  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  // const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
   return useQuery({
     queryKey: ["koi-fishes-family", id],
     queryFn: () => koiFishService.getKoiFishFamily(id),
-    enabled: isAuthenticated && id !== undefined && id !== 0,
+    // enabled: isAuthenticated && id !== undefined && id !== 0,
     select: (
       data: BaseResponse<KoiFishFamilyResponse>,
     ): KoiFishFamilyResponse => data.result,
@@ -137,12 +137,12 @@ export function useSetKoiReadyToSpawn() {
 }
 
 export function useGetKoiBreedingHistory(koiId: number | undefined) {
-  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  // const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
   return useQuery({
     queryKey: ["koi-breeding-history", koiId],
     queryFn: () => koiFishService.getKoiBreedingHistory(koiId!),
-    enabled: isAuthenticated && koiId !== undefined && koiId !== 0,
+    // enabled: isAuthenticated && koiId !== undefined && koiId !== 0,
     select: (
       data: BaseResponse<KoiBreedingHistoryResponse>,
     ): KoiBreedingHistoryResponse => data.result,
