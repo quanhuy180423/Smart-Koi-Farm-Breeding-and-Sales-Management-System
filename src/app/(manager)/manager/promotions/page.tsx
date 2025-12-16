@@ -30,6 +30,13 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
+import {
   Loader2,
   Search,
   Eye,
@@ -40,6 +47,7 @@ import {
   Upload,
   Edit,
   Trash2,
+  MoreHorizontal,
 } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import {
@@ -107,7 +115,7 @@ const basePromotionSchema = z
     {
       message: "Giá trị giảm phần trăm phải trong khoảng 0-100",
       path: ["discountValue"],
-    },
+    }
   );
 
 // Schema for creating new promotions (with past date check)
@@ -121,7 +129,7 @@ const promotionCreateSchema = basePromotionSchema.refine(
   {
     message: "Ngày bắt đầu không thể ở quá khứ",
     path: ["validFrom"],
-  },
+  }
 );
 
 // Schema for editing promotions (no past date check)
@@ -272,7 +280,7 @@ export default function PromotionManagement() {
 
   const handleImageSelect = async (files: FileList) => {
     const imageFiles = Array.from(files).filter((file) =>
-      file.type.startsWith("image/"),
+      file.type.startsWith("image/")
     );
 
     // Create preview URLs for selected images
@@ -443,7 +451,7 @@ export default function PromotionManagement() {
       // Filter existing images (URLs from server, not base64)
       const existingImages = imagePreviews.filter(
         (preview) =>
-          preview.startsWith("http://") || preview.startsWith("https://"),
+          preview.startsWith("http://") || preview.startsWith("https://")
       );
 
       // Combine: existing images + newly uploaded images
@@ -580,19 +588,19 @@ export default function PromotionManagement() {
                         <TableCell className="text-right font-medium">
                           {getDiscountDisplay(
                             promotion.discountType,
-                            promotion.discountValue,
+                            promotion.discountValue
                           )}
                         </TableCell>
                         <TableCell className="text-sm">
                           <div className="text-muted-foreground">
                             {formatDate(
                               promotion.validFrom,
-                              DATE_FORMATS.MEDIUM_DATE,
+                              DATE_FORMATS.MEDIUM_DATE
                             )}{" "}
                             -{" "}
                             {formatDate(
                               promotion.validTo,
-                              DATE_FORMATS.MEDIUM_DATE,
+                              DATE_FORMATS.MEDIUM_DATE
                             )}
                           </div>
                         </TableCell>
@@ -617,32 +625,45 @@ export default function PromotionManagement() {
                           </Badge>
                         </TableCell>
                         <TableCell className="text-right">
-                          <div className="flex justify-end gap-1">
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => viewDetails(promotion)}
-                              title="Xem chi tiết"
-                            >
-                              <Eye className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => handleEditPromotion(promotion)}
-                              title="Chỉnh sửa"
-                            >
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => handleDeleteClick(promotion)}
-                              title="Xóa"
-                              className="text-destructive hover:text-destructive"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
+                          <div className="flex items-center justify-center">
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-8 w-8 p-0"
+                                  title="Thao tác"
+                                >
+                                  <MoreHorizontal className="h-4 w-4 hover:text-white" />
+                                </Button>
+                              </DropdownMenuTrigger>
+
+                              <DropdownMenuContent align="end" className="w-44">
+                                <DropdownMenuItem
+                                  onClick={() => viewDetails(promotion)}
+                                >
+                                  <Eye className="mr-2 h-4 w-4 hover:text-white" />
+                                  Xem chi tiết
+                                </DropdownMenuItem>
+
+                                <DropdownMenuItem
+                                  onClick={() => handleEditPromotion(promotion)}
+                                >
+                                  <Edit className="mr-2 h-4 w-4 hover:text-white" />
+                                  Chỉnh sửa
+                                </DropdownMenuItem>
+
+                                <DropdownMenuSeparator />
+
+                                <DropdownMenuItem
+                                  className="text-destructive"
+                                  onClick={() => handleDeleteClick(promotion)}
+                                >
+                                  <Trash2 className="mr-2 h-4 w-4 text-destructive" />
+                                  Xóa
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
                           </div>
                         </TableCell>
                       </TableRow>
@@ -686,7 +707,7 @@ export default function PromotionManagement() {
                   }
                   onValueChange={(value) =>
                     setDiscountTypeInput(
-                      value === "all" ? undefined : (value as DiscountType),
+                      value === "all" ? undefined : (value as DiscountType)
                     )
                   }
                 >
@@ -722,7 +743,7 @@ export default function PromotionManagement() {
                         ? undefined
                         : value === "active"
                           ? true
-                          : false,
+                          : false
                     )
                   }
                 >
@@ -819,7 +840,7 @@ export default function PromotionManagement() {
                       <p className="font-medium">
                         {getDiscountDisplay(
                           selectedPromotion.discountType,
-                          selectedPromotion.discountValue,
+                          selectedPromotion.discountValue
                         )}
                       </p>
                     </div>
@@ -884,7 +905,7 @@ export default function PromotionManagement() {
                       <p className="font-medium">
                         {formatDate(
                           selectedPromotion.validFrom,
-                          DATE_FORMATS.DATETIME_24H,
+                          DATE_FORMATS.DATETIME_24H
                         )}
                       </p>
                     </div>
@@ -893,7 +914,7 @@ export default function PromotionManagement() {
                       <p className="font-medium">
                         {formatDate(
                           selectedPromotion.validTo,
-                          DATE_FORMATS.DATETIME_24H,
+                          DATE_FORMATS.DATETIME_24H
                         )}
                       </p>
                     </div>
@@ -996,10 +1017,14 @@ export default function PromotionManagement() {
               </div>
               <div className="space-y-2">
                 <Label>
-                  Giá Trị Giảm{" "}
-                  {formData.discountType === DiscountType.Percentage
-                    ? "(%)"
-                    : "(đ)"}
+                  Giá Trị Giảm
+                  {formData.discountType === DiscountType.Percentage ? (
+                    <span className="ml-2">(%)</span>
+                  ) : (
+                    <span className="ml-2 text-sm text-muted-foreground">
+                      {formatCurrency(formData.discountValue || 0)}
+                    </span>
+                  )}
                 </Label>
                 <InputNumber
                   value={formData.discountValue}
@@ -1026,7 +1051,12 @@ export default function PromotionManagement() {
             {/* Minimum Order Amount and Max Discount */}
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
-                <Label>Tối Thiểu Đơn Hàng (đ)</Label>
+                <Label>
+                  Tối Thiểu Đơn Hàng
+                  <span className="ml-2 text-sm text-muted-foreground">
+                    {formatCurrency(formData.minimumOrderAmount || 0)}
+                  </span>
+                </Label>
                 <InputNumber
                   value={formData.minimumOrderAmount}
                   onChange={(value) => {
@@ -1045,7 +1075,14 @@ export default function PromotionManagement() {
                 )}
               </div>
               <div className="space-y-2">
-                <Label>Tối Đa Giảm Giá (đ)</Label>
+                <Label>
+                  Tối Đa Giảm Giá
+                  <span className="ml-2 text-sm text-muted-foreground">
+                    {formData.maxDiscountAmount > 0
+                      ? formatCurrency(formData.maxDiscountAmount)
+                      : "Không giới hạn"}
+                  </span>
+                </Label>
                 <InputNumber
                   value={formData.maxDiscountAmount}
                   onChange={(value) => {
@@ -1286,7 +1323,7 @@ export default function PromotionManagement() {
 
             {/* Discount Type and Value */}
             <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-2">
+              <div className="space-y-2 w-full">
                 <Label>Loại Giảm Giá *</Label>
                 <Select
                   value={formData.discountType}
@@ -1297,10 +1334,10 @@ export default function PromotionManagement() {
                     })
                   }
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="w-full">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="w-full">
                     <SelectItem value={DiscountType.FixedAmount}>
                       Số tiền cố định
                     </SelectItem>
@@ -1312,10 +1349,14 @@ export default function PromotionManagement() {
               </div>
               <div className="space-y-2">
                 <Label>
-                  Giá Trị Giảm{" "}
-                  {formData.discountType === DiscountType.Percentage
-                    ? "(%)"
-                    : "(đ)"}
+                  Giá Trị Giảm
+                  {formData.discountType === DiscountType.Percentage ? (
+                    <span className="ml-2">(%)</span>
+                  ) : (
+                    <span className="ml-2 text-sm text-muted-foreground">
+                      {formatCurrency(formData.discountValue || 0)}
+                    </span>
+                  )}
                 </Label>
                 <InputNumber
                   value={formData.discountValue}
@@ -1342,7 +1383,12 @@ export default function PromotionManagement() {
             {/* Minimum Order Amount and Max Discount */}
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
-                <Label>Tối Thiểu Đơn Hàng (đ)</Label>
+                <Label>
+                  Tối Thiểu Đơn Hàng
+                  <span className="ml-2 text-sm text-muted-foreground">
+                    {formatCurrency(formData.minimumOrderAmount || 0)}
+                  </span>
+                </Label>
                 <InputNumber
                   value={formData.minimumOrderAmount}
                   onChange={(value) => {
@@ -1361,7 +1407,14 @@ export default function PromotionManagement() {
                 )}
               </div>
               <div className="space-y-2">
-                <Label>Tối Đa Giảm Giá (đ)</Label>
+                <Label>
+                  Tối Đa Giảm Giá
+                  <span className="ml-2 text-sm text-muted-foreground">
+                    {formData.maxDiscountAmount > 0
+                      ? formatCurrency(formData.maxDiscountAmount)
+                      : "Không giới hạn"}
+                  </span>
+                </Label>
                 <InputNumber
                   value={formData.maxDiscountAmount}
                   onChange={(value) => {

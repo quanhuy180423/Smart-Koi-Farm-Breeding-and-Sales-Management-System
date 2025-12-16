@@ -70,12 +70,10 @@ export default function PondSelectionModal({
 
   return (
     <Sheet open={isOpen} onOpenChange={onOpenChange}>
-      <SheetContent className="w-[600px] sm:w-[700px] flex flex-col">
+      <SheetContent className="w-[600px] sm:w-[700px] flex flex-col p-2">
         <SheetHeader className="sticky top-0 bg-white z-10 pb-4 border-b">
           <SheetTitle>Chọn hồ</SheetTitle>
           <SheetDescription>Chọn hồ để gán cho công việc</SheetDescription>
-        </SheetHeader>
-        <div className="flex-1 overflow-y-auto space-y-4">
           {/* Search Input */}
           <Input
             placeholder="Tìm kiếm hồ theo tên..."
@@ -93,7 +91,8 @@ export default function PondSelectionModal({
               Đã chọn {selectedPondIds.size} hồ
             </div>
           )}
-
+        </SheetHeader>
+        <div className="flex-1 overflow-y-auto space-y-4">
           {isLoadingPonds ? (
             <div className="flex items-center justify-center py-10 text-gray-500">
               <Loader2 className="w-5 h-5 mr-2 animate-spin" />

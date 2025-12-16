@@ -27,9 +27,7 @@ import { getRoleLabel } from "@/lib/utils/enum";
 import { PondResponse } from "@/lib/api/services/fetchPond";
 import { z } from "zod";
 import { toLocalDateString } from "@/lib/utils/dates";
-import TimePicker from "react-time-picker";
-import "react-time-picker/dist/TimePicker.css";
-import "react-clock/dist/Clock.css";
+import { TimePicker } from "@/components/ui/time-picker";
 
 interface CreateWorkScheduleModalProps {
   isOpen: boolean;
@@ -43,16 +41,16 @@ export default function CreateWorkScheduleModal({
   scheduledDate,
 }: CreateWorkScheduleModalProps) {
   const [selectedTask, setSelectedTask] = useState<TaskTemplateResponse | null>(
-    null,
+    null
   );
   const [notes, setNotes] = useState("");
   const [startTime, setStartTime] = useState("");
   const [timeError, setTimeError] = useState<string>("");
   const [selectedStaffIds, setSelectedStaffIds] = useState<Set<number>>(
-    new Set(),
+    new Set()
   );
   const [selectedPondIds, setSelectedPondIds] = useState<Set<number>>(
-    new Set(),
+    new Set()
   );
   const [isStaffModalOpen, setIsStaffModalOpen] = useState(false);
   const [isPondModalOpen, setIsPondModalOpen] = useState(false);
@@ -125,7 +123,7 @@ export default function CreateWorkScheduleModal({
         },
         {
           message: "Giờ bắt đầu không được trước giờ hiện tại",
-        },
+        }
       );
 
       const result = timeSchema.safeParse(startTime);
@@ -168,7 +166,7 @@ export default function CreateWorkScheduleModal({
         onSuccess: () => {
           onOpenChange(false);
         },
-      },
+      }
     );
   };
 
@@ -218,69 +216,59 @@ export default function CreateWorkScheduleModal({
             {/* Task Selection */}
             <Card>
               <CardContent className="pt-6 space-y-3">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-gray-600 mb-2">
-                      Công việc *
-                    </p>
+                <div className="flex items-center justify-between ">
+                  <div className="flex-col flex gap-2 w-full">
+                    <div className="w-full flex items-center justify-between mb-1">
+                      <p className="text-sm font-medium text-gray-600 mb-2">
+                        Công việc *
+                      </p>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => setIsTaskModalOpen(true)}
+                        disabled={isPending}
+                      >
+                        <Plus className="h-4 w-4 mr-1" />
+                        Chọn công việc
+                      </Button>
+                    </div>
+
                     {selectedTask ? (
-                      <div className="space-y-2">
+                      <Card className="p-2">
                         <Badge variant="secondary">
                           {selectedTask.taskName}
                         </Badge>
                         <p className="text-sm text-gray-600">
                           {selectedTask.description}
                         </p>
-                      </div>
+                      </Card>
                     ) : (
                       <p className="text-sm text-gray-400">
                         Chưa chọn công việc
                       </p>
                     )}
                   </div>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => setIsTaskModalOpen(true)}
-                    disabled={isPending}
-                  >
-                    <Plus className="h-4 w-4 mr-1" />
-                    Chọn công việc
-                  </Button>
                 </div>
               </CardContent>
-            </Card>
 
-            {/* Time Section */}
-            <Card>
+              {/* Time Section */}
               <CardContent className="pt-6 space-y-4">
                 <p className="text-sm font-medium text-gray-600">
                   Thời gian bắt đầu *
                 </p>
                 <div>
-                  <div
-                    className={`rounded-md border ${timeError ? "border-red-500" : "border-gray-300"} focus-within:ring-2 focus-within:ring-offset-0 ${timeError ? "focus-within:ring-red-500" : "focus-within:ring-blue-500"}`}
-                  >
-                    <TimePicker
-                      onChange={(value) => {
-                        if (value) {
-                          // TimePicker returns "HH:MM" format, we need "HH:MM:SS" for the API
-                          setStartTime(`${value}:00`);
-                        } else {
-                          setStartTime("");
-                        }
-                      }}
-                      value={startTime ? startTime.substring(0, 5) : null}
-                      format="HH:mm"
-                      // Hiện đồng hồ khi chọn giờ (cho đẹp)
-                      disableClock={false}
-                      clearIcon={null}
-                      className="w-full"
-                      hourPlaceholder="HH"
-                      minutePlaceholder="MM"
-                      maxDetail="minute"
-                    />
-                  </div>
+                  <TimePicker
+                    value={startTime ? startTime.substring(0, 5) : undefined}
+                    onChange={(value) => {
+                      if (value) {
+                        setStartTime(`${value}:00`);
+                      } else {
+                        setStartTime("");
+                      }
+                    }}
+                    placeholder="Chọn giờ"
+                    className={timeError ? "border-red-500" : ""}
+                  />
                   {timeError && (
                     <p className="text-sm text-red-500 mt-2">{timeError}</p>
                   )}
@@ -294,7 +282,7 @@ export default function CreateWorkScheduleModal({
                 <div className="flex items-center gap-2">
                   <Users className="h-5 w-5 text-gray-600" />
                   <h3 className="font-semibold text-gray-800">
-                    Nhân viên phân công
+                    Nhân viên phân công *
                   </h3>
                 </div>
                 <Button
@@ -366,7 +354,7 @@ export default function CreateWorkScheduleModal({
                 {Array.from(selectedPondIds).length > 0 ? (
                   pondsData?.data
                     ?.filter((pond: PondResponse) =>
-                      selectedPondIds.has(pond.id),
+                      selectedPondIds.has(pond.id)
                     )
                     .map((pond: PondResponse) => (
                       <Card

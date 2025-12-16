@@ -1,7 +1,16 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Plus, Search, Edit, Trash2, Loader2, Filter } from "lucide-react";
+import {
+  Plus,
+  Search,
+  Edit,
+  Trash2,
+  Loader2,
+  Filter,
+  MoreHorizontal,
+  Zap,
+} from "lucide-react";
 import {
   Card,
   CardContent,
@@ -37,6 +46,14 @@ import {
 } from "@/components/ui/dialog";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
+import toast from "react-hot-toast";
 import AddIncidentTypeModal from "./components/AddIncidentTypeModal";
 import EditIncidentTypeModal from "./components/EditIncidentTypeModal";
 import DeleteIncidentTypeConfirmDialog from "./components/DeleteIncidentTypeConfirmDialog";
@@ -216,7 +233,7 @@ export default function IncidentTypeManagement() {
                         key={incidentType.id}
                         className="hover:bg-muted/50"
                       >
-                        <TableCell className="text-center font-medium text-gray-500">
+                        <TableCell className="text-start font-medium text-gray-500">
                           {index + 1}
                         </TableCell>
                         <TableCell className="font-medium truncate">
@@ -249,31 +266,49 @@ export default function IncidentTypeManagement() {
                           </Badge>
                         </TableCell>
                         <TableCell className="text-center">
-                          <div className="flex justify-center gap-1">
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => handleDetailClick(incidentType)}
-                              className="h-8 w-8"
-                            >
-                              <Eye className="h-4 w-4 text-green-600 hover:text-green-800" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => handleEditClick(incidentType)}
-                              className="h-8 w-8"
-                            >
-                              <Edit className="h-4 w-4 text-blue-600 hover:text-blue-800" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => handleDeleteClick(incidentType)}
-                              className="h-8 w-8"
-                            >
-                              <Trash2 className="h-4 w-4 text-red-600 hover:text-red-800" />
-                            </Button>
+                          <div className="flex items-center justify-center">
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-8 w-8 p-0"
+                                  title="Thao tác"
+                                >
+                                  <MoreHorizontal className="h-4 w-4" />
+                                </Button>
+                              </DropdownMenuTrigger>
+
+                              <DropdownMenuContent align="end" className="w-44">
+                                <DropdownMenuItem
+                                  onClick={() =>
+                                    handleDetailClick(incidentType)
+                                  }
+                                >
+                                  <Eye className="mr-2 h-4 w-4 hover:text-white" />
+                                  Chi tiết
+                                </DropdownMenuItem>
+
+                                <DropdownMenuItem
+                                  onClick={() => handleEditClick(incidentType)}
+                                >
+                                  <Edit className="mr-2 h-4 w-4 hover:text-white" />
+                                  Chỉnh sửa
+                                </DropdownMenuItem>
+
+                                <DropdownMenuSeparator />
+
+                                <DropdownMenuItem
+                                  className="text-red-600"
+                                  onClick={() =>
+                                    handleDeleteClick(incidentType)
+                                  }
+                                >
+                                  <Trash2 className="mr-2 h-4 w-4 text-red-600" />
+                                  Xóa
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
                           </div>
                         </TableCell>
                       </TableRow>

@@ -24,9 +24,7 @@ import { useCreateWeeklyScheduleTemplate } from "@/hooks/useWeeklyScheduleTempla
 import { formatTimeToHHMM } from "@/lib/utils/formatTime";
 import TaskSelectionPopup from "../components/TaskSelectionPopup";
 import toast from "react-hot-toast";
-import TimePicker from "react-time-picker";
-import "react-time-picker/dist/TimePicker.css";
-import "react-clock/dist/Clock.css";
+import { TimePicker } from "@/components/ui/time-picker";
 
 interface TemplateItemWithTask extends TemplateItemRequest {
   taskTemplate?: TaskTemplateResponse;
@@ -51,11 +49,11 @@ export default function CreateWeeklyScheduleTemplatePage() {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [templateItems, setTemplateItems] = useState<TemplateItemWithTask[]>(
-    [],
+    []
   );
   const [isTaskSelectionOpen, setIsTaskSelectionOpen] = useState(false);
   const [selectedDays, setSelectedDays] = useState<Set<DayOfWeekEnum>>(
-    new Set(),
+    new Set()
   );
   const [startTime, setStartTime] = useState<string>("06:00:00");
 
@@ -72,7 +70,7 @@ export default function CreateWeeklyScheduleTemplatePage() {
         startTime,
         taskTemplate: task,
         tempId: `${Date.now()}-${Math.random()}-${day}`,
-      }),
+      })
     );
 
     setTemplateItems([...templateItems, ...newItems]);
@@ -226,8 +224,9 @@ export default function CreateWeeklyScheduleTemplatePage() {
                   >
                     Thời gian bắt đầu
                   </Label>
-                  <div className="rounded-md border border-gray-300 focus-within:ring-2 focus-within:ring-offset-0 focus-within:ring-blue-500 mt-1">
+                  <div className="mt-1">
                     <TimePicker
+                      value={startTime ? startTime.substring(0, 5) : undefined}
                       onChange={(value) => {
                         if (value) {
                           setStartTime(`${value}:00`);
@@ -235,14 +234,7 @@ export default function CreateWeeklyScheduleTemplatePage() {
                           setStartTime("");
                         }
                       }}
-                      value={startTime ? startTime.substring(0, 5) : null}
-                      format="HH:mm"
-                      disableClock={false}
-                      clearIcon={null}
-                      className="w-full"
-                      hourPlaceholder="HH"
-                      minutePlaceholder="MM"
-                      maxDetail="minute"
+                      placeholder="Chọn giờ"
                     />
                   </div>
                 </div>
@@ -271,7 +263,7 @@ export default function CreateWeeklyScheduleTemplatePage() {
                 >
                   {DAYS_OF_WEEK.map((day) => {
                     const dayTasks = templateItems.filter(
-                      (item) => item.dayOfWeek === day.key,
+                      (item) => item.dayOfWeek === day.key
                     );
                     return (
                       <div

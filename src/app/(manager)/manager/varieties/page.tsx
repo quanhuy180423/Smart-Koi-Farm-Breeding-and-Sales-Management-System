@@ -2,7 +2,17 @@
 
 import * as React from "react";
 import { useState, useEffect } from "react";
-import { Plus, Search, Edit, Trash2, Eye, Loader2, Filter } from "lucide-react";
+import {
+  Plus,
+  Search,
+  Edit,
+  Trash2,
+  Eye,
+  Loader2,
+  Filter,
+  MoreHorizontal,
+  Zap,
+} from "lucide-react";
 import {
   Card,
   CardContent,
@@ -12,6 +22,13 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
 import {
   Table,
   TableBody,
@@ -65,7 +82,7 @@ export default function VarietyManagement() {
   const [isAddModalOpen, setIsAddModalOpen] = useState<boolean>(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false);
   const [editingVariety, setEditingVariety] = useState<VarietyResponse | null>(
-    null,
+    null
   );
 
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
@@ -198,7 +215,7 @@ export default function VarietyManagement() {
           setIsEditModalOpen(false);
           setEditingVariety(null);
         },
-      },
+      }
     );
   };
 
@@ -329,37 +346,50 @@ export default function VarietyManagement() {
                           {variety.characteristic || "N/A"}
                         </TableCell>
                         <TableCell className="text-center">
-                          <div className="flex items-center justify-center gap-2">
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => handleViewDetails(variety)}
-                              title="Chi tiết"
-                            >
-                              <Eye className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => handleEditVariety(variety)}
-                              title="Chỉnh sửa"
-                            >
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="text-red-600 hover:text-red-800"
-                              onClick={() => handleDeleteVariety(variety)}
-                              title="Xóa"
-                              disabled={deleteVarietyMutation.isPending}
-                            >
-                              {deleteVarietyMutation.isPending ? (
-                                <Loader2 className="h-4 w-4 animate-spin" />
-                              ) : (
-                                <Trash2 className="h-4 w-4" />
-                              )}
-                            </Button>
+                          <div className="flex items-center justify-center">
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-8 w-8 p-0"
+                                  title="Thao tác"
+                                >
+                                  <MoreHorizontal className="h-4 w-4" />
+                                </Button>
+                              </DropdownMenuTrigger>
+
+                              <DropdownMenuContent align="end" className="w-44">
+                                <DropdownMenuItem
+                                  onClick={() => handleViewDetails(variety)}
+                                >
+                                  <Eye className="mr-2 h-4 w-4 hover:text-white" />
+                                  Chi tiết
+                                </DropdownMenuItem>
+
+                                <DropdownMenuItem
+                                  onClick={() => handleEditVariety(variety)}
+                                >
+                                  <Edit className="mr-2 h-4 w-4 hover:text-white" />
+                                  Chỉnh sửa
+                                </DropdownMenuItem>
+
+                                <DropdownMenuSeparator />
+
+                                <DropdownMenuItem
+                                  className="text-red-600"
+                                  onClick={() => handleDeleteVariety(variety)}
+                                  disabled={deleteVarietyMutation.isPending}
+                                >
+                                  {deleteVarietyMutation.isPending ? (
+                                    <Loader2 className="mr-2 h-4 w-4 animate-spin text-red-600" />
+                                  ) : (
+                                    <Trash2 className="mr-2 h-4 w-4 text-red-600" />
+                                  )}
+                                  Xóa
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
                           </div>
                         </TableCell>
                       </TableRow>

@@ -13,7 +13,23 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { InputNumber } from "@/components/ui/input-number";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, Search, Edit, Eye, Trash2, Repeat, Loader2 } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
+import {
+  Plus,
+  Search,
+  Edit,
+  Eye,
+  Trash2,
+  Repeat,
+  Loader2,
+  MoreHorizontal,
+} from "lucide-react";
 import {
   Table,
   TableBody,
@@ -108,13 +124,13 @@ export default function ScheduleManagement() {
     useState(false);
   const [isGenerateModalOpen, setIsGenerateModalOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<TaskTemplateResponse | null>(
-    null,
+    null
   );
   const [selectedTask, setSelectedTask] = useState<TaskTemplateResponse | null>(
-    null,
+    null
   );
   const [taskToDelete, setTaskToDelete] = useState<TaskTemplateResponse | null>(
-    null,
+    null
   );
   const [weeklyScheduleToDelete, setWeeklyScheduleToDelete] = useState<{
     id: number;
@@ -128,7 +144,7 @@ export default function ScheduleManagement() {
   });
   const [selectedPondId, setSelectedPondId] = useState<number | null>(null);
   const [selectedStaffRole, setSelectedStaffRole] = useState<Roles | null>(
-    null,
+    null
   );
 
   // Update search params when debounced search term changes
@@ -243,7 +259,7 @@ export default function ScheduleManagement() {
           setIsEditModalOpen(false);
           setEditingTask(null);
         },
-      },
+      }
     );
   };
 
@@ -379,36 +395,43 @@ export default function ScheduleManagement() {
                               </TableCell>
                               <TableCell>{task.defaultDuration} phút</TableCell>
                               <TableCell>
-                                <div className="flex items-center justify-center gap-1">
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() => handleViewDetails(task)}
-                                    className="h-8 w-8 p-0"
-                                    title="Chi tiết"
-                                  >
-                                    <Eye className="h-4 w-4" />
-                                  </Button>
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() => handleEditTask(task)}
-                                    disabled={isSaving}
-                                    className="h-8 w-8 p-0"
-                                    title="Chỉnh sửa"
-                                  >
-                                    <Edit className="h-4 w-4" />
-                                  </Button>
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() => handleDeleteTask(task)}
-                                    disabled={isSaving}
-                                    className="text-red-600 h-8 w-8 p-0 hover:bg-red-50"
-                                    title="Xóa"
-                                  >
-                                    <Trash2 className="h-4 w-4" />
-                                  </Button>
+                                <div className="flex items-center justify-center">
+                                  <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                      <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        className="h-8 w-8 p-0"
+                                        disabled={isSaving}
+                                      >
+                                        <MoreHorizontal className="h-4 w-4" />
+                                      </Button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent align="end">
+                                      <DropdownMenuItem
+                                        onClick={() => handleViewDetails(task)}
+                                      >
+                                        <Eye className="mr-2 h-4 w-4" />
+                                        Chi tiết
+                                      </DropdownMenuItem>
+                                      <DropdownMenuItem
+                                        onClick={() => handleEditTask(task)}
+                                        disabled={isSaving}
+                                      >
+                                        <Edit className="mr-2 h-4 w-4" />
+                                        Chỉnh sửa
+                                      </DropdownMenuItem>
+                                      <DropdownMenuSeparator />
+                                      <DropdownMenuItem
+                                        onClick={() => handleDeleteTask(task)}
+                                        disabled={isSaving}
+                                        className="text-red-600 focus:text-red-600 focus:bg-red-50"
+                                      >
+                                        <Trash2 className="mr-2 h-4 w-4" />
+                                        Xóa
+                                      </DropdownMenuItem>
+                                    </DropdownMenuContent>
+                                  </DropdownMenu>
                                 </div>
                               </TableCell>
                             </TableRow>

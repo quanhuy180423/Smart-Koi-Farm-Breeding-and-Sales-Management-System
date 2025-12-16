@@ -16,6 +16,7 @@ interface DatePickerFilterProps {
   onChange: (date: string) => void;
   placeholder?: string;
   maxDate?: Date;
+  minDate?: Date;
 }
 
 const getDateFromString = (dateString: string): Date | undefined => {
@@ -46,6 +47,7 @@ export function DatePickerFilter({
   onChange,
   placeholder = "Chọn ngày...",
   maxDate,
+  minDate,
 }: DatePickerFilterProps) {
   return (
     <div className="space-y-2 w-full">
@@ -69,7 +71,11 @@ export function DatePickerFilter({
                 onChange(formatDateToString(date));
               }
             }}
-            disabled={(date) => (maxDate ? date > maxDate : false)}
+            disabled={(date) => {
+              if (maxDate && date > maxDate) return true;
+              if (minDate && date < minDate) return true;
+              return false;
+            }}
             captionLayout="dropdown"
             locale={vi}
           />

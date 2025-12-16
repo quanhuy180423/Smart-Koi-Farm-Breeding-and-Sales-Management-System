@@ -24,6 +24,7 @@ import {
   CheckCircle,
   Upload,
   FileUp,
+  FileDown,
   X,
 } from "lucide-react";
 import {
@@ -165,6 +166,9 @@ export default function AccountManagement() {
   const [importFile, setImportFile] = useState<File | null>(null);
   const [isDragActive, setIsDragActive] = useState<boolean>(false);
 
+  // Track which user is being toggled
+  const [togglingUserId, setTogglingUserId] = useState<number | null>(null);
+
   // Hooks for creating and blocking accounts
   const createStaffMutation = useCreateStaffAccount();
   const toggleBlockMutation = useToggleAccountBlock();
@@ -189,6 +193,49 @@ export default function AccountManagement() {
   const userList = userData?.data || [];
   const totalItems = userData?.totalItems || 0;
 
+  // Password validation helper
+  const validatePassword = (
+    password: string
+  ): { isValid: boolean; message: string } => {
+    if (password.length < 6) {
+      return { isValid: false, message: "Mật khẩu phải có ít nhất 6 ký tự" };
+    }
+    if (!/[A-Z]/.test(password)) {
+      return { isValid: false, message: "Mật khẩu phải có ít nhất 1 chữ hoa" };
+    }
+    if (!/[a-z]/.test(password)) {
+      return {
+        isValid: false,
+        message: "Mật khẩu phải có ít nhất 1 chữ thường",
+      };
+    }
+    if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) {
+      return {
+        isValid: false,
+        message: "Mật khẩu phải có ít nhất 1 ký tự đặc biệt",
+      };
+    }
+    return { isValid: true, message: "" };
+  };
+
+  // Handle close add modal and reset form
+  const handleCloseAddModal = (open: boolean) => {
+    setIsAddModalOpen(open);
+    if (!open) {
+      setNewAccount({
+        fullName: "",
+        userName: "",
+        email: "",
+        phone: "",
+        role: "",
+        password: "",
+        confirmPassword: "",
+      });
+      setShowPassword(false);
+      setShowConfirmPassword(false);
+    }
+  };
+
   const handleAddAccount = async () => {
     // Validation: Only FarmStaff and SaleStaff are allowed for new staff accounts
     if (
@@ -196,7 +243,7 @@ export default function AccountManagement() {
       ![Roles.FarmStaff, Roles.SaleStaff].includes(newAccount.role as Roles)
     ) {
       toast.error(
-        "Chỉ có thể tạo tài khoản cho nhân viên trang trại hoặc nhân viên bán hàng",
+        "Chỉ có thể tạo tài khoản cho nhân viên trang trại hoặc nhân viên bán hàng"
       );
       return;
     }
@@ -208,6 +255,13 @@ export default function AccountManagement() {
       !newAccount.password
     ) {
       toast.error("Vui lòng điền đầy đủ thông tin");
+      return;
+    }
+
+    // Validate password strength
+    const passwordValidation = validatePassword(newAccount.password);
+    if (!passwordValidation.isValid) {
+      toast.error(passwordValidation.message);
       return;
     }
 
@@ -314,7 +368,7 @@ export default function AccountManagement() {
         // Show summary
         if (successCount > 0) {
           toast.success(
-            `Import thành công: ${successCount} tài khoản đã được tạo`,
+            `Import thành công: ${successCount} tài khoản đã được tạo`
           );
         }
 
@@ -327,7 +381,7 @@ export default function AccountManagement() {
             `Import thất bại: ${failureCount} tài khoản\n${errorMessages}`,
             {
               duration: 6000,
-            },
+            }
           );
         }
       }
@@ -339,7 +393,7 @@ export default function AccountManagement() {
         error instanceof Error ? error.message : "Lỗi khi import file",
         {
           duration: 6000,
-        },
+        }
       );
     }
   };
@@ -376,9 +430,9 @@ export default function AccountManagement() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {/* Search and Filter */}
-          <div className="flex space-x-4 mb-4">
-            <div className="relative grow">
+          {/* Search and Filter - FIX #1: Responsive Layout */}
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-6">
+            <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 placeholder="Tìm kiếm theo tên hoặc email..."
@@ -386,7 +440,7 @@ export default function AccountManagement() {
                 onChange={(e) => {
                   setSearchTerm(e.target.value);
                 }}
-                className="border-2 border-gray-400 pl-10"
+                className="pl-10 h-10 transition-all duration-200 focus:ring-2 focus:ring-primary/20"
               />
             </div>
 
@@ -396,7 +450,7 @@ export default function AccountManagement() {
                 setRoleFilter(value);
               }}
             >
-              <SelectTrigger className="border-2 border-gray-400 w-48">
+              <SelectTrigger className="w-full sm:w-56 h-10 transition-all duration-200 focus:ring-2 focus:ring-primary/20">
                 <SelectValue placeholder="Lọc theo vai trò" />
               </SelectTrigger>
               <SelectContent>
@@ -428,22 +482,35 @@ export default function AccountManagement() {
             />
           ) : (
             <>
-              {/* Table */}
-              <div className="overflow-x-auto">
-                <Table className="table-fixed w-full">
+              {/* Table - FIX #5: Better Scannability */}
+              <div className="overflow-x-auto -mx-2">
+                <Table className="w-full">
                   <TableHeader>
-                    <TableRow>
-                      <TableHead className="w-[5%]">STT</TableHead>
-                      <TableHead className="w-[20%]">Tên</TableHead>
-                      <TableHead className="w-[30%]">Email</TableHead>
-                      <TableHead className="w-[15%]">Vai trò</TableHead>
-                      <TableHead className="w-[15%]">Trạng thái</TableHead>
-                      <TableHead className="w-[15%]">Hành động</TableHead>
+                    <TableRow className="border-b-2">
+                      <TableHead className="w-12 font-semibold">STT</TableHead>
+                      <TableHead className="min-w-[150px] font-semibold">
+                        Tên
+                      </TableHead>
+                      <TableHead className="min-w-[200px] font-semibold">
+                        Email
+                      </TableHead>
+                      <TableHead className="min-w-[140px] font-semibold">
+                        Vai trò
+                      </TableHead>
+                      <TableHead className="min-w-[120px] font-semibold">
+                        Trạng thái
+                      </TableHead>
+                      <TableHead className="min-w-[180px] font-semibold text-right">
+                        Hành động
+                      </TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {userList.map((account, index) => (
-                      <TableRow key={account.id}>
+                      <TableRow
+                        key={account.id}
+                        className="hover:bg-muted/50 transition-colors duration-150"
+                      >
                         <TableCell>
                           {(currentPage - 1) * pageSize + index + 1}
                         </TableCell>
@@ -453,20 +520,21 @@ export default function AccountManagement() {
                         <TableCell>{account.email}</TableCell>
                         <TableCell>{getRoleBadge(account.role)}</TableCell>
                         <TableCell>
-                          {getStatusBadge(account.isBlocked)}
+                          <div className="flex items-center">
+                            {getStatusBadge(account.isBlocked)}
+                          </div>
                         </TableCell>
-                        <TableCell>
+                        <TableCell className="text-right">
                           {currentUser &&
-                          account.id === parseInt(currentUser.id) ? null : (
+                          account.id === parseInt(currentUser.id) ? (
+                            <Badge variant="outline" className="text-xs">
+                              Tài khoản hiện tại
+                            </Badge>
+                          ) : (
                             <Button
-                              variant="ghost"
+                              variant={account.isBlocked ? "outline" : "ghost"}
                               size="sm"
-                              disabled={toggleBlockMutation.isPending}
-                              title={
-                                account.isBlocked
-                                  ? "Bỏ chặn tài khoản"
-                                  : "Chặn tài khoản"
-                              }
+                              disabled={togglingUserId === account.id}
                               onClick={() => {
                                 setBlockConfirmDialog({
                                   isOpen: true,
@@ -476,16 +544,24 @@ export default function AccountManagement() {
                               }}
                               className={
                                 account.isBlocked
-                                  ? "text-green-600 hover:text-red-600 hover:bg-red-100"
-                                  : "text-red-600 hover:text-red-600 hover:bg-red-100"
+                                  ? "text-green-600 border-green-200 hover:text-green-600 hover:bg-green-50 gap-2"
+                                  : "text-red-600 hover:bg-red-50 hover:text-red-600 gap-2"
                               }
                             >
-                              {toggleBlockMutation.isPending ? (
+                              {togglingUserId === account.id ? (
                                 <Loader2 className="h-4 w-4 animate-spin" />
                               ) : account.isBlocked ? (
-                                <CheckCircle className="h-4 w-4" />
+                                <>
+                                  <CheckCircle className="h-4 w-4" />
+                                  <span className="hidden sm:inline">
+                                    Mở khóa
+                                  </span>
+                                </>
                               ) : (
-                                <Ban className="h-4 w-4" />
+                                <>
+                                  <Ban className="h-4 w-4" />
+                                  <span className="hidden sm:inline">Chặn</span>
+                                </>
                               )}
                             </Button>
                           )}
@@ -515,7 +591,7 @@ export default function AccountManagement() {
 
       {/* Add New Account Modal */}
       {isAddModalOpen && (
-        <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
+        <Dialog open={isAddModalOpen} onOpenChange={handleCloseAddModal}>
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Tạo tài khoản nhân viên mới</DialogTitle>
@@ -523,9 +599,13 @@ export default function AccountManagement() {
                 Nhập thông tin để tạo tài khoản nhân viên
               </DialogDescription>
             </DialogHeader>
-            <div className="space-y-4">
+            <div className="space-y-4 max-h-[70vh] overflow-y-auto p-2">
+              {/* FIX #3: Real-time Validation */}
               <div className="space-y-2">
-                <Label htmlFor="fullName">Tên đầy đủ</Label>
+                <Label htmlFor="fullName" className="flex items-center gap-1">
+                  Tên đầy đủ
+                  <span className="text-destructive">*</span>
+                </Label>
                 <Input
                   id="fullName"
                   value={newAccount.fullName}
@@ -533,10 +613,18 @@ export default function AccountManagement() {
                     setNewAccount({ ...newAccount, fullName: e.target.value })
                   }
                   placeholder="Nhập tên đầy đủ"
+                  className={
+                    !newAccount.fullName && newAccount.fullName !== ""
+                      ? "border-destructive"
+                      : ""
+                  }
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="userName">Tên tài khoản (Username)</Label>
+                <Label htmlFor="userName" className="flex items-center gap-1">
+                  Tên tài khoản (Username)
+                  <span className="text-destructive">*</span>
+                </Label>
                 <Input
                   id="userName"
                   value={newAccount.userName}
@@ -547,7 +635,10 @@ export default function AccountManagement() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email" className="flex items-center gap-1">
+                  Email
+                  <span className="text-destructive">*</span>
+                </Label>
                 <Input
                   id="email"
                   type="email"
@@ -557,6 +648,12 @@ export default function AccountManagement() {
                   }
                   placeholder="Nhập email"
                 />
+                {newAccount.email &&
+                  !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(newAccount.email) && (
+                    <p className="text-xs text-destructive mt-1">
+                      Email không hợp lệ
+                    </p>
+                  )}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="phone">Số điện thoại</Label>
@@ -571,7 +668,10 @@ export default function AccountManagement() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="role">Vai trò</Label>
+                <Label htmlFor="role" className="flex items-center gap-1">
+                  Vai trò
+                  <span className="text-destructive">*</span>
+                </Label>
                 <Select
                   value={newAccount.role}
                   onValueChange={(value) =>
@@ -594,9 +694,10 @@ export default function AccountManagement() {
               <div className="space-y-2">
                 <Label
                   htmlFor="password"
-                  className="text-secondary-foreground font-medium text-sm"
+                  className="text-secondary-foreground font-medium text-sm flex items-center gap-1"
                 >
                   Mật khẩu
+                  <span className="text-destructive">*</span>
                 </Label>
                 <div className="relative">
                   <Input
@@ -623,13 +724,68 @@ export default function AccountManagement() {
                     )}
                   </Button>
                 </div>
+                {/* Password requirements */}
+                <div className="space-y-1 text-xs">
+                  <p className="font-medium text-muted-foreground">
+                    Yêu cầu mật khẩu:
+                  </p>
+                  <div className="space-y-0.5 pl-2">
+                    <p
+                      className={
+                        newAccount.password.length >= 6
+                          ? "text-green-600"
+                          : "text-muted-foreground"
+                      }
+                    >
+                      {newAccount.password.length >= 6 ? "✓" : "○"} Ít nhất 6 ký
+                      tự
+                    </p>
+                    <p
+                      className={
+                        /[A-Z]/.test(newAccount.password)
+                          ? "text-green-600"
+                          : "text-muted-foreground"
+                      }
+                    >
+                      {/[A-Z]/.test(newAccount.password) ? "✓" : "○"} Ít nhất 1
+                      chữ hoa (A-Z)
+                    </p>
+                    <p
+                      className={
+                        /[a-z]/.test(newAccount.password)
+                          ? "text-green-600"
+                          : "text-muted-foreground"
+                      }
+                    >
+                      {/[a-z]/.test(newAccount.password) ? "✓" : "○"} Ít nhất 1
+                      chữ thường (a-z)
+                    </p>
+                    <p
+                      className={
+                        /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(
+                          newAccount.password
+                        )
+                          ? "text-green-600"
+                          : "text-muted-foreground"
+                      }
+                    >
+                      {/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(
+                        newAccount.password
+                      )
+                        ? "✓"
+                        : "○"}{" "}
+                      Ít nhất 1 ký tự đặc biệt (!@#$%...)
+                    </p>
+                  </div>
+                </div>
               </div>
               <div className="space-y-2">
                 <Label
                   htmlFor="confirmPassword"
-                  className="text-secondary-foreground font-medium text-sm"
+                  className="text-secondary-foreground font-medium text-sm flex items-center gap-1"
                 >
                   Xác nhận mật khẩu
+                  <span className="text-destructive">*</span>
                 </Label>
                 <div className="relative">
                   <Input
@@ -645,6 +801,12 @@ export default function AccountManagement() {
                     placeholder="Xác nhận mật khẩu"
                     className="bg-input/50 border-border/60 focus:ring-primary/30 focus:border-primary pr-11 transition-all duration-200 h-10 px-3 hover:border-primary/50"
                   />
+                  {newAccount.confirmPassword &&
+                    newAccount.password !== newAccount.confirmPassword && (
+                      <p className="text-xs text-destructive mt-1">
+                        Mật khẩu xác nhận không khớp
+                      </p>
+                    )}
                   <Button
                     type="button"
                     variant="ghost"
@@ -664,7 +826,7 @@ export default function AccountManagement() {
             <div className="flex justify-end gap-2 mt-6">
               <Button
                 variant="outline"
-                onClick={() => setIsAddModalOpen(false)}
+                onClick={() => handleCloseAddModal(false)}
                 disabled={createStaffMutation.isPending}
               >
                 Hủy
@@ -731,6 +893,7 @@ export default function AccountManagement() {
               disabled={toggleBlockMutation.isPending}
               onClick={() => {
                 if (blockConfirmDialog.userId) {
+                  setTogglingUserId(blockConfirmDialog.userId);
                   toggleBlockMutation.mutate(blockConfirmDialog.userId, {
                     onSuccess: () => {
                       setBlockConfirmDialog({
@@ -738,9 +901,11 @@ export default function AccountManagement() {
                         userId: null,
                         isCurrentlyBlocked: false,
                       });
+                      setTogglingUserId(null);
                     },
                     onError: () => {
                       toast.error("Lỗi khi cập nhật trạng thái tài khoản");
+                      setTogglingUserId(null);
                     },
                   });
                 }
@@ -784,39 +949,6 @@ export default function AccountManagement() {
           </DialogHeader>
 
           <div className="space-y-6">
-            {/* Format Instructions */}
-            <Card className="bg-blue-50 border-blue-200">
-              <CardContent className="pt-6">
-                <h4 className="font-semibold text-sm mb-3 text-blue-900">
-                  📋 Định dạng file Excel:
-                </h4>
-                <p className="text-xs text-blue-800 mb-3 font-mono bg-white p-3 rounded">
-                  Email | UserName | FullName | PhoneNumber | Role | Password
-                </p>
-                <div className="text-xs text-blue-800 space-y-2">
-                  <div>
-                    <strong>Email:</strong> Email của nhân viên (bắt buộc)
-                  </div>
-                  <div>
-                    <strong>UserName:</strong> Tên đăng nhập (bắt buộc)
-                  </div>
-                  <div>
-                    <strong>FullName:</strong> Tên đầy đủ (bắt buộc)
-                  </div>
-                  <div>
-                    <strong>PhoneNumber:</strong> Số điện thoại (bắt buộc)
-                  </div>
-                  <div>
-                    <strong>Role:</strong> Vai trò - <code>SaleStaff</code> hoặc{" "}
-                    <code>FarmStaff</code> (bắt buộc)
-                  </div>
-                  <div>
-                    <strong>Password:</strong> Mật khẩu (bắt buộc)
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
             {/* Drag & Drop Area */}
             <div
               onDragEnter={!importFile ? handleDragEnter : undefined}
@@ -856,7 +988,7 @@ export default function AccountManagement() {
                       onClick={(e) => {
                         const input =
                           e.currentTarget.parentElement?.querySelector(
-                            "input[type='file']",
+                            "input[type='file']"
                           ) as HTMLInputElement;
                         input?.click();
                       }}

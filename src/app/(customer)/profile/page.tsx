@@ -551,12 +551,6 @@ export default function CustomerProfilePage() {
                             <SelectItem value={Gender.FEMALE}>
                               {getUserGenderLabelForPerson(Gender.FEMALE).label}
                             </SelectItem>
-                            <SelectItem value={Gender.UNKNOWN}>
-                              {
-                                getUserGenderLabelForPerson(Gender.UNKNOWN)
-                                  .label
-                              }
-                            </SelectItem>
                           </SelectContent>
                         </Select>
                       ) : (

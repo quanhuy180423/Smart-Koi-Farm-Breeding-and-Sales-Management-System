@@ -50,7 +50,7 @@ export function WaterAlertList({ pondId }: WaterAlertListProps) {
   const [filterSeverity, setFilterSeverity] = useState<string>("all");
   const [filterAlertType, setFilterAlertType] = useState<string>("all");
   const [selectedPondName, setSelectedPondName] = useState<string | undefined>(
-    undefined,
+    undefined
   );
   const [isPondDialogOpen, setIsPondDialogOpen] = useState(false);
 
@@ -221,16 +221,16 @@ export function WaterAlertList({ pondId }: WaterAlertListProps) {
                   <TableHead className="font-semibold w-[12%]">
                     Tham số
                   </TableHead>
-                  <TableHead className="font-semibold w-[12%]">
+                  <TableHead className="font-semibold w-[10%]">
                     Giá trị đo
                   </TableHead>
-                  <TableHead className="font-semibold w-[12%]">
+                  <TableHead className="font-semibold w-[10%]">
                     Loại cảnh báo
                   </TableHead>
                   <TableHead className="font-semibold w-[10%]">
                     Mức độ
                   </TableHead>
-                  <TableHead className="font-semibold w-[20%]">
+                  <TableHead className="font-semibold w-[18%]">
                     Thông báo
                   </TableHead>
                   <TableHead className="font-semibold w-[12%]">
@@ -266,7 +266,7 @@ export function WaterAlertList({ pondId }: WaterAlertListProps) {
                     <TableCell>
                       <Badge
                         className={`${getWaterAlertSeverityColor(
-                          alert.severity as Severity,
+                          alert.severity as Severity
                         )} font-semibold text-xs`}
                       >
                         {getWaterAlertSeverityText(alert.severity as Severity)}

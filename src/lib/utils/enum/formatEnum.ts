@@ -70,13 +70,11 @@ const healthStatusMeta: Record<HealthStatus, Label> = {
 const genderMeta: Record<Gender, Label> = {
   [Gender.MALE]: { label: "Đực", colorClass: "text-blue-600" },
   [Gender.FEMALE]: { label: "Cái", colorClass: "text-pink-600" },
-  [Gender.UNKNOWN]: { label: "Chưa rõ", colorClass: "text-gray-500" },
 };
 
 const userGenderMeta: Record<Gender, Label> = {
   [Gender.MALE]: { label: "Nam", colorClass: "text-blue-600", icon: Mars },
   [Gender.FEMALE]: { label: "Nữ", colorClass: "text-pink-600", icon: Venus },
-  [Gender.UNKNOWN]: { label: "Khác", colorClass: "text-gray-500" },
 };
 
 const saleStatusMeta: Record<SaleStatus, Label> = {
@@ -147,7 +145,7 @@ const breedingStatusMeta: Record<BreedingStatus, Label> = {
     colorClass: "bg-cyan-100 text-cyan-700",
   },
   [BreedingStatus.FRY_FISH]: {
-    label: "Cá Con",
+    label: "Cá Bột",
     colorClass: "bg-teal-100 text-teal-700",
   },
   [BreedingStatus.CLASSIFICATION]: {
@@ -346,7 +344,7 @@ const DEFAULT_LABEL: Label = {
 function getLabelForEnum<T extends string>(
   value: T | undefined,
   meta: Record<T, Label>,
-  defaultLabel: Label = DEFAULT_LABEL,
+  defaultLabel: Label = DEFAULT_LABEL
 ): Label {
   if (!value || !meta[value]) {
     return defaultLabel;
@@ -451,7 +449,7 @@ export function getPondStatusLabel(status?: PondStatus): PondStatusLabel {
 }
 
 export function getWorkScheduleStatusLabel(
-  status?: WorkScheduleStatusEnum,
+  status?: WorkScheduleStatusEnum
 ): Label {
   return getLabelForEnum(status, workScheduleStatusMeta);
 }
@@ -532,7 +530,7 @@ export function getIncidentStatusText(status?: IncidentStatus): string {
  * @returns Label object with label and colorClass
  */
 export function getWaterAlertSeverityLabel(
-  severity?: WaterAlertSeverity,
+  severity?: WaterAlertSeverity
 ): Label {
   return getLabelForEnum(severity, waterAlertSeverityMeta);
 }
@@ -543,7 +541,7 @@ export function getWaterAlertSeverityLabel(
  * @returns Tailwind CSS color classes
  */
 export function getWaterAlertSeverityColor(
-  severity?: WaterAlertSeverity,
+  severity?: WaterAlertSeverity
 ): string {
   return getWaterAlertSeverityLabel(severity).colorClass;
 }
@@ -554,7 +552,7 @@ export function getWaterAlertSeverityColor(
  * @returns Severity text in Vietnamese
  */
 export function getWaterAlertSeverityText(
-  severity?: WaterAlertSeverity,
+  severity?: WaterAlertSeverity
 ): string {
   return getWaterAlertSeverityLabel(severity).label;
 }
@@ -583,7 +581,7 @@ export function getAlertTypeText(alertType?: AlertType): string {
  * @returns Tailwind CSS color classes
  */
 export function getWorkScheduleStatusColor(
-  status?: WorkScheduleStatusEnum,
+  status?: WorkScheduleStatusEnum
 ): string {
   return getWorkScheduleStatusLabel(status).colorClass;
 }
@@ -594,7 +592,7 @@ export function getWorkScheduleStatusColor(
  * @returns Status label text in Vietnamese
  */
 export function getWorkScheduleStatusText(
-  status?: WorkScheduleStatusEnum,
+  status?: WorkScheduleStatusEnum
 ): string {
   return getWorkScheduleStatusLabel(status).label;
 }
@@ -657,7 +655,7 @@ const orderStatusMeta: Record<OrderStatus, OrderStatusLabel> = {
  * @returns OrderStatusLabel with label, colorClass, and icon
  */
 export function getOrderStatusLabel(
-  status?: OrderStatus | string,
+  status?: OrderStatus | string
 ): OrderStatusLabel {
   if (!status || !orderStatusMeta[status as OrderStatus]) {
     return {
@@ -693,7 +691,7 @@ export function getOrderStatusColor(status?: OrderStatus | string): string {
  * @returns React component (icon)
  */
 export function getOrderStatusIcon(
-  status?: OrderStatus | string,
+  status?: OrderStatus | string
 ): React.ComponentType<{ className?: string }> {
   return getOrderStatusLabel(status).icon;
 }
@@ -713,7 +711,7 @@ export function isOrderCompleted(status?: OrderStatus | string): boolean {
  * @returns Array of status timeline steps
  */
 export function getOrderStatusTimeline(
-  currentStatus?: OrderStatus | string,
+  currentStatus?: OrderStatus | string
 ): Array<{
   status: OrderStatus;
   text: string;

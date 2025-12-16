@@ -3,7 +3,17 @@
 import * as React from "react";
 import { useState, useMemo, useEffect } from "react";
 import * as z from "zod";
-import { Plus, Search, Edit, Trash2, Eye, Loader2, Filter } from "lucide-react";
+import {
+  Plus,
+  Search,
+  Edit,
+  Trash2,
+  Eye,
+  Loader2,
+  Filter,
+  MoreHorizontal,
+  Zap,
+} from "lucide-react";
 import {
   Card,
   CardContent,
@@ -14,6 +24,13 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
 import {
   Table,
   TableBody,
@@ -240,7 +257,7 @@ export default function PondManagement() {
       pageSize: PAGE_SIZE_OPTIONS_DEFAULT[0],
       search: "",
     }),
-    [],
+    []
   );
 
   const allPondTypeSearchParams = useMemo(
@@ -249,7 +266,7 @@ export default function PondManagement() {
       pageSize: PAGE_SIZE_OPTIONS_DEFAULT[0],
       search: "",
     }),
-    [],
+    []
   );
 
   const { data: areasData } = useGetAreas(allAreaSearchParams);
@@ -339,7 +356,7 @@ export default function PondManagement() {
   };
 
   const handleAddPond = (
-    onValidationError?: (errors: Record<string, string>) => void,
+    onValidationError?: (errors: Record<string, string>) => void
   ) => {
     const result = pondSchema.safeParse({
       pondName: newPond.pondName,
@@ -450,7 +467,7 @@ export default function PondManagement() {
   };
 
   const handleUpdatePond = (
-    onValidationError?: (errors: Record<string, string>) => void,
+    onValidationError?: (errors: Record<string, string>) => void
   ) => {
     if (!editingPond) return;
 
@@ -524,7 +541,7 @@ export default function PondManagement() {
           setIsEditModalOpen(false);
           setEditingPond(null);
         },
-      },
+      }
     );
   };
 
@@ -782,7 +799,9 @@ export default function PondManagement() {
                     <TableHead className="w-[10%]">Sức chứa (Lít)</TableHead>
                     <TableHead className="w-[10%]">Trạng thái</TableHead>
                     <TableHead className="w-[10%]">Ngày tạo</TableHead>
-                    <TableHead className="w-[20%]">Thao tác</TableHead>
+                    <TableHead className="w-[20%] text-center">
+                      Thao tác
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -819,7 +838,7 @@ export default function PondManagement() {
                         <TableCell>
                           {(() => {
                             const statusInfo = getPondStatusLabel(
-                              pond.pondStatus,
+                              pond.pondStatus
                             );
                             const IconComponent = statusInfo.icon;
                             return (
@@ -837,41 +856,52 @@ export default function PondManagement() {
                           {formatDate(pond.createdAt, "dd/MM/yyyy")}
                         </TableCell>
                         <TableCell>
-                          <div className="flex items-center gap-2">
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => handleViewDetails(pond)}
-                              title="Chi tiết"
-                            >
-                              <Eye className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => handleEditPond(pond)}
-                              title="Chỉnh sửa"
-                            >
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                            {pond.pondStatus === PondStatus.EMPTY ? (
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="text-red-600 hover:text-red-800"
-                                onClick={() => handleDeletePond(pond)}
-                                title="Xóa"
-                                disabled={deletePondMutation.isPending}
-                              >
-                                {deletePondMutation.isPending ? (
-                                  <Loader2 className="h-4 w-4 animate-spin" />
+                          <div className="flex items-center justify-center">
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-8 w-8 p-0"
+                                  title="Thao tác"
+                                >
+                                  <MoreHorizontal className="h-4 w-4" />
+                                </Button>
+                              </DropdownMenuTrigger>
+
+                              <DropdownMenuContent align="end" className="w-44">
+                                <DropdownMenuItem
+                                  onClick={() => handleViewDetails(pond)}
+                                >
+                                  <Eye className="mr-2 h-4 w-4 hover:text-white" />
+                                  Chi tiết
+                                </DropdownMenuItem>
+
+                                <DropdownMenuItem
+                                  onClick={() => handleEditPond(pond)}
+                                >
+                                  <Edit className="mr-2 h-4 w-4 hover:text-white" />
+                                  Chỉnh sửa
+                                </DropdownMenuItem>
+
+                                <DropdownMenuSeparator />
+
+                                {pond.pondStatus === PondStatus.EMPTY ? (
+                                  <DropdownMenuItem
+                                    className="text-red-600 hover:text-white"
+                                    onClick={() => handleDeletePond(pond)}
+                                    disabled={deletePondMutation.isPending}
+                                  >
+                                    <Trash2 className="mr-2 h-4 w-4 hover:text-white text-red-600" />
+                                    Xóa
+                                  </DropdownMenuItem>
                                 ) : (
-                                  <Trash2 className="h-4 w-4" />
+                                  <DropdownMenuItem disabled>
+                                    Chỉ được xóa hồ trống
+                                  </DropdownMenuItem>
                                 )}
-                              </Button>
-                            ) : (
-                              <div className="h-10 w-10" />
-                            )}
+                              </DropdownMenuContent>
+                            </DropdownMenu>
                           </div>
                         </TableCell>
                       </TableRow>

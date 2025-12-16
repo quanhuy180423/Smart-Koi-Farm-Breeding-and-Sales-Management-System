@@ -169,7 +169,7 @@ export default function KoiManagement() {
   const handlePrevImage = () => {
     if (selectedKoi && selectedKoi.images && selectedKoi.images.length > 0) {
       setSelectedImageIdx((prev) =>
-        prev === 0 ? selectedKoi.images.length - 1 : prev - 1,
+        prev === 0 ? selectedKoi.images.length - 1 : prev - 1
       );
     }
   };
@@ -177,7 +177,7 @@ export default function KoiManagement() {
   const handleNextImage = () => {
     if (selectedKoi && selectedKoi.images && selectedKoi.images.length > 0) {
       setSelectedImageIdx((prev) =>
-        prev === selectedKoi.images.length - 1 ? 0 : prev + 1,
+        prev === selectedKoi.images.length - 1 ? 0 : prev + 1
       );
     }
   };
@@ -451,7 +451,7 @@ export default function KoiManagement() {
                         <TableCell className="truncate">
                           {(() => {
                             const label = getHealthStatusLabel(
-                              koi.healthStatus,
+                              koi.healthStatus
                             );
                             return (
                               <Badge
@@ -678,32 +678,32 @@ export default function KoiManagement() {
             setMinSizeInput(
               searchParams.minSize !== undefined
                 ? String(searchParams.minSize)
-                : "",
+                : ""
             );
             setMaxSizeInput(
               searchParams.maxSize !== undefined
                 ? String(searchParams.maxSize)
-                : "",
+                : ""
             );
             setMinPriceInput(
               searchParams.minPrice !== undefined
                 ? String(searchParams.minPrice)
-                : "",
+                : ""
             );
             setMaxPriceInput(
               searchParams.maxPrice !== undefined
                 ? String(searchParams.maxPrice)
-                : "",
+                : ""
             );
             setVarietyIdInput(
               searchParams.varietyId !== undefined
                 ? String(searchParams.varietyId)
-                : "",
+                : ""
             );
             setPondIdInput(
               searchParams.pondId !== undefined
                 ? String(searchParams.pondId)
-                : "",
+                : ""
             );
             setOriginInput(searchParams.origin || "");
             setIsPostSpawningInput(searchParams.isPostSpawning || false);
@@ -730,7 +730,7 @@ export default function KoiManagement() {
                       {healthFilterInput === "all"
                         ? "Chọn trạng thái"
                         : getHealthStatusLabel(
-                            healthFilterInput as HealthStatus,
+                            healthFilterInput as HealthStatus
                           ).label}
                     </span>
                   </SelectTrigger>
@@ -762,7 +762,6 @@ export default function KoiManagement() {
                     <SelectItem value="all">Tất cả</SelectItem>
                     <SelectItem value={Gender.MALE}>Đực</SelectItem>
                     <SelectItem value={Gender.FEMALE}>Cái</SelectItem>
-                    <SelectItem value={Gender.UNKNOWN}>Không rõ</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

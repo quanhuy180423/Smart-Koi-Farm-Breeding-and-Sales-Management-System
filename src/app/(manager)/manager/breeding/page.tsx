@@ -1,7 +1,26 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { Eye, X, Plus, Loader2, Search, Filter } from "lucide-react";
+import {
+  Eye,
+  X,
+  Plus,
+  Loader2,
+  Search,
+  Filter,
+  CheckCircle,
+  XCircle,
+  Fish,
+  Info,
+} from "lucide-react";
+import { EmptyState } from "@/components/common/EmptyState";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { useEffect, useState } from "react";
 import {
   Card,
@@ -72,6 +91,7 @@ export default function BreedingManagement() {
   const [breedingToDelete, setBreedingToDelete] =
     useState<BreedingProcessResponse>();
   const [cancelNote, setCancelNote] = useState<string>("");
+  const [cancelNoteError, setCancelNoteError] = useState<string>("");
 
   // Complete Classification
   const [isCompleteModalOpen, setIsCompleteModalOpen] = useState(false);
@@ -100,10 +120,10 @@ export default function BreedingManagement() {
   const [endDateFromInput, setEndDateFromInput] = useState<string>("");
   const [endDateToInput, setEndDateToInput] = useState<string>("");
   const [statusFilter, setStatusFilter] = useState<BreedingStatus | string>(
-    "all",
+    "all"
   );
   const [resultFilter, setResultFilter] = useState<BreedingResult | string>(
-    "all",
+    "all"
   );
   const [maleKoiIdInput, setMaleKoiIdInput] = useState<string>("");
   const [femaleKoiIdInput, setFemaleKoiIdInput] = useState<string>("");
@@ -156,7 +176,7 @@ export default function BreedingManagement() {
       maleKoiId: undefined,
       femaleKoiId: undefined,
       pondId: undefined,
-    },
+    }
   );
 
   const { data, isLoading } = useGetBreedingProcesses(searchParams);
@@ -356,6 +376,55 @@ export default function BreedingManagement() {
     router.push("/manager/breeding/new");
   };
 
+  const handleCancelNoteChange = (value: string) => {
+    setCancelNote(value);
+    if (!value.trim()) {
+      setCancelNoteError("Vui lòng nhập lý do hủy đợt lai");
+    } else if (value.trim().length < 10) {
+      setCancelNoteError("Lý do phải có ít nhất 10 ký tự");
+    } else {
+      setCancelNoteError("");
+    }
+  };
+
+  const handleClearSearch = () => {
+    setSearchTerm("");
+  };
+
+  const handleRemoveFilter = (filterKey: keyof BreedingProcessSearchParams) => {
+    const updates: Partial<BreedingProcessSearchParams> = {
+      [filterKey]: undefined,
+    };
+
+    // Clear related UI states
+    switch (filterKey) {
+      case "status":
+        setStatusFilter("all");
+        break;
+      case "result":
+        setResultFilter("all");
+        break;
+      case "maleKoiId":
+        setMaleKoiIdInput("");
+        setSelectedMaleName(undefined);
+        break;
+      case "femaleKoiId":
+        setFemaleKoiIdInput("");
+        setSelectedFemaleName(undefined);
+        break;
+      case "pondId":
+        setPondIdInput("");
+        setSelectedPondName(undefined);
+        break;
+    }
+
+    setSearchParams((prev) => ({
+      ...prev,
+      ...updates,
+      pageIndex: 1,
+    }));
+  };
+
   const isFilterActive = Object.values(searchParams).some(
     (value) =>
       value !== undefined &&
@@ -363,7 +432,7 @@ export default function BreedingManagement() {
       value !== "" &&
       value !== searchParams.pageSize &&
       value !== searchParams.pageIndex &&
-      value !== searchParams.search,
+      value !== searchParams.search
   );
 
   return (
@@ -398,8 +467,16 @@ export default function BreedingManagement() {
                 placeholder="Tìm kiếm theo RFID cá bố/mẹ..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="border-2 border-gray-400 pl-10"
+                className="border-2 border-gray-400 pl-10 pr-10"
               />
+              {searchTerm && (
+                <button
+                  onClick={handleClearSearch}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                >
+                  <XCircle className="h-4 w-4" />
+                </button>
+              )}
             </div>
 
             <Button
@@ -421,16 +498,103 @@ export default function BreedingManagement() {
             </Button>
           </div>
 
+          {/* Quick Filter Chips */}
+          {isFilterActive && (
+            <div className="flex flex-wrap gap-2 mb-4">
+              {searchParams.status && (
+                <Badge variant="secondary" className="gap-1 pr-1">
+                  Giai đoạn: {getBreedingStatusLabel(searchParams.status).label}
+                  <button
+                    onClick={() => handleRemoveFilter("status")}
+                    className="ml-1 hover:bg-gray-300 rounded-full p-0.5"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </Badge>
+              )}
+              {searchParams.result && (
+                <Badge variant="secondary" className="gap-1 pr-1">
+                  Kết quả: {getBreedingResultLabel(searchParams.result).label}
+                  <button
+                    onClick={() => handleRemoveFilter("result")}
+                    className="ml-1 hover:bg-gray-300 rounded-full p-0.5"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </Badge>
+              )}
+              {selectedMaleName && (
+                <Badge variant="secondary" className="gap-1 pr-1">
+                  Cá đực: {selectedMaleName}
+                  <button
+                    onClick={() => handleRemoveFilter("maleKoiId")}
+                    className="ml-1 hover:bg-gray-300 rounded-full p-0.5"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </Badge>
+              )}
+              {selectedFemaleName && (
+                <Badge variant="secondary" className="gap-1 pr-1">
+                  Cá cái: {selectedFemaleName}
+                  <button
+                    onClick={() => handleRemoveFilter("femaleKoiId")}
+                    className="ml-1 hover:bg-gray-300 rounded-full p-0.5"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </Badge>
+              )}
+              {selectedPondName && (
+                <Badge variant="secondary" className="gap-1 pr-1">
+                  Hồ: {selectedPondName}
+                  <button
+                    onClick={() => handleRemoveFilter("pondId")}
+                    className="ml-1 hover:bg-gray-300 rounded-full p-0.5"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </Badge>
+              )}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleResetFilters}
+                className="h-6 text-xs text-red-600 hover:text-red-700 hover:bg-red-50"
+              >
+                Xóa tất cả
+              </Button>
+            </div>
+          )}
+
           {isLoading ? (
-            <div className="flex items-center justify-center py-10 text-gray-500">
-              <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-              Đang tải dữ liệu...
+            <div className="space-y-3">
+              <div className="flex gap-3">
+                <Skeleton className="h-10 w-16" />
+                <Skeleton className="h-10 flex-1" />
+                <Skeleton className="h-10 flex-1" />
+                <Skeleton className="h-10 flex-1" />
+                <Skeleton className="h-10 w-32" />
+                <Skeleton className="h-10 w-32" />
+                <Skeleton className="h-10 w-24" />
+              </div>
+              {[...Array(5)].map((_, i) => (
+                <div key={i} className="flex gap-3">
+                  <Skeleton className="h-12 w-16" />
+                  <Skeleton className="h-12 flex-1" />
+                  <Skeleton className="h-12 flex-1" />
+                  <Skeleton className="h-12 flex-1" />
+                  <Skeleton className="h-12 w-32" />
+                  <Skeleton className="h-12 w-32" />
+                  <Skeleton className="h-12 w-24" />
+                </div>
+              ))}
             </div>
           ) : (
             <>
               <Table className="table-fixed w-full">
                 <TableHeader>
-                  <TableRow>
+                  <TableRow className="">
                     <TableHead className="w-[10%]">STT</TableHead>
                     <TableHead className="w-[15%]">Cá đực (RFID)</TableHead>
                     <TableHead className="w-[15%]">Cá cái (RFID)</TableHead>
@@ -446,11 +610,26 @@ export default function BreedingManagement() {
                 <TableBody>
                   {breedingProcesses.length === 0 ? (
                     <TableRow>
-                      <TableCell
-                        colSpan={8}
-                        className="text-center text-gray-500 py-6"
-                      >
-                        Không có dữ liệu
+                      <TableCell colSpan={7} className="py-0">
+                        <EmptyState
+                          icon={Fish}
+                          title="Chưa có đợt sinh sản nào"
+                          description={
+                            isFilterActive
+                              ? "Không tìm thấy đợt sinh sản nào phù hợp với bộ lọc. Thử điều chỉnh tiêu chí lọc."
+                              : "Bắt đầu tạo đợt sinh sản đầu tiên để theo dõi quá trình lai tạo cá Koi."
+                          }
+                        >
+                          {!isFilterActive && (
+                            <Button
+                              onClick={handleCreateBreeding}
+                              className="mt-4"
+                            >
+                              <Plus className="mr-2 h-4 w-4" />
+                              Tạo đợt sinh sản đầu tiên
+                            </Button>
+                          )}
+                        </EmptyState>
                       </TableCell>
                     </TableRow>
                   ) : (
@@ -471,35 +650,61 @@ export default function BreedingManagement() {
                         <TableCell>
                           {formatDate(
                             process.startDate,
-                            DATE_FORMATS.MEDIUM_DATE,
+                            DATE_FORMATS.MEDIUM_DATE
                           )}{" "}
                           -{" "}
                           {process.endDate
                             ? formatDate(
                                 process.endDate,
-                                DATE_FORMATS.MEDIUM_DATE,
+                                DATE_FORMATS.MEDIUM_DATE
                               )
                             : "Chưa xác định"}
                         </TableCell>
 
                         <TableCell>
-                          {(() => {
-                            const label = getBreedingStatusLabel(
-                              process.status,
-                            );
-                            return (
-                              <Badge
-                                className={`font-semibold ${label.colorClass}`}
-                              >
-                                {label.label}
-                              </Badge>
-                            );
-                          })()}
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                {(() => {
+                                  const label = getBreedingStatusLabel(
+                                    process.status
+                                  );
+                                  return (
+                                    <Badge
+                                      className={`font-semibold cursor-help ${label.colorClass}`}
+                                    >
+                                      {label.label}
+                                    </Badge>
+                                  );
+                                })()}
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p className="text-xs max-w-xs">
+                                  {process.status === BreedingStatus.PAIRING &&
+                                    "Đang thực hiện ghép đôi cá bố mẹ"}
+                                  {process.status === BreedingStatus.SPAWNED &&
+                                    "Ghép cặp thành công, cá đang đẻ trứng"}
+                                  {process.status ===
+                                    BreedingStatus.EGG_BATCH &&
+                                    "Trứng đang được ấp trong điều kiện kiểm soát"}
+                                  {process.status === BreedingStatus.FRY_FISH &&
+                                    "Cá bột đang được chăm sóc và nuôi dưỡng"}
+                                  {process.status ===
+                                    BreedingStatus.CLASSIFICATION &&
+                                    "Đang phân loại cá theo chất lượng"}
+                                  {process.status === BreedingStatus.COMPLETE &&
+                                    "Đợt sinh sản đã hoàn thành thành công"}
+                                  {process.status === BreedingStatus.FAILED &&
+                                    "Đợt sinh sản không thành công"}
+                                </p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
                         </TableCell>
                         <TableCell className="truncate">
                           {(() => {
                             const label = getBreedingResultLabel(
-                              process.result,
+                              process.result
                             );
                             return (
                               <Badge
@@ -510,49 +715,73 @@ export default function BreedingManagement() {
                             );
                           })()}
                         </TableCell>
-                        <TableCell className="text-center grid grid-cols-3 gap-1">
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            title="Chi tiết"
-                            onClick={() => {
-                              setSelectedBreeding(process);
-                              setIsDetailOpen(true);
-                            }}
-                          >
-                            <Eye className="h-4 w-4" />
-                          </Button>
+                        <TableCell className="text-center">
+                          <TooltipProvider>
+                            <div className="flex items-center justify-center gap-1">
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    className="h-8 w-8 p-0"
+                                    onClick={() => {
+                                      setSelectedBreeding(process);
+                                      setIsDetailOpen(true);
+                                    }}
+                                  >
+                                    <Eye className="h-4 w-4" />
+                                  </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>Xem chi tiết</p>
+                                </TooltipContent>
+                              </Tooltip>
 
-                          {process.status === BreedingStatus.CLASSIFICATION && (
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              className="text-green-600"
-                              title="Hoàn thành"
-                              onClick={() => {
-                                setBreedingToComplete(process);
-                                setIsCompleteModalOpen(true);
-                              }}
-                            >
-                              ✓
-                            </Button>
-                          )}
+                              {process.status ===
+                                BreedingStatus.CLASSIFICATION && (
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Button
+                                      size="sm"
+                                      variant="ghost"
+                                      className="h-8 w-8 p-0 text-green-600 hover:text-green-700 hover:bg-green-50"
+                                      onClick={() => {
+                                        setBreedingToComplete(process);
+                                        setIsCompleteModalOpen(true);
+                                      }}
+                                    >
+                                      <CheckCircle className="h-4 w-4" />
+                                    </Button>
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    <p>Hoàn thành phân loại</p>
+                                  </TooltipContent>
+                                </Tooltip>
+                              )}
 
-                          {process.status !== BreedingStatus.COMPLETE &&
-                            process.status !== BreedingStatus.FAILED && (
-                              <Button
-                                size="sm"
-                                variant="ghost"
-                                className="text-red-600"
-                                title="Hủy"
-                                onClick={() => {
-                                  setBreedingToDelete(process);
-                                  setIsDeleteModalOpen(true);
-                                }}
-                              >
-                                <X className="h-4 w-4" />
-                              </Button>
-                            )}
+                              {process.status !== BreedingStatus.COMPLETE &&
+                                process.status !== BreedingStatus.FAILED && (
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <Button
+                                        size="sm"
+                                        variant="ghost"
+                                        className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                                        onClick={() => {
+                                          setBreedingToDelete(process);
+                                          setIsDeleteModalOpen(true);
+                                        }}
+                                      >
+                                        <X className="h-4 w-4" />
+                                      </Button>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                      <p>Hủy đợt lai</p>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                )}
+                            </div>
+                          </TooltipProvider>
                         </TableCell>
                       </TableRow>
                     ))
@@ -582,32 +811,32 @@ export default function BreedingManagement() {
             setMinFishQualifiedInput(
               searchParams.minTotalFishQualified !== undefined
                 ? String(searchParams.minTotalFishQualified)
-                : "",
+                : ""
             );
             setMaxFishQualifiedInput(
               searchParams.maxTotalFishQualified !== undefined
                 ? String(searchParams.maxTotalFishQualified)
-                : "",
+                : ""
             );
             setMinTotalPackageInput(
               searchParams.minTotalPackage !== undefined
                 ? String(searchParams.minTotalPackage)
-                : "",
+                : ""
             );
             setMaxTotalPackageInput(
               searchParams.maxTotalPackage !== undefined
                 ? String(searchParams.maxTotalPackage)
-                : "",
+                : ""
             );
             setMinTotalEggsInput(
               searchParams.minTotalEggs !== undefined
                 ? String(searchParams.minTotalEggs)
-                : "",
+                : ""
             );
             setMaxTotalEggsInput(
               searchParams.maxTotalEggs !== undefined
                 ? String(searchParams.maxTotalEggs)
-                : "",
+                : ""
             );
             setFertilizationRateRange([
               searchParams.minFertilizationRate ?? 0,
@@ -626,17 +855,17 @@ export default function BreedingManagement() {
             setMaleKoiIdInput(
               searchParams.maleKoiId !== undefined
                 ? String(searchParams.maleKoiId)
-                : "",
+                : ""
             );
             setFemaleKoiIdInput(
               searchParams.femaleKoiId !== undefined
                 ? String(searchParams.femaleKoiId)
-                : "",
+                : ""
             );
             setPondIdInput(
               searchParams.pondId !== undefined
                 ? String(searchParams.pondId)
-                : "",
+                : ""
             );
             setCodeInput(searchParams.code || "");
           }
@@ -1005,6 +1234,7 @@ export default function BreedingManagement() {
             setTimeout(() => {
               setBreedingToDelete(undefined);
               setCancelNote("");
+              setCancelNoteError("");
             }, 100);
           }
         }}
@@ -1031,12 +1261,24 @@ export default function BreedingManagement() {
               </Label>
               <Textarea
                 id="cancelNote"
-                placeholder="Nhập lý do hủy đợt lai..."
+                placeholder="Nhập lý do hủy đợt lai (tối thiểu 10 ký tự)..."
                 value={cancelNote}
-                onChange={(e) => setCancelNote(e.target.value)}
+                onChange={(e) => handleCancelNoteChange(e.target.value)}
                 rows={4}
-                className="resize-none"
+                className={`resize-none ${
+                  cancelNoteError ? "border-red-500 focus:ring-red-500" : ""
+                }`}
               />
+              {cancelNoteError && (
+                <p className="text-xs text-red-600 flex items-center gap-1 mt-1">
+                  <Info className="w-3 h-3" />
+                  {cancelNoteError}
+                </p>
+              )}
+              <p className="text-xs text-muted-foreground">
+                {cancelNote.length} ký tự{" "}
+                {cancelNote.trim().length >= 10 && "✓"}
+              </p>
             </div>
           </div>
           <DialogFooter className="pt-4 border-t">
@@ -1049,7 +1291,11 @@ export default function BreedingManagement() {
             <Button
               className="bg-red-600 hover:bg-red-700"
               onClick={handleDelete}
-              disabled={!cancelNote.trim()}
+              disabled={
+                !cancelNote.trim() ||
+                cancelNote.trim().length < 10 ||
+                !!cancelNoteError
+              }
             >
               Hủy đợt lai
             </Button>

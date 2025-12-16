@@ -75,7 +75,7 @@ export default function WeeklyWorkScheduleView({
 }: WeeklyWorkScheduleViewProps) {
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [selectedSchedule, setSelectedSchedule] = useState<WorkSchedule | null>(
-    null,
+    null
   );
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [selectedCreateDate, setSelectedCreateDate] = useState<string>("");
@@ -210,14 +210,14 @@ export default function WeeklyWorkScheduleView({
               </Button>
             </div>
           ) : (
-            <Badge
+            <Button
               variant="outline"
-              className="px-3 py-1 text-gray-600 border-gray-300 cursor-pointer hover:bg-gray-50"
+              className="px-3 py-1 text-gray-600 border-gray-300 cursor-pointer hover:text-white"
               onClick={() => setIsPondModalOpen(true)}
             >
               <Droplets className="h-3 w-3 mr-1" />
               Tất cả hồ
-            </Badge>
+            </Button>
           )}
         </div>
 
@@ -286,7 +286,7 @@ export default function WeeklyWorkScheduleView({
                       className="h-7 w-7 p-0 hover:bg-blue-100 text-blue-600"
                       onClick={() => {
                         setSelectedCreateDate(
-                          toLocalDateString(currentDayDate),
+                          toLocalDateString(currentDayDate)
                         );
                         setIsCreateModalOpen(true);
                       }}

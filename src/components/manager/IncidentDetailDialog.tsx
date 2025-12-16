@@ -44,7 +44,7 @@ export function IncidentDetailDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="min-w-5xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold">
             Chi tiết sự cố
@@ -54,7 +54,7 @@ export function IncidentDetailDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-6">
+        <div className="space-y-6 min-w-4xl">
           {/* Header Info */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Card>
@@ -99,7 +99,7 @@ export function IncidentDetailDialog({
                     className={`${getIncidentSeverityColor(incident.incidentType.defaultSeverity)} text-sm`}
                   >
                     {getIncidentSeverityText(
-                      incident.incidentType.defaultSeverity,
+                      incident.incidentType.defaultSeverity
                     )}
                   </Badge>
                   {incident.incidentType.affectsBreeding && (

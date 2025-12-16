@@ -102,7 +102,7 @@ export default function ManagerOrdersPage() {
 
     // Find the selected order to get its note
     const selectedOrder = ordersData?.data?.find(
-      (order) => order.id === selectedOrderId,
+      (order) => order.id === selectedOrderId
     );
 
     updateStatusMutation.mutate(
@@ -123,10 +123,10 @@ export default function ManagerOrdersPage() {
           toast.error(
             error instanceof Error
               ? error.message
-              : "Không thể hoàn tiền đơn hàng",
+              : "Không thể hoàn tiền đơn hàng"
           );
         },
-      },
+      }
     );
   };
 
@@ -220,44 +220,69 @@ export default function ManagerOrdersPage() {
               </Select>
             </div>
 
-            {/* Filters Row 2 - Date and Price Range */}
-            <div className="flex flex-row lg:flex-row gap-4 items-center justify-between">
-              {/* Date filters removed for Manager - keep start/end price filters only */}
+            {/* Filters Row 2 - Price Range - FIX #1: Clean working filters */}
+            <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-start">
+              <div className="flex gap-2 flex-1">
+                <div className="flex-col gap-2 w-full">
+                  <div className="relative flex-1">
+                    <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground z-10" />
+                    <Input
+                      type="number"
+                      value={minPrice}
+                      onChange={(e) => setMinPrice(e.target.value)}
+                      placeholder="Từ giá (VNĐ)"
+                      className="pl-10 border-gray-300"
+                      min="0"
+                    />
+                  </div>
+                  {minPrice && parseFloat(minPrice) > 0 && (
+                    <p className="text-xs text-primary font-medium mt-1.5 pl-1">
+                      Từ: {formatCurrency(parseFloat(minPrice))}
+                    </p>
+                  )}
+                </div>
 
-              {/* <div className="relative flex-1 sm:flex-none">
-                <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <InputNumber
-                  value={minPrice ? Number(minPrice) : undefined}
-                  onChange={(value) => setMinPrice(value ? String(value) : "")}
-                  placeholder="Từ giá"
-                  className="pl-10 w-full"
-                />
+                {/* <span className="flex items-center text-muted-foreground px-2 pt-2">
+                  -
+                </span> */}
+                <div className="flex-col gap-2 w-full">
+                  <div className="relative flex-1">
+                    <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground z-10" />
+                    <Input
+                      type="number"
+                      value={maxPrice}
+                      onChange={(e) => setMaxPrice(e.target.value)}
+                      placeholder="Đến giá (VNĐ)"
+                      className="pl-10 border-gray-300"
+                      min="0"
+                    />
+                  </div>
+                  {maxPrice && parseFloat(maxPrice) > 0 && (
+                    <p className="text-xs text-primary font-medium mt-1.5 pl-1">
+                      Đến: {formatCurrency(parseFloat(maxPrice))}
+                    </p>
+                  )}
+                </div>
               </div>
 
-              <div className="relative flex-1 sm:flex-none">
-                <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <InputNumber
-                  value={maxPrice ? Number(maxPrice) : undefined}
-                  onChange={(value) => setMaxPrice(value ? String(value) : "")}
-                  placeholder="Đến giá"
-                  className="pl-10 w-full"
-                />
-              </div> */}
-
               {/* Clear Filters Button */}
-              {(minPrice || maxPrice) && (
+              {(minPrice ||
+                maxPrice ||
+                searchTerm ||
+                statusFilter !== "all") && (
                 <Button
-                  variant="ghost"
+                  variant="outline"
                   size="sm"
                   onClick={() => {
-                    // start/end date filters have been removed
                     setMinPrice("");
                     setMaxPrice("");
+                    setSearchTerm("");
+                    setStatusFilter("all");
                   }}
-                  className="border border-gray-300"
+                  className="shrink-0 gap-2"
                 >
-                  <X className="h-4 w-4 mr-1" />
-                  Xóa bộ lọc
+                  <X className="h-4 w-4" />
+                  Xóa tất cả bộ lọc
                 </Button>
               )}
             </div>
@@ -282,39 +307,41 @@ export default function ManagerOrdersPage() {
               ordersData.data.map((order) => (
                 <div
                   key={order.id}
-                  className="flex flex-col lg:flex-row lg:items-center lg:justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors gap-4"
+                  className="flex flex-col lg:flex-row lg:items-start lg:justify-between p-5 border-2 rounded-xl hover:border-primary/30 hover:shadow-md transition-all gap-4 group"
                 >
                   <div className="flex items-start gap-4 flex-1">
-                    <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                      <Package className="h-6 w-6" />
+                    {/* FIX #2 & #3: Larger icon, better visual hierarchy */}
+                    <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                      <Package className="h-7 w-7 text-primary" />
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex flex-wrap items-center gap-2 mb-2">
-                        <h3 className="font-bold text-base sm:text-lg">
+                    <div className="flex-1 min-w-0 space-y-3">
+                      {/* Header with better spacing */}
+                      <div className="flex flex-wrap items-center gap-2">
+                        <h3 className="font-bold text-lg">
                           {order.orderNumber}
                         </h3>
                         <Badge
-                          className={getOrderStatusColor(order.status)}
+                          className={`${getOrderStatusColor(order.status)} text-xs`}
                           variant="secondary"
                         >
-                          <div className="flex items-center gap-1">
+                          <div className="flex items-center gap-1.5">
                             {(() => {
                               const Icon = getOrderStatusLabel(
-                                order.status,
+                                order.status
                               ).icon;
-                              return <Icon className="h-4 w-4" />;
+                              return <Icon className="h-3.5 w-3.5" />;
                             })()}
-                            <span className="hidden sm:inline">
-                              {getOrderStatusText(order.status)}
-                            </span>
+                            <span>{getOrderStatusText(order.status)}</span>
                           </div>
                         </Badge>
+                        {/* FIX #10: Visual feedback for refundable */}
                         {canRefund(order.status) && (
                           <Badge
                             variant="outline"
-                            className="bg-blue-50 text-blue-700 border-blue-200"
+                            className="bg-blue-50 text-blue-700 border-blue-300 animate-pulse"
                           >
-                            Có thể hoàn tiền
+                            <DollarSign className="h-3 w-3 mr-1" />
+                            Cần hoàn tiền
                           </Badge>
                         )}
                       </div>
@@ -328,26 +355,27 @@ export default function ManagerOrdersPage() {
                           <span>
                             {formatDate(
                               order.createdAt,
-                              DATE_FORMATS.DATETIME_24H,
+                              DATE_FORMATS.DATETIME_24H
                             )}
                           </span>
                         </div>
                       </div>
 
-                      <div className="text-xs sm:text-sm mb-2">
-                        <div className="flex items-center gap-1 mb-2">
-                          <Fish className="h-3 w-3 text-muted-foreground shrink-0" />
-                          <span className="text-muted-foreground">
+                      {/* FIX #3: Larger images with hover preview */}
+                      <div className="text-sm">
+                        <div className="flex items-center gap-2 mb-3">
+                          <Fish className="h-4 w-4 text-primary" />
+                          <span className="font-medium">
                             {order?.orderDetails?.length || 0} sản phẩm
                           </span>
                         </div>
                         <div className="flex flex-wrap gap-2">
-                          {order?.orderDetails?.slice(0, 4).map((item, idx) => (
+                          {order?.orderDetails?.slice(0, 3).map((item, idx) => (
                             <div
                               key={idx}
-                              className="flex items-center gap-2 p-2 bg-muted/50 rounded-lg border"
+                              className="group/item relative flex items-center gap-2 p-2 bg-white rounded-lg border-2 hover:border-primary/50 hover:shadow-sm transition-all"
                             >
-                              <div className="relative w-10 h-10 rounded-md overflow-hidden bg-muted shrink-0">
+                              <div className="relative w-14 h-14 rounded-lg overflow-hidden bg-muted shrink-0 group-hover/item:scale-110 transition-transform">
                                 <Image
                                   src={
                                     item.koiFish?.images?.[0] ||
@@ -364,19 +392,22 @@ export default function ManagerOrdersPage() {
                                 />
                               </div>
                               <div className="flex flex-col min-w-0">
-                                <span className="font-medium text-xs truncate max-w-[100px]">
+                                <span className="font-semibold text-xs truncate max-w-[120px]">
                                   {item.koiFish?.rfid || item.packetFish?.name}
                                 </span>
-                                <span className="text-[10px] text-muted-foreground">
-                                  x{item.quantity}
+                                <span className="text-xs text-muted-foreground">
+                                  SL: {item.quantity}
+                                </span>
+                                <span className="text-xs font-medium text-primary">
+                                  {formatCurrency(item.totalPrice)}
                                 </span>
                               </div>
                             </div>
                           ))}
-                          {order?.orderDetails?.length > 4 && (
-                            <div className="flex items-center justify-center p-2 bg-muted/50 rounded-lg border min-w-[60px]">
-                              <span className="text-xs text-muted-foreground">
-                                +{order.orderDetails.length - 4} khác
+                          {order?.orderDetails?.length > 3 && (
+                            <div className="flex items-center justify-center p-3 bg-muted/30 rounded-lg border-2 border-dashed min-w-[80px] hover:bg-muted/50 transition-colors">
+                              <span className="text-sm font-medium text-muted-foreground">
+                                +{order.orderDetails.length - 3}
                               </span>
                             </div>
                           )}
@@ -398,6 +429,14 @@ export default function ManagerOrdersPage() {
                         </div>
                         <div className="flex justify-between gap-4">
                           <span className="text-muted-foreground">
+                            Khuyến mãi:
+                          </span>
+                          <span className="font-medium">
+                            {formatCurrency(order.discountAmount)}
+                          </span>
+                        </div>
+                        <div className="flex justify-between gap-4">
+                          <span className="text-muted-foreground">
                             Vận chuyển:
                           </span>
                           <span className="font-medium">
@@ -411,7 +450,7 @@ export default function ManagerOrdersPage() {
                       <p className="text-xs text-muted-foreground">
                         {order.orderDetails.reduce(
                           (sum, item) => sum + item.quantity,
-                          0,
+                          0
                         )}{" "}
                         sản phẩm
                       </p>
@@ -482,58 +521,105 @@ export default function ManagerOrdersPage() {
         </CardContent>
       </Card>
 
-      {/* Refund Order Dialog */}
+      {/* FIX #4: Enhanced Refund Dialog with Amount Breakdown */}
       <Dialog open={isRefundDialogOpen} onOpenChange={setIsRefundDialogOpen}>
-        <DialogContent className="sm:max-w-[500px]">
+        <DialogContent className="sm:max-w-[550px]">
           <DialogHeader>
-            <DialogTitle>Xác nhận hoàn tiền</DialogTitle>
+            <DialogTitle className="flex items-center gap-2 text-xl">
+              <DollarSign className="h-6 w-6 text-blue-600" />
+              Xác nhận hoàn tiền
+            </DialogTitle>
             <DialogDescription>
-              Xác nhận hoàn tiền và chuyển sang trạng thái &quot;Đã hoàn
-              tiền&quot;
+              Xem kỹ thông tin trước khi xác nhận hoàn tiền cho khách hàng
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4">
-            <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-              <p className="text-sm text-blue-900">
-                Đơn hàng sẽ chuyển sang trạng thái &quot;Đã hoàn tiền&quot; và
-                khách hàng sẽ được hoàn lại số tiền.
-              </p>
-            </div>
-
+            {/* Amount Breakdown */}
             {(() => {
               const selectedOrder = ordersData?.data?.find(
-                (order) => order.id === selectedOrderId,
+                (order) => order.id === selectedOrderId
               );
-              return (
-                selectedOrder?.note && (
-                  <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg">
-                    <p className="text-sm font-medium text-amber-900 mb-1">
-                      Ghi chú hiện tại:
-                    </p>
-                    <p className="text-sm text-amber-800 italic">
-                      &quot;{selectedOrder.note}&quot;
-                    </p>
-                    <p className="text-xs text-amber-700 mt-2">
-                      Ghi chú này sẽ được giữ nguyên khi hoàn tiền.
-                    </p>
+              return selectedOrder ? (
+                <>
+                  <Card className="border-2 border-blue-200 bg-blue-50/50">
+                    <CardContent className="pt-6 space-y-3">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">Tạm tính:</span>
+                        <span className="font-semibold">
+                          {formatCurrency(selectedOrder.subtotal)}
+                        </span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">
+                          Phí vận chuyển:
+                        </span>
+                        <span className="font-semibold">
+                          {formatCurrency(selectedOrder.shippingFee)}
+                        </span>
+                      </div>
+                      {selectedOrder.discountAmount > 0 && (
+                        <div className="flex justify-between text-sm text-green-600">
+                          <span>Giảm giá:</span>
+                          <span className="font-semibold">
+                            -{formatCurrency(selectedOrder.discountAmount)}
+                          </span>
+                        </div>
+                      )}
+                      <div className="border-t-2 border-blue-300 pt-3 flex justify-between">
+                        <span className="font-bold text-base">
+                          Tổng hoàn tiền:
+                        </span>
+                        <span className="font-bold text-xl text-blue-600">
+                          {formatCurrency(selectedOrder.totalAmount)}
+                        </span>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  <div className="p-4 bg-blue-50 border-2 border-blue-200 rounded-lg">
+                    <div className="flex gap-2">
+                      <Package className="h-5 w-5 text-blue-600 shrink-0 mt-0.5" />
+                      <div>
+                        <p className="text-sm font-medium text-blue-900 mb-1">
+                          Khách hàng: {selectedOrder.customerName}
+                        </p>
+                        <p className="text-sm text-blue-800">
+                          Đơn hàng sẽ chuyển sang trạng thái{" "}
+                          <strong>&quot;Đã hoàn tiền&quot;</strong> và số tiền
+                          sẽ được hoàn lại cho khách hàng.
+                        </p>
+                      </div>
+                    </div>
                   </div>
-                )
-              );
+
+                  {selectedOrder.note && (
+                    <div className="p-4 bg-amber-50 border-2 border-amber-200 rounded-lg">
+                      <p className="text-sm font-semibold text-amber-900 mb-2 flex items-center gap-2">
+                        <span>📝</span> Ghi chú đơn hàng:
+                      </p>
+                      <p className="text-sm text-amber-800 italic pl-6">
+                        &quot;{selectedOrder.note}&quot;
+                      </p>
+                    </div>
+                  )}
+                </>
+              ) : null;
             })()}
           </div>
 
-          <div className="flex justify-end gap-3">
+          <div className="flex justify-end gap-3 pt-4 border-t">
             <Button
               variant="outline"
               onClick={() => setIsRefundDialogOpen(false)}
+              disabled={updateStatusMutation.isPending}
             >
               Hủy
             </Button>
             <Button
               onClick={handleRefundOrder}
               disabled={updateStatusMutation.isPending}
-              className="bg-blue-600 hover:bg-blue-700"
+              className="bg-blue-600 hover:bg-blue-700 min-w-[160px]"
             >
               {updateStatusMutation.isPending ? (
                 <>
@@ -541,7 +627,10 @@ export default function ManagerOrdersPage() {
                   Đang xử lý...
                 </>
               ) : (
-                "Xác nhận hoàn tiền"
+                <>
+                  <DollarSign className="mr-2 h-4 w-4" />
+                  Xác nhận hoàn tiền
+                </>
               )}
             </Button>
           </div>

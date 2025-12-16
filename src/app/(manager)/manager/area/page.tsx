@@ -18,7 +18,17 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { InputNumber } from "@/components/ui/input-number";
-import { Plus, Search, Edit, Trash2, Eye, Loader2, Filter } from "lucide-react";
+import {
+  Plus,
+  Search,
+  Edit,
+  Trash2,
+  Eye,
+  Loader2,
+  Filter,
+  MoreHorizontal,
+  Zap,
+} from "lucide-react";
 import {
   Table,
   TableBody,
@@ -35,6 +45,14 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
+import toast from "react-hot-toast";
 import { AreaResponse, AreaSearchParams } from "@/lib/api/services/fetchArea";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -85,10 +103,10 @@ export default function AreaManagement() {
 
   // Error states for forms
   const [addFormErrors, setAddFormErrors] = useState<Record<string, string>>(
-    {},
+    {}
   );
   const [editFormErrors, setEditFormErrors] = useState<Record<string, string>>(
-    {},
+    {}
   );
 
   useEffect(() => {
@@ -298,11 +316,13 @@ export default function AreaManagement() {
               <Table className="table-fixed w-full">
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="w-[15%]">STT</TableHead>
+                    <TableHead className="w-[10%]">STT</TableHead>
                     <TableHead className="w-[20%]">Tên khu vực</TableHead>
                     <TableHead className="w-[15%]">Diện tích (m²)</TableHead>
                     <TableHead className="w-[30%]">Mô tả</TableHead>
-                    <TableHead className="w-[20%]">Thao tác</TableHead>
+                    <TableHead className="w-[20%] text-center">
+                      Thao tác
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -332,34 +352,45 @@ export default function AreaManagement() {
                           {area.description}
                         </TableCell>
                         <TableCell>
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            title="Chi tiết"
-                            onClick={() => handleViewDetails(area)}
-                          >
-                            <Eye className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            title="Chỉnh sửa"
-                            onClick={() => handleEditArea(area)}
-                          >
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            className="text-red-600"
-                            title="Xóa"
-                            onClick={() => {
-                              setAreaToDelete(area);
-                              setIsDeleteModalOpen(true);
-                            }}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
+                          <div className="flex items-center justify-center">
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-8 w-8 p-0"
+                                >
+                                  <MoreHorizontal className="h-4 w-4" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end" className="w-44">
+                                <DropdownMenuItem
+                                  onClick={() => handleViewDetails(area)}
+                                >
+                                  <Eye className="mr-2 h-4 w-4 hover:text-white" />
+                                  Chi tiết
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                  onClick={() => handleEditArea(area)}
+                                >
+                                  <Edit className="mr-2 h-4 w-4 hover:text-white" />
+                                  Chỉnh sửa
+                                </DropdownMenuItem>
+
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem
+                                  className="text-red-600"
+                                  onClick={() => {
+                                    setAreaToDelete(area);
+                                    setIsDeleteModalOpen(true);
+                                  }}
+                                >
+                                  <Trash2 className="mr-2 h-4 w-4 text-red-600" />
+                                  Xóa
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </div>
                         </TableCell>
                       </TableRow>
                     ))
@@ -389,12 +420,12 @@ export default function AreaManagement() {
             setMinAreaInput(
               searchParams.minTotalAreaSQM !== undefined
                 ? String(searchParams.minTotalAreaSQM)
-                : "",
+                : ""
             );
             setMaxAreaInput(
               searchParams.maxTotalAreaSQM !== undefined
                 ? String(searchParams.maxTotalAreaSQM)
-                : "",
+                : ""
             );
           }
         }}

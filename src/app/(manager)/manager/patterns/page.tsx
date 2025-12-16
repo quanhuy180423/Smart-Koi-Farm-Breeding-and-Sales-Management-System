@@ -1,7 +1,16 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Plus, Search, Edit, Trash2, Loader2, Eye } from "lucide-react";
+import {
+  Plus,
+  Search,
+  Edit,
+  Trash2,
+  Loader2,
+  Eye,
+  MoreHorizontal,
+  Zap,
+} from "lucide-react";
 import {
   Card,
   CardContent,
@@ -11,6 +20,14 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
+import toast from "react-hot-toast";
 import {
   Table,
   TableBody,
@@ -157,31 +174,45 @@ export default function PatternManagement() {
                           {pattern.description}
                         </TableCell>
                         <TableCell className="text-center">
-                          <div className="flex justify-center gap-1">
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => handleViewClick(pattern)}
-                              className="h-8 w-8"
-                            >
-                              <Eye className="h-4 w-4 text-green-600 hover:text-green-800" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => handleEditClick(pattern)}
-                              className="h-8 w-8"
-                            >
-                              <Edit className="h-4 w-4 text-blue-600 hover:text-blue-800" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => handleDeleteClick(pattern)}
-                              className="h-8 w-8"
-                            >
-                              <Trash2 className="h-4 w-4 text-red-600 hover:text-red-800" />
-                            </Button>
+                          <div className="flex items-center justify-center">
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-8 w-8 p-0"
+                                  title="Thao tác"
+                                >
+                                  <MoreHorizontal className="h-4 w-4" />
+                                </Button>
+                              </DropdownMenuTrigger>
+
+                              <DropdownMenuContent align="end" className="w-44">
+                                <DropdownMenuItem
+                                  onClick={() => handleViewClick(pattern)}
+                                >
+                                  <Eye className="mr-2 h-4 w-4 text-green-600" />
+                                  Chi tiết
+                                </DropdownMenuItem>
+
+                                <DropdownMenuItem
+                                  onClick={() => handleEditClick(pattern)}
+                                >
+                                  <Edit className="mr-2 h-4 w-4" />
+                                  Chỉnh sửa
+                                </DropdownMenuItem>
+
+                                <DropdownMenuSeparator />
+
+                                <DropdownMenuItem
+                                  className="text-red-600"
+                                  onClick={() => handleDeleteClick(pattern)}
+                                >
+                                  <Trash2 className="mr-2 h-4 w-4 text-red-600" />
+                                  Xóa
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
                           </div>
                         </TableCell>
                       </TableRow>

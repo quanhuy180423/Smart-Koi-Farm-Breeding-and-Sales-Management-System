@@ -44,6 +44,9 @@ next-env.d.ts
 
 .claude
 
+.github
+.shared
+
 TEST_CASES
 
 REAL_TIME_NOTIFICATIONS.md

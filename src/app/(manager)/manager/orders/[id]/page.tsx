@@ -77,10 +77,10 @@ export default function ManagerOrderDetailPage() {
           toast.error(
             error instanceof Error
               ? error.message
-              : "Không thể hoàn tiền đơn hàng",
+              : "Không thể hoàn tiền đơn hàng"
           );
         },
-      },
+      }
     );
   };
 
@@ -132,14 +132,15 @@ export default function ManagerOrderDetailPage() {
             Xem thông tin chi tiết về đơn hàng
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        {/* FIX #5: Better proportioned badges */}
+        <div className="flex flex-wrap items-center gap-2">
           <Badge
-            className={`${getOrderStatusColor(order.status)} text-lg px-4 py-2`}
+            className={`${getOrderStatusColor(order.status)} text-sm px-3 py-1.5`}
           >
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5">
               {(() => {
                 const Icon = getOrderStatusLabel(order.status).icon;
-                return <Icon className="h-5 w-5" />;
+                return <Icon className="h-4 w-4" />;
               })()}
               <span>{getOrderStatusText(order.status)}</span>
             </div>
@@ -147,9 +148,10 @@ export default function ManagerOrderDetailPage() {
           {canRefund(order.status) && (
             <Badge
               variant="outline"
-              className="bg-blue-50 text-blue-700 border-blue-200 text-lg px-4 py-2"
+              className="bg-blue-50 text-blue-700 border-blue-300 text-sm px-3 py-1.5 animate-pulse"
             >
-              Có thể hoàn tiền
+              <DollarSign className="h-3.5 w-3.5 mr-1" />
+              Cần hoàn tiền
             </Badge>
           )}
         </div>
@@ -258,8 +260,8 @@ export default function ManagerOrderDetailPage() {
                 key={index}
                 className="flex items-start gap-4 p-4 border rounded-lg hover:bg-muted/50 transition-colors"
               >
-                {/* Product Image */}
-                <div className="relative w-24 h-24 shrink-0 rounded-lg overflow-hidden bg-muted border">
+                {/* FIX #3: Larger Product Image with hover effect */}
+                <div className="relative w-32 h-32 shrink-0 rounded-xl overflow-hidden bg-muted border-2 hover:border-primary/50 transition-all group/img hover:shadow-lg">
                   <Image
                     src={
                       item.koiFish?.images?.[0] ||
@@ -270,7 +272,7 @@ export default function ManagerOrderDetailPage() {
                       item.koiFish?.rfid || item.packetFish?.name || "Sản phẩm"
                     }
                     fill
-                    className="object-cover"
+                    className="object-cover group-hover/img:scale-110 transition-transform duration-300"
                   />
                 </div>
 
@@ -353,30 +355,33 @@ export default function ManagerOrderDetailPage() {
         </CardContent>
       </Card>
 
-      {/* Action Buttons - Only Refund for Manager */}
-      <div className="flex flex-col sm:flex-row gap-3">
-        {/* Show refund button for REJECTED status */}
-        {order && order.status === OrderStatus.REJECTED && (
-          <Button
-            onClick={() => setIsRefundDialogOpen(true)}
-            className="flex-1 bg-blue-600 hover:bg-blue-700"
-          >
-            <DollarSign className="h-4 w-4 mr-2" />
-            Hoàn tiền
-          </Button>
-        )}
-
-        {/* Show refund button for UNSHIPPING status */}
-        {order && order.status === OrderStatus.UNSHIPPING && (
-          <Button
-            onClick={() => setIsRefundDialogOpen(true)}
-            className="flex-1 bg-blue-600 hover:bg-blue-700"
-          >
-            <DollarSign className="h-4 w-4 mr-2" />
-            Hoàn tiền
-          </Button>
-        )}
-      </div>
+      {/* FIX #8: Consolidated Action Buttons */}
+      {order && canRefund(order.status) && (
+        <Card className="border-2 border-blue-200 bg-blue-50/30">
+          <CardContent className="pt-6">
+            <div className="flex flex-col sm:flex-row gap-4 items-center">
+              <div className="flex-1">
+                <h3 className="font-semibold text-blue-900 mb-1 flex items-center gap-2">
+                  <DollarSign className="h-5 w-5" />
+                  Đơn hàng này có thể hoàn tiền
+                </h3>
+                <p className="text-sm text-blue-700">
+                  Trạng thái {getOrderStatusText(order.status)} - Click để xử lý
+                  hoàn tiền cho khách hàng
+                </p>
+              </div>
+              <Button
+                onClick={() => setIsRefundDialogOpen(true)}
+                size="lg"
+                className="bg-blue-600 hover:bg-blue-700 min-w-[180px] shrink-0"
+              >
+                <DollarSign className="h-5 w-5 mr-2" />
+                Xử lý hoàn tiền
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Refund Order Dialog */}
       {order && (

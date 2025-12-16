@@ -14,7 +14,6 @@ import { VarietyResponse } from "./fetchVariety";
 export enum Gender {
   MALE = "Male",
   FEMALE = "Female",
-  UNKNOWN = "Unknown",
 }
 
 export enum HealthStatus {
@@ -172,7 +171,7 @@ const baseUrl = "/api/KoiFish";
 
 export const koiFishService = {
   getKoiFishes: async (
-    request: KoiFishSearchParams,
+    request: KoiFishSearchParams
   ): Promise<BaseResponse<PagedResponse<KoiFishResponse>>> => {
     const filter = toRequestParams(request);
     const response = await apiService.get<
@@ -181,24 +180,24 @@ export const koiFishService = {
     return response.data;
   },
   getKoiFishFamily: async (
-    id?: number,
+    id?: number
   ): Promise<BaseResponse<KoiFishFamilyResponse>> => {
     const response = await apiService.get<BaseResponse<KoiFishFamilyResponse>>(
-      `${baseUrl}/family/${id}`,
+      `${baseUrl}/family/${id}`
     );
     return response.data;
   },
   getKoiFishById: async (
-    id?: number,
+    id?: number
   ): Promise<BaseResponse<KoiFishResponse>> => {
     const response = await apiService.get<BaseResponse<KoiFishResponse>>(
-      `${baseUrl}/${id}`,
+      `${baseUrl}/${id}`
     );
     return response.data;
   },
   updateKoiFish: async (
     id: number,
-    request: Partial<KoiFishUpdateRequest>,
+    request: Partial<KoiFishUpdateRequest>
   ): Promise<BaseResponse<string>> => {
     const response = await apiService.put<
       BaseResponse<string>,
@@ -208,18 +207,18 @@ export const koiFishService = {
   },
   deleteKoiFish: async (id: number): Promise<BaseResponse<string>> => {
     const response = await apiService.delete<BaseResponse<string>>(
-      `${baseUrl}/${id}`,
+      `${baseUrl}/${id}`
     );
     return response.data;
   },
   setKoiReadyToSpawn: async (koiId: number): Promise<BaseResponse<string>> => {
     const response = await apiService.put<BaseResponse<string>>(
-      `${baseUrl}/koi-spawn/${koiId}`,
+      `${baseUrl}/koi-spawn/${koiId}`
     );
     return response.data;
   },
   getKoiBreedingHistory: async (
-    koiId: number,
+    koiId: number
   ): Promise<BaseResponse<KoiBreedingHistoryResponse>> => {
     const response = await apiService.get<
       BaseResponse<KoiBreedingHistoryResponse>

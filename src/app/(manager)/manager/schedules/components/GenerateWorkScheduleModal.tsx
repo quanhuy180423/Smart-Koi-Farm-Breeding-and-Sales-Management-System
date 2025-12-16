@@ -27,6 +27,7 @@ import { useGenerateWorkSchedules } from "@/hooks/useWeeklyScheduleTemplate";
 import { formatTimeToHHMM } from "@/lib/utils/formatTime";
 import { DatePickerFilter } from "@/components/ui/DatePickerFilter";
 import { toLocalDateString } from "@/lib/utils/dates";
+import toast from "react-hot-toast";
 
 interface GenerateWorkScheduleModalProps {
   isOpen: boolean;
@@ -52,17 +53,17 @@ export default function GenerateWorkScheduleModal({
   isLoadingTemplates,
 }: GenerateWorkScheduleModalProps) {
   const [selectedTemplateId, setSelectedTemplateId] = useState<number | null>(
-    null,
+    null
   );
   const [startDate, setStartDate] = useState<string>(
-    toLocalDateString(new Date()),
+    toLocalDateString(new Date())
   );
   const [expandedDays, setExpandedDays] = useState<Set<string>>(new Set());
   const [selectedStaffIds, setSelectedStaffIds] = useState<Set<number>>(
-    new Set(),
+    new Set()
   );
   const [selectedPondIds, setSelectedPondIds] = useState<Set<number>>(
-    new Set(),
+    new Set()
   );
   const [isStaffModalOpen, setIsStaffModalOpen] = useState(false);
   const [isPondModalOpen, setIsPondModalOpen] = useState(false);
@@ -102,6 +103,12 @@ export default function GenerateWorkScheduleModal({
   const handleGenerate = () => {
     if (!selectedTemplateId || !startDate) return;
 
+    if (selectedStaffIds.size === 0) {
+      console.log(selectedStaffIds.size);
+      toast.error("Vui lòng chọn ít nhất một nhân viên để tạo lịch làm việc.");
+      return;
+    }
+
     generate(
       {
         weeklyScheduleTemplateId: selectedTemplateId,
@@ -117,7 +124,7 @@ export default function GenerateWorkScheduleModal({
           setSelectedStaffIds(new Set());
           setSelectedPondIds(new Set());
         },
-      },
+      }
     );
   };
 
@@ -132,18 +139,19 @@ export default function GenerateWorkScheduleModal({
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-6">
+          <div className="max-h-[60vh] overflow-y-auto space-y-6 py-4">
             {/* Start Date Selection */}
             <DatePickerFilter
               label="Ngày bắt đầu"
               value={startDate}
               onChange={setStartDate}
+              minDate={new Date()}
             />
 
             {/* Staff Selection */}
             <div className="space-y-2">
               <label className="text-sm font-medium text-gray-700">
-                Nhân viên (Tùy chọn)
+                Nhân viên *
               </label>
               <Button
                 variant="outline"
@@ -238,7 +246,7 @@ export default function GenerateWorkScheduleModal({
                             <div className="space-y-2">
                               {Object.values(DayOfWeekEnum).map((dayEnum) => {
                                 const dayItems = template.templateItems.filter(
-                                  (item) => item.dayOfWeek === dayEnum,
+                                  (item) => item.dayOfWeek === dayEnum
                                 );
                                 if (dayItems.length === 0) return null;
 
@@ -296,11 +304,11 @@ export default function GenerateWorkScheduleModal({
                                                   className="text-xs bg-blue-50 text-blue-700 border-blue-200"
                                                 >
                                                   {formatTimeToHHMM(
-                                                    item.startTime,
+                                                    item.startTime
                                                   )}{" "}
                                                   -{" "}
                                                   {formatTimeToHHMM(
-                                                    item.endTime,
+                                                    item.endTime
                                                   )}
                                                 </Badge>
                                               </div>
