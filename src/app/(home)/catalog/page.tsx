@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useMemo, Suspense } from "react";
+import { useState, useMemo, useEffect, Suspense } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import { useDebounce } from "@/hooks/useDebounce";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -44,6 +45,9 @@ import { VarietyResponse } from "@/lib/api/services/fetchVariety";
 const PAGE_SIZE_OPTIONS = [9, 12, 24];
 
 function CatalogContent() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+
   const [filters, setFilters] = useState(initialFilterState);
   const [appliedFilters, setAppliedFilters] = useState(initialFilterState);
   const [searchTerm, setSearchTerm] = useState("");
@@ -56,6 +60,18 @@ function CatalogContent() {
   const [addingId, setAddingId] = useState<number | null>(null);
   const { mutate: addToCard } = useAddItemToCart();
   const { data: cart } = useGetCart();
+
+  // Sync varietyId from URL to filter state
+  useEffect(() => {
+    const varietyIdParam = searchParams.get("varietyId");
+    if (varietyIdParam) {
+      setFilters((prev) => ({ ...prev, selectedVariety: varietyIdParam }));
+      setAppliedFilters((prev) => ({ ...prev, selectedVariety: varietyIdParam }));
+    } else {
+      setFilters((prev) => ({ ...prev, selectedVariety: "Tất cả" }));
+      setAppliedFilters((prev) => ({ ...prev, selectedVariety: "Tất cả" }));
+    }
+  }, [searchParams]);
 
   const handlePriceInputChange = (index: 0 | 1, value: string) => {
     const num = parseInt(value.replace(/\D/g, "")) || 0;
@@ -115,7 +131,7 @@ function CatalogContent() {
     setAppliedFilters(filters);
     setAppliedSearchTerm(searchTerm);
     setCurrentPage(1);
-    setIsSheetOpen(false); // Close sheet after applying
+    setIsSheetOpen(false);
   };
 
   const resetFilters = () => {
@@ -124,6 +140,9 @@ function CatalogContent() {
     setFilters(initialFilterState);
     setAppliedFilters(initialFilterState);
     setCurrentPage(1);
+
+    // Clear varietyId from URL
+    router.push("/catalog", { scroll: false });
   };
 
   const handlePageChange = (page: number) => {

@@ -18,7 +18,6 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator,
 } from "./ui/dropdown-menu";
-import { useGetVarieties } from "@/hooks/useVariety";
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -41,20 +40,6 @@ export function Header() {
       document.body.style.overflow = "unset";
     };
   }, [isMenuOpen]);
-
-  const { data: koiVarieties } = useGetVarieties({
-    pageIndex: 1,
-    pageSize: 50,
-  });
-
-  const handleSelectVariety = (value: number | null) => {
-    setIsMenuOpen(false);
-    if (value) {
-      router.push(`/catalog?varietyId=${value}`);
-    } else {
-      router.push(`/catalog`);
-    }
-  };
 
   const closeMobileMenu = () => {
     setIsMenuOpen(false);
@@ -93,34 +78,13 @@ export function Header() {
                 <span className="relative z-10">Trang chủ</span>
                 <div className="absolute inset-0 bg-primary/10 rounded-lg opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 transition-all duration-200"></div>
               </Link>
-
-              <div className="relative group">
-                <Button
-                  variant="ghost"
-                  className="w-full justify-between text-sm font-medium text-secondary-foreground hover:text-primary hover:bg-primary/5 rounded-lg"
-                >
-                  Danh mục
-                </Button>
-                <div className="absolute top-full left-0 pt-1 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-                  <div className="w-44 bg-popover border border-border rounded-md shadow-md p-1">
-                    <div
-                      className="px-2 py-1.5 text-sm cursor-pointer rounded-sm hover:bg-accent hover:text-accent-foreground"
-                      onClick={() => handleSelectVariety(null)}
-                    >
-                      Tất cả
-                    </div>
-                    {koiVarieties?.data.map((koi) => (
-                      <div
-                        key={koi.id}
-                        className="px-2 py-1.5 text-sm cursor-pointer rounded-sm hover:bg-accent hover:text-accent-foreground"
-                        onClick={() => handleSelectVariety(koi.id)}
-                      >
-                        {koi.varietyName}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
+              <Link
+                href="/catalog"
+                className="px-4 py-2 text-md font-medium text-secondary-foreground/80 hover:text-primary hover:bg-primary/5 rounded-lg transition-all duration-200 relative group"
+              >
+                <span className="relative z-10">Cá Koi</span>
+                <div className="absolute inset-0 bg-primary/10 rounded-lg opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 transition-all duration-200"></div>
+              </Link>
               <Link
                 href="/packet-fish"
                 className="px-4 py-2 text-md font-medium text-secondary-foreground/80 hover:text-primary hover:bg-primary/5 rounded-lg transition-all duration-200 relative group"

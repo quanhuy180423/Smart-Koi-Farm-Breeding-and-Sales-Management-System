@@ -105,18 +105,9 @@ export const BreedingDetailDialog = ({
   const currentBreedingStatus =
     breedingProcess?.status || BreedingStatus.PAIRING;
 
-  // const classificationDisplayDate = classificationStages?.createdAt
-  //     ? formatDate(classificationStages.createdAt, DATE_FORMATS.MEDIUM_DATE)
-  //     : breedingProcess.endDate ? formatDate(breedingProcess.endDate, DATE_FORMATS.MEDIUM_DATE) : 'Chưa có';
-
-  const totalKept = classificationRecords.reduce(
-    (sum, record) =>
-      sum +
-      (record.highQualifiedCount || 0) +
-      (record.showQualifiedCount || 0) +
-      (record.pondQualifiedCount || 0),
-    0,
-  );
+  const totalKept = (breedingDetail?.classificationStage.pondQualifiedCount || 0) + 
+    (breedingDetail?.classificationStage.highQualifiedCount || 0) + 
+    (breedingDetail?.classificationStage.showQualifiedCount || 0)
   const totalCulled = classificationRecords.reduce(
     (sum, record) => sum + (record.cullQualifiedCount || 0),
     0,
@@ -285,7 +276,7 @@ export const BreedingDetailDialog = ({
                             <p className="text-muted-foreground">
                               Tỷ lệ thụ tinh:{" "}
                               <span className="font-semibold">
-                                {(batch?.fertilizationRate || 0) * 100}%
+                                {batch?.fertilizationRate || 0}%
                               </span>
                             </p>
                           </>

@@ -33,7 +33,6 @@ import {
   Loader2,
   MapPin,
   Plus,
-  Info,
   AlertTriangle,
 } from "lucide-react";
 import Link from "next/link";
@@ -52,7 +51,6 @@ import { PaymentMethod } from "@/lib/api/services/fetchOrderPayment";
 import { formatCurrency } from "@/lib/utils/numbers/formatCurrency";
 import { getFishSizeLabel } from "@/lib/utils/enum";
 import { cn } from "@/lib/utils";
-import { ShippingFeeDetailDialog } from "@/components/checkout/ShippingFeeDetailDialog";
 import { LoadingState } from "@/components/common/LoadingState";
 import { ErrorState } from "@/components/common/ErrorState";
 import { EmptyState } from "@/components/common/EmptyState";
@@ -145,7 +143,6 @@ export default function CheckoutPage() {
   });
   const [shippingFeeData, setShippingFeeData] =
     useState<ShippingFeeCalculateResponse | null>(null);
-  const [showShippingFeeDialog, setShowShippingFeeDialog] = useState(false);
 
   // Set default address when addresses are loaded
   useEffect(() => {
@@ -314,7 +311,7 @@ export default function CheckoutPage() {
         error instanceof Error ? error.message : "Unknown error";
       toast.error(
         errorMessage ||
-          "Có lỗi xảy ra khi tính phí vận chuyển. Vui lòng thử lại",
+        "Có lỗi xảy ra khi tính phí vận chuyển. Vui lòng thử lại",
       );
     }
   };
@@ -411,10 +408,6 @@ export default function CheckoutPage() {
         <div className="max-w-7xl mx-auto">
           {/* Header */}
           <div className="flex items-center gap-4 mb-6 md:mb-8">
-            <Button variant="ghost" size="sm" onClick={() => router.back()}>
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              <span className="hidden sm:inline">Quay lại</span>
-            </Button>
             <div className="flex-1">
               <h1 className="text-2xl md:text-3xl font-bold text-secondary-foreground">
                 Thanh toán
@@ -430,16 +423,14 @@ export default function CheckoutPage() {
             <div className="flex items-center justify-center">
               <div className="flex items-center space-x-2 md:space-x-4 bg-card rounded-full px-4 py-2 shadow-sm border">
                 <div
-                  className={`flex items-center space-x-2 transition-colors ${
-                    step >= 1 ? "text-primary" : "text-muted-foreground"
-                  }`}
+                  className={`flex items-center space-x-2 transition-colors ${step >= 1 ? "text-primary" : "text-muted-foreground"
+                    }`}
                 >
                   <div
-                    className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-all duration-200 ${
-                      step >= 1
+                    className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-all duration-200 ${step >= 1
                         ? "bg-primary text-primary-foreground shadow-md"
                         : "bg-muted text-muted-foreground"
-                    }`}
+                      }`}
                   >
                     {step > 1 ? <CheckCircle className="h-4 w-4" /> : "1"}
                   </div>
@@ -449,16 +440,14 @@ export default function CheckoutPage() {
                 </div>
                 <div className="w-4 md:w-8 h-px bg-border" />
                 <div
-                  className={`flex items-center space-x-2 transition-colors ${
-                    step >= 2 ? "text-primary" : "text-muted-foreground"
-                  }`}
+                  className={`flex items-center space-x-2 transition-colors ${step >= 2 ? "text-primary" : "text-muted-foreground"
+                    }`}
                 >
                   <div
-                    className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-all duration-200 ${
-                      step >= 2
+                    className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-all duration-200 ${step >= 2
                         ? "bg-primary text-primary-foreground shadow-md"
                         : "bg-muted text-muted-foreground"
-                    }`}
+                      }`}
                   >
                     {step > 2 ? <CheckCircle className="h-4 w-4" /> : "2"}
                   </div>
@@ -654,102 +643,191 @@ export default function CheckoutPage() {
               {step === 2 && (
                 <>
                   <Card className="shadow-sm border-0 bg-card/50 backdrop-blur-sm">
-                    <CardHeader className="pb-4">
-                      <CardTitle className="flex items-center gap-2">
-                        <div className="w-2 h-2 rounded-full bg-primary"></div>
-                        Phương thức thanh toán
-                      </CardTitle>
-                      <p className="text-sm text-muted-foreground">
-                        Thanh toán an toàn qua cổng VNPay
-                      </p>
-                    </CardHeader>
                     <CardContent className="space-y-6">
-                      <RadioGroup
-                        value={orderData.paymentMethod}
-                        onValueChange={(value) =>
-                          handleInputChange("paymentMethod", value)
-                        }
-                        className="space-y-3"
-                      >
-                        {/* VNPay Payment Method */}
-                        <div
-                          className={`relative flex items-center space-x-3 p-4 border-2 rounded-xl transition-all cursor-pointer hover:bg-muted/50 ${
-                            orderData.paymentMethod === "vnpay"
-                              ? "border-primary bg-primary/5 shadow-sm"
-                              : "border-border hover:border-muted-foreground/30"
-                          }`}
-                        >
-                          <RadioGroupItem
-                            value="vnpay"
-                            id="vnpay"
-                            className="mt-1"
-                          />
-                          <Label
-                            htmlFor="vnpay"
-                            className="flex-1 cursor-pointer"
-                          >
-                            <div className="flex items-start gap-3">
-                              <div className="p-2 rounded-lg bg-blue-100 text-blue-600">
-                                <CreditCard className="h-5 w-5" />
-                              </div>
-                              <div className="space-y-1">
-                                <p className="font-semibold">
-                                  Thanh toán qua VNPay
-                                </p>
-                                <p className="text-sm text-muted-foreground">
-                                  Thanh toán trực tuyến an toàn qua cổng VNPay.
-                                  Hỗ trợ tất cả thẻ tín dụng, thẻ ghi nợ và ví
-                                  điện tử.
-                                </p>
-                                <div className="flex items-center gap-2 text-xs text-blue-600">
-                                  <Shield className="h-3 w-3" />
-                                  Bảo mật cao - Thanh toán online tối ưu
+                      {/* Chi tiết phí vận chuyển */}
+                      {shippingFeeData && (
+                        <div className="space-y-4 pb-6 border-b">
+                          <div className="flex items-center gap-2">
+                            <div className="w-2 h-2 rounded-full bg-primary"></div>
+                            <h3 className="font-semibold text-base">
+                              Chi tiết phí vận chuyển
+                            </h3>
+                          </div>
+                          <p className="text-sm text-muted-foreground ml-4">
+                            Tính toán dựa trên địa chỉ giao hàng và sản phẩm
+                          </p>
+
+                          {/* Boxes Information */}
+                          {shippingFeeData.boxes &&
+                            shippingFeeData.boxes.length > 0 && (
+                              <div className="space-y-3 ml-4">
+                                <div className="space-y-2">
+                                  {shippingFeeData.boxes.map((box, index) => (
+                                    <div
+                                      key={index}
+                                      className="p-3 bg-muted/30 rounded-lg border border-border/50"
+                                    >
+                                      <div className="flex justify-between items-start mb-2">
+                                        <div>
+                                          <p className="font-medium text-sm">
+                                            {box.boxName}
+                                          </p>
+                                          <p className="text-xs text-muted-foreground">
+                                            Số lượng: {box.quantity}
+                                          </p>
+                                        </div>
+                                        <div className="text-right">
+                                          <p className="font-semibold text-sm">
+                                            {formatPrice(box.subtotal)}
+                                          </p>
+                                        </div>
+                                      </div>
+                                      <div className="text-xs text-muted-foreground">
+                                        {formatPrice(box.feePerBox)}/thùng
+                                      </div>
+                                    </div>
+                                  ))}
                                 </div>
                               </div>
-                            </div>
-                          </Label>
-                        </div>
+                            )}
 
-                        {/* PayOS Payment Method */}
-                        <div
-                          className={`relative flex items-center space-x-3 p-4 border-2 rounded-xl transition-all cursor-pointer hover:bg-muted/50 ${
-                            orderData.paymentMethod === "payos"
-                              ? "border-primary bg-primary/5 shadow-sm"
-                              : "border-border hover:border-muted-foreground/30"
-                          }`}
-                        >
-                          <RadioGroupItem
-                            value="payos"
-                            id="payos"
-                            className="mt-1"
-                          />
-                          <Label
-                            htmlFor="payos"
-                            className="flex-1 cursor-pointer"
-                          >
-                            <div className="flex items-start gap-3">
-                              <div className="p-2 rounded-lg bg-purple-100 text-purple-600">
-                                <CreditCard className="h-5 w-5" />
+                          {/* Fee Breakdown */}
+                          <div className="space-y-3 pt-3 border-t ml-4">
+                            {/* <div className="flex justify-between items-center text-sm">
+                              <span className="text-muted-foreground">
+                                Phí theo thùng:
+                              </span>
+                              <span className="font-semibold">
+                                {formatPrice(shippingFeeData.boxFee)}
+                              </span>
+                            </div> */}
+
+                            <div className="flex justify-between items-center text-sm">
+                              <div>
+                                <span className="text-muted-foreground">
+                                  Phí theo khoảng cách:
+                                </span>
+                                <p className="text-xs text-muted-foreground">
+                                  ({shippingFeeData.distanceKm} km)
+                                </p>
                               </div>
-                              <div className="space-y-1">
-                                <p className="font-semibold">
-                                  Thanh toán qua PayOS
-                                </p>
-                                <p className="text-sm text-muted-foreground">
-                                  Thanh toán nhanh chóng qua cổng PayOS. Hỗ trợ
-                                  chuyển khoản ngân hàng và ví điện tử.
-                                </p>
-                                <div className="flex items-center gap-2 text-xs text-purple-600">
-                                  <Shield className="h-3 w-3" />
-                                  Bảo mật cao - Tương thích nhiều phương thức
+                              <span className="font-semibold">
+                                {formatPrice(shippingFeeData.distanceFee)}
+                              </span>
+                            </div>
+
+                            <div className="flex justify-between items-center text-base font-bold bg-primary/5 p-3 rounded-lg border border-primary/20">
+                              <span>Tổng phí vận chuyển:</span>
+                              <span className="text-primary">
+                                {formatPrice(shippingFeeData.totalShippingFee)}
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Notes */}
+                          {/* {shippingFeeData.notes && (
+                            <div className="p-3 bg-blue-50/50 border border-blue-200 rounded-lg ml-4">
+                              <p className="text-xs text-blue-900">
+                                <span className="font-semibold">Ghi chú:</span>{" "}
+                                {shippingFeeData.notes}
+                              </p>
+                            </div>
+                          )} */}
+                        </div>
+                      )}
+
+                      {/* Phương thức thanh toán */}
+                      <div className="space-y-4">
+                        <div className="flex items-center gap-2">
+                          <div className="w-2 h-2 rounded-full bg-primary"></div>
+                          <h3 className="font-semibold text-base">
+                            Chọn phương thức thanh toán
+                          </h3>
+                        </div>
+                        <RadioGroup
+                          value={orderData.paymentMethod}
+                          onValueChange={(value) =>
+                            handleInputChange("paymentMethod", value)
+                          }
+                          className="space-y-3"
+                        >
+                          {/* VNPay Payment Method */}
+                          <div
+                            className={`relative flex items-center space-x-3 p-4 border-2 rounded-xl transition-all cursor-pointer hover:bg-muted/50 ${orderData.paymentMethod === "vnpay"
+                                ? "border-primary bg-primary/5 shadow-sm"
+                                : "border-border hover:border-muted-foreground/30"
+                              }`}
+                          >
+                            <RadioGroupItem
+                              value="vnpay"
+                              id="vnpay"
+                              className="mt-1"
+                            />
+                            <Label
+                              htmlFor="vnpay"
+                              className="flex-1 cursor-pointer"
+                            >
+                              <div className="flex items-start gap-3">
+                                <div className="p-2 rounded-lg bg-blue-100 text-blue-600">
+                                  <CreditCard className="h-5 w-5" />
+                                </div>
+                                <div className="space-y-1">
+                                  <p className="font-semibold">
+                                    Thanh toán qua VNPay
+                                  </p>
+                                  <p className="text-sm text-muted-foreground">
+                                    Thanh toán trực tuyến an toàn qua cổng VNPay.
+                                    Hỗ trợ tất cả thẻ tín dụng, thẻ ghi nợ và ví
+                                    điện tử.
+                                  </p>
+                                  <div className="flex items-center gap-2 text-xs text-blue-600">
+                                    <Shield className="h-3 w-3" />
+                                    Bảo mật cao - Thanh toán online tối ưu
+                                  </div>
                                 </div>
                               </div>
-                            </div>
-                          </Label>
-                        </div>
+                            </Label>
+                          </div>
 
-                        {/* Momo Payment Method (thêm sau) - Ẩn tạm thời */}
-                        {/*
+                          {/* PayOS Payment Method */}
+                          <div
+                            className={`relative flex items-center space-x-3 p-4 border-2 rounded-xl transition-all cursor-pointer hover:bg-muted/50 ${orderData.paymentMethod === "payos"
+                                ? "border-primary bg-primary/5 shadow-sm"
+                                : "border-border hover:border-muted-foreground/30"
+                              }`}
+                          >
+                            <RadioGroupItem
+                              value="payos"
+                              id="payos"
+                              className="mt-1"
+                            />
+                            <Label
+                              htmlFor="payos"
+                              className="flex-1 cursor-pointer"
+                            >
+                              <div className="flex items-start gap-3">
+                                <div className="p-2 rounded-lg bg-purple-100 text-purple-600">
+                                  <CreditCard className="h-5 w-5" />
+                                </div>
+                                <div className="space-y-1">
+                                  <p className="font-semibold">
+                                    Thanh toán qua PayOS
+                                  </p>
+                                  <p className="text-sm text-muted-foreground">
+                                    Thanh toán nhanh chóng qua cổng PayOS. Hỗ trợ
+                                    chuyển khoản ngân hàng và ví điện tử.
+                                  </p>
+                                  <div className="flex items-center gap-2 text-xs text-purple-600">
+                                    <Shield className="h-3 w-3" />
+                                    Bảo mật cao - Tương thích nhiều phương thức
+                                  </div>
+                                </div>
+                              </div>
+                            </Label>
+                          </div>
+
+                          {/* Momo Payment Method (thêm sau) - Ẩn tạm thời */}
+                          {/*
                       <div className={`relative flex items-center space-x-3 p-4 border-2 rounded-xl transition-all cursor-pointer hover:bg-muted/50 ${
                         orderData.paymentMethod === "momo"
                           ? "border-primary bg-primary/5 shadow-sm"
@@ -771,59 +849,8 @@ export default function CheckoutPage() {
                         </Label>
                       </div>
                       */}
-                      </RadioGroup>
-
-                      {/* VNPay Information */}
-                      {orderData.paymentMethod === "vnpay" && (
-                        <Card className="bg-blue-50 border-blue-200">
-                          <CardContent className="p-4">
-                            <h4 className="font-medium mb-3 text-blue-900">
-                              Thông tin thanh toán VNPay:
-                            </h4>
-                            <div className="space-y-2 text-sm text-blue-800">
-                              <p>
-                                ✓ Thanh toán qua tất cả ngân hàng tại Việt Nam
-                              </p>
-                              <p>
-                                ✓ Hỗ trợ ví điện tử (VN Pay, Momo, Zalo Pay,
-                                ...)
-                              </p>
-                              <p>
-                                ✓ Hoàn tiền nhanh chóng nếu giao dịch thất bại
-                              </p>
-                              <p>✓ An toàn, bảo mật, được chứng thực</p>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      )}
-
-                      {/* PayOS Information */}
-                      {orderData.paymentMethod === "payos" && (
-                        <Card className="bg-purple-50 border-purple-200">
-                          <CardContent className="p-4">
-                            <h4 className="font-medium mb-3 text-purple-900">
-                              Thông tin thanh toán PayOS:
-                            </h4>
-                            <div className="space-y-2 text-sm text-purple-800">
-                              <p>
-                                ✓ Chuyển khoản trực tiếp từ tài khoản ngân hàng
-                              </p>
-                              <p>
-                                ✓ Hỗ trợ ví điện tử và phương thức thanh toán
-                                khác
-                              </p>
-                              <p>
-                                ✓ Xử lý nhanh chóng, tối ưu cho người dùng Việt
-                                Nam
-                              </p>
-                              <p>
-                                ✓ Bảo mật cao, hỗ trợ tương thích với nhiều ngân
-                                hàng
-                              </p>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      )}
+                        </RadioGroup>
+                      </div>
 
                       <div className="space-y-3">
                         <div className="flex items-center space-x-2">
@@ -838,6 +865,7 @@ export default function CheckoutPage() {
                             Tôi đồng ý với{" "}
                             <Link
                               href="/polycies"
+                              target="_blank"
                               className="text-primary hover:underline"
                             >
                               điều khoản và điều kiện
@@ -942,7 +970,7 @@ export default function CheckoutPage() {
                           className={cn(
                             "flex gap-3 p-3 bg-muted/30 rounded-lg border border-border/50",
                             isOutOfStock &&
-                              "border-destructive/30 bg-destructive/5",
+                            "border-destructive/30 bg-destructive/5",
                           )}
                         >
                           <div className="relative w-14 h-14 rounded-lg overflow-hidden shrink-0 bg-muted">
@@ -1039,29 +1067,16 @@ export default function CheckoutPage() {
 
                     {/* Phí vận chuyển */}
                     <div className="flex justify-between text-sm items-center">
-                      <div className="flex items-center gap-1.5">
-                        <span className="text-muted-foreground">
-                          Phí vận chuyển
-                        </span>
-                        {shippingFeeData && (
-                          <button
-                            type="button"
-                            onClick={() => setShowShippingFeeDialog(true)}
-                            className="inline-flex items-center justify-center w-4 h-4 rounded-full hover:bg-muted/50 transition-colors text-muted-foreground hover:text-secondary-foreground"
-                            aria-label="Chi tiết phí vận chuyển"
-                          >
-                            <Info className="h-3.5 w-3.5" />
-                          </button>
-                        )}
-                      </div>
+                      <span className="text-muted-foreground">
+                        Phí vận chuyển
+                      </span>
                       <div className="text-right">
                         {shippingFeeData ? (
                           <span
-                            className={`font-medium ${
-                              shippingFeeData.totalShippingFee === 0
+                            className={`font-medium ${shippingFeeData.totalShippingFee === 0
                                 ? "text-green-600"
                                 : ""
-                            }`}
+                              }`}
                           >
                             {shippingFeeData.totalShippingFee === 0
                               ? "Miễn phí"
@@ -1083,21 +1098,9 @@ export default function CheckoutPage() {
                       <span className="text-primary text-xl">
                         {formatPrice(
                           (getFinalPrice() || getTotalPrice()) +
-                            (shippingFeeData?.totalShippingFee || 0),
+                          (shippingFeeData?.totalShippingFee || 0),
                         )}
                       </span>
-                    </div>
-                  </div>
-
-                  <div className="space-y-3 pt-4 border-t">
-                    <h4 className="font-medium text-sm">Chính sách & Ưu đãi</h4>
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-3 text-xs text-muted-foreground p-2 bg-purple-50/50 rounded-lg border border-purple-200/50">
-                        <div className="p-1 bg-purple-100 rounded-full">
-                          <CheckCircle className="h-3 w-3 text-purple-600" />
-                        </div>
-                        <span>Hỗ trợ kỹ thuật 24/7</span>
-                      </div>
                     </div>
                   </div>
                 </CardContent>
@@ -1106,13 +1109,6 @@ export default function CheckoutPage() {
           </div>
         </div>
       </div>
-
-      {/* Shipping Fee Detail Dialog */}
-      <ShippingFeeDetailDialog
-        open={showShippingFeeDialog}
-        onOpenChange={setShowShippingFeeDialog}
-        shippingFeeData={shippingFeeData}
-      />
 
       {/* Quick Add Address Modal */}
       <Dialog
@@ -1255,7 +1251,7 @@ export default function CheckoutPage() {
                 latitude={quickAddForm.latitude}
                 longitude={quickAddForm.longitude}
                 onLocationChange={handleQuickAddMapClick}
-                // disabled={isPending}
+              // disabled={isPending}
               />
             </div>
           </div>
