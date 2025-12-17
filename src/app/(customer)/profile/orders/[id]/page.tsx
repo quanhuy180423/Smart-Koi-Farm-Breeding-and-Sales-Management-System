@@ -39,6 +39,7 @@ import {
   getOrderStatusTimeline,
 } from "@/lib/utils/enum/formatEnum";
 import { formatDate, DATE_FORMATS } from "@/lib/utils/dates";
+import Link from "next/link";
 
 export default function OrderDetailPage() {
   const router = useRouter();
@@ -85,10 +86,10 @@ export default function OrderDetailPage() {
         },
         onError: (error) => {
           toast.error(
-            error instanceof Error ? error.message : "Không thể tạo thanh toán",
+            error instanceof Error ? error.message : "Không thể tạo thanh toán"
           );
         },
-      },
+      }
     );
   };
 
@@ -114,10 +115,10 @@ export default function OrderDetailPage() {
         },
         onError: (error) => {
           toast.error(
-            error instanceof Error ? error.message : "Không thể hủy đơn hàng",
+            error instanceof Error ? error.message : "Không thể hủy đơn hàng"
           );
         },
-      },
+      }
     );
   };
 
@@ -282,7 +283,8 @@ export default function OrderDetailPage() {
           <CardContent>
             <div className="space-y-4">
               {order.orderDetails.map((item, index) => (
-                <div
+                <Link
+                  href={`/koi/${item.koiFish?.id}`}
                   key={index}
                   className="flex items-start gap-4 p-4 border rounded-lg hover:bg-muted/50 transition-colors"
                 >
@@ -333,7 +335,7 @@ export default function OrderDetailPage() {
                       {formatCurrency(item.totalPrice)}
                     </p>
                   </div>
-                </div>
+                </Link>
               ))}
             </div>
           </CardContent>
