@@ -64,7 +64,7 @@ export function PromotionBanner({
 
   const daysUntilExpiry = Math.ceil(
     (new Date(promotion.validTo).getTime() - new Date().getTime()) /
-      (1000 * 60 * 60 * 24)
+      (1000 * 60 * 60 * 24),
   );
 
   if (variant === "compact") {
@@ -72,7 +72,7 @@ export function PromotionBanner({
       <div
         className={cn(
           "bg-linear-to-r from-primary via-primary/90 to-accent text-white py-2 px-3 rounded-lg shadow-md",
-          className
+          className,
         )}
       >
         <div className="flex items-center justify-center gap-2">
@@ -112,7 +112,7 @@ export function PromotionBanner({
     <Card
       className={cn(
         "border-border overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300 p-0 group",
-        className
+        className,
       )}
     >
       <div className="relative">

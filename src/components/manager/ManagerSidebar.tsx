@@ -109,7 +109,9 @@ export default function ManagerSidebar({ className }: ManagerSidebarProps) {
         onClick={() => isMobile && setIsMobileOpen(false)}
         className={cn(
           "flex items-center gap-3 rounded-lg py-2 transition-all duration-200 group hover:bg-accent hover:text-white",
-          isActive ? "bg-primary/10 text-primary hover:text-white " : "text-muted-foreground",
+          isActive
+            ? "bg-primary/10 text-primary hover:text-white "
+            : "text-muted-foreground",
           isCollapsed && !isMobile ? "justify-center px-0" : "px-3",
         )}
       >

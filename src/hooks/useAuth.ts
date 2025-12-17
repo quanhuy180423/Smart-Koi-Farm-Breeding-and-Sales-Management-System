@@ -38,7 +38,7 @@ export function useRegister() {
     },
     onSuccess: (
       response: BaseResponse<RegisterResponse>,
-      variables: RegisterRequest
+      variables: RegisterRequest,
     ) => {
       if (response.isSuccess) {
         setSuccess(true);
@@ -97,7 +97,7 @@ export function useLogin() {
     },
     onSuccess: (
       response: BaseResponse<LoginResponse>,
-      variables?: LoginRequest
+      variables?: LoginRequest,
     ) => {
       if (response?.isSuccess) {
         const token = response.result?.accessToken;
@@ -109,7 +109,7 @@ export function useLogin() {
             setCookie(
               "auth-token",
               token,
-              getAuthCookieConfig(variables?.rememberMe)
+              getAuthCookieConfig(variables?.rememberMe),
             );
           } catch {}
 
@@ -118,7 +118,7 @@ export function useLogin() {
               setCookie(
                 "refresh-token",
                 refreshToken,
-                getAuthCookieConfig(variables?.rememberMe)
+                getAuthCookieConfig(variables?.rememberMe),
               );
             } catch {}
           }
@@ -133,7 +133,7 @@ export function useLogin() {
           const redirectTo = searchParams?.get("redirect");
           if (redirectTo) {
             (router as unknown as { push: (to: string) => void }).push(
-              redirectTo
+              redirectTo,
             );
             return;
           } else {
@@ -153,7 +153,7 @@ export function useLogin() {
                 destination = "/";
             }
             (router as unknown as { push: (to: string) => void }).push(
-              destination
+              destination,
             );
           }
           return;
@@ -221,7 +221,7 @@ export function useGoogleLogin() {
     },
     onSuccess: (
       response: BaseResponse<LoginResponse>,
-      variables?: { idToken: string; rememberMe?: boolean }
+      variables?: { idToken: string; rememberMe?: boolean },
     ) => {
       if (response?.isSuccess) {
         const token = response.result?.accessToken;
@@ -233,7 +233,7 @@ export function useGoogleLogin() {
             setCookie(
               "auth-token",
               token,
-              getAuthCookieConfig(variables?.rememberMe)
+              getAuthCookieConfig(variables?.rememberMe),
             );
           } catch {}
 
@@ -242,7 +242,7 @@ export function useGoogleLogin() {
               setCookie(
                 "refresh-token",
                 refreshToken,
-                getAuthCookieConfig(variables?.rememberMe)
+                getAuthCookieConfig(variables?.rememberMe),
               );
             } catch {}
           }
@@ -254,7 +254,7 @@ export function useGoogleLogin() {
           const redirectTo = searchParams?.get("redirect");
           if (redirectTo) {
             (router as unknown as { push: (to: string) => void }).push(
-              redirectTo
+              redirectTo,
             );
             return;
           }
@@ -275,7 +275,7 @@ export function useGoogleLogin() {
               destination = "/";
           }
           (router as unknown as { push: (to: string) => void }).push(
-            destination
+            destination,
           );
         }
       } else {

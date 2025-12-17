@@ -24,7 +24,6 @@ import {
   CreditCard,
   Filter,
   XCircle,
-  Info,
   Wallet,
   Percent,
   Truck,
@@ -144,10 +143,10 @@ export default function OrdersPage() {
         },
         onError: (error) => {
           toast.error(
-            error instanceof Error ? error.message : "Không thể tạo thanh toán"
+            error instanceof Error ? error.message : "Không thể tạo thanh toán",
           );
         },
-      }
+      },
     );
   };
 
@@ -175,10 +174,10 @@ export default function OrdersPage() {
         },
         onError: (error) => {
           toast.error(
-            error instanceof Error ? error.message : "Không thể hủy đơn hàng"
+            error instanceof Error ? error.message : "Không thể hủy đơn hàng",
           );
         },
-      }
+      },
     );
   };
 
@@ -444,15 +443,6 @@ export default function OrdersPage() {
             </div>
           </div>
         </div>
-
-        {/* Footer Note
-        <div className="flex items-start gap-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-          <Info className="h-4 w-4 text-blue-600 shrink-0 mt-0.5" />
-          <p className="text-xs text-blue-800">
-            Đơn hàng của bạn đang được xử lý. Vui lòng kiểm tra email để nhận
-            thông tin chi tiết về đơn hàng.
-          </p>
-        </div> */}
       </div>
     );
   };

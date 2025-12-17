@@ -120,10 +120,10 @@ export default function BreedingManagement() {
   const [endDateFromInput, setEndDateFromInput] = useState<string>("");
   const [endDateToInput, setEndDateToInput] = useState<string>("");
   const [statusFilter, setStatusFilter] = useState<BreedingStatus | string>(
-    "all"
+    "all",
   );
   const [resultFilter, setResultFilter] = useState<BreedingResult | string>(
-    "all"
+    "all",
   );
   const [maleKoiIdInput, setMaleKoiIdInput] = useState<string>("");
   const [femaleKoiIdInput, setFemaleKoiIdInput] = useState<string>("");
@@ -176,7 +176,7 @@ export default function BreedingManagement() {
       maleKoiId: undefined,
       femaleKoiId: undefined,
       pondId: undefined,
-    }
+    },
   );
 
   const { data, isLoading } = useGetBreedingProcesses(searchParams);
@@ -432,7 +432,7 @@ export default function BreedingManagement() {
       value !== "" &&
       value !== searchParams.pageSize &&
       value !== searchParams.pageIndex &&
-      value !== searchParams.search
+      value !== searchParams.search,
   );
 
   return (
@@ -650,13 +650,13 @@ export default function BreedingManagement() {
                         <TableCell>
                           {formatDate(
                             process.startDate,
-                            DATE_FORMATS.MEDIUM_DATE
+                            DATE_FORMATS.MEDIUM_DATE,
                           )}{" "}
                           -{" "}
                           {process.endDate
                             ? formatDate(
                                 process.endDate,
-                                DATE_FORMATS.MEDIUM_DATE
+                                DATE_FORMATS.MEDIUM_DATE,
                               )
                             : "Chưa xác định"}
                         </TableCell>
@@ -667,7 +667,7 @@ export default function BreedingManagement() {
                               <TooltipTrigger asChild>
                                 {(() => {
                                   const label = getBreedingStatusLabel(
-                                    process.status
+                                    process.status,
                                   );
                                   return (
                                     <Badge
@@ -704,7 +704,7 @@ export default function BreedingManagement() {
                         <TableCell className="truncate">
                           {(() => {
                             const label = getBreedingResultLabel(
-                              process.result
+                              process.result,
                             );
                             return (
                               <Badge
@@ -811,32 +811,32 @@ export default function BreedingManagement() {
             setMinFishQualifiedInput(
               searchParams.minTotalFishQualified !== undefined
                 ? String(searchParams.minTotalFishQualified)
-                : ""
+                : "",
             );
             setMaxFishQualifiedInput(
               searchParams.maxTotalFishQualified !== undefined
                 ? String(searchParams.maxTotalFishQualified)
-                : ""
+                : "",
             );
             setMinTotalPackageInput(
               searchParams.minTotalPackage !== undefined
                 ? String(searchParams.minTotalPackage)
-                : ""
+                : "",
             );
             setMaxTotalPackageInput(
               searchParams.maxTotalPackage !== undefined
                 ? String(searchParams.maxTotalPackage)
-                : ""
+                : "",
             );
             setMinTotalEggsInput(
               searchParams.minTotalEggs !== undefined
                 ? String(searchParams.minTotalEggs)
-                : ""
+                : "",
             );
             setMaxTotalEggsInput(
               searchParams.maxTotalEggs !== undefined
                 ? String(searchParams.maxTotalEggs)
-                : ""
+                : "",
             );
             setFertilizationRateRange([
               searchParams.minFertilizationRate ?? 0,
@@ -855,17 +855,17 @@ export default function BreedingManagement() {
             setMaleKoiIdInput(
               searchParams.maleKoiId !== undefined
                 ? String(searchParams.maleKoiId)
-                : ""
+                : "",
             );
             setFemaleKoiIdInput(
               searchParams.femaleKoiId !== undefined
                 ? String(searchParams.femaleKoiId)
-                : ""
+                : "",
             );
             setPondIdInput(
               searchParams.pondId !== undefined
                 ? String(searchParams.pondId)
-                : ""
+                : "",
             );
             setCodeInput(searchParams.code || "");
           }

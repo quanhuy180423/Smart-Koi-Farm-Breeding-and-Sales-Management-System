@@ -52,7 +52,7 @@ import { formatCurrency } from "@/lib/utils/numbers/formatCurrency";
 
 export default function SaleDashboard() {
   const [analysisRange, setAnalysisRange] = useState<SalesAnalysisRange>(
-    SalesAnalysisRange.LAST_30_DAYS
+    SalesAnalysisRange.LAST_30_DAYS,
   );
 
   const { data: stats, isLoading } = useGetSalesDashboardStatistics();

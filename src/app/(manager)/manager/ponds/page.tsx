@@ -12,7 +12,6 @@ import {
   Loader2,
   Filter,
   MoreHorizontal,
-  Zap,
 } from "lucide-react";
 import {
   Card,
@@ -257,7 +256,7 @@ export default function PondManagement() {
       pageSize: PAGE_SIZE_OPTIONS_DEFAULT[0],
       search: "",
     }),
-    []
+    [],
   );
 
   const allPondTypeSearchParams = useMemo(
@@ -266,7 +265,7 @@ export default function PondManagement() {
       pageSize: PAGE_SIZE_OPTIONS_DEFAULT[0],
       search: "",
     }),
-    []
+    [],
   );
 
   const { data: areasData } = useGetAreas(allAreaSearchParams);
@@ -356,7 +355,7 @@ export default function PondManagement() {
   };
 
   const handleAddPond = (
-    onValidationError?: (errors: Record<string, string>) => void
+    onValidationError?: (errors: Record<string, string>) => void,
   ) => {
     const result = pondSchema.safeParse({
       pondName: newPond.pondName,
@@ -467,7 +466,7 @@ export default function PondManagement() {
   };
 
   const handleUpdatePond = (
-    onValidationError?: (errors: Record<string, string>) => void
+    onValidationError?: (errors: Record<string, string>) => void,
   ) => {
     if (!editingPond) return;
 
@@ -541,7 +540,7 @@ export default function PondManagement() {
           setIsEditModalOpen(false);
           setEditingPond(null);
         },
-      }
+      },
     );
   };
 
@@ -838,7 +837,7 @@ export default function PondManagement() {
                         <TableCell>
                           {(() => {
                             const statusInfo = getPondStatusLabel(
-                              pond.pondStatus
+                              pond.pondStatus,
                             );
                             const IconComponent = statusInfo.icon;
                             return (

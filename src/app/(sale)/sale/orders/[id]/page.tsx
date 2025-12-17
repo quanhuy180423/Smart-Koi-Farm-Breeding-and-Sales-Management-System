@@ -102,10 +102,10 @@ export default function OrderDetailPage() {
           toast.error(
             error instanceof Error
               ? error.message
-              : "Không thể xác nhận đơn hàng"
+              : "Không thể xác nhận đơn hàng",
           );
         },
-      }
+      },
     );
   };
 
@@ -139,10 +139,10 @@ export default function OrderDetailPage() {
           toast.error(
             error instanceof Error
               ? error.message
-              : "Không thể chuyển trạng thái hoàn trả"
+              : "Không thể chuyển trạng thái hoàn trả",
           );
         },
-      }
+      },
     );
   };
 
@@ -171,10 +171,10 @@ export default function OrderDetailPage() {
           toast.error(
             error instanceof Error
               ? error.message
-              : "Không thể xác nhận giao hàng"
+              : "Không thể xác nhận giao hàng",
           );
         },
-      }
+      },
     );
   };
 
@@ -208,10 +208,10 @@ export default function OrderDetailPage() {
           toast.error(
             error instanceof Error
               ? error.message
-              : "Không thể từ chối đơn hàng"
+              : "Không thể từ chối đơn hàng",
           );
         },
-      }
+      },
     );
   };
 
@@ -479,7 +479,9 @@ export default function OrderDetailPage() {
             {order.promotion?.code && (
               <div className="flex justify-between items-center pt-2 border-t">
                 <span className="text-muted-foreground">Mã khuyến mãi:</span>
-                <Badge className="text-xl bg-red-400">{order.promotion?.code}</Badge>
+                <Badge className="text-xl bg-red-400">
+                  {order.promotion?.code}
+                </Badge>
               </div>
             )}
             <div className="flex justify-between items-center pt-3 border-t-2 text-lg font-bold">

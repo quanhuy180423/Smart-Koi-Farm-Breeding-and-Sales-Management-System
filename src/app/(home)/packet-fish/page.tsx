@@ -456,7 +456,7 @@ export default function PacketFishPage() {
                                     onChange={(e) =>
                                       handleQuantityInputChange(
                                         0,
-                                        e.target.value
+                                        e.target.value,
                                       )
                                     }
                                   />
@@ -474,7 +474,7 @@ export default function PacketFishPage() {
                                     onChange={(e) =>
                                       handleQuantityInputChange(
                                         1,
-                                        e.target.value
+                                        e.target.value,
                                       )
                                     }
                                   />

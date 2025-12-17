@@ -99,7 +99,7 @@ export function IncidentDetailDialog({
                     className={`${getIncidentSeverityColor(incident.incidentType.defaultSeverity)} text-sm`}
                   >
                     {getIncidentSeverityText(
-                      incident.incidentType.defaultSeverity
+                      incident.incidentType.defaultSeverity,
                     )}
                   </Badge>
                   {incident.incidentType.affectsBreeding && (

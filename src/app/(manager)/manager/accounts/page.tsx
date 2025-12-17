@@ -195,7 +195,7 @@ export default function AccountManagement() {
 
   // Password validation helper
   const validatePassword = (
-    password: string
+    password: string,
   ): { isValid: boolean; message: string } => {
     if (password.length < 6) {
       return { isValid: false, message: "Mật khẩu phải có ít nhất 6 ký tự" };
@@ -243,7 +243,7 @@ export default function AccountManagement() {
       ![Roles.FarmStaff, Roles.SaleStaff].includes(newAccount.role as Roles)
     ) {
       toast.error(
-        "Chỉ có thể tạo tài khoản cho nhân viên trang trại hoặc nhân viên bán hàng"
+        "Chỉ có thể tạo tài khoản cho nhân viên trang trại hoặc nhân viên bán hàng",
       );
       return;
     }
@@ -368,7 +368,7 @@ export default function AccountManagement() {
         // Show summary
         if (successCount > 0) {
           toast.success(
-            `Import thành công: ${successCount} tài khoản đã được tạo`
+            `Import thành công: ${successCount} tài khoản đã được tạo`,
           );
         }
 
@@ -381,7 +381,7 @@ export default function AccountManagement() {
             `Import thất bại: ${failureCount} tài khoản\n${errorMessages}`,
             {
               duration: 6000,
-            }
+            },
           );
         }
       }
@@ -393,7 +393,7 @@ export default function AccountManagement() {
         error instanceof Error ? error.message : "Lỗi khi import file",
         {
           duration: 6000,
-        }
+        },
       );
     }
   };
@@ -763,14 +763,14 @@ export default function AccountManagement() {
                     <p
                       className={
                         /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(
-                          newAccount.password
+                          newAccount.password,
                         )
                           ? "text-green-600"
                           : "text-muted-foreground"
                       }
                     >
                       {/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(
-                        newAccount.password
+                        newAccount.password,
                       )
                         ? "✓"
                         : "○"}{" "}
@@ -988,7 +988,7 @@ export default function AccountManagement() {
                       onClick={(e) => {
                         const input =
                           e.currentTarget.parentElement?.querySelector(
-                            "input[type='file']"
+                            "input[type='file']",
                           ) as HTMLInputElement;
                         input?.click();
                       }}

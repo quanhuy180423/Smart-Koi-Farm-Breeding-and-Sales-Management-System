@@ -102,7 +102,7 @@ export default function ManagerOrdersPage() {
 
     // Find the selected order to get its note
     const selectedOrder = ordersData?.data?.find(
-      (order) => order.id === selectedOrderId
+      (order) => order.id === selectedOrderId,
     );
 
     updateStatusMutation.mutate(
@@ -123,10 +123,10 @@ export default function ManagerOrdersPage() {
           toast.error(
             error instanceof Error
               ? error.message
-              : "Không thể hoàn tiền đơn hàng"
+              : "Không thể hoàn tiền đơn hàng",
           );
         },
-      }
+      },
     );
   };
 
@@ -327,7 +327,7 @@ export default function ManagerOrdersPage() {
                           <div className="flex items-center gap-1.5">
                             {(() => {
                               const Icon = getOrderStatusLabel(
-                                order.status
+                                order.status,
                               ).icon;
                               return <Icon className="h-3.5 w-3.5" />;
                             })()}
@@ -355,7 +355,7 @@ export default function ManagerOrdersPage() {
                           <span>
                             {formatDate(
                               order.createdAt,
-                              DATE_FORMATS.DATETIME_24H
+                              DATE_FORMATS.DATETIME_24H,
                             )}
                           </span>
                         </div>
@@ -450,7 +450,7 @@ export default function ManagerOrdersPage() {
                       <p className="text-xs text-muted-foreground">
                         {order.orderDetails.reduce(
                           (sum, item) => sum + item.quantity,
-                          0
+                          0,
                         )}{" "}
                         sản phẩm
                       </p>
@@ -538,7 +538,7 @@ export default function ManagerOrdersPage() {
             {/* Amount Breakdown */}
             {(() => {
               const selectedOrder = ordersData?.data?.find(
-                (order) => order.id === selectedOrderId
+                (order) => order.id === selectedOrderId,
               );
               return selectedOrder ? (
                 <>
