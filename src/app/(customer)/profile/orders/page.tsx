@@ -57,6 +57,7 @@ import {
 } from "@/lib/utils/enum/formatEnum";
 import { formatDate, DATE_FORMATS } from "@/lib/utils/dates";
 import { cn } from "@/lib/utils";
+import Link from "next/link";
 
 export default function OrdersPage() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -143,10 +144,10 @@ export default function OrdersPage() {
         },
         onError: (error) => {
           toast.error(
-            error instanceof Error ? error.message : "Không thể tạo thanh toán",
+            error instanceof Error ? error.message : "Không thể tạo thanh toán"
           );
         },
-      },
+      }
     );
   };
 
@@ -174,10 +175,10 @@ export default function OrdersPage() {
         },
         onError: (error) => {
           toast.error(
-            error instanceof Error ? error.message : "Không thể hủy đơn hàng",
+            error instanceof Error ? error.message : "Không thể hủy đơn hàng"
           );
         },
-      },
+      }
     );
   };
 
@@ -306,7 +307,8 @@ export default function OrdersPage() {
 
           <div className="space-y-3">
             {order.orderDetails.map((item, idx) => (
-              <div
+              <Link
+                href={`${item.koiFish ? `/koi/${item.koiFish?.id}` : `/packet-fish/${item.packetFish?.id}`}`}
                 key={idx}
                 className="group relative flex gap-3 p-3 bg-linear-to-r from-gray-50 to-white rounded-xl border border-gray-200 hover:border-primary/50 hover:shadow-md transition-all"
               >
@@ -374,7 +376,7 @@ export default function OrdersPage() {
                     </span>
                   </div>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         </div>
@@ -443,14 +445,14 @@ export default function OrdersPage() {
           </div>
         </div>
 
-        {/* Footer Note */}
+        {/* Footer Note
         <div className="flex items-start gap-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
           <Info className="h-4 w-4 text-blue-600 shrink-0 mt-0.5" />
           <p className="text-xs text-blue-800">
             Đơn hàng của bạn đang được xử lý. Vui lòng kiểm tra email để nhận
             thông tin chi tiết về đơn hàng.
           </p>
-        </div>
+        </div> */}
       </div>
     );
   };

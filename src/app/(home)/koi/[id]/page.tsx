@@ -255,36 +255,39 @@ export default function KoiDetailPage() {
                   </p>
                 </div>
                 {/* favorite button */}
-                <div className="flex gap-2">
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={() => {
-                      if (!isAuthenticated) {
-                        window.location.href = "/login";
-                        return;
-                      }
-                      toggleFavorite(koiId, !!isFavorite);
-                    }}
-                    disabled={isFavoriteLoading}
-                    className={
-                      isFavorite
-                        ? "text-red-500 border-red-500 hover:bg-red-100 hover:text-red-600"
-                        : ""
-                    }
-                  >
-                    {isFavoriteLoading ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                    ) : (
-                      <Heart
-                        className={`h-4 w-4 ${isFavorite ? "fill-current" : ""}`}
-                      />
-                    )}
-                  </Button>
-                </div>
+                {koi.saleStatus !== "NotForSale" &&
+                  koi.saleStatus !== "Sold" && (
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={() => {
+                          if (!isAuthenticated) {
+                            window.location.href = "/login";
+                            return;
+                          }
+                          toggleFavorite(koiId, !!isFavorite);
+                        }}
+                        disabled={isFavoriteLoading}
+                        className={
+                          isFavorite
+                            ? "text-red-500 border-red-500 hover:bg-red-100 hover:text-red-600"
+                            : ""
+                        }
+                      >
+                        {isFavoriteLoading ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <Heart
+                            className={`h-4 w-4 ${isFavorite ? "fill-current" : ""}`}
+                          />
+                        )}
+                      </Button>
+                    </div>
+                  )}
               </div>
 
-              <div className="flex items-center gap-2 mb-4">
+              {/* <div className="flex items-center gap-2 mb-4">
                 <Badge
                   variant={
                     koi.saleStatus && koi.saleStatus !== "Sold"
@@ -294,7 +297,7 @@ export default function KoiDetailPage() {
                 >
                   {getSaleStatusLabel(koi.saleStatus).label}
                 </Badge>
-              </div>
+              </div> */}
 
               <div className="text-3xl font-bold text-primary mb-6">
                 {formatCurrency(koi.sellingPrice || 0)}
@@ -378,7 +381,11 @@ export default function KoiDetailPage() {
               <Button
                 size="lg"
                 className="w-full bg-linear-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-white"
-                disabled={isAddPending || koi.saleStatus === "Sold"}
+                disabled={
+                  isAddPending ||
+                  koi.saleStatus === "Sold" ||
+                  koi.saleStatus === "NotForSale"
+                }
                 onClick={() => addToCart({ koiFishId: koi.id, quantity: 1 })}
               >
                 {isAddPending ? (
@@ -391,7 +398,9 @@ export default function KoiDetailPage() {
                     <ShoppingCart className="h-5 w-5 mr-2" />
                     {koi.saleStatus === "Sold"
                       ? "Hết hàng"
-                      : "Thêm vào giỏ hàng"}
+                      : koi.saleStatus === "NotForSale"
+                        ? "Ngưng bán"
+                        : "Thêm vào giỏ hàng"}
                   </>
                 )}
               </Button>
@@ -757,7 +766,7 @@ export default function KoiDetailPage() {
                               {breedingHistory.breedingHistory.reduce(
                                 (total, item) =>
                                   total + item.totalFishQualified,
-                                0,
+                                0
                               )}
                             </div>
                             <div className="text-sm text-green-700">
@@ -768,7 +777,7 @@ export default function KoiDetailPage() {
                             <div className="text-2xl font-bold text-purple-600">
                               {breedingHistory.breedingHistory.reduce(
                                 (total, item) => total + item.totalPackage,
-                                0,
+                                0
                               )}
                             </div>
                             <div className="text-sm text-purple-700">
@@ -804,7 +813,7 @@ export default function KoiDetailPage() {
                                         Bắt đầu:{" "}
                                         {formatDate(
                                           history.startDate,
-                                          DATE_FORMATS.MEDIUM_DATE,
+                                          DATE_FORMATS.MEDIUM_DATE
                                         )}
                                       </div>
                                       {history.endDate && (
@@ -813,7 +822,7 @@ export default function KoiDetailPage() {
                                           Kết thúc:{" "}
                                           {formatDate(
                                             history.endDate,
-                                            DATE_FORMATS.MEDIUM_DATE,
+                                            DATE_FORMATS.MEDIUM_DATE
                                           )}
                                         </div>
                                       )}
@@ -975,7 +984,7 @@ export default function KoiDetailPage() {
                                   )}
                               </CardContent>
                             </Card>
-                          ),
+                          )
                         )}
                       </div>
                     </div>
