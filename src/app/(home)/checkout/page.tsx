@@ -311,7 +311,7 @@ export default function CheckoutPage() {
         error instanceof Error ? error.message : "Unknown error";
       toast.error(
         errorMessage ||
-        "Có lỗi xảy ra khi tính phí vận chuyển. Vui lòng thử lại",
+          "Có lỗi xảy ra khi tính phí vận chuyển. Vui lòng thử lại",
       );
     }
   };
@@ -423,14 +423,16 @@ export default function CheckoutPage() {
             <div className="flex items-center justify-center">
               <div className="flex items-center space-x-2 md:space-x-4 bg-card rounded-full px-4 py-2 shadow-sm border">
                 <div
-                  className={`flex items-center space-x-2 transition-colors ${step >= 1 ? "text-primary" : "text-muted-foreground"
-                    }`}
+                  className={`flex items-center space-x-2 transition-colors ${
+                    step >= 1 ? "text-primary" : "text-muted-foreground"
+                  }`}
                 >
                   <div
-                    className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-all duration-200 ${step >= 1
+                    className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-all duration-200 ${
+                      step >= 1
                         ? "bg-primary text-primary-foreground shadow-md"
                         : "bg-muted text-muted-foreground"
-                      }`}
+                    }`}
                   >
                     {step > 1 ? <CheckCircle className="h-4 w-4" /> : "1"}
                   </div>
@@ -440,14 +442,16 @@ export default function CheckoutPage() {
                 </div>
                 <div className="w-4 md:w-8 h-px bg-border" />
                 <div
-                  className={`flex items-center space-x-2 transition-colors ${step >= 2 ? "text-primary" : "text-muted-foreground"
-                    }`}
+                  className={`flex items-center space-x-2 transition-colors ${
+                    step >= 2 ? "text-primary" : "text-muted-foreground"
+                  }`}
                 >
                   <div
-                    className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-all duration-200 ${step >= 2
+                    className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-all duration-200 ${
+                      step >= 2
                         ? "bg-primary text-primary-foreground shadow-md"
                         : "bg-muted text-muted-foreground"
-                      }`}
+                    }`}
                   >
                     {step > 2 ? <CheckCircle className="h-4 w-4" /> : "2"}
                   </div>
@@ -753,10 +757,11 @@ export default function CheckoutPage() {
                         >
                           {/* VNPay Payment Method */}
                           <div
-                            className={`relative flex items-center space-x-3 p-4 border-2 rounded-xl transition-all cursor-pointer hover:bg-muted/50 ${orderData.paymentMethod === "vnpay"
+                            className={`relative flex items-center space-x-3 p-4 border-2 rounded-xl transition-all cursor-pointer hover:bg-muted/50 ${
+                              orderData.paymentMethod === "vnpay"
                                 ? "border-primary bg-primary/5 shadow-sm"
                                 : "border-border hover:border-muted-foreground/30"
-                              }`}
+                            }`}
                           >
                             <RadioGroupItem
                               value="vnpay"
@@ -776,9 +781,9 @@ export default function CheckoutPage() {
                                     Thanh toán qua VNPay
                                   </p>
                                   <p className="text-sm text-muted-foreground">
-                                    Thanh toán trực tuyến an toàn qua cổng VNPay.
-                                    Hỗ trợ tất cả thẻ tín dụng, thẻ ghi nợ và ví
-                                    điện tử.
+                                    Thanh toán trực tuyến an toàn qua cổng
+                                    VNPay. Hỗ trợ tất cả thẻ tín dụng, thẻ ghi
+                                    nợ và ví điện tử.
                                   </p>
                                   <div className="flex items-center gap-2 text-xs text-blue-600">
                                     <Shield className="h-3 w-3" />
@@ -791,10 +796,11 @@ export default function CheckoutPage() {
 
                           {/* PayOS Payment Method */}
                           <div
-                            className={`relative flex items-center space-x-3 p-4 border-2 rounded-xl transition-all cursor-pointer hover:bg-muted/50 ${orderData.paymentMethod === "payos"
+                            className={`relative flex items-center space-x-3 p-4 border-2 rounded-xl transition-all cursor-pointer hover:bg-muted/50 ${
+                              orderData.paymentMethod === "payos"
                                 ? "border-primary bg-primary/5 shadow-sm"
                                 : "border-border hover:border-muted-foreground/30"
-                              }`}
+                            }`}
                           >
                             <RadioGroupItem
                               value="payos"
@@ -814,8 +820,8 @@ export default function CheckoutPage() {
                                     Thanh toán qua PayOS
                                   </p>
                                   <p className="text-sm text-muted-foreground">
-                                    Thanh toán nhanh chóng qua cổng PayOS. Hỗ trợ
-                                    chuyển khoản ngân hàng và ví điện tử.
+                                    Thanh toán nhanh chóng qua cổng PayOS. Hỗ
+                                    trợ chuyển khoản ngân hàng và ví điện tử.
                                   </p>
                                   <div className="flex items-center gap-2 text-xs text-purple-600">
                                     <Shield className="h-3 w-3" />
@@ -970,7 +976,7 @@ export default function CheckoutPage() {
                           className={cn(
                             "flex gap-3 p-3 bg-muted/30 rounded-lg border border-border/50",
                             isOutOfStock &&
-                            "border-destructive/30 bg-destructive/5",
+                              "border-destructive/30 bg-destructive/5",
                           )}
                         >
                           <div className="relative w-14 h-14 rounded-lg overflow-hidden shrink-0 bg-muted">
@@ -1073,10 +1079,11 @@ export default function CheckoutPage() {
                       <div className="text-right">
                         {shippingFeeData ? (
                           <span
-                            className={`font-medium ${shippingFeeData.totalShippingFee === 0
+                            className={`font-medium ${
+                              shippingFeeData.totalShippingFee === 0
                                 ? "text-green-600"
                                 : ""
-                              }`}
+                            }`}
                           >
                             {shippingFeeData.totalShippingFee === 0
                               ? "Miễn phí"
@@ -1098,7 +1105,7 @@ export default function CheckoutPage() {
                       <span className="text-primary text-xl">
                         {formatPrice(
                           (getFinalPrice() || getTotalPrice()) +
-                          (shippingFeeData?.totalShippingFee || 0),
+                            (shippingFeeData?.totalShippingFee || 0),
                         )}
                       </span>
                     </div>
@@ -1251,7 +1258,7 @@ export default function CheckoutPage() {
                 latitude={quickAddForm.latitude}
                 longitude={quickAddForm.longitude}
                 onLocationChange={handleQuickAddMapClick}
-              // disabled={isPending}
+                // disabled={isPending}
               />
             </div>
           </div>

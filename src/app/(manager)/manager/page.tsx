@@ -94,49 +94,49 @@ export default function ManagerDashboard() {
 
   const stats: StatCardData[] = statistics
     ? [
-      {
-        title: "Tổng số cá Koi",
-        value: new Intl.NumberFormat("vi-VN").format(
-          statistics.totalKoi.current,
-        ),
-        change: `${statistics.totalKoi.changePercent > 0 ? "+" : ""}${statistics.totalKoi.changePercent}%`,
-        changeType:
-          statistics.totalKoi.changePercent >= 0 ? "positive" : "negative",
-        icon: Fish,
-      },
-      {
-        title: "Tài khoản hoạt động",
-        value: new Intl.NumberFormat("vi-VN").format(
-          statistics.activeAccounts.current,
-        ),
-        change: `${statistics.activeAccounts.changePercent > 0 ? "+" : ""}${statistics.activeAccounts.changePercent}%`,
-        changeType:
-          statistics.activeAccounts.changePercent >= 0
-            ? "positive"
-            : "negative",
-        icon: Users,
-      },
-      {
-        title: "Số hồ đang sử dụng",
-        value: new Intl.NumberFormat("vi-VN").format(
-          statistics.pondsInUse.current,
-        ),
-        change: `${statistics.pondsInUse.changePercent > 0 ? "+" : ""}${statistics.pondsInUse.changePercent}%`,
-        changeType:
-          statistics.pondsInUse.changePercent >= 0 ? "positive" : "negative",
-        icon: Building2,
-      },
-      {
-        title: "Doanh thu tháng này",
-        value: formatCurrency(statistics.farmMonthlyRevenue.current),
-        change: `${statistics.farmMonthlyRevenue.changePercent > 0 ? "+" : ""}${statistics.farmMonthlyRevenue.changePercent}%`,
-        changeType:
-          statistics.farmMonthlyRevenue.changePercent >= 0
-            ? "positive"
-            : "negative",
-        icon: DollarSign,
-      },
-    ]
+        {
+          title: "Tổng số cá Koi",
+          value: new Intl.NumberFormat("vi-VN").format(
+            statistics.totalKoi.current,
+          ),
+          change: `${statistics.totalKoi.changePercent > 0 ? "+" : ""}${statistics.totalKoi.changePercent}%`,
+          changeType:
+            statistics.totalKoi.changePercent >= 0 ? "positive" : "negative",
+          icon: Fish,
+        },
+        {
+          title: "Tài khoản hoạt động",
+          value: new Intl.NumberFormat("vi-VN").format(
+            statistics.activeAccounts.current,
+          ),
+          change: `${statistics.activeAccounts.changePercent > 0 ? "+" : ""}${statistics.activeAccounts.changePercent}%`,
+          changeType:
+            statistics.activeAccounts.changePercent >= 0
+              ? "positive"
+              : "negative",
+          icon: Users,
+        },
+        {
+          title: "Số hồ đang sử dụng",
+          value: new Intl.NumberFormat("vi-VN").format(
+            statistics.pondsInUse.current,
+          ),
+          change: `${statistics.pondsInUse.changePercent > 0 ? "+" : ""}${statistics.pondsInUse.changePercent}%`,
+          changeType:
+            statistics.pondsInUse.changePercent >= 0 ? "positive" : "negative",
+          icon: Building2,
+        },
+        {
+          title: "Doanh thu tháng này",
+          value: formatCurrency(statistics.farmMonthlyRevenue.current),
+          change: `${statistics.farmMonthlyRevenue.changePercent > 0 ? "+" : ""}${statistics.farmMonthlyRevenue.changePercent}%`,
+          changeType:
+            statistics.farmMonthlyRevenue.changePercent >= 0
+              ? "positive"
+              : "negative",
+          icon: DollarSign,
+        },
+      ]
     : [];
 
   // Show LoadingState if any of the main sections are loading
@@ -169,18 +169,19 @@ export default function ManagerDashboard() {
 
                 <CardContent>
                   <div className="text-2xl font-bold">{stat.value}</div>
-                  {stat.title !== "Tài khoản hoạt động" &&
+                  {stat.title !== "Tài khoản hoạt động" && (
                     <p
-                      className={`text-xs ${stat.changeType === "positive"
-                        ? "text-green-600"
-                        : "text-red-600"
-                        } flex items-center gap-1`}
+                      className={`text-xs ${
+                        stat.changeType === "positive"
+                          ? "text-green-600"
+                          : "text-red-600"
+                      } flex items-center gap-1`}
                     >
                       <TrendingUp className="h-3 w-3" />
                       {stat.change} so với tháng trước
-                    </p>}
+                    </p>
+                  )}
                 </CardContent>
-
               </Card>
             );
           })

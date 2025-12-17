@@ -103,10 +103,10 @@ export default function AreaManagement() {
 
   // Error states for forms
   const [addFormErrors, setAddFormErrors] = useState<Record<string, string>>(
-    {}
+    {},
   );
   const [editFormErrors, setEditFormErrors] = useState<Record<string, string>>(
-    {}
+    {},
   );
 
   useEffect(() => {
@@ -420,12 +420,12 @@ export default function AreaManagement() {
             setMinAreaInput(
               searchParams.minTotalAreaSQM !== undefined
                 ? String(searchParams.minTotalAreaSQM)
-                : ""
+                : "",
             );
             setMaxAreaInput(
               searchParams.maxTotalAreaSQM !== undefined
                 ? String(searchParams.maxTotalAreaSQM)
-                : ""
+                : "",
             );
           }
         }}

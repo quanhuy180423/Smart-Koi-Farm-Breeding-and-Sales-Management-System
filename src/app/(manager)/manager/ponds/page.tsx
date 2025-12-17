@@ -256,7 +256,7 @@ export default function PondManagement() {
       pageSize: PAGE_SIZE_OPTIONS_DEFAULT[0],
       search: "",
     }),
-    []
+    [],
   );
 
   const allPondTypeSearchParams = useMemo(
@@ -265,7 +265,7 @@ export default function PondManagement() {
       pageSize: PAGE_SIZE_OPTIONS_DEFAULT[0],
       search: "",
     }),
-    []
+    [],
   );
 
   const { data: areasData } = useGetAreas(allAreaSearchParams);
@@ -355,7 +355,7 @@ export default function PondManagement() {
   };
 
   const handleAddPond = (
-    onValidationError?: (errors: Record<string, string>) => void
+    onValidationError?: (errors: Record<string, string>) => void,
   ) => {
     const result = pondSchema.safeParse({
       pondName: newPond.pondName,
@@ -395,28 +395,28 @@ export default function PondManagement() {
       pondStatus: PondStatus.EMPTY,
       record: newPond.record
         ? {
-          phLevel: parseFloat(newPond.record.phLevel) || 0,
-          temperatureCelsius:
-            parseFloat(newPond.record.temperatureCelsius) || 0,
-          oxygenLevel: parseFloat(newPond.record.oxygenLevel) || 0,
-          ammoniaLevel: parseFloat(newPond.record.ammoniaLevel) || 0,
-          nitriteLevel: parseFloat(newPond.record.nitriteLevel) || 0,
-          nitrateLevel: parseFloat(newPond.record.nitrateLevel) || 0,
-          carbonHardness: parseFloat(newPond.record.carbonHardness) || 0,
-          waterLevelMeters: parseFloat(newPond.record.waterLevelMeters) || 0,
-          notes: newPond.record.notes || "",
-        }
+            phLevel: parseFloat(newPond.record.phLevel) || 0,
+            temperatureCelsius:
+              parseFloat(newPond.record.temperatureCelsius) || 0,
+            oxygenLevel: parseFloat(newPond.record.oxygenLevel) || 0,
+            ammoniaLevel: parseFloat(newPond.record.ammoniaLevel) || 0,
+            nitriteLevel: parseFloat(newPond.record.nitriteLevel) || 0,
+            nitrateLevel: parseFloat(newPond.record.nitrateLevel) || 0,
+            carbonHardness: parseFloat(newPond.record.carbonHardness) || 0,
+            waterLevelMeters: parseFloat(newPond.record.waterLevelMeters) || 0,
+            notes: newPond.record.notes || "",
+          }
         : {
-          phLevel: 0,
-          temperatureCelsius: 0,
-          oxygenLevel: 0,
-          ammoniaLevel: 0,
-          nitriteLevel: 0,
-          nitrateLevel: 0,
-          carbonHardness: 0,
-          waterLevelMeters: 0,
-          notes: "",
-        },
+            phLevel: 0,
+            temperatureCelsius: 0,
+            oxygenLevel: 0,
+            ammoniaLevel: 0,
+            nitriteLevel: 0,
+            nitrateLevel: 0,
+            carbonHardness: 0,
+            waterLevelMeters: 0,
+            notes: "",
+          },
     };
 
     addPondMutation.mutate(payload, {
@@ -440,33 +440,33 @@ export default function PondManagement() {
       pondStatus: pond.pondStatus,
       record: pond.record
         ? {
-          phLevel: pond.record.phLevel.toString(),
-          temperatureCelsius: pond.record.temperatureCelsius.toString(),
-          oxygenLevel: pond.record.oxygenLevel.toString(),
-          ammoniaLevel: pond.record.ammoniaLevel.toString(),
-          nitriteLevel: pond.record.nitriteLevel.toString(),
-          nitrateLevel: pond.record.nitrateLevel.toString(),
-          carbonHardness: pond.record.carbonHardness.toString(),
-          waterLevelMeters: pond.record.waterLevelMeters.toString(),
-          notes: pond.record.notes,
-        }
+            phLevel: pond.record.phLevel.toString(),
+            temperatureCelsius: pond.record.temperatureCelsius.toString(),
+            oxygenLevel: pond.record.oxygenLevel.toString(),
+            ammoniaLevel: pond.record.ammoniaLevel.toString(),
+            nitriteLevel: pond.record.nitriteLevel.toString(),
+            nitrateLevel: pond.record.nitrateLevel.toString(),
+            carbonHardness: pond.record.carbonHardness.toString(),
+            waterLevelMeters: pond.record.waterLevelMeters.toString(),
+            notes: pond.record.notes,
+          }
         : {
-          phLevel: "",
-          temperatureCelsius: "",
-          oxygenLevel: "",
-          ammoniaLevel: "",
-          nitriteLevel: "",
-          nitrateLevel: "",
-          carbonHardness: "",
-          waterLevelMeters: "",
-          notes: "",
-        },
+            phLevel: "",
+            temperatureCelsius: "",
+            oxygenLevel: "",
+            ammoniaLevel: "",
+            nitriteLevel: "",
+            nitrateLevel: "",
+            carbonHardness: "",
+            waterLevelMeters: "",
+            notes: "",
+          },
     });
     setIsEditModalOpen(true);
   };
 
   const handleUpdatePond = (
-    onValidationError?: (errors: Record<string, string>) => void
+    onValidationError?: (errors: Record<string, string>) => void,
   ) => {
     if (!editingPond) return;
 
@@ -508,29 +508,29 @@ export default function PondManagement() {
       pondStatus: editPondForm.pondStatus,
       record: editPondForm.record
         ? {
-          phLevel: parseFloat(editPondForm.record.phLevel) || 0,
-          temperatureCelsius:
-            parseFloat(editPondForm.record.temperatureCelsius) || 0,
-          oxygenLevel: parseFloat(editPondForm.record.oxygenLevel) || 0,
-          ammoniaLevel: parseFloat(editPondForm.record.ammoniaLevel) || 0,
-          nitriteLevel: parseFloat(editPondForm.record.nitriteLevel) || 0,
-          nitrateLevel: parseFloat(editPondForm.record.nitrateLevel) || 0,
-          carbonHardness: parseFloat(editPondForm.record.carbonHardness) || 0,
-          waterLevelMeters:
-            parseFloat(editPondForm.record.waterLevelMeters) || 0,
-          notes: editPondForm.record.notes || "",
-        }
+            phLevel: parseFloat(editPondForm.record.phLevel) || 0,
+            temperatureCelsius:
+              parseFloat(editPondForm.record.temperatureCelsius) || 0,
+            oxygenLevel: parseFloat(editPondForm.record.oxygenLevel) || 0,
+            ammoniaLevel: parseFloat(editPondForm.record.ammoniaLevel) || 0,
+            nitriteLevel: parseFloat(editPondForm.record.nitriteLevel) || 0,
+            nitrateLevel: parseFloat(editPondForm.record.nitrateLevel) || 0,
+            carbonHardness: parseFloat(editPondForm.record.carbonHardness) || 0,
+            waterLevelMeters:
+              parseFloat(editPondForm.record.waterLevelMeters) || 0,
+            notes: editPondForm.record.notes || "",
+          }
         : {
-          phLevel: 0,
-          temperatureCelsius: 0,
-          oxygenLevel: 0,
-          ammoniaLevel: 0,
-          nitriteLevel: 0,
-          nitrateLevel: 0,
-          carbonHardness: 0,
-          waterLevelMeters: 0,
-          notes: "",
-        },
+            phLevel: 0,
+            temperatureCelsius: 0,
+            oxygenLevel: 0,
+            ammoniaLevel: 0,
+            nitriteLevel: 0,
+            nitrateLevel: 0,
+            carbonHardness: 0,
+            waterLevelMeters: 0,
+            notes: "",
+          },
     };
 
     updatePondMutation.mutate(
@@ -540,7 +540,7 @@ export default function PondManagement() {
           setIsEditModalOpen(false);
           setEditingPond(null);
         },
-      }
+      },
     );
   };
 
@@ -628,7 +628,7 @@ export default function PondManagement() {
       filters.statusFilter === "all"
         ? undefined
         : ((filters.statusFilter.charAt(0).toUpperCase() +
-          filters.statusFilter.slice(1)) as PondStatus);
+            filters.statusFilter.slice(1)) as PondStatus);
     const pondTypeEnum =
       filters.pondTypeEnumInput && filters.pondTypeEnumInput !== "all"
         ? (filters.pondTypeEnumInput as PondTypeEnum)
@@ -817,7 +817,7 @@ export default function PondManagement() {
                           {index +
                             1 +
                             (searchParams.pageIndex - 1) *
-                            searchParams.pageSize}
+                              searchParams.pageSize}
                         </TableCell>
                         <TableCell className="truncate">
                           {pond.pondName}
@@ -837,7 +837,7 @@ export default function PondManagement() {
                         <TableCell>
                           {(() => {
                             const statusInfo = getPondStatusLabel(
-                              pond.pondStatus
+                              pond.pondStatus,
                             );
                             const IconComponent = statusInfo.icon;
                             return (

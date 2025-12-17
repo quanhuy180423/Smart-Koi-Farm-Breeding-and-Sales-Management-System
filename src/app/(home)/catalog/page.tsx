@@ -66,7 +66,10 @@ function CatalogContent() {
     const varietyIdParam = searchParams.get("varietyId");
     if (varietyIdParam) {
       setFilters((prev) => ({ ...prev, selectedVariety: varietyIdParam }));
-      setAppliedFilters((prev) => ({ ...prev, selectedVariety: varietyIdParam }));
+      setAppliedFilters((prev) => ({
+        ...prev,
+        selectedVariety: varietyIdParam,
+      }));
     } else {
       setFilters((prev) => ({ ...prev, selectedVariety: "Tất cả" }));
       setAppliedFilters((prev) => ({ ...prev, selectedVariety: "Tất cả" }));

@@ -124,13 +124,13 @@ export default function ScheduleManagement() {
     useState(false);
   const [isGenerateModalOpen, setIsGenerateModalOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<TaskTemplateResponse | null>(
-    null
+    null,
   );
   const [selectedTask, setSelectedTask] = useState<TaskTemplateResponse | null>(
-    null
+    null,
   );
   const [taskToDelete, setTaskToDelete] = useState<TaskTemplateResponse | null>(
-    null
+    null,
   );
   const [weeklyScheduleToDelete, setWeeklyScheduleToDelete] = useState<{
     id: number;
@@ -144,7 +144,7 @@ export default function ScheduleManagement() {
   });
   const [selectedPondId, setSelectedPondId] = useState<number | null>(null);
   const [selectedStaffRole, setSelectedStaffRole] = useState<Roles | null>(
-    null
+    null,
   );
 
   // Update search params when debounced search term changes
@@ -259,7 +259,7 @@ export default function ScheduleManagement() {
           setIsEditModalOpen(false);
           setEditingTask(null);
         },
-      }
+      },
     );
   };
 

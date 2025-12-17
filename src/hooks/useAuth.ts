@@ -375,9 +375,10 @@ export function useChangePassword(onSuccessCallback?: () => void) {
     },
     onSuccess: (response: BaseResponse<LoginResponse>) => {
       if (response?.isSuccess) {
-        const message = response?.message || "Đổi mật khẩu thành công";
-        toast.success(message);
+        // const message = response?.message || "Đổi mật khẩu thành công";
+        // toast.success(message);
         onSuccessCallback?.();
+        useAuthStore.getState().logout();
       } else {
         toast.error(response?.message || "Đổi mật khẩu thất bại");
       }

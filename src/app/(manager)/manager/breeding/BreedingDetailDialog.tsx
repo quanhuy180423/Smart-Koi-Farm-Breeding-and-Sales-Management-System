@@ -105,9 +105,10 @@ export const BreedingDetailDialog = ({
   const currentBreedingStatus =
     breedingProcess?.status || BreedingStatus.PAIRING;
 
-  const totalKept = (breedingDetail?.classificationStage.pondQualifiedCount || 0) + 
-    (breedingDetail?.classificationStage.highQualifiedCount || 0) + 
-    (breedingDetail?.classificationStage.showQualifiedCount || 0)
+  const totalKept =
+    (breedingDetail?.classificationStage.pondQualifiedCount || 0) +
+    (breedingDetail?.classificationStage.highQualifiedCount || 0) +
+    (breedingDetail?.classificationStage.showQualifiedCount || 0);
   const totalCulled = classificationRecords.reduce(
     (sum, record) => sum + (record.cullQualifiedCount || 0),
     0,

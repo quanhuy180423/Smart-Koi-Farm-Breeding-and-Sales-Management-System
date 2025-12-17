@@ -157,9 +157,13 @@ export default function PacketFishDetailPage() {
               <h1 className="text-3xl font-bold text-gray-900 mb-3">
                 {packet.name}
               </h1>
-              {packet.isAvailable && (
+              {packet.stockQuantity > 0 ? (
                 <Badge className="bg-green-100 text-green-700 hover:bg-green-100">
                   Còn hàng
+                </Badge>
+              ) : (
+                <Badge className="bg-red-100 text-red-700 hover:bg-red-100">
+                  Hết hàng
                 </Badge>
               )}
             </div>
@@ -216,6 +220,7 @@ export default function PacketFishDetailPage() {
                     variant="outline"
                     size="sm"
                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                    disabled={quantity <= 1 || packet.stockQuantity === 0}
                     className="h-10 w-10 p-0 cursor-pointer"
                   >
                     <Minus className="h-5 w-5" />
@@ -224,11 +229,13 @@ export default function PacketFishDetailPage() {
                     value={quantity}
                     onChange={(value) => setQuantity(Math.max(1, value || 1))}
                     min={1}
+                    disabled={packet.stockQuantity === 0}
                     className="w-16 h-10 text-center"
                   />
                   <Button
                     variant="outline"
                     size="sm"
+                    disabled={packet.stockQuantity === 0}
                     onClick={() => setQuantity(quantity + 1)}
                     className="h-10 w-10 p-0 cursor-pointer"
                   >
@@ -238,8 +245,12 @@ export default function PacketFishDetailPage() {
               </div>
 
               <Button
-                className="w-full h-12 bg-gray-900 hover:bg-gray-800 text-white"
-                disabled={isAddPending || !packet.isAvailable}
+                className="w-full h-12 bg-blue-900 hover:bg-blue-800 text-white"
+                disabled={
+                  isAddPending ||
+                  !packet.isAvailable ||
+                  packet.stockQuantity === 0
+                }
                 onClick={handleAddToCart}
               >
                 {isAddPending ? (
@@ -250,7 +261,9 @@ export default function PacketFishDetailPage() {
                 ) : (
                   <>
                     <ShoppingCart className="h-5 w-5 mr-2" />
-                    Thêm vào giỏ hàng
+                    {packet.stockQuantity > 0
+                      ? "Thêm vào giỏ hàng"
+                      : "Hết hàng"}
                   </>
                 )}
               </Button>

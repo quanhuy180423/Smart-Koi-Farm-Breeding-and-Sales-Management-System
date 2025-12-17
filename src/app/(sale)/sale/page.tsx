@@ -356,22 +356,14 @@ export default function SaleDashboard() {
                         {quickInfo.completedOrders}
                       </Badge>
                     </div>
-                    <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                    {/* <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
                       <span className="text-sm font-medium">
                         Cá bán chạy nhất
                       </span>
                       <Badge className="bg-green-100 text-green-800">
                         {quickInfo.bestSellingItemsCount}
                       </Badge>
-                    </div>
-                    {quickInfo.alerts && quickInfo.alerts.length > 0 && (
-                      <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                        <p className="text-xs text-blue-800">
-                          <strong>Thông báo:</strong>{" "}
-                          {quickInfo.alerts.join("; ")}
-                        </p>
-                      </div>
-                    )}
+                    </div> */}
                   </>
                 ) : (
                   <div className="text-center text-sm text-muted-foreground py-4">
@@ -386,7 +378,7 @@ export default function SaleDashboard() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <TrendingUp className="h-5 w-5" />
-                  Cá bán chạy nhất
+                  Dòng cá bán chạy nhất
                 </CardTitle>
                 <CardDescription>
                   Top sản phẩm có doanh thu cao nhất

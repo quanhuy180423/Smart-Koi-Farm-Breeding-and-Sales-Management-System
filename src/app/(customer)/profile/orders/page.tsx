@@ -24,7 +24,6 @@ import {
   CreditCard,
   Filter,
   XCircle,
-  Info,
   Wallet,
   Percent,
   Truck,
@@ -57,6 +56,7 @@ import {
 } from "@/lib/utils/enum/formatEnum";
 import { formatDate, DATE_FORMATS } from "@/lib/utils/dates";
 import { cn } from "@/lib/utils";
+import Link from "next/link";
 
 export default function OrdersPage() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -306,7 +306,8 @@ export default function OrdersPage() {
 
           <div className="space-y-3">
             {order.orderDetails.map((item, idx) => (
-              <div
+              <Link
+                href={`${item.koiFish ? `/koi/${item.koiFish?.id}` : `/packet-fish/${item.packetFish?.id}`}`}
                 key={idx}
                 className="group relative flex gap-3 p-3 bg-linear-to-r from-gray-50 to-white rounded-xl border border-gray-200 hover:border-primary/50 hover:shadow-md transition-all"
               >
@@ -374,7 +375,7 @@ export default function OrdersPage() {
                     </span>
                   </div>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         </div>

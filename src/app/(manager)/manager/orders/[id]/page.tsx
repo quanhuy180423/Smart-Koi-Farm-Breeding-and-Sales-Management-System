@@ -33,6 +33,7 @@ import {
   getOrderStatusLabel,
 } from "@/lib/utils/enum/formatEnum";
 import { formatDate, DATE_FORMATS } from "@/lib/utils/dates";
+import Link from "next/link";
 
 export default function ManagerOrderDetailPage() {
   const router = useRouter();
@@ -77,10 +78,10 @@ export default function ManagerOrderDetailPage() {
           toast.error(
             error instanceof Error
               ? error.message
-              : "Không thể hoàn tiền đơn hàng"
+              : "Không thể hoàn tiền đơn hàng",
           );
         },
-      }
+      },
     );
   };
 
@@ -256,7 +257,8 @@ export default function ManagerOrderDetailPage() {
         <CardContent>
           <div className="space-y-4">
             {order.orderDetails.map((item, index) => (
-              <div
+              <Link
+                href={`${item.koiFish ? `/koi/${item.koiFish?.id}` : `/packet-fish/${item.packetFish?.id}`}`}
                 key={index}
                 className="flex items-start gap-4 p-4 border rounded-lg hover:bg-muted/50 transition-colors"
               >
@@ -303,7 +305,7 @@ export default function ManagerOrderDetailPage() {
                     {formatCurrency(item.totalPrice)}
                   </p>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         </CardContent>
@@ -342,7 +344,9 @@ export default function ManagerOrderDetailPage() {
             {order.promotion?.code && (
               <div className="flex justify-between items-center pt-2 border-t">
                 <span className="text-muted-foreground">Mã khuyến mãi:</span>
-                <Badge variant="secondary">{order.promotion?.code}</Badge>
+                <Badge className="text-xl bg-red-400">
+                  {order.promotion?.code}
+                </Badge>
               </div>
             )}
             <div className="flex justify-between items-center pt-3 border-t-2 text-lg font-bold">

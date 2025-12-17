@@ -58,6 +58,7 @@ import toast from "react-hot-toast";
 import { DatePickerFilter } from "@/components/ui/DatePickerFilter";
 import CustomerLayout from "@/components/customer/CustomerLayout";
 import { DATE_FORMATS, formatDate } from "@/lib/utils/dates";
+import { useRouter } from "next/navigation";
 
 interface CustomerProfile {
   id: number;
@@ -71,6 +72,7 @@ interface CustomerProfile {
 }
 
 export default function CustomerProfilePage() {
+  const router = useRouter();
   const [isEditing, setIsEditing] = useState(false);
   const [isAvatarDialogOpen, setIsAvatarDialogOpen] = useState(false);
   const [selectedAvatarFile, setSelectedAvatarFile] = useState<File | null>(
@@ -97,7 +99,8 @@ export default function CustomerProfilePage() {
         newPassword: "",
         confirmedNewPassword: "",
       });
-      toast.success("Đổi mật khẩu thành công");
+      toast.success("Đổi mật khẩu thành công, vui lòng đăng nhập lại");
+      router.push("/login");
     });
 
   const [profile, setProfile] = useState<CustomerProfile | null>(null);
@@ -141,9 +144,9 @@ export default function CustomerProfilePage() {
     if (!editedProfile.dateOfBirth) {
       newErrors.dateOfBirth = "Ngày sinh không được để trống";
     }
-    if (!editedProfile.address.trim()) {
-      newErrors.address = "Địa chỉ không được để trống";
-    }
+    // if (!editedProfile.address.trim()) {
+    //   newErrors.address = "Địa chỉ không được để trống";
+    // }
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
@@ -356,12 +359,12 @@ export default function CustomerProfilePage() {
                     <Phone className="h-4 w-4 shrink-0" />
                     <span>{profile.phoneNumber || "Chưa cập nhật"}</span>
                   </div>
-                  <div className="flex items-center gap-3 text-sm text-muted-foreground bg-muted/50 p-3 rounded-lg">
+                  {/* <div className="flex items-center gap-3 text-sm text-muted-foreground bg-muted/50 p-3 rounded-lg">
                     <MapPin className="h-4 w-4 shrink-0" />
                     <span className="truncate">
                       {profile.address || "Chưa cập nhật"}
                     </span>
-                  </div>
+                  </div> */}
                 </CardContent>
               </Card>
 
@@ -607,7 +610,7 @@ export default function CustomerProfilePage() {
                   </div>
 
                   {/* Address */}
-                  <div className="space-y-2">
+                  {/* <div className="space-y-2">
                     <Label
                       htmlFor="address"
                       className="flex items-center gap-2 text-base"
@@ -636,7 +639,7 @@ export default function CustomerProfilePage() {
                         {errors.address}
                       </p>
                     )}
-                  </div>
+                  </div> */}
                 </CardContent>
               </Card>
             </div>

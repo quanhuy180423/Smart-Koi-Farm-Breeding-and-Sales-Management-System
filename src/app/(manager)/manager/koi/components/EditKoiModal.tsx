@@ -127,7 +127,7 @@ export function EditKoiModal({ isOpen, onOpenChange, koi }: EditKoiModalProps) {
 
   const handleImageSelect = async (files: FileList) => {
     const imageFiles = Array.from(files).filter((file) =>
-      file.type.startsWith("image/")
+      file.type.startsWith("image/"),
     );
 
     const newPreviews = imageFiles.map((file) => {
@@ -147,7 +147,7 @@ export function EditKoiModal({ isOpen, onOpenChange, koi }: EditKoiModalProps) {
 
   const handleVideoSelect = async (files: FileList) => {
     const videoFiles = Array.from(files).filter((file) =>
-      file.type.startsWith("video/")
+      file.type.startsWith("video/"),
     );
 
     const newPreviews = videoFiles.map((file) => {
@@ -170,7 +170,7 @@ export function EditKoiModal({ isOpen, onOpenChange, koi }: EditKoiModalProps) {
     setImagePreviews((prev) => prev.filter((_, i) => i !== index));
     // Reset input để có thể chọn lại cùng file
     const input = document.getElementById(
-      "image-input-koi"
+      "image-input-koi",
     ) as HTMLInputElement;
     if (input) input.value = "";
   };
@@ -180,7 +180,7 @@ export function EditKoiModal({ isOpen, onOpenChange, koi }: EditKoiModalProps) {
     setVideoPreviews((prev) => prev.filter((_, i) => i !== index));
     // Reset input để có thể chọn lại cùng file
     const input = document.getElementById(
-      "video-input-koi"
+      "video-input-koi",
     ) as HTMLInputElement;
     if (input) input.value = "";
   };
@@ -265,12 +265,12 @@ export function EditKoiModal({ isOpen, onOpenChange, koi }: EditKoiModalProps) {
       // Filter existing images and videos (URLs from server, not base64)
       const existingImages = imagePreviews.filter(
         (preview) =>
-          preview.startsWith("http://") || preview.startsWith("https://")
+          preview.startsWith("http://") || preview.startsWith("https://"),
       );
 
       const existingVideos = videoPreviews.filter(
         (preview) =>
-          preview.startsWith("http://") || preview.startsWith("https://")
+          preview.startsWith("http://") || preview.startsWith("https://"),
       );
 
       // Combine: existing + newly uploaded
@@ -292,7 +292,7 @@ export function EditKoiModal({ isOpen, onOpenChange, koi }: EditKoiModalProps) {
           onSuccess: () => {
             onOpenChange(false);
           },
-        }
+        },
       );
     } catch {
       toast.error("Có lỗi xảy ra khi cập nhật cá");

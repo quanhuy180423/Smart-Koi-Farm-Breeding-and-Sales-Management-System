@@ -53,11 +53,11 @@ export default function AddWeeklyScheduleModal({
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [templateItems, setTemplateItems] = useState<TemplateItemWithTask[]>(
-    []
+    [],
   );
   const [isTaskSelectionOpen, setIsTaskSelectionOpen] = useState(false);
   const [selectedDays, setSelectedDays] = useState<Set<DayOfWeekEnum>>(
-    new Set()
+    new Set(),
   );
   const [startTime, setStartTime] = useState<string>("06:00:00");
 
@@ -74,7 +74,7 @@ export default function AddWeeklyScheduleModal({
         startTime,
         taskTemplate: task,
         tempId: `${Date.now()}-${Math.random()}-${day}`,
-      })
+      }),
     );
 
     setTemplateItems([...templateItems, ...newItems]);
@@ -254,7 +254,7 @@ export default function AddWeeklyScheduleModal({
                   >
                     {DAYS_OF_WEEK.map((day) => {
                       const dayTasks = templateItems.filter(
-                        (item) => item.dayOfWeek === day.key
+                        (item) => item.dayOfWeek === day.key,
                       );
                       return (
                         <div
