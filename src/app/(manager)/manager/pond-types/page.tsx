@@ -12,7 +12,6 @@ import {
   Filter,
   Droplets,
   MoreHorizontal,
-  Zap,
 } from "lucide-react";
 import {
   Card,
@@ -31,7 +30,6 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
-import toast from "react-hot-toast";
 import {
   Table,
   TableBody,
@@ -485,7 +483,7 @@ export default function PondTypeManagement() {
           </DialogHeader>
           <div className="space-y-6">
             <div className="grid grid-cols-2 gap-4">
-              <p className="text-sm font-semibold col-span-full mb-[-8px] text-muted-foreground">
+              <p className="text-sm font-semibold col-span-full -mb-2 text-muted-foreground">
                 Lọc theo Sức chứa đề xuất (Số lượng)
               </p>
               <div className="space-y-2 col-span-1">
