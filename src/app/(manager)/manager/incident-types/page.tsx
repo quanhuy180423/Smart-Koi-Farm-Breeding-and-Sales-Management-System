@@ -9,7 +9,6 @@ import {
   Loader2,
   Filter,
   MoreHorizontal,
-  Zap,
 } from "lucide-react";
 import {
   Card,
@@ -53,7 +52,6 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
-import toast from "react-hot-toast";
 import AddIncidentTypeModal from "./components/AddIncidentTypeModal";
 import EditIncidentTypeModal from "./components/EditIncidentTypeModal";
 import DeleteIncidentTypeConfirmDialog from "./components/DeleteIncidentTypeConfirmDialog";

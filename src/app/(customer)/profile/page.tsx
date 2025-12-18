@@ -25,7 +25,6 @@ import {
   User,
   Mail,
   Phone,
-  MapPin,
   Calendar,
   Shield,
   Lock,

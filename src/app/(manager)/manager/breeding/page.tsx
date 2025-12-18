@@ -5,7 +5,6 @@ import {
   Eye,
   X,
   Plus,
-  Loader2,
   Search,
   Filter,
   CheckCircle,

@@ -27,7 +27,6 @@ import {
   Loader2,
   Filter,
   MoreHorizontal,
-  Zap,
 } from "lucide-react";
 import {
   Table,
@@ -52,7 +51,6 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
-import toast from "react-hot-toast";
 import { AreaResponse, AreaSearchParams } from "@/lib/api/services/fetchArea";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";

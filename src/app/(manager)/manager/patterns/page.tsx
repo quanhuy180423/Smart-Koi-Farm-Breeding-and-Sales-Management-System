@@ -9,7 +9,6 @@ import {
   Loader2,
   Eye,
   MoreHorizontal,
-  Zap,
 } from "lucide-react";
 import {
   Card,
@@ -27,7 +26,6 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
-import toast from "react-hot-toast";
 import {
   Table,
   TableBody,
