@@ -243,7 +243,7 @@ export default function Main() {
       setShowDetailedInfo(false);
     } else {
       // Nếu đang ở màn hình chọn cá, thoát khỏi trang
-      router.back();
+      router.push("/manager/breeding");
     }
   };
 
