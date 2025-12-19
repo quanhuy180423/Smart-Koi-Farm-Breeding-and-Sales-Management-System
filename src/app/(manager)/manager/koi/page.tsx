@@ -81,7 +81,7 @@ import {
 } from "@/lib/utils/enum";
 import { useDebounce } from "@/hooks/useDebounce";
 import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import PedigreeModal from "./components/PedigreeModal";
 import { KoiDetailDialog } from "@/components/dialogs/KoiDetailDialog";
 import { KoiIncidentHistoryDialog } from "@/components/dialogs/KoiIncidentHistoryDialog";
@@ -100,6 +100,7 @@ export default function KoiManagement() {
   const [isIncidentHistoryOpen, setIsIncidentHistoryOpen] = useState(false);
   const [isSpawnConfirmOpen, setIsSpawnConfirmOpen] = useState(false);
   const [koiToSpawn, setKoiToSpawn] = useState<KoiFishResponse | null>(null);
+  const [activeTab, setActiveTab] = useState<string>("all");
 
   const [searchTerm, setSearchTerm] = useState<string>("");
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
@@ -113,8 +114,6 @@ export default function KoiManagement() {
   const [varietyIdInput, setVarietyIdInput] = useState<string>("");
   const [pondIdInput, setPondIdInput] = useState<string>("");
   const [originInput, setOriginInput] = useState<string>("");
-  const [isPostSpawningInput, setIsPostSpawningInput] =
-    useState<boolean>(false);
 
   const [isPedigreeModalOpen, setIsPedigreeModalOpen] = useState(false);
   const [isVarietyDialogOpen, setIsVarietyDialogOpen] = useState(false);
@@ -152,6 +151,41 @@ export default function KoiManagement() {
       pageIndex: 1,
     }));
   }, [debouncedSearchTerm]);
+
+  useEffect(() => {
+    // Reset search term
+    setSearchTerm("");
+
+    // Reset all filter inputs
+    setHealthFilterInput("all");
+    setGenderFilterInput("all");
+    setMinPriceInput("");
+    setMaxPriceInput("");
+    setMinSizeInput("");
+    setMaxSizeInput("");
+    setVarietyIdInput("");
+    setPondIdInput("");
+    setSelectedVarietyName(undefined);
+    setSelectedPondName(undefined);
+    setOriginInput("");
+
+    // Reset search params with only isPostSpawning based on active tab
+    setSearchParams((prev) => ({
+      pageIndex: 1,
+      pageSize: prev.pageSize,
+      search: "",
+      health: undefined,
+      gender: undefined,
+      varietyId: undefined,
+      minSize: undefined,
+      maxSize: undefined,
+      pondId: undefined,
+      origin: undefined,
+      minPrice: undefined,
+      maxPrice: undefined,
+      isPostSpawning: activeTab === "post-spawning" ? true : undefined,
+    }));
+  }, [activeTab]);
 
   const { data: koiFishData, isLoading } = useGetKoiFishes(searchParams);
   const { mutate: deleteKoi, isPending: isDeletingKoi } = useDeleteKoiFish();
@@ -208,7 +242,6 @@ export default function KoiManagement() {
       varietyId: varietyId,
       pondId: pondId,
       origin: originInput || undefined,
-      isPostSpawning: isPostSpawningInput || undefined,
       pageIndex: 1,
     }));
 
@@ -227,7 +260,7 @@ export default function KoiManagement() {
     setSelectedVarietyName(undefined);
     setSelectedPondName(undefined);
     setOriginInput("");
-    setIsPostSpawningInput(false);
+    setActiveTab("all");
 
     setSearchParams((prev) => ({
       ...prev,
@@ -338,6 +371,7 @@ export default function KoiManagement() {
       key !== "search" &&
       key !== "pageIndex" &&
       key !== "pageSize" &&
+      key !== "isPostSpawning" &&
       value !== undefined &&
       value !== null &&
       value !== "" &&
@@ -363,189 +397,403 @@ export default function KoiManagement() {
             Quản lý thông tin chi tiết của từng con cá Koi
           </CardDescription>
         </CardHeader>
-        <CardContent>
-          <div className="flex space-x-4 mb-4">
-            <div className="relative grow">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Tìm kiếm theo tên hoặc mã cá..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="border-2 border-gray-400 pl-10"
-              />
-            </div>
 
-            <Button
-              variant={isFilterActive ? "default" : "outline"}
-              onClick={() => setIsFilterModalOpen(true)}
-              className={
-                isFilterActive
-                  ? "bg-indigo-600 hover:bg-indigo-700"
-                  : "border-gray-400"
-              }
-            >
-              <Filter className="h-4 w-4 mr-2" />
-              Bộ lọc{" "}
-              {isFilterActive && (
-                <span className="ml-1 px-2 py-0.5 bg-white/30 text-white rounded-full text-xs">
-                  ON
-                </span>
-              )}
-            </Button>
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <div className="px-6 pb-4">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="all">Tất cả cá</TabsTrigger>
+              <TabsTrigger value="post-spawning">Cá hậu sinh sản</TabsTrigger>
+            </TabsList>
           </div>
 
-          {isLoading ? (
-            <div className="flex items-center justify-center py-10 text-gray-500">
-              <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-              Đang tải dữ liệu...
-              {/*  */}
-            </div>
-          ) : (
-            <>
-              <Table className="table-fixed w-full">
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-[5%]">STT</TableHead>
-                    <TableHead className="w-[12%]">RFID</TableHead>
-                    <TableHead className="w-[13%]">Giống</TableHead>
-                    <TableHead className="w-[5%]">Tuổi</TableHead>
-                    <TableHead className="w-[10%]">Kích thước</TableHead>
-                    <TableHead className="w-[15%]">Hồ</TableHead>
-                    <TableHead className="w-[15%]">Sức khỏe</TableHead>
-                    <TableHead className="w-[15%]">Giá bán (VNĐ)</TableHead>
-                    <TableHead className="w-[10%] text-center">
-                      Thao tác
-                    </TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {dataToDisplay.length === 0 ? (
-                    <TableRow>
-                      <TableCell
-                        colSpan={10}
-                        className="text-center text-muted-foreground"
-                      >
-                        Không tìm thấy dữ liệu cá Koi nào.
-                      </TableCell>
-                    </TableRow>
-                  ) : (
-                    dataToDisplay.map((koi, index) => (
-                      <TableRow key={koi.id}>
-                        <TableCell className="font-medium truncate">
-                          {index +
-                            1 +
-                            (searchParams.pageIndex - 1) *
-                              searchParams.pageSize}
-                        </TableCell>
-                        <TableCell className="font-medium truncate">
-                          {koi.rfid}
-                        </TableCell>
-                        <TableCell className="truncate">
-                          {koi.variety.varietyName}
-                        </TableCell>
-                        <TableCell>{formatKoiAge(koi.birthDate)}</TableCell>
-                        <TableCell>{getFishSizeLabel(koi.size)}</TableCell>
-                        <TableCell className="truncate">
-                          {koi.pond.pondName}
-                        </TableCell>
-                        <TableCell className="truncate">
-                          {(() => {
-                            const label = getHealthStatusLabel(
-                              koi.healthStatus,
-                            );
-                            return (
-                              <Badge
-                                className={`font-semibold ${label.colorClass}`}
-                              >
-                                {label.label}
-                              </Badge>
-                            );
-                          })()}
-                        </TableCell>
-                        <TableCell className="truncate">
-                          {formatCurrency(koi.sellingPrice || 0)}
-                        </TableCell>
-                        <TableCell className="truncate text-center">
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                title="Hành động"
-                              >
-                                <MoreHorizontal className="h-4 w-4" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuLabel>Hành động</DropdownMenuLabel>
-                              <DropdownMenuItem
-                                onClick={() => handleViewDetails(koi)}
-                                className="hover:bg-primary hover:text-white cursor-pointer"
-                              >
-                                <Eye className="mr-2 h-4 w-4 hover:text-white" />
-                                Xem chi tiết
-                              </DropdownMenuItem>
-                              <DropdownMenuItem
-                                onClick={() => handleViewPedigree(koi)}
-                                className="hover:bg-primary hover:text-white cursor-pointer"
-                              >
-                                <Network className="mr-2 h-4 w-4 hover:text-white" />
-                                Xem gia phả
-                              </DropdownMenuItem>
-                              <DropdownMenuItem
-                                onClick={() => handleEditKoi(koi)}
-                                className="hover:bg-primary hover:text-white cursor-pointer"
-                              >
-                                <Edit className="mr-2 h-4 w-4 hover:text-white" />
-                                Chỉnh sửa
-                              </DropdownMenuItem>
-                              <DropdownMenuItem
-                                onClick={() => handleViewIncidentHistory(koi)}
-                                className="hover:bg-primary hover:text-white cursor-pointer"
-                              >
-                                <AlertCircle className="mr-2 h-4 w-4 hover:text-white" />
-                                Xem lịch sử sự cố
-                              </DropdownMenuItem>
-                              {koi.koiBreedingStatus ===
-                                KoiBreedingStatus.POST_SPAWNING && (
-                                <DropdownMenuItem
-                                  onClick={() => handleOpenSpawnConfirm(koi)}
-                                  className="text-green-600 hover:text-white hover:bg-green-600 focus:text-white focus:bg-green-600 cursor-pointer"
-                                >
-                                  <CheckCircle className="mr-2 h-4 w-4 hover:text-white" />
-                                  Sẵn sàng sinh sản
-                                </DropdownMenuItem>
-                              )}
-                              {canDeleteKoi(koi) && (
-                                <DropdownMenuItem
-                                  onClick={() => handleOpenDeleteConfirm(koi)}
-                                  className="text-red-600 hover:text-white hover:bg-red-600 focus:text-white focus:bg-red-600 cursor-pointer"
-                                >
-                                  <Trash2 className="mr-2 h-4 w-4 hover:text-white" />
-                                  Xóa
-                                </DropdownMenuItem>
-                              )}
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  )}
-                </TableBody>
-              </Table>
+          <TabsContent value="all" className="mt-0">
+            <CardContent>
+              <div className="flex space-x-4 mb-4">
+                <div className="relative grow">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Tìm kiếm theo tên hoặc mã cá..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="border-2 border-gray-400 pl-10"
+                  />
+                </div>
 
-              {totalItems > 0 && (
-                <PaginationWithLinks
-                  totalCount={totalItems}
-                  pageSize={searchParams.pageSize}
-                  page={searchParams.pageIndex}
-                  onPageChange={handlePageChange}
-                  onPageSizeChange={handlePageSizeChange}
-                />
+                <Button
+                  variant={isFilterActive ? "default" : "outline"}
+                  onClick={() => setIsFilterModalOpen(true)}
+                  className={
+                    isFilterActive
+                      ? "bg-indigo-600 hover:bg-indigo-700"
+                      : "border-gray-400"
+                  }
+                >
+                  <Filter className="h-4 w-4 mr-2" />
+                  Bộ lọc{" "}
+                  {isFilterActive && (
+                    <span className="ml-1 px-2 py-0.5 bg-white/30 text-white rounded-full text-xs">
+                      ON
+                    </span>
+                  )}
+                </Button>
+              </div>
+
+              {isLoading ? (
+                <div className="flex items-center justify-center py-10 text-gray-500">
+                  <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                  Đang tải dữ liệu...
+                  {/*  */}
+                </div>
+              ) : (
+                <>
+                  <Table className="table-fixed w-full">
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="w-[5%]">STT</TableHead>
+                        <TableHead className="w-[12%]">RFID</TableHead>
+                        <TableHead className="w-[13%]">Giống</TableHead>
+                        <TableHead className="w-[5%]">Tuổi</TableHead>
+                        <TableHead className="w-[10%]">Kích thước</TableHead>
+                        <TableHead className="w-[15%]">Hồ</TableHead>
+                        <TableHead className="w-[15%]">Sức khỏe</TableHead>
+                        <TableHead className="w-[15%]">Giá bán (VNĐ)</TableHead>
+                        <TableHead className="w-[10%] text-center">
+                          Thao tác
+                        </TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {dataToDisplay.length === 0 ? (
+                        <TableRow>
+                          <TableCell
+                            colSpan={10}
+                            className="text-center text-muted-foreground"
+                          >
+                            Không tìm thấy dữ liệu cá Koi nào.
+                          </TableCell>
+                        </TableRow>
+                      ) : (
+                        dataToDisplay.map((koi, index) => (
+                          <TableRow key={koi.id}>
+                            <TableCell className="font-medium truncate">
+                              {index +
+                                1 +
+                                (searchParams.pageIndex - 1) *
+                                  searchParams.pageSize}
+                            </TableCell>
+                            <TableCell className="font-medium truncate">
+                              {koi.rfid}
+                            </TableCell>
+                            <TableCell className="truncate">
+                              {koi.variety.varietyName}
+                            </TableCell>
+                            <TableCell>{formatKoiAge(koi.birthDate)}</TableCell>
+                            <TableCell>{getFishSizeLabel(koi.size)}</TableCell>
+                            <TableCell className="truncate">
+                              {koi.pond.pondName}
+                            </TableCell>
+                            <TableCell className="truncate">
+                              {(() => {
+                                const label = getHealthStatusLabel(
+                                  koi.healthStatus,
+                                );
+                                return (
+                                  <Badge
+                                    className={`font-semibold ${label.colorClass}`}
+                                  >
+                                    {label.label}
+                                  </Badge>
+                                );
+                              })()}
+                            </TableCell>
+                            <TableCell className="truncate">
+                              {formatCurrency(koi.sellingPrice || 0)}
+                            </TableCell>
+                            <TableCell className="truncate text-center">
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    title="Hành động"
+                                  >
+                                    <MoreHorizontal className="h-4 w-4" />
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                  <DropdownMenuLabel>
+                                    Hành động
+                                  </DropdownMenuLabel>
+                                  <DropdownMenuItem
+                                    onClick={() => handleViewDetails(koi)}
+                                    className="hover:bg-primary hover:text-white cursor-pointer"
+                                  >
+                                    <Eye className="mr-2 h-4 w-4 hover:text-white" />
+                                    Xem chi tiết
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem
+                                    onClick={() => handleViewPedigree(koi)}
+                                    className="hover:bg-primary hover:text-white cursor-pointer"
+                                  >
+                                    <Network className="mr-2 h-4 w-4 hover:text-white" />
+                                    Xem gia phả
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem
+                                    onClick={() => handleEditKoi(koi)}
+                                    className="hover:bg-primary hover:text-white cursor-pointer"
+                                  >
+                                    <Edit className="mr-2 h-4 w-4 hover:text-white" />
+                                    Chỉnh sửa
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem
+                                    onClick={() =>
+                                      handleViewIncidentHistory(koi)
+                                    }
+                                    className="hover:bg-primary hover:text-white cursor-pointer"
+                                  >
+                                    <AlertCircle className="mr-2 h-4 w-4 hover:text-white" />
+                                    Xem lịch sử sự cố
+                                  </DropdownMenuItem>
+                                  {koi.koiBreedingStatus ===
+                                    KoiBreedingStatus.POST_SPAWNING && (
+                                    <DropdownMenuItem
+                                      onClick={() =>
+                                        handleOpenSpawnConfirm(koi)
+                                      }
+                                      className="text-green-600 hover:text-white hover:bg-green-600 focus:text-white focus:bg-green-600 cursor-pointer"
+                                    >
+                                      <CheckCircle className="mr-2 h-4 w-4 hover:text-white" />
+                                      Sẵn sàng sinh sản
+                                    </DropdownMenuItem>
+                                  )}
+                                  {canDeleteKoi(koi) && (
+                                    <DropdownMenuItem
+                                      onClick={() =>
+                                        handleOpenDeleteConfirm(koi)
+                                      }
+                                      className="text-red-600 hover:text-white hover:bg-red-600 focus:text-white focus:bg-red-600 cursor-pointer"
+                                    >
+                                      <Trash2 className="mr-2 h-4 w-4 hover:text-white" />
+                                      Xóa
+                                    </DropdownMenuItem>
+                                  )}
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            </TableCell>
+                          </TableRow>
+                        ))
+                      )}
+                    </TableBody>
+                  </Table>
+
+                  {totalItems > 0 && (
+                    <PaginationWithLinks
+                      totalCount={totalItems}
+                      pageSize={searchParams.pageSize}
+                      page={searchParams.pageIndex}
+                      onPageChange={handlePageChange}
+                      onPageSizeChange={handlePageSizeChange}
+                    />
+                  )}
+                </>
               )}
-            </>
-          )}
-        </CardContent>
+            </CardContent>
+          </TabsContent>
+
+          <TabsContent value="post-spawning" className="mt-0">
+            <CardContent>
+              <div className="flex space-x-4 mb-4">
+                <div className="relative grow">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Tìm kiếm theo tên hoặc mã cá..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="border-2 border-gray-400 pl-10"
+                  />
+                </div>
+
+                <Button
+                  variant={isFilterActive ? "default" : "outline"}
+                  onClick={() => setIsFilterModalOpen(true)}
+                  className={
+                    isFilterActive
+                      ? "bg-indigo-600 hover:bg-indigo-700"
+                      : "border-gray-400"
+                  }
+                >
+                  <Filter className="h-4 w-4 mr-2" />
+                  Bộ lọc{" "}
+                  {isFilterActive && (
+                    <span className="ml-1 px-2 py-0.5 bg-white/30 text-white rounded-full text-xs">
+                      ON
+                    </span>
+                  )}
+                </Button>
+              </div>
+
+              {isLoading ? (
+                <div className="flex items-center justify-center py-10 text-gray-500">
+                  <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                  Đang tải dữ liệu...
+                  {/*  */}
+                </div>
+              ) : (
+                <>
+                  <Table className="table-fixed w-full">
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="w-[5%]">STT</TableHead>
+                        <TableHead className="w-[12%]">RFID</TableHead>
+                        <TableHead className="w-[13%]">Giống</TableHead>
+                        <TableHead className="w-[5%]">Tuổi</TableHead>
+                        <TableHead className="w-[10%]">Kích thước</TableHead>
+                        <TableHead className="w-[15%]">Hồ</TableHead>
+                        <TableHead className="w-[15%]">Sức khỏe</TableHead>
+                        <TableHead className="w-[15%]">Giá bán (VNĐ)</TableHead>
+                        <TableHead className="w-[10%] text-center">
+                          Thao tác
+                        </TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {dataToDisplay.length === 0 ? (
+                        <TableRow>
+                          <TableCell
+                            colSpan={10}
+                            className="text-center text-muted-foreground"
+                          >
+                            Không tìm thấy dữ liệu cá Koi nào.
+                          </TableCell>
+                        </TableRow>
+                      ) : (
+                        dataToDisplay.map((koi, index) => (
+                          <TableRow key={koi.id}>
+                            <TableCell className="font-medium truncate">
+                              {index +
+                                1 +
+                                (searchParams.pageIndex - 1) *
+                                  searchParams.pageSize}
+                            </TableCell>
+                            <TableCell className="font-medium truncate">
+                              {koi.rfid}
+                            </TableCell>
+                            <TableCell className="truncate">
+                              {koi.variety.varietyName}
+                            </TableCell>
+                            <TableCell>{formatKoiAge(koi.birthDate)}</TableCell>
+                            <TableCell>{getFishSizeLabel(koi.size)}</TableCell>
+                            <TableCell className="truncate">
+                              {koi.pond.pondName}
+                            </TableCell>
+                            <TableCell className="truncate">
+                              {(() => {
+                                const label = getHealthStatusLabel(
+                                  koi.healthStatus,
+                                );
+                                return (
+                                  <Badge
+                                    className={`font-semibold ${label.colorClass}`}
+                                  >
+                                    {label.label}
+                                  </Badge>
+                                );
+                              })()}
+                            </TableCell>
+                            <TableCell className="truncate">
+                              {formatCurrency(koi.sellingPrice || 0)}
+                            </TableCell>
+                            <TableCell className="truncate text-center">
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    title="Hành động"
+                                  >
+                                    <MoreHorizontal className="h-4 w-4" />
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                  <DropdownMenuLabel>
+                                    Hành động
+                                  </DropdownMenuLabel>
+                                  <DropdownMenuItem
+                                    onClick={() => handleViewDetails(koi)}
+                                    className="hover:bg-primary hover:text-white cursor-pointer"
+                                  >
+                                    <Eye className="mr-2 h-4 w-4 hover:text-white" />
+                                    Xem chi tiết
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem
+                                    onClick={() => handleViewPedigree(koi)}
+                                    className="hover:bg-primary hover:text-white cursor-pointer"
+                                  >
+                                    <Network className="mr-2 h-4 w-4 hover:text-white" />
+                                    Xem gia phả
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem
+                                    onClick={() => handleEditKoi(koi)}
+                                    className="hover:bg-primary hover:text-white cursor-pointer"
+                                  >
+                                    <Edit className="mr-2 h-4 w-4 hover:text-white" />
+                                    Chỉnh sửa
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem
+                                    onClick={() =>
+                                      handleViewIncidentHistory(koi)
+                                    }
+                                    className="hover:bg-primary hover:text-white cursor-pointer"
+                                  >
+                                    <AlertCircle className="mr-2 h-4 w-4 hover:text-white" />
+                                    Xem lịch sử sự cố
+                                  </DropdownMenuItem>
+                                  {koi.koiBreedingStatus ===
+                                    KoiBreedingStatus.POST_SPAWNING && (
+                                    <DropdownMenuItem
+                                      onClick={() =>
+                                        handleOpenSpawnConfirm(koi)
+                                      }
+                                      className="text-green-600 hover:text-white hover:bg-green-600 focus:text-white focus:bg-green-600 cursor-pointer"
+                                    >
+                                      <CheckCircle className="mr-2 h-4 w-4 hover:text-white" />
+                                      Sẵn sàng sinh sản
+                                    </DropdownMenuItem>
+                                  )}
+                                  {canDeleteKoi(koi) && (
+                                    <DropdownMenuItem
+                                      onClick={() =>
+                                        handleOpenDeleteConfirm(koi)
+                                      }
+                                      className="text-red-600 hover:text-white hover:bg-red-600 focus:text-white focus:bg-red-600 cursor-pointer"
+                                    >
+                                      <Trash2 className="mr-2 h-4 w-4 hover:text-white" />
+                                      Xóa
+                                    </DropdownMenuItem>
+                                  )}
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            </TableCell>
+                          </TableRow>
+                        ))
+                      )}
+                    </TableBody>
+                  </Table>
+
+                  {totalItems > 0 && (
+                    <PaginationWithLinks
+                      totalCount={totalItems}
+                      pageSize={searchParams.pageSize}
+                      page={searchParams.pageIndex}
+                      onPageChange={handlePageChange}
+                      onPageSizeChange={handlePageSizeChange}
+                    />
+                  )}
+                </>
+              )}
+            </CardContent>
+          </TabsContent>
+        </Tabs>
       </Card>
 
       {/* Detail Modal */}
@@ -705,7 +953,6 @@ export default function KoiManagement() {
                 : "",
             );
             setOriginInput(searchParams.origin || "");
-            setIsPostSpawningInput(searchParams.isPostSpawning || false);
           }
         }}
       >
@@ -884,25 +1131,6 @@ export default function KoiManagement() {
                   placeholder="Giá cao nhất"
                   className="w-full"
                 />
-              </div>
-            </div>
-
-            <div className="border-t pt-4">
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="isPostSpawning"
-                  checked={isPostSpawningInput}
-                  onCheckedChange={(checked) =>
-                    setIsPostSpawningInput(checked as boolean)
-                  }
-                  className="cursor-pointer flex items-center justify-center"
-                />
-                <Label
-                  htmlFor="isPostSpawning"
-                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
-                >
-                  Lọc cá trong giai đoạn hậu sinh sản
-                </Label>
               </div>
             </div>
           </div>

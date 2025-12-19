@@ -21,6 +21,7 @@ import {
   ChevronRight,
   Shield,
   Clock,
+  Package,
 } from "lucide-react";
 import Image from "next/image";
 import Logo from "@/assets/images/ZenKoi.png";
@@ -49,6 +50,12 @@ const sidebarItems = [
     href: "/sale/fish-for-sale" as const,
     icon: Fish,
     description: "Danh sách cá bán",
+  },
+  {
+    title: "Quản lý gói cá",
+    href: "/sale/packet-fish" as const,
+    icon: Package,
+    description: "Gói cá bán theo lô",
   },
   {
     title: "Lịch làm việc",

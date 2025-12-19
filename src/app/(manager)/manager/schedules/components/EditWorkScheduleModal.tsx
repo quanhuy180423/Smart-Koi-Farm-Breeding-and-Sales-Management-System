@@ -700,20 +700,6 @@ export default function EditWorkScheduleModal({
             </AlertDialogTitle>
             <AlertDialogDescription className="text-center">
               <div className="space-y-3">
-                <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-left">
-                  <p className="text-sm text-red-800">
-                    ⚠️ <strong>Cảnh báo:</strong> Việc xóa công việc sẽ xóa vĩnh
-                    viễn tất cả thông tin liên quan.
-                  </p>
-                  <p className="text-sm text-red-800 mt-2">
-                    📅 <strong>Bị ảnh hưởng:</strong> Lịch làm việc của nhân
-                    viên được phân công.
-                  </p>
-                  <p className="text-sm text-red-800 mt-2">
-                    🚫 <strong>Không thể hoàn tác:</strong> Hành động này là
-                    vĩnh viễn và không thể được khôi phục.
-                  </p>
-                </div>
                 <div className="bg-gray-50 border border-gray-200 rounded-lg p-3 text-left">
                   <p className="text-sm text-gray-700">
                     <span className="font-semibold">Công việc:</span>{" "}

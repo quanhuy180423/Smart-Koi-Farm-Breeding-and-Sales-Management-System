@@ -74,3 +74,20 @@ export function useCreatePacketFish() {
     },
   });
 }
+
+export function useTogglePacketFishAvailability() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: number) => packetFishService.toggleAvailability(id),
+    onSuccess: (data: BaseResponse<boolean>) => {
+      if (data.isSuccess) {
+        queryClient.invalidateQueries({ queryKey: ["packet-fishes"] });
+        toast.success(data.message || "Thay đổi trạng thái gói cá thành công");
+      }
+    },
+    onError: (error: ApiError) => {
+      toast.error(error.message || "Có lỗi xảy ra khi thay đổi trạng thái");
+    },
+  });
+}

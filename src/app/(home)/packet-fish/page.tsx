@@ -87,8 +87,8 @@ export default function PacketFishPage() {
       appliedFilters.quantityRange[0] > 0 ||
       appliedFilters.quantityRange[1] < 100
     ) {
-      params.minQuantity = appliedFilters.quantityRange[0];
-      params.maxQuantity = appliedFilters.quantityRange[1];
+      params.minStockQuantity = appliedFilters.quantityRange[0];
+      params.maxStockQuantity = appliedFilters.quantityRange[1];
     }
     if (
       appliedFilters.priceRange[0] > 0 ||

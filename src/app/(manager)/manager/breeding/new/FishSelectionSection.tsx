@@ -72,7 +72,7 @@ interface FishSelectionProps {
 }
 
 const CACHE_KEY = "breeding_criteria_cache";
-const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes in milliseconds
+const CACHE_DURATION = 15 * 60 * 1000; // 15 minutes
 
 interface CachedBreedingData {
   timestamp: number;
@@ -956,9 +956,9 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
                               </strong>
                             </span>
                             <span>
-                              Tỷ lệ chất lượng cao:{" "}
+                              Trung bình cá con chất lượng cao:{" "}
                               <strong>
-                                {pair.predictedHighQualifiedRate?.toFixed(2)}%
+                                {pair.predictedHighQualifiedQuanity} con
                               </strong>
                             </span>
                             {pair.predictedMutationRate > 0 && (
