@@ -8,7 +8,10 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogPortal,
+  DialogOverlay,
 } from "@/components/ui/dialog";
+import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -554,33 +557,36 @@ export function KoiDetailDialog({
       )}
       {mediaList.length > 0 && (
         <Dialog open={isVideoViewerOpen} onOpenChange={setIsVideoViewerOpen}>
-          <DialogContent className="max-w-5xl max-h-[95vh] flex flex-col p-0 border-0 gap-0 overflow-hidden bg-linear-to-br from-gray-900 via-gray-800 to-gray-900">
-            <div className="flex items-center justify-between px-6 py-4 bg-linear-to-r from-primary/90 to-primary border-b border-primary/20 backdrop-blur-sm">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-white/20 rounded-lg backdrop-blur-sm">
-                  <Play className="h-5 w-5 text-white" />
-                </div>
-                <div>
-                  <DialogTitle className="text-lg font-bold text-white">
-                    Video Cá Koi
-                  </DialogTitle>
-                  <p className="text-xs text-white/80 font-medium">
-                    RFID: {koi.rfid}
-                  </p>
+          <DialogPortal>
+            <DialogOverlay className="z-100" />
+            <DialogPrimitive.Content className="bg-background data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 fixed top-[50%] left-[50%] w-full max-w-5xl translate-x-[-50%] translate-y-[-50%] gap-0 rounded-lg border p-0 shadow-lg duration-200 max-h-[95vh] flex flex-col overflow-hidden bg-linear-to-br from-gray-900 via-gray-800 to-gray-900 z-100">
+              <div className="flex items-center justify-between px-6 py-4 bg-linear-to-r from-primary/90 to-primary border-b border-primary/20 backdrop-blur-sm">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-white/20 rounded-lg backdrop-blur-sm">
+                    <Play className="h-5 w-5 text-white" />
+                  </div>
+                  <div>
+                    <DialogPrimitive.Title className="text-lg font-bold text-white">
+                      Video Cá Koi
+                    </DialogPrimitive.Title>
+                    <p className="text-xs text-white/80 font-medium">
+                      RFID: {koi.rfid}
+                    </p>
+                  </div>
                 </div>
               </div>
-            </div>
-            <div className="flex-1 w-full flex items-center justify-center p-6 bg-linear-to-br from-gray-900 via-black to-gray-900">
-              <div className="relative w-full h-full flex items-center justify-center">
-                <video
-                  src={mediaList[selectedMediaIdx]?.src}
-                  controls
-                  autoPlay
-                  className="w-full h-auto max-h-[75vh] rounded-lg shadow-2xl ring-2 ring-white/10"
-                />
+              <div className="flex-1 w-full flex items-center justify-center p-6 bg-linear-to-br from-gray-900 via-black to-gray-900">
+                <div className="relative w-full h-full flex items-center justify-center">
+                  <video
+                    src={mediaList[selectedMediaIdx]?.src}
+                    controls
+                    autoPlay
+                    className="w-full h-auto max-h-[75vh] rounded-lg shadow-2xl ring-2 ring-white/10"
+                  />
+                </div>
               </div>
-            </div>
-          </DialogContent>
+            </DialogPrimitive.Content>
+          </DialogPortal>
         </Dialog>
       )}
     </>

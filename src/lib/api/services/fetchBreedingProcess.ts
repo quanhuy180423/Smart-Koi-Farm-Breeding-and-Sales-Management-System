@@ -97,6 +97,7 @@ export interface BreedingParentHistoryResponse {
   hatchRate: number | null;
   survivalRate: number | null;
   highQualifiedRate: number | null;
+  highQualifiedQuanity?: number;
 }
 
 export interface BreedingRecommendRequest {
@@ -124,6 +125,7 @@ export interface RecommendedPair {
   predictedMutationRate: number;
   predictedMutationDescription: string;
   predictedSurvivalRate: number;
+  predictedHighQualifiedQuanity?: number;
   predictedHighQualifiedRate: number;
   percentInbreeding: number;
   rank: number;
@@ -179,6 +181,7 @@ export interface AnalyzePairResponse {
   predictedFertilizationRate: number;
   predictedHatchRate: number;
   predictedSurvivalRate: number;
+  predictedHighQualifiedQuanity?: number;
   predictedHighQualifiedRate: number;
   percentInbreeding: number;
   predictedMutationRate: number;

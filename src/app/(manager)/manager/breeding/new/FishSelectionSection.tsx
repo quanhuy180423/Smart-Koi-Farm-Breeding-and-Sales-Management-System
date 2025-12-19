@@ -956,9 +956,9 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
                               </strong>
                             </span>
                             <span>
-                              Tỷ lệ chất lượng cao:{" "}
+                              Trung bình cá con chất lượng cao:{" "}
                               <strong>
-                                {pair.predictedHighQualifiedRate?.toFixed(2)}%
+                                {pair.predictedHighQualifiedQuanity} con
                               </strong>
                             </span>
                             {pair.predictedMutationRate > 0 && (

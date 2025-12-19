@@ -4,7 +4,12 @@ import apiService, {
   PagedResponse,
   PagingRequest,
 } from "../apiClient";
-import { VarietyResponse } from "./fetchVariety";
+
+export interface VarietyPacketFish {
+  id: number;
+  varietyId: number;
+  varietyName: string;
+}
 
 export interface PacketFishResponse {
   id: number;
@@ -20,7 +25,7 @@ export interface PacketFishResponse {
   isAvailable: boolean;
   createdAt: string;
   updatedAt: string | null;
-  varietyPacketFishes: VarietyResponse[];
+  varietyPacketFishes: VarietyPacketFish[];
 }
 
 export interface PacketFishSearchParams extends PagingRequest {
@@ -32,8 +37,9 @@ export interface PacketFishSearchParams extends PagingRequest {
   maxPrice?: number;
   minAgeMonths?: number;
   maxAgeMonths?: number;
-  minQuantity?: number;
-  maxQuantity?: number;
+  minStockQuantity?: number;
+  maxStockQuantity?: number;
+  varietyIds?: number[];
 }
 
 export interface CreatePacketFishRequest {
@@ -75,6 +81,12 @@ export const packetFishService = {
       BaseResponse<PacketFishResponse>,
       CreatePacketFishRequest
     >(`${baseUrl}`, request);
+    return response.data;
+  },
+  toggleAvailability: async (id: number): Promise<BaseResponse<boolean>> => {
+    const response = await apiService.patch<BaseResponse<boolean>>(
+      `${baseUrl}/${id}/toggle-availability`,
+    );
     return response.data;
   },
 };

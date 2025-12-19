@@ -94,8 +94,8 @@ export default function ComparisonSection({
           color: "text-amber-600",
         },
         {
-          label: "Tỷ lệ cá con chất lượng cao:",
-          value: `${analysisData?.predictedHighQualifiedRate?.toFixed(1) || 0}%`,
+          label: "Số lượng trung bình cá con chất lượng cao:",
+          value: `${analysisData?.predictedHighQualifiedQuanity || 0} con`,
           color: "text-purple-600",
         },
       ]

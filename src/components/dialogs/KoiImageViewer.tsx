@@ -39,7 +39,7 @@ export function KoiImageViewer({
 
   return (
     <div
-      className="fixed inset-0 z-60 bg-black/70 flex flex-col items-center justify-center pointer-events-none"
+      className="fixed inset-0 bg-black/70 flex flex-col items-center justify-center pointer-events-none z-100"
       onClick={(e) => {
         e.preventDefault();
         e.stopPropagation();
