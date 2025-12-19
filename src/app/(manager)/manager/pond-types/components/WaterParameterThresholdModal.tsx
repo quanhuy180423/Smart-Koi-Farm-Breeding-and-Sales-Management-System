@@ -800,7 +800,7 @@ export default function WaterParameterThresholdModal({
             </DialogTitle>
           </DialogHeader>
 
-          <div className="space-y-6 max-h-[60vh] overflow-y-auto pr-4">
+          <div className="space-y-2 max-h-[60vh] overflow-y-auto pr-4">
             {parameterConfigs.map((config) => {
               const data = batchFormData[config.name];
               return (

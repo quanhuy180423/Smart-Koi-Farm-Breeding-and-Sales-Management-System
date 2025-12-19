@@ -138,7 +138,7 @@ export function useRemoveVarietyFromPattern() {
 
 export function useGetPatternVarieties(
   patternId: number | null,
-  params: PatternVarietySearchParams,
+  params: PatternVarietySearchParams
 ) {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
@@ -182,11 +182,12 @@ export function useGetPatternVarieties(
 export function useGetPatternsByVariety(varietyId: number | null) {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
-  return useQuery<BaseResponse<Pattern[]>, ApiError, Pattern[]>({
+  return useQuery<BaseResponse<PagedResponse<Pattern>>, ApiError, Pattern[]>({
     queryKey: ["patterns-by-variety", varietyId],
     queryFn: () => patternService.getPatternsByVariety(varietyId!),
     enabled: isAuthenticated && varietyId !== null,
-    select: (data: BaseResponse<Pattern[]>) => data?.result || [],
+    select: (data: BaseResponse<PagedResponse<Pattern>>) =>
+      data?.result?.data || [],
     retry: (failureCount, error: unknown) => {
       if (
         error &&

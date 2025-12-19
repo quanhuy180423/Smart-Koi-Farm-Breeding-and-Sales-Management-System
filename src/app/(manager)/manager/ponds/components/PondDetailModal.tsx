@@ -18,17 +18,19 @@ import {
 } from "@/components/ui/table";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { Loader2 } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Loader2, MapPin, Ruler, Droplet, Fish, Calendar } from "lucide-react";
 import {
   getPondStatusLabel,
   getHealthStatusLabel,
   getGenderLabel,
   getSaleStatusLabel,
 } from "@/lib/utils/enum";
-import { formatDate } from "@/lib/utils/dates";
+import { DATE_FORMATS, formatDate } from "@/lib/utils/dates";
 import { useGetWaterParameterRecords } from "@/hooks/useWaterParameterRecord";
 import { useGetPondKoiFishes } from "@/hooks/usePond";
 import { PaginationWithLinks } from "@/components/pagination";
+import formatCurrency from "@/lib/utils/numbers";
 
 interface PondDetailModalProps {
   isOpen: boolean;
@@ -68,12 +70,14 @@ const PondDetailModal = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="min-w-6xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="text-xl font-semibold text-gray-800">
-            Chi tiết hồ cá: {selectedPond?.pondName}
+      <DialogContent className="min-w-7xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader className="space-y-3 pb-4 border-b">
+          <DialogTitle className="text-2xl font-bold text-gray-900">
+            {selectedPond?.pondName}
           </DialogTitle>
-          <DialogDescription>Thông tin chi tiết về hồ cá</DialogDescription>
+          <DialogDescription className="text-base text-gray-600">
+            Thông tin chi tiết và quản lý hồ cá
+          </DialogDescription>
         </DialogHeader>
         {selectedPond && (
           <Tabs defaultValue="info" className="w-full">
@@ -83,98 +87,29 @@ const PondDetailModal = ({
               <TabsTrigger value="records">Bản ghi thông số</TabsTrigger>
             </TabsList>
 
-            <TabsContent value="info" className="space-y-6">
-              <div className="grid grid-cols-2 gap-6">
-                <div className="space-y-4">
-                  <div>
-                    <Label className="text-sm font-medium text-gray-600">
-                      Tên hồ
-                    </Label>
-                    <p className="text-base font-semibold text-gray-800">
-                      {selectedPond.pondName}
-                    </p>
-                  </div>
-                  <div>
-                    <Label className="text-sm font-medium text-gray-600">
-                      Loại hồ
-                    </Label>
-                    <p className="text-base text-gray-800">
-                      {selectedPond.pondTypeName || "-"}
-                    </p>
-                  </div>
-                  <div>
-                    <Label className="text-sm font-medium text-gray-600">
-                      Khu vực
-                    </Label>
-                    <p className="text-base text-gray-800">
-                      {selectedPond.areaName}
-                    </p>
-                  </div>
-                  <div>
-                    <Label className="text-sm font-medium text-gray-600">
-                      Địa điểm
-                    </Label>
-                    <p className="text-base text-gray-800">
-                      {selectedPond.location}
-                    </p>
-                  </div>
-                  <div>
-                    <Label className="text-sm font-medium text-gray-600">
-                      Trạng thái
-                    </Label>
-                    <div className="mt-2">
+            <TabsContent value="info" className="space-y-6 mt-6">
+              {/* Status Overview */}
+              <div className="grid grid-cols-2 gap-2">
+                <Card className="border-2 py-3">
+                  <CardContent>
+                    <div className="flex items-center justify-between">
+                      <p className="text-sm font-medium text-muted-foreground">
+                        Trạng thái hồ
+                      </p>
                       <Badge
                         className={`${getPondStatusLabel(selectedPond.pondStatus).colorClass} px-3 py-1 text-sm font-medium`}
                       >
                         {getPondStatusLabel(selectedPond.pondStatus).label}
                       </Badge>
                     </div>
-                  </div>
-                </div>
-                <div className="space-y-4">
-                  <div>
-                    <Label className="text-sm font-medium text-gray-600">
-                      Kích thước (Dài x Rộng x Sâu)
-                    </Label>
-                    <p className="text-base text-gray-800">
-                      {selectedPond.lengthMeters}m x {selectedPond.widthMeters}m
-                      x {selectedPond.depthMeters}m
-                    </p>
-                  </div>
-                  <div>
-                    <Label className="text-sm font-medium text-gray-600">
-                      Sức chứa tối đa (Lít)
-                    </Label>
-                    <p className="text-base text-gray-800">
-                      {selectedPond.capacityLiters?.toLocaleString("vi-VN") ||
-                        0}{" "}
-                      Lít
-                    </p>
-                  </div>
-                  <div>
-                    <Label className="text-sm font-medium text-gray-600">
-                      Dung tích hiện tại (Lít)
-                    </Label>
-                    <p className="text-base text-gray-800">
-                      {selectedPond.currentCapacity?.toLocaleString("vi-VN") ||
-                        0}{" "}
-                      Lít
-                    </p>
-                  </div>
-                  <div>
-                    <Label className="text-sm font-medium text-gray-600">
-                      Số cá hiện tại / Tối đa
-                    </Label>
-                    <p className="text-base text-gray-800">
-                      {selectedPond.currentCount || 0} /{" "}
-                      {selectedPond.maxFishCount || 0}
-                    </p>
-                  </div>
-                  <div>
-                    <Label className="text-sm font-medium text-gray-600">
-                      Tình trạng
-                    </Label>
-                    <div className="mt-2">
+                  </CardContent>
+                </Card>
+                <Card className="border-2 py-3">
+                  <CardContent>
+                    <div className="flex items-center justify-between">
+                      <p className="text-sm font-medium text-muted-foreground">
+                        Tình trạng
+                      </p>
                       <Badge
                         variant={
                           selectedPond.available ? "default" : "secondary"
@@ -184,106 +119,281 @@ const PondDetailModal = ({
                         {selectedPond.available ? "Có sẵn" : "Không có sẵn"}
                       </Badge>
                     </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Basic Information */}
+              <Card className="border-2">
+                <CardContent>
+                  <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                    <MapPin className="h-5 w-5 text-blue-600" />
+                    Thông tin cơ bản
+                  </h3>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="space-y-2">
+                      <div className="flex items-start gap-3 px-3 rounded-lg bg-muted/50">
+                        <div className="flex-1">
+                          <Label className="text-sm font-medium text-muted-foreground">
+                            Tên hồ
+                          </Label>
+                          <p className="text-base font-semibold text-gray-900 mt-1">
+                            {selectedPond.pondName}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3 px-3 rounded-lg bg-muted/50">
+                        <div className="flex-1">
+                          <Label className="text-sm font-medium text-muted-foreground">
+                            Loại hồ
+                          </Label>
+                          <p className="text-base text-gray-900 mt-1">
+                            {selectedPond.pondTypeName || "-"}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <div className="flex items-start gap-3 px-3 rounded-lg bg-muted/50">
+                        <div className="flex-1">
+                          <Label className="text-sm font-medium text-muted-foreground">
+                            Khu vực
+                          </Label>
+                          <p className="text-base text-gray-900 mt-1">
+                            {selectedPond.areaName}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3 px-3 rounded-lg bg-muted/50">
+                        <div className="flex-1">
+                          <Label className="text-sm font-medium text-muted-foreground">
+                            Địa điểm
+                          </Label>
+                          <p className="text-base text-gray-900 mt-1">
+                            {selectedPond.location}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                </div>
+                </CardContent>
+              </Card>
+
+              {/* Dimensions & Capacity */}
+              <div className="grid grid-cols-2 gap-4">
+                <Card className="border-2">
+                  <CardContent>
+                    <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                      <Ruler className="h-5 w-5 text-green-600" />
+                      Kích thước
+                    </h3>
+                    <div className="space-y-3">
+                      <div className="flex justify-between items-center px-2 rounded bg-muted/50">
+                        <span className="text-sm text-muted-foreground">
+                          Chiều dài
+                        </span>
+                        <span className="font-semibold">
+                          {selectedPond.lengthMeters}m
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center px-2 rounded bg-muted/50">
+                        <span className="text-sm text-muted-foreground">
+                          Chiều rộng
+                        </span>
+                        <span className="font-semibold">
+                          {selectedPond.widthMeters}m
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center px-2 rounded bg-muted/50">
+                        <span className="text-sm text-muted-foreground">
+                          Độ sâu
+                        </span>
+                        <span className="font-semibold">
+                          {selectedPond.depthMeters}m
+                        </span>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card className="border-2">
+                  <CardContent>
+                    <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                      <Droplet className="h-5 w-5 text-cyan-600" />
+                      Dung tích & Số lượng
+                    </h3>
+                    <div className="space-y-3">
+                      <div className="flex justify-between items-center px-2 rounded bg-muted/50">
+                        <span className="text-sm text-muted-foreground">
+                          Sức chứa tối đa
+                        </span>
+                        <span className="font-semibold">
+                          {selectedPond.capacityLiters?.toLocaleString(
+                            "vi-VN"
+                          ) || 0}{" "}
+                          L
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center px-2 rounded bg-muted/50">
+                        <span className="text-sm text-muted-foreground">
+                          Dung tích hiện tại
+                        </span>
+                        <span className="font-semibold">
+                          {selectedPond.currentCapacity?.toLocaleString(
+                            "vi-VN"
+                          ) || 0}{" "}
+                          L
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center px-2 rounded bg-muted/50">
+                        <span className="text-sm text-muted-foreground">
+                          Số cá (hiện tại/tối đa)
+                        </span>
+                        <span className="font-semibold">
+                          {selectedPond.currentCount || 0} /{" "}
+                          {selectedPond.maxFishCount || 0}
+                        </span>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
               </div>
-              <div>
-                <Label className="text-sm font-medium text-gray-600">
-                  Ngày tạo
-                </Label>
-                <p className="text-base text-gray-800 mt-1">
-                  {formatDate(selectedPond.createdAt, "HH:mm dd/MM/yyyy")}
-                </p>
-              </div>
+
+              {/* Creation Date */}
+              <Card className="border-2">
+                <CardContent>
+                  <div className="flex items-center gap-3">
+                    <Calendar className="h-5 w-5 text-muted-foreground" />
+                    <div>
+                      <Label className="text-sm font-medium text-muted-foreground">
+                        Ngày tạo
+                      </Label>
+                      <p className="text-base font-semibold text-gray-900 mt-1">
+                        {formatDate(selectedPond.createdAt, DATE_FORMATS.DATETIME_24H)}
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
             </TabsContent>
 
-            <TabsContent value="koi-fish" className="space-y-4">
+            <TabsContent value="koi-fish" className="space-y-4 mt-6">
               {isLoadingKoiFishes ? (
-                <div className="flex items-center justify-center py-12">
-                  <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                <div className="flex flex-col items-center justify-center py-16">
+                  <Loader2 className="h-8 w-8 animate-spin text-muted-foreground mb-3" />
+                  <p className="text-sm text-muted-foreground">
+                    Đang tải danh sách cá...
+                  </p>
                 </div>
               ) : koiFishesData.length > 0 ? (
-                <div className="border rounded-lg overflow-hidden">
-                  <Table>
-                    <TableHeader>
-                      <TableRow className="bg-muted/50">
-                        <TableHead>RFID</TableHead>
-                        <TableHead>Giống cá</TableHead>
-                        <TableHead>Giới tính</TableHead>
-                        <TableHead>Kích thước</TableHead>
-                        <TableHead>Tình trạng sức khỏe</TableHead>
-                        <TableHead>Hoa văn</TableHead>
-                        <TableHead>Trạng thái bán</TableHead>
-                        <TableHead className="text-right">
-                          Giá bán (₫)
-                        </TableHead>
-                        <TableHead>Ngày sinh</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {koiFishesData.map((koi) => {
-                        const healthLabel = getHealthStatusLabel(
-                          koi.healthStatus,
-                        );
-                        const genderLabel = getGenderLabel(koi.gender);
-                        const saleLabel = getSaleStatusLabel(koi.saleStatus);
+                <div>
+                  <div className="flex items-center gap-2 mb-4">
+                    <Fish className="h-5 w-5 text-blue-600" />
+                    <h3 className="text-lg font-semibold">
+                      Danh sách cá trong hồ ({koiFishesData.length})
+                    </h3>
+                  </div>
+                  <div className="border-2 rounded-lg overflow-hidden shadow-sm">
+                    <Table>
+                      <TableHeader>
+                        <TableRow className="bg-muted/50">
+                          <TableHead>RFID</TableHead>
+                          <TableHead>Giống cá</TableHead>
+                          <TableHead>Giới tính</TableHead>
+                          <TableHead>Kích thước</TableHead>
+                          <TableHead>Tình trạng sức khỏe</TableHead>
+                          <TableHead>Hoa văn</TableHead>
+                          <TableHead>Trạng thái bán</TableHead>
+                          <TableHead className="text-right">
+                            Giá bán (₫)
+                          </TableHead>
+                          <TableHead>Ngày sinh</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {koiFishesData.map((koi) => {
+                          const healthLabel = getHealthStatusLabel(
+                            koi.healthStatus
+                          );
+                          const genderLabel = getGenderLabel(koi.gender);
+                          const saleLabel = getSaleStatusLabel(koi.saleStatus);
 
-                        return (
-                          <TableRow key={koi.id} className="hover:bg-muted/50">
-                            <TableCell className="font-medium">
-                              {koi.rfid}
-                            </TableCell>
-                            <TableCell>
-                              {koi.variety?.varietyName || "-"}
-                            </TableCell>
-                            <TableCell>
-                              <Badge variant="outline">
-                                {genderLabel.label}
-                              </Badge>
-                            </TableCell>
-                            <TableCell>{koi.size} cm</TableCell>
-                            <TableCell>
-                              <Badge
-                                className={`${healthLabel.colorClass} px-2 py-1`}
-                              >
-                                {healthLabel.label}
-                              </Badge>
-                            </TableCell>
-                            <TableCell>{koi.pattern || "-"}</TableCell>
-                            <TableCell>
-                              <Badge
-                                className={`${saleLabel.colorClass} px-2 py-1`}
-                              >
-                                {saleLabel.label}
-                              </Badge>
-                            </TableCell>
-                            <TableCell className="text-right">
-                              {koi.sellingPrice?.toLocaleString("vi-VN") || "-"}
-                            </TableCell>
-                            <TableCell>
-                              {formatDate(koi.birthDate, "dd/MM/yyyy")}
-                            </TableCell>
-                          </TableRow>
-                        );
-                      })}
-                    </TableBody>
-                  </Table>
+                          return (
+                            <TableRow
+                              key={koi.id}
+                              className="hover:bg-muted/50"
+                            >
+                              <TableCell className="font-medium">
+                                {koi.rfid}
+                              </TableCell>
+                              <TableCell>
+                                {koi.variety?.varietyName || "-"}
+                              </TableCell>
+                              <TableCell>
+                                <Badge variant="outline">
+                                  {genderLabel.label}
+                                </Badge>
+                              </TableCell>
+                              <TableCell>{koi.size} cm</TableCell>
+                              <TableCell>
+                                <Badge
+                                  className={`${healthLabel.colorClass} px-2 py-1`}
+                                >
+                                  {healthLabel.label}
+                                </Badge>
+                              </TableCell>
+                              <TableCell>{koi.pattern || "-"}</TableCell>
+                              <TableCell>
+                                <Badge
+                                  className={`${saleLabel.colorClass} px-2 py-1`}
+                                >
+                                  {saleLabel.label}
+                                </Badge>
+                              </TableCell>
+                              <TableCell className="text-right">
+                                {formatCurrency(koi.sellingPrice) ||
+                                  "-"}
+                              </TableCell>
+                              <TableCell>
+                                {formatDate(koi.birthDate, DATE_FORMATS.MEDIUM_DATE)}
+                              </TableCell>
+                            </TableRow>
+                          );
+                        })}
+                      </TableBody>
+                    </Table>
+                  </div>
                 </div>
               ) : (
-                <div className="text-center py-12">
-                  <p className="text-muted-foreground">Không có cá trong hồ</p>
+                <div className="text-center py-16 border-2 rounded-lg border-dashed">
+                  <Fish className="h-12 w-12 mx-auto text-muted-foreground/50 mb-3" />
+                  <p className="text-muted-foreground font-medium">
+                    Không có cá trong hồ
+                  </p>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Hồ này hiện chưa có cá nào
+                  </p>
                 </div>
               )}
             </TabsContent>
 
-            <TabsContent value="records" className="space-y-4">
+            <TabsContent value="records" className="space-y-4 mt-6">
               {isLoadingRecords ? (
-                <div className="flex items-center justify-center py-12">
-                  <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                <div className="flex flex-col items-center justify-center py-16">
+                  <Loader2 className="h-8 w-8 animate-spin text-muted-foreground mb-3" />
+                  <p className="text-sm text-muted-foreground">
+                    Đang tải bản ghi thông số...
+                  </p>
                 </div>
               ) : records.length > 0 ? (
                 <>
-                  <div className="border rounded-lg overflow-hidden">
+                  <div className="flex items-center gap-2 mb-4">
+                    <Droplet className="h-5 w-5 text-cyan-600" />
+                    <h3 className="text-lg font-semibold">
+                      Lịch sử thông số nước
+                    </h3>
+                  </div>
+                  <div className="border-2 rounded-lg overflow-hidden shadow-sm">
                     <Table>
                       <TableHeader>
                         <TableRow className="bg-muted/50">
@@ -323,7 +433,7 @@ const PondDetailModal = ({
                             <TableCell className="font-medium">
                               {formatDate(
                                 record.recordedAt,
-                                "HH:mm dd/MM/yyyy",
+                                "HH:mm dd/MM/yyyy"
                               )}
                             </TableCell>
                             <TableCell>{record.recordedByUserName}</TableCell>
@@ -362,19 +472,24 @@ const PondDetailModal = ({
 
                   {/* Pagination */}
                   {totalPages > 1 && (
-                    <PaginationWithLinks
-                      // totalCount={totalItems}
-                      pageSize={pageSize}
-                      page={currentPage}
-                      onPageChange={handlePageChange}
-                      onPageSizeChange={handlePageSizeChange}
-                    />
+                    <div className="mt-4">
+                      <PaginationWithLinks
+                        pageSize={pageSize}
+                        page={currentPage}
+                        onPageChange={handlePageChange}
+                        onPageSizeChange={handlePageSizeChange}
+                      />
+                    </div>
                   )}
                 </>
               ) : (
-                <div className="text-center py-12">
-                  <p className="text-muted-foreground">
+                <div className="text-center py-16 border-2 rounded-lg border-dashed">
+                  <Droplet className="h-12 w-12 mx-auto text-muted-foreground/50 mb-3" />
+                  <p className="text-muted-foreground font-medium">
                     Không có bản ghi thông số
+                  </p>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Chưa có dữ liệu ghi nhận thông số nước cho hồ này
                   </p>
                 </div>
               )}

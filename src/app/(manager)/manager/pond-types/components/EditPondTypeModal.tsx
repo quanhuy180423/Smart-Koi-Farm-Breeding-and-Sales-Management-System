@@ -91,7 +91,7 @@ const EditPondTypeModal = ({
                   })
                 }
               >
-                <SelectTrigger className="border-2 border-gray-300 focus:border-blue-500">
+                <SelectTrigger className="border-2 w-full border-gray-300 focus:border-blue-500">
                   <SelectValue placeholder="Chọn loại hồ" />
                 </SelectTrigger>
                 <SelectContent>

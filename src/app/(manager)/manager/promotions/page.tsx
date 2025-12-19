@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import * as z from "zod";
 import {
@@ -219,6 +219,13 @@ export default function PromotionManagement() {
     availableOnDate: availableOnDate || undefined,
   });
 
+  // Reset form when Create Dialog opens
+  useEffect(() => {
+    if (isCreateOpen) {
+      resetCreateForm();
+    }
+  }, [isCreateOpen]);
+
   const handleSearch = (value: string) => {
     setSearchTerm(value);
     setCurrentPage(1);
@@ -339,6 +346,8 @@ export default function PromotionManagement() {
     setImagePreviews(promotion.images || []);
     // Clear selected files since we're editing
     setSelectedImageFiles([]);
+    // Clear form errors
+    setFormErrors({});
     // Set form data from promotion
     setFormData({
       code: promotion.code,
@@ -1002,7 +1011,7 @@ export default function PromotionManagement() {
                     })
                   }
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="w-full">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>

@@ -1,4 +1,3 @@
-// components/ui/pagination-with-links.tsx
 "use client";
 
 import {
@@ -13,11 +12,11 @@ import {
 import { cn } from "@/lib/utils";
 
 interface PaginationProps {
-  totalCount?: number; // Tổng số item (cá)
-  pageSize: number; // Số item trên 1 trang
-  page: number; // Trang hiện tại
-  onPageChange: (page: number) => void; // Handler để thay đổi trang
-  onPageSizeChange?: (pageSize: number) => void; // Handler để thay đổi page size (optional)
+  totalCount?: number;
+  pageSize: number;
+  page: number;
+  onPageChange: (page: number) => void;
+  onPageSizeChange?: (pageSize: number) => void;
   className?: string;
 }
 
@@ -31,22 +30,20 @@ export function PaginationWithLinks({
 }: PaginationProps) {
   const totalPages = Math.ceil((totalCount || 0) / pageSize);
 
-  // Hàm handle click pagination
   const handlePageChange = (pageNumber: number | string) => {
     const pageNum =
       typeof pageNumber === "string" ? parseInt(pageNumber) : pageNumber;
     onPageChange(pageNum);
   };
 
-  // Logic tính toán hiển thị số trang (xử lý dấu ...)
   const renderPageNumbers = () => {
     const items = [];
-    const maxVisible = 5; // Số lượng nút hiển thị tối đa
+    const maxVisible = 5;
 
     if (totalPages <= maxVisible) {
       for (let i = 1; i <= totalPages; i++) items.push(i);
     } else {
-      items.push(1); // Luôn hiện trang 1
+      items.push(1);
 
       if (page > 3) items.push("...");
 
@@ -57,7 +54,7 @@ export function PaginationWithLinks({
 
       if (page < totalPages - 2) items.push("...");
 
-      items.push(totalPages); // Luôn hiện trang cuối
+      items.push(totalPages);
     }
     return items;
   };

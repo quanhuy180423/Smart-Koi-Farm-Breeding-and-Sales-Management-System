@@ -105,10 +105,11 @@ export const BreedingDetailDialog = ({
   const currentBreedingStatus =
     breedingProcess?.status || BreedingStatus.PAIRING;
 
-  const totalKept =
-    (breedingDetail?.classificationStage?.pondQualifiedCount || 0) +
-    (breedingDetail?.classificationStage?.highQualifiedCount || 0) +
-    (breedingDetail?.classificationStage?.showQualifiedCount || 0);
+  const totalKept = classificationStage
+    ? (classificationStage.pondQualifiedCount || 0) +
+      (classificationStage.highQualifiedCount || 0) +
+      (classificationStage.showQualifiedCount || 0)
+    : 0;
   const totalCulled = classificationRecords.reduce(
     (sum, record) => sum + (record.cullQualifiedCount || 0),
     0,
@@ -142,7 +143,7 @@ export const BreedingDetailDialog = ({
                   <CardContent className="grid grid-cols-2 gap-4">
                     <div className="bg-white/60 backdrop-blur border border-blue-100 rounded-lg p-3">
                       <p className="text-xs text-gray-500 font-medium">
-                        Mã chu kỳ
+                        Mã lai tạo
                       </p>
                       <p className="font-semibold text-gray-900 mt-1">
                         {breedingProcess.code}
@@ -207,7 +208,7 @@ export const BreedingDetailDialog = ({
                   </div>
                 ) : (
                   <Card className="border-0 bg-linear-to-br from-slate-50 to-slate-100 shadow-md">
-                    <CardHeader className="pb-4">
+                    <CardHeader>
                       <div className="flex items-center gap-2">
                         <div className="w-1 h-8 bg-linear-to-b from-blue-500 to-purple-500 rounded-full"></div>
                         <div>

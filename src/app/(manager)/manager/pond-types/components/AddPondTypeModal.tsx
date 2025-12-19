@@ -50,7 +50,7 @@ const AddPondTypeModal = ({
           Nhập thông tin chi tiết về loại hồ mới
         </DialogDescription>
       </DialogHeader>
-      <div className="space-y-6">
+      <div className="space-y-3">
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label htmlFor="type" className="text-sm font-medium text-gray-700">
@@ -65,7 +65,7 @@ const AddPondTypeModal = ({
                 })
               }
             >
-              <SelectTrigger className="border-2 border-gray-300 focus:border-blue-500">
+              <SelectTrigger className="border-2 w-full border-gray-300 focus:border-blue-500">
                 <SelectValue placeholder="Chọn loại hồ" />
               </SelectTrigger>
               <SelectContent>

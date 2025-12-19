@@ -58,7 +58,7 @@ export function IncidentDetailDialog({
           {/* Header Info */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Card>
-              <CardHeader className="pb-3">
+              <CardHeader>
                 <CardTitle className="text-sm font-medium flex items-center gap-2">
                   <AlertTriangle className="h-4 w-4" />
                   Thông tin cơ bản
@@ -84,7 +84,7 @@ export function IncidentDetailDialog({
             </Card>
 
             <Card>
-              <CardHeader className="pb-3">
+              <CardHeader>
                 <CardTitle className="text-sm font-medium flex items-center gap-2">
                   <Info className="h-4 w-4" />
                   Trạng thái & Mức độ
@@ -124,7 +124,7 @@ export function IncidentDetailDialog({
 
           {/* Timeline */}
           <Card>
-            <CardHeader className="pb-3">
+            <CardHeader>
               <CardTitle className="text-sm font-medium flex items-center gap-2">
                 <Calendar className="h-4 w-4" />
                 Thời gian
@@ -172,7 +172,7 @@ export function IncidentDetailDialog({
 
           {/* People */}
           <Card>
-            <CardHeader className="pb-3">
+            <CardHeader>
               <CardTitle className="text-sm font-medium flex items-center gap-2">
                 <User className="h-4 w-4" />
                 Người liên quan
@@ -201,7 +201,7 @@ export function IncidentDetailDialog({
           {/* Report Images */}
           {incident.reportImages && incident.reportImages.length > 0 && (
             <Card>
-              <CardHeader className="pb-3">
+              <CardHeader>
                 <CardTitle className="text-sm font-medium flex items-center gap-2">
                   <ImageIcon className="h-4 w-4" />
                   Hình ảnh báo cáo ({incident.reportImages.length})
@@ -231,7 +231,7 @@ export function IncidentDetailDialog({
           {/* Resolution Info */}
           {incident.resolutionNotes && (
             <Card>
-              <CardHeader className="pb-3">
+              <CardHeader>
                 <CardTitle className="text-sm font-medium flex items-center gap-2">
                   <CheckCircle className="h-4 w-4" />
                   Thông tin giải quyết
@@ -254,7 +254,7 @@ export function IncidentDetailDialog({
           {incident.resolutionImages &&
             incident.resolutionImages.length > 0 && (
               <Card>
-                <CardHeader className="pb-3">
+                <CardHeader>
                   <CardTitle className="text-sm font-medium flex items-center gap-2">
                     <ImageIcon className="h-4 w-4 text-green-600" />
                     Hình ảnh sau xử lý ({incident.resolutionImages.length})
@@ -284,7 +284,7 @@ export function IncidentDetailDialog({
           {/* Affected Koi */}
           {incident.koiIncidents && incident.koiIncidents.length > 0 && (
             <Card>
-              <CardHeader className="pb-3">
+              <CardHeader>
                 <CardTitle className="text-sm font-medium flex items-center gap-2">
                   <Fish className="h-4 w-4" />
                   Cá Koi bị ảnh hưởng ({incident.koiIncidents.length})
@@ -326,7 +326,7 @@ export function IncidentDetailDialog({
           {/* Affected Ponds */}
           {incident.pondIncidents && incident.pondIncidents.length > 0 && (
             <Card>
-              <CardHeader className="pb-3">
+              <CardHeader>
                 <CardTitle className="text-sm font-medium flex items-center gap-2">
                   <Waves className="h-4 w-4" />
                   Hồ bị ảnh hưởng ({incident.pondIncidents.length})

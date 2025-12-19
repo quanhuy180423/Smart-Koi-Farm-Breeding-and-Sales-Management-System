@@ -425,7 +425,7 @@ export default function ScheduleManagement() {
                                       <DropdownMenuItem
                                         onClick={() => handleDeleteTask(task)}
                                         disabled={isSaving}
-                                        className="text-red-600 focus:text-red-600 focus:bg-red-50"
+                                        className="text-red-600 focus:text-white focus:bg-red-500"
                                       >
                                         <Trash2 className="mr-2 h-4 w-4" />
                                         Xóa

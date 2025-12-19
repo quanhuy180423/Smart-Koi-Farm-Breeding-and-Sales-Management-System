@@ -649,8 +649,7 @@ export default function KoiManagement() {
         <KoiIncidentHistoryDialog
           isOpen={isIncidentHistoryOpen}
           onOpenChange={setIsIncidentHistoryOpen}
-          koiFishId={selectedKoi.id}
-          koiFishRFID={selectedKoi.rfid}
+          koiFish={selectedKoi}
         />
       )}
 
@@ -984,14 +983,14 @@ export default function KoiManagement() {
                   <span className="font-semibold">Lưu ý:</span> Sau khi xác
                   nhận, cá Koi này sẽ được chuyển sang trạng thái{" "}
                   <span className="font-semibold">
-                    `&quot;`Sẵn sàng sinh sản`&quot;`
+                    &quot;Sẵn sàng sinh sản&quot;
                   </span>{" "}
                   và có thể được sử dụng cho các quy trình lai tạo.
                 </p>
               </div>
             </div>
           )}
-          <DialogFooter className="gap-2 sm:gap-0">
+          <DialogFooter className="gap-2">
             <Button
               variant="outline"
               onClick={() => {

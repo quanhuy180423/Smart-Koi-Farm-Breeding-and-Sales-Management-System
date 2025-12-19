@@ -21,78 +21,75 @@ const TaskTemplateDetailModal = ({
   selectedTask,
 }: TaskTemplateDetailModalProps) => (
   <Dialog open={isOpen} onOpenChange={onOpenChange}>
-    <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-      <DialogHeader>
-        <DialogTitle className="text-xl font-semibold text-gray-800">
-          Chi tiết công việc: {selectedTask?.taskName}
+    <DialogContent className="max-w-2xl max-h-[85vh] flex flex-col">
+      <DialogHeader className="pb-4 border-b">
+        <DialogTitle className="text-lg font-semibold">
+          Chi tiết công việc
         </DialogTitle>
-        <DialogDescription>Thông tin chi tiết về công việc</DialogDescription>
+        <DialogDescription>Thông tin chi tiết về mẫu công việc</DialogDescription>
       </DialogHeader>
       {selectedTask && (
-        <div className="space-y-6">
-          <div className="grid grid-cols-2 gap-6">
-            {/* Left column */}
-            <div className="space-y-4">
-              <div>
-                <Label className="text-sm font-medium text-gray-600">
-                  Tên công việc
-                </Label>
-                <p className="text-base font-semibold text-gray-800 mt-1">
-                  {selectedTask.taskName}
-                </p>
-              </div>
+        <div className="space-y-4 overflow-y-auto flex-1 pr-1">
+          {/* Task Name Section */}
+          <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+            <Label className="text-xs text-gray-600 uppercase tracking-wide">
+              Tên công việc
+            </Label>
+            <p className="text-base font-semibold text-gray-900 mt-1.5">
+              {selectedTask.taskName}
+            </p>
+          </div>
 
-              <div>
-                <Label className="text-sm font-medium text-gray-600">
-                  Thời lượng mặc định
-                </Label>
-                <p className="text-base text-gray-800 mt-1">
-                  {selectedTask.defaultDuration} phút
-                </p>
-              </div>
+          {/* Duration Section */}
+          <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+            <Label className="text-xs text-gray-600 uppercase tracking-wide">
+              Thời lượng mặc định
+            </Label>
+            <p className="text-base text-gray-900 mt-1.5">
+              <span className="font-semibold">{selectedTask.defaultDuration}</span> phút
+            </p>
+          </div>
 
-              <div>
-                <Label className="text-sm font-medium text-gray-600">
-                  Ghi chú
-                </Label>
-                <p className="text-base text-gray-800 mt-1 whitespace-pre-wrap">
-                  {selectedTask.notesTask || "Không có ghi chú"}
-                </p>
-              </div>
-            </div>
+          {/* Description Section */}
+          <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+            <Label className="text-xs text-gray-600 uppercase tracking-wide">
+              Mô tả
+            </Label>
+            <p className="text-sm text-gray-900 mt-1.5 whitespace-pre-wrap leading-relaxed">
+              {selectedTask.description}
+            </p>
+          </div>
 
-            {/* Right column */}
-            <div className="space-y-4">
-              <div>
-                <Label className="text-sm font-medium text-gray-600">
-                  Mô tả
-                </Label>
-                <p className="text-base text-gray-800 mt-1 whitespace-pre-wrap">
-                  {selectedTask.description}
-                </p>
-              </div>
-            </div>
+          {/* Notes Section */}
+          <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+            <Label className="text-xs text-gray-600 uppercase tracking-wide">
+              Ghi chú
+            </Label>
+            <p className="text-sm text-gray-900 mt-1.5 whitespace-pre-wrap leading-relaxed">
+              {selectedTask.notesTask || (
+                <span className="italic text-gray-500">Không có ghi chú</span>
+              )}
+            </p>
           </div>
 
           {/* Metadata section */}
-          <div className="border-t pt-4 text-xs text-gray-500 space-y-1">
-            <p>
-              Tạo lúc:{" "}
-              <span className="text-gray-700">
-                {formatDate(selectedTask.createdAt, DATE_FORMATS.DATETIME_24H)}
-              </span>
-            </p>
-            {selectedTask.updatedAt && (
-              <p>
-                Cập nhật lúc:{" "}
+          <div className="pt-3 border-t border-gray-200">
+            <div className="flex flex-wrap gap-x-6 gap-y-1 text-xs text-gray-500">
+              <div>
+                <span className="font-medium">Tạo lúc:</span>{" "}
                 <span className="text-gray-700">
-                  {formatDate(
-                    selectedTask.updatedAt,
-                    DATE_FORMATS.DATETIME_24H,
-                  )}
+                  {formatDate(selectedTask.createdAt, DATE_FORMATS.DATETIME_24H)}
                 </span>
-              </p>
-            )}
+              </div>
+              {selectedTask.updatedAt && (
+                <div>
+                  <span className="font-medium">Cập nhật lúc:</span>{" "}
+                  <span className="text-gray-700">
+                    {formatDate(selectedTask.updatedAt, DATE_FORMATS.DATETIME_24H)}
+                  </span>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       )}

@@ -119,10 +119,10 @@ export default function BreedingManagement() {
   const [endDateFromInput, setEndDateFromInput] = useState<string>("");
   const [endDateToInput, setEndDateToInput] = useState<string>("");
   const [statusFilter, setStatusFilter] = useState<BreedingStatus | string>(
-    "all",
+    "all"
   );
   const [resultFilter, setResultFilter] = useState<BreedingResult | string>(
-    "all",
+    "all"
   );
   const [maleKoiIdInput, setMaleKoiIdInput] = useState<string>("");
   const [femaleKoiIdInput, setFemaleKoiIdInput] = useState<string>("");
@@ -175,7 +175,7 @@ export default function BreedingManagement() {
       maleKoiId: undefined,
       femaleKoiId: undefined,
       pondId: undefined,
-    },
+    }
   );
 
   const { data, isLoading } = useGetBreedingProcesses(searchParams);
@@ -431,7 +431,7 @@ export default function BreedingManagement() {
       value !== "" &&
       value !== searchParams.pageSize &&
       value !== searchParams.pageIndex &&
-      value !== searchParams.search,
+      value !== searchParams.search
   );
 
   return (
@@ -463,7 +463,7 @@ export default function BreedingManagement() {
             <div className="relative grow">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Tìm kiếm theo RFID cá bố/mẹ..."
+                placeholder="Tìm kiếm theo mã sinh sản, RFID cá bố/mẹ..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="border-2 border-gray-400 pl-10 pr-10"
@@ -570,6 +570,8 @@ export default function BreedingManagement() {
             <div className="space-y-3">
               <div className="flex gap-3">
                 <Skeleton className="h-10 w-16" />
+                <Skeleton className="h-10 w-20" />
+                <Skeleton className="h-10 flex-1" />
                 <Skeleton className="h-10 flex-1" />
                 <Skeleton className="h-10 flex-1" />
                 <Skeleton className="h-10 flex-1" />
@@ -580,6 +582,8 @@ export default function BreedingManagement() {
               {[...Array(5)].map((_, i) => (
                 <div key={i} className="flex gap-3">
                   <Skeleton className="h-12 w-16" />
+                  <Skeleton className="h-12 w-20" />
+                  <Skeleton className="h-12 flex-1" />
                   <Skeleton className="h-12 flex-1" />
                   <Skeleton className="h-12 flex-1" />
                   <Skeleton className="h-12 flex-1" />
@@ -594,13 +598,14 @@ export default function BreedingManagement() {
               <Table className="table-fixed w-full">
                 <TableHeader>
                   <TableRow className="">
-                    <TableHead className="w-[10%]">STT</TableHead>
-                    <TableHead className="w-[15%]">Cá đực (RFID)</TableHead>
-                    <TableHead className="w-[15%]">Cá cái (RFID)</TableHead>
-                    <TableHead className="w-[20%]">Thời gian diễn ra</TableHead>
-                    <TableHead className="w-[15%]">Giai đoạn</TableHead>
-                    <TableHead className="w-[15%]">Kết quả</TableHead>
-                    <TableHead className="w-[10%] text-center">
+                    <TableHead className="w-[5%]">STT</TableHead>
+                    <TableHead className="w-[13%]">Mã đợt lại</TableHead>
+                    <TableHead className="w-[13%]">Cá đực (RFID)</TableHead>
+                    <TableHead className="w-[13%]">Cá cái (RFID)</TableHead>
+                    <TableHead className="w-[17%]">Thời gian diễn ra</TableHead>
+                    <TableHead className="w-[13%]">Giai đoạn</TableHead>
+                    <TableHead className="w-[13%]">Kết quả</TableHead>
+                    <TableHead className="w-[8%] text-center">
                       Thao tác
                     </TableHead>
                   </TableRow>
@@ -609,7 +614,7 @@ export default function BreedingManagement() {
                 <TableBody>
                   {breedingProcesses.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={7} className="py-0">
+                      <TableCell colSpan={8} className="py-0">
                         <EmptyState
                           icon={Fish}
                           title="Chưa có đợt sinh sản nào"
@@ -641,6 +646,9 @@ export default function BreedingManagement() {
                               searchParams.pageSize}
                         </TableCell>
                         <TableCell className="truncate">
+                          {process.code}
+                        </TableCell>
+                        <TableCell className="truncate">
                           {process.maleKoiRFID}
                         </TableCell>
                         <TableCell className="truncate">
@@ -649,13 +657,13 @@ export default function BreedingManagement() {
                         <TableCell>
                           {formatDate(
                             process.startDate,
-                            DATE_FORMATS.MEDIUM_DATE,
+                            DATE_FORMATS.MEDIUM_DATE
                           )}{" "}
                           -{" "}
                           {process.endDate
                             ? formatDate(
                                 process.endDate,
-                                DATE_FORMATS.MEDIUM_DATE,
+                                DATE_FORMATS.MEDIUM_DATE
                               )
                             : "Chưa xác định"}
                         </TableCell>
@@ -666,7 +674,7 @@ export default function BreedingManagement() {
                               <TooltipTrigger asChild>
                                 {(() => {
                                   const label = getBreedingStatusLabel(
-                                    process.status,
+                                    process.status
                                   );
                                   return (
                                     <Badge
@@ -703,7 +711,7 @@ export default function BreedingManagement() {
                         <TableCell className="truncate">
                           {(() => {
                             const label = getBreedingResultLabel(
-                              process.result,
+                              process.result
                             );
                             return (
                               <Badge
@@ -810,32 +818,32 @@ export default function BreedingManagement() {
             setMinFishQualifiedInput(
               searchParams.minTotalFishQualified !== undefined
                 ? String(searchParams.minTotalFishQualified)
-                : "",
+                : ""
             );
             setMaxFishQualifiedInput(
               searchParams.maxTotalFishQualified !== undefined
                 ? String(searchParams.maxTotalFishQualified)
-                : "",
+                : ""
             );
             setMinTotalPackageInput(
               searchParams.minTotalPackage !== undefined
                 ? String(searchParams.minTotalPackage)
-                : "",
+                : ""
             );
             setMaxTotalPackageInput(
               searchParams.maxTotalPackage !== undefined
                 ? String(searchParams.maxTotalPackage)
-                : "",
+                : ""
             );
             setMinTotalEggsInput(
               searchParams.minTotalEggs !== undefined
                 ? String(searchParams.minTotalEggs)
-                : "",
+                : ""
             );
             setMaxTotalEggsInput(
               searchParams.maxTotalEggs !== undefined
                 ? String(searchParams.maxTotalEggs)
-                : "",
+                : ""
             );
             setFertilizationRateRange([
               searchParams.minFertilizationRate ?? 0,
@@ -854,43 +862,43 @@ export default function BreedingManagement() {
             setMaleKoiIdInput(
               searchParams.maleKoiId !== undefined
                 ? String(searchParams.maleKoiId)
-                : "",
+                : ""
             );
             setFemaleKoiIdInput(
               searchParams.femaleKoiId !== undefined
                 ? String(searchParams.femaleKoiId)
-                : "",
+                : ""
             );
             setPondIdInput(
               searchParams.pondId !== undefined
                 ? String(searchParams.pondId)
-                : "",
+                : ""
             );
             setCodeInput(searchParams.code || "");
           }
         }}
       >
-        <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+        <DialogContent className="max-w-4xl max-h-[85vh] flex flex-col">
           <DialogHeader>
-            <DialogTitle>Bộ lọc Đợt lai</DialogTitle>
+            <DialogTitle className="text-lg">Bộ lọc nâng cao</DialogTitle>
             <DialogDescription>
-              Lọc danh sách đợt sinh sản theo tiêu chí.
+              Tùy chỉnh tiêu chí để lọc danh sách đợt sinh sản
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="maleId">Cá Đực</Label>
+          <div className="space-y-6 overflow-y-auto flex-1 pr-2">
+            <div className="grid grid-cols-3 gap-3">
+              <div>
+                <Label className="text-sm font-medium">Cá Đực</Label>
                 <Button
                   variant="outline"
                   onClick={() => setIsMaleDialogOpen(true)}
-                  className="w-full justify-start text-left"
+                  className="w-full justify-start mt-1.5"
                 >
                   {selectedMaleName ? (
                     <span className="flex items-center justify-between w-full">
-                      <span>{selectedMaleName}</span>
+                      <span className="truncate">{selectedMaleName}</span>
                       <X
-                        className="h-4 w-4"
+                        className="h-4 w-4 shrink-0 ml-2"
                         onClick={(e) => {
                           e.stopPropagation();
                           handleClearMale();
@@ -902,18 +910,18 @@ export default function BreedingManagement() {
                   )}
                 </Button>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="femaleId">Cá Cái</Label>
+              <div>
+                <Label className="text-sm font-medium">Cá Cái</Label>
                 <Button
                   variant="outline"
                   onClick={() => setIsFemaleDialogOpen(true)}
-                  className="w-full justify-start text-left"
+                  className="w-full justify-start mt-1.5"
                 >
                   {selectedFemaleName ? (
                     <span className="flex items-center justify-between w-full">
-                      <span>{selectedFemaleName}</span>
+                      <span className="truncate">{selectedFemaleName}</span>
                       <X
-                        className="h-4 w-4"
+                        className="h-4 w-4 shrink-0 ml-2"
                         onClick={(e) => {
                           e.stopPropagation();
                           handleClearFemale();
@@ -925,18 +933,18 @@ export default function BreedingManagement() {
                   )}
                 </Button>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="pondId">Hồ cá</Label>
+              <div>
+                <Label className="text-sm font-medium">Hồ cá</Label>
                 <Button
                   variant="outline"
                   onClick={() => setIsPondDialogOpen(true)}
-                  className="w-full justify-start text-left"
+                  className="w-full justify-start mt-1.5"
                 >
                   {selectedPondName ? (
                     <span className="flex items-center justify-between w-full">
-                      <span>{selectedPondName}</span>
+                      <span className="truncate">{selectedPondName}</span>
                       <X
-                        className="h-4 w-4"
+                        className="h-4 w-4 shrink-0 ml-2"
                         onClick={(e) => {
                           e.stopPropagation();
                           handleClearPond();
@@ -949,20 +957,20 @@ export default function BreedingManagement() {
                 </Button>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="code">Mã Chu Kỳ</Label>
+              <div>
+                <Label className="text-sm font-medium">Mã lai tạo</Label>
                 <Input
-                  id="code"
                   value={codeInput}
                   onChange={(e) => setCodeInput(e.target.value)}
                   placeholder="BP-001..."
+                  className="mt-1.5"
                 />
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="status">Giai đoạn</Label>
+              <div>
+                <Label className="text-sm font-medium">Giai đoạn</Label>
                 <Select value={statusFilter} onValueChange={setStatusFilter}>
-                  <SelectTrigger>
+                  <SelectTrigger className="mt-1.5 w-full">
                     <SelectValue placeholder="Chọn giai đoạn" />
                   </SelectTrigger>
                   <SelectContent>
@@ -976,10 +984,10 @@ export default function BreedingManagement() {
                 </Select>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="result">Kết quả</Label>
+              <div>
+                <Label className="text-sm font-medium">Kết quả</Label>
                 <Select value={resultFilter} onValueChange={setResultFilter}>
-                  <SelectTrigger>
+                  <SelectTrigger className="mt-1.5 w-full">
                     <SelectValue placeholder="Chọn kết quả" />
                   </SelectTrigger>
                   <SelectContent>
@@ -994,103 +1002,101 @@ export default function BreedingManagement() {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-3 border-t pt-3">
-              <p className="text-sm font-semibold col-span-full -mb-1.5 text-muted-foreground">
-                Lọc theo Số lượng cá Đạt chuẩn
-              </p>
-              <div className="space-y-2 col-span-2 md:col-span-1">
-                <Label htmlFor="minFish">Tối thiểu</Label>
-                <InputNumber
-                  value={
-                    minFishQualifiedInput
-                      ? Number(minFishQualifiedInput)
-                      : undefined
-                  }
-                  onChange={(value) =>
-                    setMinFishQualifiedInput(value ? String(value) : "")
-                  }
-                  placeholder="Cá đạt chuẩn min"
-                />
-              </div>
-              <div className="space-y-2 col-span-2 md:col-span-1">
-                <Label htmlFor="maxFish">Tối đa</Label>
-                <InputNumber
-                  value={
-                    maxFishQualifiedInput
-                      ? Number(maxFishQualifiedInput)
-                      : undefined
-                  }
-                  onChange={(value) =>
-                    setMaxFishQualifiedInput(value ? String(value) : "")
-                  }
-                  placeholder="Cá đạt chuẩn max"
-                />
-              </div>
-
-              <p className="text-sm font-semibold col-span-full md:col-span-2 -mb-1.5 text-muted-foreground">
-                Lọc theo Số gói (Package)
-              </p>
-              <div className="space-y-2 col-span-2 md:col-span-1">
-                <Label htmlFor="minPackage">Tối thiểu</Label>
-                <InputNumber
-                  value={
-                    minTotalPackageInput
-                      ? Number(minTotalPackageInput)
-                      : undefined
-                  }
-                  onChange={(value) =>
-                    setMinTotalPackageInput(value ? String(value) : "")
-                  }
-                  placeholder="Gói min"
-                />
-              </div>
-              <div className="space-y-2 col-span-2 md:col-span-1">
-                <Label htmlFor="maxPackage">Tối đa</Label>
-                <InputNumber
-                  value={
-                    maxTotalPackageInput
-                      ? Number(maxTotalPackageInput)
-                      : undefined
-                  }
-                  onChange={(value) =>
-                    setMaxTotalPackageInput(value ? String(value) : "")
-                  }
-                  placeholder="Gói max"
-                />
-              </div>
-
-              <p className="text-sm font-semibold col-span-full md:col-span-2 -mb-1.5 text-muted-foreground">
-                Lọc theo Số trứng
-              </p>
-              <div className="space-y-2 col-span-2 md:col-span-1">
-                <Label htmlFor="minTotalEggs">Tối thiểu</Label>
-                <InputNumber
-                  value={
-                    minTotalEggsInput ? Number(minTotalEggsInput) : undefined
-                  }
-                  onChange={(value) =>
-                    setMinTotalEggsInput(value ? String(value) : "")
-                  }
-                  placeholder="Min"
-                />
-              </div>
-              <div className="space-y-2 col-span-2 md:col-span-1">
-                <Label htmlFor="maxTotalEggs">Tối đa</Label>
-                <InputNumber
-                  value={
-                    maxTotalEggsInput ? Number(maxTotalEggsInput) : undefined
-                  }
-                  onChange={(value) =>
-                    setMaxTotalEggsInput(value ? String(value) : "")
-                  }
-                  placeholder="Max"
-                />
+            <div className="space-y-4">
+              <h4 className="text-sm font-semibold text-gray-900">Số lượng</h4>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <Label className="text-sm">Cá đạt chuẩn (Min)</Label>
+                  <InputNumber
+                    value={
+                      minFishQualifiedInput
+                        ? Number(minFishQualifiedInput)
+                        : undefined
+                    }
+                    onChange={(value) =>
+                      setMinFishQualifiedInput(value ? String(value) : "")
+                    }
+                    placeholder="Min"
+                    className="mt-1.5"
+                  />
+                </div>
+                <div>
+                  <Label className="text-sm">Cá đạt chuẩn (Max)</Label>
+                  <InputNumber
+                    value={
+                      maxFishQualifiedInput
+                        ? Number(maxFishQualifiedInput)
+                        : undefined
+                    }
+                    onChange={(value) =>
+                      setMaxFishQualifiedInput(value ? String(value) : "")
+                    }
+                    placeholder="Max"
+                    className="mt-1.5"
+                  />
+                </div>
+                <div>
+                  <Label className="text-sm">Số gói (Min)</Label>
+                  <InputNumber
+                    value={
+                      minTotalPackageInput
+                        ? Number(minTotalPackageInput)
+                        : undefined
+                    }
+                    onChange={(value) =>
+                      setMinTotalPackageInput(value ? String(value) : "")
+                    }
+                    placeholder="Min"
+                    className="mt-1.5"
+                  />
+                </div>
+                <div>
+                  <Label className="text-sm">Số gói (Max)</Label>
+                  <InputNumber
+                    value={
+                      maxTotalPackageInput
+                        ? Number(maxTotalPackageInput)
+                        : undefined
+                    }
+                    onChange={(value) =>
+                      setMaxTotalPackageInput(value ? String(value) : "")
+                    }
+                    placeholder="Max"
+                    className="mt-1.5"
+                  />
+                </div>
+                <div>
+                  <Label className="text-sm">Số trứng (Min)</Label>
+                  <InputNumber
+                    value={
+                      minTotalEggsInput ? Number(minTotalEggsInput) : undefined
+                    }
+                    onChange={(value) =>
+                      setMinTotalEggsInput(value ? String(value) : "")
+                    }
+                    placeholder="Min"
+                    className="mt-1.5"
+                  />
+                </div>
+                <div>
+                  <Label className="text-sm">Số trứng (Max)</Label>
+                  <InputNumber
+                    value={
+                      maxTotalEggsInput ? Number(maxTotalEggsInput) : undefined
+                    }
+                    onChange={(value) =>
+                      setMaxTotalEggsInput(value ? String(value) : "")
+                    }
+                    placeholder="Max"
+                    className="mt-1.5"
+                  />
+                </div>
               </div>
 
-              <div className="space-y-2 col-span-full md:col-span-2">
-                <div className="flex justify-between items-center">
-                  <Label>Tỷ lệ thụ tinh (%)</Label>
-                  <span className="text-sm text-muted-foreground font-medium">
+              <div className="col-span-2">
+                <div className="flex justify-between items-center mb-2">
+                  <Label className="text-sm">Tỷ lệ thụ tinh</Label>
+                  <span className="text-sm font-medium text-gray-600">
                     {fertilizationRateRange[0]}% - {fertilizationRateRange[1]}%
                   </span>
                 </div>
@@ -1105,10 +1111,10 @@ export default function BreedingManagement() {
                 />
               </div>
 
-              <div className="space-y-2 col-span-full md:col-span-2">
-                <div className="flex justify-between items-center">
-                  <Label>Tỷ lệ sống sót (%)</Label>
-                  <span className="text-sm text-muted-foreground font-medium">
+              <div className="col-span-2">
+                <div className="flex justify-between items-center mb-2">
+                  <Label className="text-sm">Tỷ lệ sống sót</Label>
+                  <span className="text-sm font-medium text-gray-600">
                     {survivalRateRange[0]}% - {survivalRateRange[1]}%
                   </span>
                 </div>
@@ -1124,41 +1130,37 @@ export default function BreedingManagement() {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-3 border-t pt-3">
-              <p className="text-sm font-semibold col-span-full -mb-1.5 text-muted-foreground">
-                Lọc theo Thời gian BẮT ĐẦU
-              </p>
-              <DatePickerFilter
-                label="Từ ngày"
-                value={startDateFromInput}
-                onChange={setStartDateFromInput}
-              />
-              <DatePickerFilter
-                label="Đến ngày"
-                value={startDateToInput}
-                onChange={setStartDateToInput}
-              />
-
-              <p className="text-sm font-semibold col-span-full md:col-span-2 -mb-1.5 text-muted-foreground">
-                Lọc theo Thời gian KẾT THÚC
-              </p>
-              <DatePickerFilter
-                label="Từ ngày"
-                value={endDateFromInput}
-                onChange={setEndDateFromInput}
-              />
-              <DatePickerFilter
-                label="Đến ngày"
-                value={endDateToInput}
-                onChange={setEndDateToInput}
-              />
+            <div className="p-4 bg-gray-50 rounded-lg space-y-4">
+              <h4 className="text-sm font-semibold text-gray-900">Thời gian</h4>
+              <div className="grid grid-cols-2 gap-3">
+                <DatePickerFilter
+                  label="Bắt đầu (Từ)"
+                  value={startDateFromInput}
+                  onChange={setStartDateFromInput}
+                />
+                <DatePickerFilter
+                  label="Bắt đầu (Đến)"
+                  value={startDateToInput}
+                  onChange={setStartDateToInput}
+                />
+                <DatePickerFilter
+                  label="Kết thúc (Từ)"
+                  value={endDateFromInput}
+                  onChange={setEndDateFromInput}
+                />
+                <DatePickerFilter
+                  label="Kết thúc (Đến)"
+                  value={endDateToInput}
+                  onChange={setEndDateToInput}
+                />
+              </div>
             </div>
           </div>
-          <DialogFooter className="mt-3 flex justify-between sm:justify-between sticky bottom-0 bg-white pt-2 border-t">
+          <DialogFooter className="flex justify-between pt-4 border-t bg-white">
             <Button variant="outline" onClick={handleResetFilters}>
               Đặt lại
             </Button>
-            <Button onClick={handleApplyFilters}>Áp dụng bộ lọc</Button>
+            <Button onClick={handleApplyFilters}>Áp dụng</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
