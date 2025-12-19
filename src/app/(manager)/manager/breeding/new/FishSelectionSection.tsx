@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -70,7 +71,28 @@ interface FishSelectionProps {
   ) => void;
 }
 
+const CACHE_KEY = "breeding_criteria_cache";
+const CACHE_DURATION = 15 * 60 * 1000; // 15 minutes
+
+interface CachedBreedingData {
+  timestamp: number;
+  formData: {
+    targetVariety: string;
+    priority: string;
+    isMutation: boolean;
+    minHatchRate: string;
+    minSurvivalRate: string;
+  };
+  recommendedPairs: RecommendedPair[];
+}
+
 export function FishSelectionSection({ onSelection }: FishSelectionProps) {
+  const router = useRouter();
+  const searchParamsObj = useSearchParams();
+  const [activeTab, setActiveTab] = useState<string>(() => {
+    return searchParamsObj.get("tab") || "select-fish";
+  });
+
   const [selectedFatherId, setSelectedFatherId] = useState<number | null>(null);
   const [selectedMotherId, setSelectedMotherId] = useState<number | null>(null);
 
@@ -112,14 +134,71 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
     data: recommendData,
   } = useGetBreedingRecommend();
 
+  // Load cached data on mount
+  useEffect(() => {
+    const loadCachedData = () => {
+      try {
+        const cached = localStorage.getItem(CACHE_KEY);
+        if (cached) {
+          const parsedData: CachedBreedingData = JSON.parse(cached);
+          const now = Date.now();
+
+          // Check if cache is still valid (within 5 minutes)
+          if (now - parsedData.timestamp < CACHE_DURATION) {
+            // Restore form data
+            setTargetVariety(parsedData.formData.targetVariety);
+            setPriority(parsedData.formData.priority);
+            setIsMutation(parsedData.formData.isMutation);
+            setMinHatchRate(parsedData.formData.minHatchRate);
+            setMinSurvivalRate(parsedData.formData.minSurvivalRate);
+
+            // Restore recommended pairs
+            setRecommendedPairs(parsedData.recommendedPairs);
+          } else {
+            // Cache expired, remove it
+            localStorage.removeItem(CACHE_KEY);
+          }
+        }
+      } catch (error) {
+        console.error("Error loading cached data:", error);
+        localStorage.removeItem(CACHE_KEY);
+      }
+    };
+
+    loadCachedData();
+  }, []);
+
   useEffect(() => {
     if (recommendData?.isSuccess) {
-      setRecommendedPairs(recommendData.result.recommendedPairs || []);
-      if ((recommendData.result.recommendedPairs || []).length === 0) {
+      const pairs = recommendData.result.recommendedPairs || [];
+      setRecommendedPairs(pairs);
+
+      if (pairs.length === 0) {
         toast.error("Không tìm thấy cặp cá nào phù hợp với tiêu chí.");
+      } else {
+        // Save to cache when we get new results
+        const cacheData: CachedBreedingData = {
+          timestamp: Date.now(),
+          formData: {
+            targetVariety,
+            priority,
+            isMutation,
+            minHatchRate,
+            minSurvivalRate,
+          },
+          recommendedPairs: pairs,
+        };
+        localStorage.setItem(CACHE_KEY, JSON.stringify(cacheData));
       }
     }
-  }, [recommendData]);
+  }, [
+    recommendData,
+    targetVariety,
+    priority,
+    isMutation,
+    minHatchRate,
+    minSurvivalRate,
+  ]);
 
   const { data: varietiesData } = useGetVarieties({
     pageIndex: 1,
@@ -351,7 +430,14 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
         </p>
       </header>
 
-      <Tabs defaultValue="select-fish" className="w-full">
+      <Tabs
+        value={activeTab}
+        onValueChange={(tab) => {
+          setActiveTab(tab);
+          router.push(`/manager/breeding/new?tab=${tab}`);
+        }}
+        className="w-full"
+      >
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="select-fish">Chọn cá thủ công</TabsTrigger>
           <TabsTrigger value="criteria">Đề xuất theo tiêu chí</TabsTrigger>
@@ -870,9 +956,9 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
                               </strong>
                             </span>
                             <span>
-                              Tỷ lệ chất lượng cao:{" "}
+                              Trung bình cá con chất lượng cao:{" "}
                               <strong>
-                                {pair.predictedHighQualifiedRate?.toFixed(2)}%
+                                {pair.predictedHighQualifiedQuanity} con
                               </strong>
                             </span>
                             {pair.predictedMutationRate > 0 && (

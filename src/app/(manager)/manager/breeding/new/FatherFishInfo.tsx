@@ -106,10 +106,10 @@ export default function FatherFishInfo({ selectedFish }: FatherFishInfoProps) {
           : "Chưa có",
     },
     {
-      label: "Tỷ lệ cá con chất lượng tốt trung bình",
+      label: "Số lượng trung bình cá con chất lượng cao",
       value:
         breedingParentHistory?.highQualifiedRate !== null
-          ? `${breedingParentHistory?.highQualifiedRate?.toFixed(2)}%`
+          ? `${breedingParentHistory?.highQualifiedQuanity || 0} con`
           : "Chưa có",
     },
   ];

@@ -27,7 +27,6 @@ import {
   Loader2,
   Filter,
   MoreHorizontal,
-  Zap,
 } from "lucide-react";
 import {
   Table,
@@ -52,7 +51,6 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
-import toast from "react-hot-toast";
 import { AreaResponse, AreaSearchParams } from "@/lib/api/services/fetchArea";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -103,10 +101,10 @@ export default function AreaManagement() {
 
   // Error states for forms
   const [addFormErrors, setAddFormErrors] = useState<Record<string, string>>(
-    {}
+    {},
   );
   const [editFormErrors, setEditFormErrors] = useState<Record<string, string>>(
-    {}
+    {},
   );
 
   useEffect(() => {
@@ -420,12 +418,12 @@ export default function AreaManagement() {
             setMinAreaInput(
               searchParams.minTotalAreaSQM !== undefined
                 ? String(searchParams.minTotalAreaSQM)
-                : ""
+                : "",
             );
             setMaxAreaInput(
               searchParams.maxTotalAreaSQM !== undefined
                 ? String(searchParams.maxTotalAreaSQM)
-                : ""
+                : "",
             );
           }
         }}
@@ -740,31 +738,56 @@ export default function AreaManagement() {
       </Dialog>
 
       <Dialog open={isDetailModalOpen} onOpenChange={setIsDetailModalOpen}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>Chi tiết</DialogTitle>
+        <DialogContent className="max-w-2xl max-h-[85vh] flex flex-col">
+          <DialogHeader className="pb-4 border-b">
+            <DialogTitle className="text-lg font-semibold">
+              Chi tiết khu vực
+            </DialogTitle>
             <DialogDescription>
               Thông tin chi tiết của khu vực
             </DialogDescription>
           </DialogHeader>
           {selectedArea && (
-            <div className="space-y-4">
-              <p>
-                <strong>Tên khu vực:</strong> {selectedArea.areaName}
-              </p>
-              <p>
-                <strong>Diện tích:</strong> {selectedArea.totalAreaSQM || 0} m²
-              </p>
-              <p>
-                <strong>Mô tả:</strong> {selectedArea.description}
-              </p>
-              <div className="flex justify-end">
-                <Button onClick={() => setIsDetailModalOpen(false)}>
-                  Đóng
-                </Button>
+            <div className="space-y-4 overflow-y-auto flex-1 pr-1">
+              {/* Area Name Section */}
+              <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                <Label className="text-xs text-gray-600 uppercase tracking-wide">
+                  Tên khu vực
+                </Label>
+                <p className="text-base font-semibold text-gray-900 mt-1.5">
+                  {selectedArea.areaName}
+                </p>
+              </div>
+
+              {/* Area Size Section */}
+              <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                <Label className="text-xs text-gray-600 uppercase tracking-wide">
+                  Diện tích
+                </Label>
+                <p className="text-base text-gray-900 mt-1.5">
+                  <span className="font-semibold">
+                    {selectedArea.totalAreaSQM || 0}
+                  </span>{" "}
+                  m²
+                </p>
+              </div>
+
+              {/* Description Section */}
+              <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                <Label className="text-xs text-gray-600 uppercase tracking-wide">
+                  Mô tả
+                </Label>
+                <p className="text-sm text-gray-900 mt-1.5 whitespace-pre-wrap leading-relaxed">
+                  {selectedArea.description || (
+                    <span className="italic text-gray-500">Không có mô tả</span>
+                  )}
+                </p>
               </div>
             </div>
           )}
+          <div className="flex justify-end pt-4 border-t">
+            <Button onClick={() => setIsDetailModalOpen(false)}>Đóng</Button>
+          </div>
         </DialogContent>
       </Dialog>
 

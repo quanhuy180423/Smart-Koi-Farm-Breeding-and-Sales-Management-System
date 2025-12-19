@@ -41,16 +41,16 @@ export default function CreateWorkScheduleModal({
   scheduledDate,
 }: CreateWorkScheduleModalProps) {
   const [selectedTask, setSelectedTask] = useState<TaskTemplateResponse | null>(
-    null
+    null,
   );
   const [notes, setNotes] = useState("");
   const [startTime, setStartTime] = useState("");
   const [timeError, setTimeError] = useState<string>("");
   const [selectedStaffIds, setSelectedStaffIds] = useState<Set<number>>(
-    new Set()
+    new Set(),
   );
   const [selectedPondIds, setSelectedPondIds] = useState<Set<number>>(
-    new Set()
+    new Set(),
   );
   const [isStaffModalOpen, setIsStaffModalOpen] = useState(false);
   const [isPondModalOpen, setIsPondModalOpen] = useState(false);
@@ -123,7 +123,7 @@ export default function CreateWorkScheduleModal({
         },
         {
           message: "Giờ bắt đầu không được trước giờ hiện tại",
-        }
+        },
       );
 
       const result = timeSchema.safeParse(startTime);
@@ -166,7 +166,7 @@ export default function CreateWorkScheduleModal({
         onSuccess: () => {
           onOpenChange(false);
         },
-      }
+      },
     );
   };
 
@@ -354,7 +354,7 @@ export default function CreateWorkScheduleModal({
                 {Array.from(selectedPondIds).length > 0 ? (
                   pondsData?.data
                     ?.filter((pond: PondResponse) =>
-                      selectedPondIds.has(pond.id)
+                      selectedPondIds.has(pond.id),
                     )
                     .map((pond: PondResponse) => (
                       <Card

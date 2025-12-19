@@ -16,6 +16,7 @@ import {
   Heart,
   Truck,
   DollarSign,
+  TrendingDown,
 } from "lucide-react";
 import {
   useGetFarmDashboardStatistics,
@@ -166,18 +167,25 @@ export default function ManagerDashboard() {
                   </CardTitle>
                   <Icon className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
+
                 <CardContent>
                   <div className="text-2xl font-bold">{stat.value}</div>
-                  <p
-                    className={`text-xs ${
-                      stat.changeType === "positive"
-                        ? "text-green-600"
-                        : "text-red-600"
-                    } flex items-center gap-1`}
-                  >
-                    <TrendingUp className="h-3 w-3" />
-                    {stat.change} so với tháng trước
-                  </p>
+                  {stat.title !== "Tài khoản hoạt động" && (
+                    <p
+                      className={`text-xs ${
+                        stat.changeType === "positive"
+                          ? "text-green-600"
+                          : "text-red-600"
+                      } flex items-center gap-1`}
+                    >
+                      {stat.changeType === "positive" ? (
+                        <TrendingUp className="h-3 w-3" />
+                      ) : (
+                        <TrendingDown className="h-3 w-3" />
+                      )}
+                      {stat.change} so với tháng trước
+                    </p>
+                  )}
                 </CardContent>
               </Card>
             );

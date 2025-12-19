@@ -40,6 +40,7 @@ import {
   getIncidentStatusColor,
   getIncidentStatusText,
 } from "@/lib/utils/enum/formatEnum";
+import { Label } from "../ui/label";
 
 type FilterValue<T> = "all" | T;
 
@@ -184,10 +185,10 @@ export function IncidentList() {
         </div>
 
         {/* Filters Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 p-4 bg-muted/30 rounded-lg">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 bg-muted/30 rounded-lg">
           {/* Pond Filter */}
           <div className="space-y-2">
-            <label className="text-sm font-medium">Hồ cá</label>
+            <Label className="text-sm font-medium">Hồ cá</Label>
             <button
               onClick={() => setIsPondDialogOpen(true)}
               className="w-full px-3 py-2 text-sm text-left border border-input rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 flex items-center justify-between"
@@ -218,7 +219,7 @@ export function IncidentList() {
 
           {/* Koi Fish Filter */}
           <div className="space-y-2">
-            <label className="text-sm font-medium">Cá Koi</label>
+            <Label className="text-sm font-medium">Cá Koi</Label>
             <button
               onClick={() => setIsKoiFishDialogOpen(true)}
               className="w-full px-3 py-2 text-sm text-left border border-input rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 flex items-center justify-between"
@@ -249,7 +250,7 @@ export function IncidentList() {
 
           {/* Severity Filter */}
           <div className="space-y-2">
-            <label className="text-sm font-medium">Mức độ</label>
+            <Label className="text-sm font-medium">Mức độ</Label>
             <Select value={filterSeverity} onValueChange={handleSeverityChange}>
               <SelectTrigger className="w-full bg-white">
                 <SelectValue placeholder="Chọn mức độ" />
@@ -270,7 +271,7 @@ export function IncidentList() {
 
           {/* Status Filter */}
           <div className="space-y-2">
-            <label className="text-sm font-medium">Trạng thái</label>
+            <Label className="text-sm font-medium">Trạng thái</Label>
             <Select value={filterStatus} onValueChange={handleStatusChange}>
               <SelectTrigger className="w-full bg-white">
                 <SelectValue placeholder="Chọn trạng thái" />

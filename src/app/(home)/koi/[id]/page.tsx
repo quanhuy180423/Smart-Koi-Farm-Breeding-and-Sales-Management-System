@@ -766,7 +766,7 @@ export default function KoiDetailPage() {
                               {breedingHistory.breedingHistory.reduce(
                                 (total, item) =>
                                   total + item.totalFishQualified,
-                                0
+                                0,
                               )}
                             </div>
                             <div className="text-sm text-green-700">
@@ -777,7 +777,7 @@ export default function KoiDetailPage() {
                             <div className="text-2xl font-bold text-purple-600">
                               {breedingHistory.breedingHistory.reduce(
                                 (total, item) => total + item.totalPackage,
-                                0
+                                0,
                               )}
                             </div>
                             <div className="text-sm text-purple-700">
@@ -813,7 +813,7 @@ export default function KoiDetailPage() {
                                         Bắt đầu:{" "}
                                         {formatDate(
                                           history.startDate,
-                                          DATE_FORMATS.MEDIUM_DATE
+                                          DATE_FORMATS.MEDIUM_DATE,
                                         )}
                                       </div>
                                       {history.endDate && (
@@ -822,7 +822,7 @@ export default function KoiDetailPage() {
                                           Kết thúc:{" "}
                                           {formatDate(
                                             history.endDate,
-                                            DATE_FORMATS.MEDIUM_DATE
+                                            DATE_FORMATS.MEDIUM_DATE,
                                           )}
                                         </div>
                                       )}
@@ -891,40 +891,49 @@ export default function KoiDetailPage() {
                                     Thống kê sinh sản
                                   </h5>
                                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                    <div className="bg-blue-50 p-3 rounded-lg text-center border border-blue-200">
-                                      <div className="text-lg font-bold text-blue-600">
-                                        {history.totalEggs.toLocaleString()}
+                                    {history.totalEggs !== null && (
+                                      <div className="bg-blue-50 p-3 rounded-lg text-center border border-blue-200">
+                                        <div className="text-lg font-bold text-blue-600">
+                                          {history?.totalEggs?.toLocaleString()}
+                                        </div>
+                                        <div className="text-xs text-blue-700">
+                                          Tổng trứng
+                                        </div>
                                       </div>
-                                      <div className="text-xs text-blue-700">
-                                        Tổng trứng
+                                    )}
+                                    {history.fertilizationRate !== null && (
+                                      <div className="bg-green-50 p-3 rounded-lg text-center border border-green-200">
+                                        <div className="text-lg font-bold text-green-600">
+                                          {history?.fertilizationRate?.toFixed(
+                                            1,
+                                          )}
+                                          %
+                                        </div>
+                                        <div className="text-xs text-green-700">
+                                          Tỷ lệ thụ tinh
+                                        </div>
                                       </div>
-                                    </div>
-                                    <div className="bg-green-50 p-3 rounded-lg text-center border border-green-200">
-                                      <div className="text-lg font-bold text-green-600">
-                                        {history.fertilizationRate.toFixed(1)}%
-                                      </div>
-                                      <div className="text-xs text-green-700">
-                                        Tỷ lệ thụ tinh
-                                      </div>
-                                    </div>
+                                    )}
                                     {history.hatchingRate !== null && (
                                       <div className="bg-yellow-50 p-3 rounded-lg text-center border border-yellow-200">
                                         <div className="text-lg font-bold text-yellow-600">
-                                          {history.hatchingRate.toFixed(1)}%
+                                          {history?.hatchingRate?.toFixed(1)}%
                                         </div>
                                         <div className="text-xs text-yellow-700">
                                           Tỷ lệ nở
                                         </div>
                                       </div>
                                     )}
-                                    <div className="bg-purple-50 p-3 rounded-lg text-center border border-purple-200">
-                                      <div className="text-lg font-bold text-purple-600">
-                                        {history.survivalRate.toFixed(1)}%
+                                    {history.survivalRate !== null && (
+                                      <div className="bg-purple-50 p-3 rounded-lg text-center border border-purple-200">
+                                        <div className="text-lg font-bold text-purple-600">
+                                          {history?.survivalRate?.toFixed(1)}%
+                                        </div>
+                                        <div className="text-xs text-purple-700">
+                                          Tỷ lệ sống sót
+                                        </div>
                                       </div>
-                                      <div className="text-xs text-purple-700">
-                                        Tỷ lệ sống sót
-                                      </div>
-                                    </div>
+                                    )}
                                   </div>
                                 </div>
 
@@ -949,7 +958,7 @@ export default function KoiDetailPage() {
                                       <div className="text-center">
                                         <div className="text-lg font-bold text-orange-600">
                                           {history.mutationRate !== null
-                                            ? `${(history.mutationRate * 100).toFixed(1)}%`
+                                            ? `${history?.mutationRate?.toFixed(1) || 0}%`
                                             : "N/A"}
                                         </div>
                                         <div className="text-xs text-orange-700">
@@ -984,7 +993,7 @@ export default function KoiDetailPage() {
                                   )}
                               </CardContent>
                             </Card>
-                          )
+                          ),
                         )}
                       </div>
                     </div>

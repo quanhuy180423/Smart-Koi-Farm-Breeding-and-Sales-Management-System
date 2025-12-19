@@ -78,10 +78,10 @@ export default function ManagerOrderDetailPage() {
           toast.error(
             error instanceof Error
               ? error.message
-              : "Không thể hoàn tiền đơn hàng"
+              : "Không thể hoàn tiền đơn hàng",
           );
         },
-      }
+      },
     );
   };
 
@@ -183,9 +183,6 @@ export default function ManagerOrderDetailPage() {
                   <p className="font-medium">
                     {order.customerAddress.fullAddress}
                   </p>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    {order.customerAddress.ward}, {order.customerAddress.city}
-                  </p>
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground flex items-center gap-1">
@@ -237,9 +234,7 @@ export default function ManagerOrderDetailPage() {
             {order.note && (
               <div>
                 <p className="text-sm text-muted-foreground">Ghi chú</p>
-                <p className="font-medium text-amber-700 italic">
-                  {order.note}
-                </p>
+                <p className="font-medium italic">{order.note}</p>
               </div>
             )}
           </CardContent>

@@ -97,6 +97,7 @@ export interface BreedingParentHistoryResponse {
   hatchRate: number | null;
   survivalRate: number | null;
   highQualifiedRate: number | null;
+  highQualifiedQuanity?: number;
 }
 
 export interface BreedingRecommendRequest {
@@ -124,6 +125,7 @@ export interface RecommendedPair {
   predictedMutationRate: number;
   predictedMutationDescription: string;
   predictedSurvivalRate: number;
+  predictedHighQualifiedQuanity?: number;
   predictedHighQualifiedRate: number;
   percentInbreeding: number;
   rank: number;
@@ -152,9 +154,9 @@ export interface BreedingDetailResponse {
   totalFishQualified: number;
   totalPackage: number;
   koiFishes: KoiFishResponse[];
-  batch: EggBatchResponse;
-  fryFish: FryFishResponse;
-  classificationStage: ClassificationStageResponse;
+  batch: EggBatchResponse | null;
+  fryFish: FryFishResponse | null;
+  classificationStage: ClassificationStageResponse | null;
 }
 
 export interface BreedingRecommendResponse {
@@ -179,6 +181,7 @@ export interface AnalyzePairResponse {
   predictedFertilizationRate: number;
   predictedHatchRate: number;
   predictedSurvivalRate: number;
+  predictedHighQualifiedQuanity?: number;
   predictedHighQualifiedRate: number;
   percentInbreeding: number;
   predictedMutationRate: number;

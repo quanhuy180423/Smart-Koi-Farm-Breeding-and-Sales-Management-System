@@ -84,10 +84,10 @@ export default function EditWorkScheduleModal({
   const [notes, setNotes] = useState(workSchedule?.notes || "");
   const [startTime, setStartTime] = useState(workSchedule?.startTime || "");
   const [selectedStaffIds, setSelectedStaffIds] = useState<Set<number>>(
-    new Set(workSchedule?.staffAssignments?.map((s) => s.staffId) || [])
+    new Set(workSchedule?.staffAssignments?.map((s) => s.staffId) || []),
   );
   const [selectedPondIds, setSelectedPondIds] = useState<Set<number>>(
-    new Set(workSchedule?.pondAssignments.map((p) => p.pondId) || [])
+    new Set(workSchedule?.pondAssignments.map((p) => p.pondId) || []),
   );
   const [isStaffModalOpen, setIsStaffModalOpen] = useState(false);
   const [isPondModalOpen, setIsPondModalOpen] = useState(false);
@@ -136,10 +136,10 @@ export default function EditWorkScheduleModal({
       setNotes(workSchedule.notes || "");
       setStartTime(workSchedule.startTime || "");
       setSelectedStaffIds(
-        new Set(workSchedule.staffAssignments?.map((s) => s.staffId) || [])
+        new Set(workSchedule.staffAssignments?.map((s) => s.staffId) || []),
       );
       setSelectedPondIds(
-        new Set(workSchedule.pondAssignments.map((p) => p.pondId) || [])
+        new Set(workSchedule.pondAssignments.map((p) => p.pondId) || []),
       );
     }
   }, [workSchedule?.id, workSchedule]);
@@ -185,7 +185,7 @@ export default function EditWorkScheduleModal({
           setSelectedTaskForEditing(null);
           onOpenChange(false);
         },
-      }
+      },
     );
   };
 
@@ -233,10 +233,10 @@ export default function EditWorkScheduleModal({
     // Reset all unsaved changes when canceling edit mode
     if (workSchedule) {
       setSelectedStaffIds(
-        new Set(workSchedule.staffAssignments?.map((s) => s.staffId) || [])
+        new Set(workSchedule.staffAssignments?.map((s) => s.staffId) || []),
       );
       setSelectedPondIds(
-        new Set(workSchedule.pondAssignments.map((p) => p.pondId) || [])
+        new Set(workSchedule.pondAssignments.map((p) => p.pondId) || []),
       );
       setNotes(workSchedule.notes || "");
       setStartTime(workSchedule.startTime || "");
@@ -471,7 +471,7 @@ export default function EditWorkScheduleModal({
                               </span>
                               <p className="text-gray-600">
                                 {new Date(
-                                  assignment.completedAt
+                                  assignment.completedAt,
                                 ).toLocaleString("vi-VN")}
                               </p>
                               {assignment.completionNotes && (
@@ -498,7 +498,7 @@ export default function EditWorkScheduleModal({
                                             onClick={() =>
                                               handleOpenImageViewer(
                                                 assignment.images,
-                                                index
+                                                index,
                                               )
                                             }
                                           >
@@ -510,7 +510,7 @@ export default function EditWorkScheduleModal({
                                               sizes="(max-width: 768px) 50vw, 150px"
                                             />
                                           </div>
-                                        )
+                                        ),
                                       )}
                                     </div>
                                   </div>
@@ -559,7 +559,7 @@ export default function EditWorkScheduleModal({
                   Array.from(selectedPondIds).length > 0 ? (
                     pondsData?.data
                       ?.filter((pond: PondResponse) =>
-                        selectedPondIds.has(pond.id)
+                        selectedPondIds.has(pond.id),
                       )
                       .map((pond: PondResponse) => (
                         <Card
@@ -700,20 +700,6 @@ export default function EditWorkScheduleModal({
             </AlertDialogTitle>
             <AlertDialogDescription className="text-center">
               <div className="space-y-3">
-                <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-left">
-                  <p className="text-sm text-red-800">
-                    ⚠️ <strong>Cảnh báo:</strong> Việc xóa công việc sẽ xóa vĩnh
-                    viễn tất cả thông tin liên quan.
-                  </p>
-                  <p className="text-sm text-red-800 mt-2">
-                    📅 <strong>Bị ảnh hưởng:</strong> Lịch làm việc của nhân
-                    viên được phân công.
-                  </p>
-                  <p className="text-sm text-red-800 mt-2">
-                    🚫 <strong>Không thể hoàn tác:</strong> Hành động này là
-                    vĩnh viễn và không thể được khôi phục.
-                  </p>
-                </div>
                 <div className="bg-gray-50 border border-gray-200 rounded-lg p-3 text-left">
                   <p className="text-sm text-gray-700">
                     <span className="font-semibold">Công việc:</span>{" "}

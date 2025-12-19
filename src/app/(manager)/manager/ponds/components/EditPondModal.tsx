@@ -28,68 +28,54 @@ import {
 const waterParametersSchema = z.object({
   phLevel: z
     .string()
-    .optional()
-    .refine((val) => {
-      if (!val) return true;
-      const num = parseFloat(val);
-      return !isNaN(num) && num >= 0;
-    }, "pH Level phải >= 0"),
+    .min(1, "Vui lòng nhập pH Level")
+    .refine(
+      (val) => !isNaN(Number(val)) && Number(val) >= 0,
+      "pH Level phải >= 0",
+    ),
   temperatureCelsius: z
     .string()
-    .optional()
-    .refine((val) => {
-      if (!val) return true;
-      const num = parseFloat(val);
-      return !isNaN(num);
-    }, "Nhiệt độ phải là số hợp lệ"),
+    .min(1, "Vui lòng nhập Nhiệt độ")
+    .refine((val) => !isNaN(Number(val)), "Nhiệt độ phải là số hợp lệ"),
   oxygenLevel: z
     .string()
-    .optional()
-    .refine((val) => {
-      if (!val) return true;
-      const num = parseFloat(val);
-      return !isNaN(num) && num >= 0;
-    }, "Oxy phải >= 0"),
+    .min(1, "Vui lòng nhập Oxy")
+    .refine((val) => !isNaN(Number(val)) && Number(val) >= 0, "Oxy phải >= 0"),
   ammoniaLevel: z
     .string()
-    .optional()
-    .refine((val) => {
-      if (!val) return true;
-      const num = parseFloat(val);
-      return !isNaN(num) && num >= 0;
-    }, "Ammonia phải >= 0"),
+    .min(1, "Vui lòng nhập Ammonia")
+    .refine(
+      (val) => !isNaN(Number(val)) && Number(val) >= 0,
+      "Ammonia phải >= 0",
+    ),
   nitriteLevel: z
     .string()
-    .optional()
-    .refine((val) => {
-      if (!val) return true;
-      const num = parseFloat(val);
-      return !isNaN(num) && num >= 0;
-    }, "Nitrite phải >= 0"),
+    .min(1, "Vui lòng nhập Nitrite")
+    .refine(
+      (val) => !isNaN(Number(val)) && Number(val) >= 0,
+      "Nitrite phải >= 0",
+    ),
   nitrateLevel: z
     .string()
-    .optional()
-    .refine((val) => {
-      if (!val) return true;
-      const num = parseFloat(val);
-      return !isNaN(num) && num >= 0;
-    }, "Nitrate phải >= 0"),
+    .min(1, "Vui lòng nhập Nitrate")
+    .refine(
+      (val) => !isNaN(Number(val)) && Number(val) >= 0,
+      "Nitrate phải >= 0",
+    ),
   carbonHardness: z
     .string()
-    .optional()
-    .refine((val) => {
-      if (!val) return true;
-      const num = parseFloat(val);
-      return !isNaN(num) && num >= 0;
-    }, "Carbon Hardness phải >= 0"),
+    .min(1, "Vui lòng nhập Độ cứng")
+    .refine(
+      (val) => !isNaN(Number(val)) && Number(val) >= 0,
+      "Carbon Hardness phải >= 0",
+    ),
   waterLevelMeters: z
     .string()
-    .optional()
-    .refine((val) => {
-      if (!val) return true;
-      const num = parseFloat(val);
-      return !isNaN(num) && num >= 0;
-    }, "Mức nước phải >= 0"),
+    .min(1, "Vui lòng nhập Mực nước")
+    .refine(
+      (val) => !isNaN(Number(val)) && Number(val) >= 0,
+      "Mực nước phải >= 0",
+    ),
   notes: z.string().optional(),
 });
 
@@ -99,41 +85,16 @@ const pondSchema = z
     location: z.string().min(1, "Vui lòng nhập địa điểm"),
     lengthMeters: z
       .string()
-      .min(1, "Vui lòng nhập chiều dài")
-      .refine((val) => {
-        const num = parseFloat(val);
-        return !isNaN(num) && num > 0;
-      }, "Chiều dài phải lớn hơn 0"),
+      .refine((val) => val && Number(val) > 0, "Chiều dài phải lớn hơn 0"),
     widthMeters: z
       .string()
-      .min(1, "Vui lòng nhập chiều rộng")
-      .refine((val) => {
-        const num = parseFloat(val);
-        return !isNaN(num) && num > 0;
-      }, "Chiều rộng phải lớn hơn 0"),
+      .refine((val) => val && Number(val) > 0, "Chiều rộng phải lớn hơn 0"),
     depthMeters: z
       .string()
-      .min(1, "Vui lòng nhập độ sâu")
-      .refine((val) => {
-        const num = parseFloat(val);
-        return !isNaN(num) && num > 0;
-      }, "Độ sâu phải lớn hơn 0"),
-    currentCapacity: z
-      .string()
-      .min(1, "Vui lòng nhập dung tích")
-      .refine((val) => {
-        const num = parseFloat(val);
-        return !isNaN(num) && num > 0;
-      }, "Dung tích phải lớn hơn 0"),
-    areaId: z
-      .string()
-      .min(1, "Vui lòng chọn khu vực")
-      .refine((val) => val !== "", "Khu vực không được để trống"),
-    pondTypeId: z
-      .string()
-      .min(1, "Vui lòng chọn loại hồ")
-      .refine((val) => val !== "", "Loại hồ không được để trống"),
-    record: waterParametersSchema.optional(),
+      .refine((val) => val && Number(val) > 0, "Độ sâu phải lớn hơn 0"),
+    areaId: z.string().min(1, "Vui lòng chọn khu vực"),
+    pondTypeId: z.string().min(1, "Vui lòng chọn loại hồ"),
+    record: waterParametersSchema,
   })
   .refine(
     (data) => {
@@ -146,7 +107,7 @@ const pondSchema = z
       return true;
     },
     {
-      message: "Mức nước không được lớn hơn độ sâu của hồ",
+      message: "Mực nước không được lớn hơn độ sâu của hồ",
       path: ["record", "waterLevelMeters"],
     },
   );
@@ -181,6 +142,7 @@ const EditPondModal = ({
   getPondTypeNameById,
 }: EditPondModalProps) => {
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+  const [activeTab, setActiveTab] = useState("basic");
 
   const waterParamLabels: Record<string, string> = {
     phLevel: "pH Level",
@@ -200,7 +162,6 @@ const EditPondModal = ({
       lengthMeters: editPondForm.lengthMeters,
       widthMeters: editPondForm.widthMeters,
       depthMeters: editPondForm.depthMeters,
-      currentCapacity: editPondForm.currentCapacity,
       areaId: editPondForm.areaId,
       pondTypeId: editPondForm.pondTypeId,
       record: editPondForm.record,
@@ -215,8 +176,40 @@ const EditPondModal = ({
             ? error.path.join(".")
             : (error.path[0] as string);
         errors[pathKey] = error.message;
+
+        // Also add without "record." prefix for inline validation
+        if (pathKey.startsWith("record.")) {
+          const fieldName = pathKey.replace("record.", "");
+          errors[fieldName] = error.message;
+        }
       });
       setFormErrors(errors);
+
+      // Automatically switch to the tab with errors
+      const basicFields = [
+        "pondName",
+        "location",
+        "lengthMeters",
+        "widthMeters",
+        "depthMeters",
+        "areaId",
+        "pondTypeId",
+        "currentCapacity",
+        "pondStatus",
+      ];
+      const hasBasicErrors = Object.keys(errors).some((key) =>
+        basicFields.includes(key),
+      );
+      const hasWaterErrors = Object.keys(errors).some(
+        (key) => !basicFields.includes(key),
+      );
+
+      // Prioritize basic tab if it has errors, otherwise go to water tab
+      if (hasBasicErrors) {
+        setActiveTab("basic");
+      } else if (hasWaterErrors) {
+        setActiveTab("water");
+      }
       return;
     }
 
@@ -227,19 +220,66 @@ const EditPondModal = ({
   const clearFieldError = (fieldName: string) => {
     if (formErrors[fieldName]) {
       setFormErrors((prev) => {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { [fieldName]: _, ...rest } = prev;
+        const rest = { ...prev };
+        delete rest[fieldName];
         return rest;
       });
     }
   };
 
   const validateWaterParam = (fieldName: string, value: string): boolean => {
-    if (!value) return true; // empty is ok for optional
+    if (!value) return false; // empty is NOT ok - now required
     const num = parseFloat(value);
     if (isNaN(num)) return false;
     return num >= 0;
   };
+
+  // const handleWaterParamBlur = (
+  //   fieldName: string,
+  //   value: string | undefined
+  // ) => {
+  //   if (!value) {
+  //     const label = waterParamLabels[fieldName] || fieldName;
+  //     setFormErrors((prev) => ({
+  //       ...prev,
+  //       [fieldName]: `Vui lòng nhập ${label}`,
+  //     }));
+  //   } else {
+  //     const num = parseFloat(value);
+  //     if (isNaN(num) || num < 0) {
+  //       const label = waterParamLabels[fieldName] || fieldName;
+  //       setFormErrors((prev) => ({
+  //         ...prev,
+  //         [fieldName]: `${label} phải là số >= 0`,
+  //       }));
+  //     } else if (fieldName === "waterLevelMeters" && editPondForm.depthMeters) {
+  //       const waterLevel = Number(value);
+  //       const depth = Number(editPondForm.depthMeters);
+  //       if (waterLevel > depth) {
+  //         setFormErrors((prev) => ({
+  //           ...prev,
+  //           [fieldName]: "Mực nước không được lớn hơn độ sâu của hồ",
+  //         }));
+  //       } else {
+  //         // Clear both error keys
+  //         setFormErrors((prev) => {
+  //           const rest = { ...prev };
+  //           delete rest[fieldName];
+  //           delete rest[`record.${fieldName}`];
+  //           return rest;
+  //         });
+  //       }
+  //     } else {
+  //       // Clear both error keys
+  //       setFormErrors((prev) => {
+  //         const rest = { ...prev };
+  //         delete rest[fieldName];
+  //         delete rest[`record.${fieldName}`];
+  //         return rest;
+  //       });
+  //     }
+  //   }
+  // };
 
   const handleWaterParamChange = (
     fieldName:
@@ -272,15 +312,39 @@ const EditPondModal = ({
       },
     });
 
+    // Clear both error keys (with and without "record." prefix)
+    setFormErrors((prev) => {
+      const rest = { ...prev };
+      delete rest[fieldName];
+      delete rest[`record.${fieldName}`];
+      return rest;
+    });
+
     // Validate immediately
-    if (strValue && !validateWaterParam(fieldName as string, strValue)) {
+    if (!strValue) {
+      const label = waterParamLabels[fieldName] || fieldName;
+      setFormErrors((prev) => ({
+        ...prev,
+        [fieldName]: `Vui lòng nhập ${label}`,
+      }));
+    } else if (!validateWaterParam(fieldName as string, strValue)) {
       const label = waterParamLabels[fieldName] || fieldName;
       setFormErrors((prev) => ({
         ...prev,
         [fieldName]: `${label} phải là số >= 0`,
       }));
     } else {
-      clearFieldError(fieldName as string);
+      // Special validation for water level vs depth
+      if (fieldName === "waterLevelMeters" && editPondForm.depthMeters) {
+        const waterLevel = Number(strValue);
+        const depth = Number(editPondForm.depthMeters);
+        if (waterLevel > depth) {
+          setFormErrors((prev) => ({
+            ...prev,
+            [fieldName]: "Mực nước không được lớn hơn độ sâu của hồ",
+          }));
+        }
+      }
     }
   };
 
@@ -288,6 +352,7 @@ const EditPondModal = ({
     onOpenChange(open);
     if (!open) {
       setFormErrors({});
+      setActiveTab("basic");
     }
   };
 
@@ -304,7 +369,11 @@ const EditPondModal = ({
         </DialogHeader>
         {editingPond && (
           <div className="space-y-6">
-            <Tabs defaultValue="basic" className="w-full">
+            <Tabs
+              value={activeTab}
+              onValueChange={setActiveTab}
+              className="w-full"
+            >
               <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="basic">Thông tin cơ bản</TabsTrigger>
                 <TabsTrigger value="water">Thông số nước</TabsTrigger>
@@ -529,6 +598,23 @@ const EditPondModal = ({
                           depthMeters: value ? String(value) : "",
                         });
                         clearFieldError("depthMeters");
+
+                        // Re-validate water level if depth changes
+                        if (value && editPondForm.record?.waterLevelMeters) {
+                          const waterLevel = Number(
+                            editPondForm.record.waterLevelMeters,
+                          );
+                          const newDepth = Number(value);
+                          if (waterLevel > newDepth) {
+                            setFormErrors((prev) => ({
+                              ...prev,
+                              waterLevelMeters:
+                                "Mực nước không được lớn hơn độ sâu của hồ",
+                            }));
+                          } else {
+                            clearFieldError("waterLevelMeters");
+                          }
+                        }
                       }}
                       onBlur={() => {
                         const num = parseFloat(editPondForm.depthMeters);
@@ -559,53 +645,6 @@ const EditPondModal = ({
                   </div>
                   <div className="space-y-2">
                     <Label
-                      htmlFor="edit-capacity"
-                      className="text-sm font-medium text-gray-700"
-                    >
-                      Dung tích (Lít) <span className="text-red-500">*</span>
-                    </Label>
-                    <InputNumber
-                      value={
-                        editPondForm.currentCapacity
-                          ? Number(editPondForm.currentCapacity)
-                          : undefined
-                      }
-                      onChange={(value) => {
-                        setEditPondForm({
-                          ...editPondForm,
-                          currentCapacity: value ? String(value) : "",
-                        });
-                        clearFieldError("currentCapacity");
-                      }}
-                      onBlur={() => {
-                        const num = parseFloat(editPondForm.currentCapacity);
-                        if (
-                          editPondForm.currentCapacity &&
-                          !isNaN(num) &&
-                          num <= 0
-                        ) {
-                          setFormErrors((prev) => ({
-                            ...prev,
-                            currentCapacity: "Dung tích phải lớn hơn 0",
-                          }));
-                        }
-                      }}
-                      placeholder="Dung tích hiện tại (Lít)"
-                      allowDecimal={true}
-                      className={`border-2 focus:border-blue-500 ${
-                        formErrors.currentCapacity
-                          ? "border-red-500"
-                          : "border-gray-300"
-                      }`}
-                    />
-                    {formErrors.currentCapacity && (
-                      <p className="text-sm text-red-500">
-                        {formErrors.currentCapacity}
-                      </p>
-                    )}
-                  </div>
-                  <div className="space-y-2">
-                    <Label
                       htmlFor="edit-status"
                       className="text-sm font-medium text-gray-700"
                     >
@@ -617,7 +656,7 @@ const EditPondModal = ({
                         setEditPondForm({ ...editPondForm, pondStatus: value })
                       }
                     >
-                      <SelectTrigger className="border-2 border-gray-300 focus:border-blue-500">
+                      <SelectTrigger className="border-2 w-full border-gray-300 focus:border-blue-500">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -979,13 +1018,14 @@ const EditPondModal = ({
           <Button
             variant="outline"
             onClick={() => handleDialogOpenChange(false)}
-            className="px-6"
+            className="px-6 cursor-pointer"
           >
             Hủy
           </Button>
           <Button
             onClick={handleUpdatePondWithValidation}
             disabled={editingPond === null || isPending}
+            className="cursor-pointer"
           >
             {isPending ? (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />

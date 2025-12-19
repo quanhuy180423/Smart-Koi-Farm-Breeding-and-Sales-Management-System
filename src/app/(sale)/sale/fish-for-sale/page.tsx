@@ -79,10 +79,13 @@ export default function FishForSalePage() {
   });
   const [isAddFishDialogOpen, setIsAddFishDialogOpen] = useState(false);
   const [selectedKoi, setSelectedKoi] = useState<KoiFishResponse | null>(null);
+  const [selectedKoiInAddDialog, setSelectedKoiInAddDialog] =
+    useState<KoiFishResponse | null>(null);
   const [fishToRemove, setFishToRemove] = useState<KoiFishResponse | null>(
     null,
   );
   const [isRemovingFishId, setIsRemovingFishId] = useState<number | null>(null);
+  const [isAddingFishId, setIsAddingFishId] = useState<number | null>(null);
   const [activeTab, setActiveTab] = useState<string>("available");
   const [isPedigreeModalOpen, setIsPedigreeModalOpen] = useState(false);
   const [pedigreeKoi, setPedigreeKoi] = useState<KoiFishResponse | null>(null);
@@ -116,6 +119,48 @@ export default function FishForSalePage() {
 
   const handlePageSizeChange = (size: number) => {
     setSearchParams((prev) => ({ ...prev, pageSize: size, pageIndex: 1 }));
+  };
+
+  const handleAddFish = (koi: KoiFishResponse) => {
+    setIsAddingFishId(koi.id);
+
+    const requestBody: KoiFishUpdateRequest = {
+      rfid: koi.rfid,
+      pondId: koi.pond.id,
+      varietyId: koi.variety.id,
+      breedingProcessId: koi.breedingProcess?.id ?? undefined,
+      size: parseSizeToNumber(koi.size),
+      type: koi.type,
+      pattern: koi.pattern ?? "",
+      birthDate: koi.birthDate ?? "",
+      gender: koi.gender,
+      healthStatus: koi.healthStatus,
+      origin: koi.origin ?? "",
+      images: koi.images,
+      videos: koi.videos,
+      sellingPrice: koi.sellingPrice ?? 0,
+      description: koi.description,
+      isMutated: koi.isMutated ?? false,
+      mutationDescription: koi.mutationDescription ?? "",
+      // Field cần update
+      saleStatus: SaleStatus.AVAILABLE,
+    };
+
+    updateFish(
+      {
+        id: koi.id,
+        request: requestBody,
+      },
+      {
+        onSuccess: () => {
+          setSelectedKoiInAddDialog(null);
+          setIsAddFishDialogOpen(false);
+        },
+        onSettled: () => {
+          setIsAddingFishId(null);
+        },
+      },
+    );
   };
 
   const handleRemoveFromSaleList = (koi: KoiFishResponse) => {
@@ -184,7 +229,10 @@ export default function FishForSalePage() {
                 <span className="hidden sm:inline">Thêm cá mới</span>
               </Button>
             </DialogTrigger>
-            <AddFishDialog onClose={() => setIsAddFishDialogOpen(false)} />
+            <AddFishDialog
+              onSelectedKoiChange={setSelectedKoiInAddDialog}
+              updatingFishId={isAddingFishId}
+            />
           </Dialog>
         </div>
       </div>
@@ -618,6 +666,22 @@ export default function FishForSalePage() {
         onOpenChange={(open) => !open && setSelectedKoi(null)}
         koi={selectedKoi}
         showPricingInfo={true}
+      />
+
+      {/* Detail Dialog for Add Fish Dialog */}
+      <KoiDetailDialog
+        isOpen={!!selectedKoiInAddDialog}
+        onOpenChange={(open) => !open && setSelectedKoiInAddDialog(null)}
+        koi={selectedKoiInAddDialog}
+        showPricingInfo={false}
+        onSelectFish={(koi) => {
+          setSelectedKoiInAddDialog(null);
+          handleAddFish(koi);
+        }}
+        onSelectLabel="Thêm vào danh sách bán"
+        isSelectLoading={
+          isAddingFishId === selectedKoiInAddDialog?.id && isUpdating
+        }
       />
 
       {/* Remove from Sale List Confirmation Dialog */}

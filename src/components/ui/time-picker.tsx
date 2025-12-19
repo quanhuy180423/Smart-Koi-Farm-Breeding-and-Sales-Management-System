@@ -24,7 +24,7 @@ export function TimePicker({
   // --- LOGIC XỬ LÝ GIỜ/PHÚT (Giữ nguyên logic cũ vì nó đã chuẩn) ---
   const [selectedHour, setSelectedHour] = React.useState<number | null>(null);
   const [selectedMinute, setSelectedMinute] = React.useState<number | null>(
-    null
+    null,
   );
 
   React.useEffect(() => {
@@ -40,7 +40,7 @@ export function TimePicker({
   const hours = Array.from({ length: 24 }, (_, i) => i);
   const minutes = Array.from(
     { length: 60 / minuteStep },
-    (_, i) => i * minuteStep
+    (_, i) => i * minuteStep,
   );
 
   const handleSelect = (type: "hour" | "minute", val: number) => {

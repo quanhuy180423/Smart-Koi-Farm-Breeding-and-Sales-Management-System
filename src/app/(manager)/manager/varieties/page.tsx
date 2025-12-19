@@ -11,7 +11,6 @@ import {
   Loader2,
   Filter,
   MoreHorizontal,
-  Zap,
 } from "lucide-react";
 import {
   Card,
@@ -82,7 +81,7 @@ export default function VarietyManagement() {
   const [isAddModalOpen, setIsAddModalOpen] = useState<boolean>(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false);
   const [editingVariety, setEditingVariety] = useState<VarietyResponse | null>(
-    null
+    null,
   );
 
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
@@ -215,7 +214,7 @@ export default function VarietyManagement() {
           setIsEditModalOpen(false);
           setEditingVariety(null);
         },
-      }
+      },
     );
   };
 

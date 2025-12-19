@@ -127,7 +127,7 @@ export function EditKoiModal({ isOpen, onOpenChange, koi }: EditKoiModalProps) {
 
   const handleImageSelect = async (files: FileList) => {
     const imageFiles = Array.from(files).filter((file) =>
-      file.type.startsWith("image/")
+      file.type.startsWith("image/"),
     );
 
     const newPreviews = imageFiles.map((file) => {
@@ -147,7 +147,7 @@ export function EditKoiModal({ isOpen, onOpenChange, koi }: EditKoiModalProps) {
 
   const handleVideoSelect = async (files: FileList) => {
     const videoFiles = Array.from(files).filter((file) =>
-      file.type.startsWith("video/")
+      file.type.startsWith("video/"),
     );
 
     const newPreviews = videoFiles.map((file) => {
@@ -170,7 +170,7 @@ export function EditKoiModal({ isOpen, onOpenChange, koi }: EditKoiModalProps) {
     setImagePreviews((prev) => prev.filter((_, i) => i !== index));
     // Reset input để có thể chọn lại cùng file
     const input = document.getElementById(
-      "image-input-koi"
+      "image-input-koi",
     ) as HTMLInputElement;
     if (input) input.value = "";
   };
@@ -180,7 +180,7 @@ export function EditKoiModal({ isOpen, onOpenChange, koi }: EditKoiModalProps) {
     setVideoPreviews((prev) => prev.filter((_, i) => i !== index));
     // Reset input để có thể chọn lại cùng file
     const input = document.getElementById(
-      "video-input-koi"
+      "video-input-koi",
     ) as HTMLInputElement;
     if (input) input.value = "";
   };
@@ -188,11 +188,11 @@ export function EditKoiModal({ isOpen, onOpenChange, koi }: EditKoiModalProps) {
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
 
-    if (!formData.birthDate) {
-      newErrors.birthDate = "Vui lòng chọn ngày sinh";
-    }
     if (!formData.varietyId) {
       newErrors.varietyId = "Vui lòng chọn giống";
+    }
+    if (!formData.birthDate) {
+      newErrors.birthDate = "Vui lòng chọn ngày sinh";
     }
     if (!formData.gender) {
       newErrors.gender = "Vui lòng chọn giới tính";
@@ -265,12 +265,12 @@ export function EditKoiModal({ isOpen, onOpenChange, koi }: EditKoiModalProps) {
       // Filter existing images and videos (URLs from server, not base64)
       const existingImages = imagePreviews.filter(
         (preview) =>
-          preview.startsWith("http://") || preview.startsWith("https://")
+          preview.startsWith("http://") || preview.startsWith("https://"),
       );
 
       const existingVideos = videoPreviews.filter(
         (preview) =>
-          preview.startsWith("http://") || preview.startsWith("https://")
+          preview.startsWith("http://") || preview.startsWith("https://"),
       );
 
       // Combine: existing + newly uploaded
@@ -292,7 +292,7 @@ export function EditKoiModal({ isOpen, onOpenChange, koi }: EditKoiModalProps) {
           onSuccess: () => {
             onOpenChange(false);
           },
-        }
+        },
       );
     } catch {
       toast.error("Có lỗi xảy ra khi cập nhật cá");
@@ -316,7 +316,7 @@ export function EditKoiModal({ isOpen, onOpenChange, koi }: EditKoiModalProps) {
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-6 py-4">
+          <div className="space-y-2 py-4">
             {/* RFID Section */}
             <div className="space-y-2">
               <Label htmlFor="rfid" className="text-sm font-semibold">
@@ -641,7 +641,7 @@ export function EditKoiModal({ isOpen, onOpenChange, koi }: EditKoiModalProps) {
                         <Image
                           src={preview}
                           alt={`Preview ${index + 1}`}
-                          className="w-full h-24 object-cover"
+                          className="w-full h-36 object-cover"
                           loading="lazy"
                           width={300}
                           height={200}
@@ -728,9 +728,9 @@ export function EditKoiModal({ isOpen, onOpenChange, koi }: EditKoiModalProps) {
 
             {/* Mutation Section */}
             <div className="space-y-3 border-t pt-4">
-              <div className="flex items-center gap-3 p-4 bg-linear-to-br from-amber-50 to-orange-50 rounded-xl border-2 border-amber-200 hover:border-amber-300 transition-all duration-200 shadow-sm hover:shadow-md">
+              <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg border border-gray-200">
                 <div className="shrink-0">
-                  <AlertTriangle className="h-5 w-5 text-amber-600" />
+                  <AlertTriangle className="h-5 w-5 text-gray-600" />
                 </div>
                 <div className="flex items-center gap-3 flex-1">
                   <input
@@ -743,11 +743,11 @@ export function EditKoiModal({ isOpen, onOpenChange, koi }: EditKoiModalProps) {
                         isMutated: e.target.checked,
                       }))
                     }
-                    className="w-5 h-5 cursor-pointer accent-amber-600 rounded border-2 border-amber-300 focus:ring-2 focus:ring-amber-500 focus:ring-offset-2"
+                    className="w-5 h-5 cursor-pointer rounded border-gray-300"
                   />
                   <Label
                     htmlFor="isMutated"
-                    className="font-semibold cursor-pointer text-amber-900 hover:text-amber-800 transition-colors"
+                    className="font-semibold cursor-pointer"
                   >
                     Cá bị đột biến
                   </Label>
@@ -758,7 +758,7 @@ export function EditKoiModal({ isOpen, onOpenChange, koi }: EditKoiModalProps) {
                 <div className="space-y-2 animate-in slide-in-from-top-2 duration-300">
                   <Label
                     htmlFor="mutationDesc"
-                    className="text-sm font-semibold text-amber-900 flex items-center gap-2"
+                    className="text-sm font-semibold flex items-center gap-2"
                   >
                     <AlertTriangle className="h-4 w-4" />
                     Mô tả đột biến *
@@ -778,7 +778,7 @@ export function EditKoiModal({ isOpen, onOpenChange, koi }: EditKoiModalProps) {
                       });
                     }}
                     placeholder="Mô tả chi tiết về đột biến..."
-                    className="min-h-20 border-amber-200 focus:border-amber-400 focus:ring-amber-400 bg-amber-50/50"
+                    className="min-h-20"
                   />
                   {errors.mutationDescription && (
                     <p className="text-xs text-red-500">

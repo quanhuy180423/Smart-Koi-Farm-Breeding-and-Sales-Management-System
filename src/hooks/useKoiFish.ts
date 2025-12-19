@@ -6,7 +6,6 @@ import koiFishService, {
   KoiFishSearchParams,
   KoiFishUpdateRequest,
 } from "@/lib/api/services/fetchKoiFish";
-import { useAuthStore } from "@/store/auth-store";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ApiError } from "next/dist/server/api-utils";
 import toast from "react-hot-toast";

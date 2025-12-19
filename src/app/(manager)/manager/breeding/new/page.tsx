@@ -237,6 +237,16 @@ export default function Main() {
     setShowPondModal(false);
   };
 
+  const handleBack = () => {
+    if (showDetailedInfo) {
+      // Nếu đang ở màn hình chi tiết, quay về màn hình chọn cá
+      setShowDetailedInfo(false);
+    } else {
+      // Nếu đang ở màn hình chọn cá, thoát khỏi trang
+      router.push("/manager/breeding");
+    }
+  };
+
   const selectedPondDisplay = selectedPondName
     ? `Hồ đã chọn: ${selectedPondName}`
     : "Chưa chọn hồ";
@@ -248,7 +258,7 @@ export default function Main() {
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => router.back()}
+            onClick={handleBack}
             className="rounded-full hover:bg-gray-100"
             aria-label="Quay lại"
           >

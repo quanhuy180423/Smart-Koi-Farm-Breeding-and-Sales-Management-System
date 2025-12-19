@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import * as z from "zod";
 import {
@@ -115,7 +115,7 @@ const basePromotionSchema = z
     {
       message: "Giá trị giảm phần trăm phải trong khoảng 0-100",
       path: ["discountValue"],
-    }
+    },
   );
 
 // Schema for creating new promotions (with past date check)
@@ -129,7 +129,7 @@ const promotionCreateSchema = basePromotionSchema.refine(
   {
     message: "Ngày bắt đầu không thể ở quá khứ",
     path: ["validFrom"],
-  }
+  },
 );
 
 // Schema for editing promotions (no past date check)
@@ -219,6 +219,13 @@ export default function PromotionManagement() {
     availableOnDate: availableOnDate || undefined,
   });
 
+  // Reset form when Create Dialog opens
+  useEffect(() => {
+    if (isCreateOpen) {
+      resetCreateForm();
+    }
+  }, [isCreateOpen]);
+
   const handleSearch = (value: string) => {
     setSearchTerm(value);
     setCurrentPage(1);
@@ -280,7 +287,7 @@ export default function PromotionManagement() {
 
   const handleImageSelect = async (files: FileList) => {
     const imageFiles = Array.from(files).filter((file) =>
-      file.type.startsWith("image/")
+      file.type.startsWith("image/"),
     );
 
     // Create preview URLs for selected images
@@ -339,6 +346,8 @@ export default function PromotionManagement() {
     setImagePreviews(promotion.images || []);
     // Clear selected files since we're editing
     setSelectedImageFiles([]);
+    // Clear form errors
+    setFormErrors({});
     // Set form data from promotion
     setFormData({
       code: promotion.code,
@@ -451,7 +460,7 @@ export default function PromotionManagement() {
       // Filter existing images (URLs from server, not base64)
       const existingImages = imagePreviews.filter(
         (preview) =>
-          preview.startsWith("http://") || preview.startsWith("https://")
+          preview.startsWith("http://") || preview.startsWith("https://"),
       );
 
       // Combine: existing images + newly uploaded images
@@ -588,19 +597,19 @@ export default function PromotionManagement() {
                         <TableCell className="text-right font-medium">
                           {getDiscountDisplay(
                             promotion.discountType,
-                            promotion.discountValue
+                            promotion.discountValue,
                           )}
                         </TableCell>
                         <TableCell className="text-sm">
                           <div className="text-muted-foreground">
                             {formatDate(
                               promotion.validFrom,
-                              DATE_FORMATS.MEDIUM_DATE
+                              DATE_FORMATS.MEDIUM_DATE,
                             )}{" "}
                             -{" "}
                             {formatDate(
                               promotion.validTo,
-                              DATE_FORMATS.MEDIUM_DATE
+                              DATE_FORMATS.MEDIUM_DATE,
                             )}
                           </div>
                         </TableCell>
@@ -707,7 +716,7 @@ export default function PromotionManagement() {
                   }
                   onValueChange={(value) =>
                     setDiscountTypeInput(
-                      value === "all" ? undefined : (value as DiscountType)
+                      value === "all" ? undefined : (value as DiscountType),
                     )
                   }
                 >
@@ -743,7 +752,7 @@ export default function PromotionManagement() {
                         ? undefined
                         : value === "active"
                           ? true
-                          : false
+                          : false,
                     )
                   }
                 >
@@ -840,7 +849,7 @@ export default function PromotionManagement() {
                       <p className="font-medium">
                         {getDiscountDisplay(
                           selectedPromotion.discountType,
-                          selectedPromotion.discountValue
+                          selectedPromotion.discountValue,
                         )}
                       </p>
                     </div>
@@ -905,7 +914,7 @@ export default function PromotionManagement() {
                       <p className="font-medium">
                         {formatDate(
                           selectedPromotion.validFrom,
-                          DATE_FORMATS.DATETIME_24H
+                          DATE_FORMATS.DATETIME_24H,
                         )}
                       </p>
                     </div>
@@ -914,7 +923,7 @@ export default function PromotionManagement() {
                       <p className="font-medium">
                         {formatDate(
                           selectedPromotion.validTo,
-                          DATE_FORMATS.DATETIME_24H
+                          DATE_FORMATS.DATETIME_24H,
                         )}
                       </p>
                     </div>
@@ -1002,7 +1011,7 @@ export default function PromotionManagement() {
                     })
                   }
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="w-full">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>

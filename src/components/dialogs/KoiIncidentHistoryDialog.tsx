@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import {
   Dialog,
   DialogContent,
@@ -9,27 +10,18 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Loader2, Eye } from "lucide-react";
+import { Loader2, ChevronDown, ChevronRight, AlertCircle } from "lucide-react";
 import { DATE_FORMATS, formatDate } from "@/lib/utils/dates/formatDate";
 import { EmptyState } from "@/components/common/EmptyState";
 import { AffectedStatus } from "@/lib/api/services/fetchIncident";
 import { useKoiIncident } from "@/hooks/useIncident";
-import type { KoiIncidentHistory } from "@/lib/api/services/fetchIncident";
+import { cn } from "@/lib/utils";
+import { KoiFishResponse } from "@/lib/api/services/fetchKoiFish";
 
 interface KoiIncidentHistoryDialogProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
-  koiFishId: number | null;
-  koiFishRFID: string;
+  koiFish: KoiFishResponse | null;
 }
 
 const getStatusColor = (status: AffectedStatus) => {
@@ -102,23 +94,15 @@ const getIncidentStatusLabel = (status: string) => {
 export function KoiIncidentHistoryDialog({
   isOpen,
   onOpenChange,
-  koiFishId,
-  koiFishRFID,
+  koiFish,
 }: KoiIncidentHistoryDialogProps) {
-  const [selectedIncident, setSelectedIncident] =
-    useState<KoiIncidentHistory | null>(null);
-  const [isDetailOpen, setIsDetailOpen] = useState(false);
+  const [expandedId, setExpandedId] = useState<number | null>(null);
 
   const {
     data: incidents,
     isLoading,
     error,
-  } = useKoiIncident(koiFishId || 0, isOpen && !!koiFishId);
-
-  const handleViewDetail = (incident: KoiIncidentHistory) => {
-    setSelectedIncident(incident);
-    setIsDetailOpen(true);
-  };
+  } = useKoiIncident(koiFish?.id || 0, isOpen && !!koiFish?.id);
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
@@ -128,7 +112,7 @@ export function KoiIncidentHistoryDialog({
             Lịch sử sự cố sức khỏe
           </DialogTitle>
           <DialogDescription className="text-sm text-muted-foreground">
-            RFID: {koiFishRFID}
+            RFID: {koiFish?.rfid}
           </DialogDescription>
         </DialogHeader>
 
@@ -147,293 +131,230 @@ export function KoiIncidentHistoryDialog({
               description="Cá này không có bất kỳ sự cố sức khỏe nào được ghi lại"
             />
           ) : (
-            <div className="rounded-lg border">
-              <Table className="w-full table-fixed">
-                <TableHeader>
-                  <TableRow className="bg-muted/50">
-                    <TableHead className="w-[10%] font-semibold">
-                      Ngày phát hiện
-                    </TableHead>
-                    <TableHead className="w-[9%] font-semibold">
-                      Trạng thái
-                    </TableHead>
-                    <TableHead className="w-[16%] font-semibold">
-                      Triệu chứng
-                    </TableHead>
-                    <TableHead className="w-[11%] font-semibold">
-                      Cần điều trị
-                    </TableHead>
-                    <TableHead className="w-[9%] font-semibold">
-                      Cách ly
-                    </TableHead>
-                    <TableHead className="w-[10%] font-semibold">
-                      Ngày hồi phục
-                    </TableHead>
-                    <TableHead className="w-[24%] font-semibold">
-                      Ghi chú điều trị
-                    </TableHead>
-                    <TableHead className="w-[11%] text-center font-semibold">
-                      Thao tác
-                    </TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {incidents.map((incident) => (
-                    <TableRow key={incident.id} className="hover:bg-muted/30">
-                      <TableCell className="text-sm truncate">
-                        {formatDate(
-                          incident.affectedFrom,
-                          DATE_FORMATS.MEDIUM_DATE,
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        <Badge
-                          className={`${getStatusColor(
-                            incident.affectedStatus as AffectedStatus,
-                          )} font-semibold text-xs whitespace-nowrap`}
-                        >
-                          {getStatusLabel(
-                            incident.affectedStatus as AffectedStatus,
+            <div className="space-y-3">
+              {incidents.map((incident) => {
+                const isExpanded = expandedId === incident.id;
+                const statusColor = getStatusColor(
+                  incident.affectedStatus as AffectedStatus,
+                );
+                const statusLabel = getStatusLabel(
+                  incident.affectedStatus as AffectedStatus,
+                );
+
+                return (
+                  <div
+                    key={incident.id}
+                    className="relative bg-white border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all"
+                  >
+                    {/* Header */}
+                    <div
+                      className="px-4 py-3 bg-gray-50 cursor-pointer"
+                      onClick={() =>
+                        setExpandedId(isExpanded ? null : incident.id)
+                      }
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3 flex-1">
+                          {/* Status Badge Circle with Image */}
+                          <div
+                            className={cn(
+                              "p-0.5 rounded-full border-2",
+                              statusColor,
+                            )}
+                          >
+                            {koiFish?.images && koiFish.images.length > 0 ? (
+                              <div className="relative h-12 w-12 rounded-full overflow-hidden bg-gray-100">
+                                <Image
+                                  src={koiFish.images[0]}
+                                  alt={koiFish.rfid}
+                                  fill
+                                  className="object-cover"
+                                />
+                              </div>
+                            ) : (
+                              <div className="h-12 w-12 rounded-full bg-gray-200 flex items-center justify-center">
+                                <AlertCircle className="h-6 w-6 text-gray-400" />
+                              </div>
+                            )}
+                          </div>
+
+                          <div className="flex-1">
+                            <h3 className="font-semibold text-gray-900">
+                              {incident.incident?.incidentTitle ||
+                                "Sự cố sức khỏe"}
+                            </h3>
+                            <div className="flex items-center gap-2 mt-1">
+                              <p className="text-xs text-gray-600">
+                                {formatDate(
+                                  incident.affectedFrom,
+                                  DATE_FORMATS.MEDIUM_DATE,
+                                )}
+                              </p>
+                              <Badge
+                                className={cn(
+                                  "text-xs font-medium",
+                                  statusColor,
+                                )}
+                              >
+                                {statusLabel}
+                              </Badge>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Expand icon */}
+                        <button className="p-1 hover:bg-white/50 rounded-lg transition-colors">
+                          {isExpanded ? (
+                            <ChevronDown className="h-5 w-5 text-gray-600" />
+                          ) : (
+                            <ChevronRight className="h-5 w-5 text-gray-600" />
                           )}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-sm truncate">
-                        {incident.specificSymptoms || "-"}
-                      </TableCell>
-                      <TableCell>
-                        <Badge
-                          variant={
-                            incident.requiresTreatment
-                              ? "destructive"
-                              : "outline"
-                          }
-                          className="text-xs whitespace-nowrap"
-                        >
-                          {incident.requiresTreatment ? "Có" : "Không"}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <Badge
-                          variant={
-                            incident.isIsolated ? "destructive" : "outline"
-                          }
-                          className="text-xs whitespace-nowrap"
-                        >
-                          {incident.isIsolated ? "Có" : "Không"}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-sm truncate">
-                        {incident.recoveredAt
-                          ? formatDate(
-                              incident.recoveredAt,
-                              DATE_FORMATS.MEDIUM_DATE,
-                            )
-                          : "-"}
-                      </TableCell>
-                      <TableCell className="text-sm">
-                        <p className="line-clamp-2 break-words">
-                          {incident.treatmentNotes || "-"}
-                        </p>
-                      </TableCell>
-                      <TableCell className="text-center">
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          title="Chi tiết"
-                          onClick={() => handleViewDetail(incident)}
-                        >
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Expanded Content */}
+                    {isExpanded && (
+                      <div className="px-4 py-4 border-t space-y-4 animate-in fade-in slide-in-from-top-2 duration-300">
+                        {/* Incident Info */}
+                        {incident.incident && (
+                          <div className="p-3 bg-gray-50 rounded-lg space-y-2">
+                            <h4 className="font-semibold text-sm">
+                              Thông tin sự cố
+                            </h4>
+                            <div className="grid gap-2 text-sm">
+                              <div className="grid grid-cols-3 gap-2">
+                                <span className="text-gray-600">
+                                  Loại sự cố:
+                                </span>
+                                <span className="col-span-2 font-medium">
+                                  {incident.incident.incidentTypeName}
+                                </span>
+                              </div>
+                              <div className="grid grid-cols-3 gap-2">
+                                <span className="text-gray-600">Mô tả:</span>
+                                <span className="col-span-2">
+                                  {incident.incident.description}
+                                </span>
+                              </div>
+                              {incident.incident.severity && (
+                                <div className="grid grid-cols-3 gap-2 items-center">
+                                  <span className="text-gray-600">Mức độ:</span>
+                                  <Badge
+                                    className={cn(
+                                      "text-xs w-fit",
+                                      getSeverityColor(
+                                        incident.incident.severity,
+                                      ),
+                                    )}
+                                  >
+                                    {getSeverityLabel(
+                                      incident.incident.severity,
+                                    )}
+                                  </Badge>
+                                </div>
+                              )}
+                              <div className="grid grid-cols-3 gap-2 items-center">
+                                <span className="text-gray-600">
+                                  Trạng thái:
+                                </span>
+                                <Badge
+                                  variant="outline"
+                                  className="text-xs w-fit"
+                                >
+                                  {getIncidentStatusLabel(
+                                    incident.incident.status,
+                                  )}
+                                </Badge>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Fish Status */}
+                        <div className="p-3 bg-gray-50 rounded-lg space-y-2">
+                          <h4 className="font-semibold text-sm">
+                            Trạng thái cá
+                          </h4>
+                          <div className="grid gap-2 text-sm">
+                            <div className="grid grid-cols-3 gap-2">
+                              <span className="text-gray-600">
+                                Ngày phát hiện:
+                              </span>
+                              <span className="col-span-2 font-medium">
+                                {formatDate(
+                                  incident.affectedFrom,
+                                  DATE_FORMATS.MEDIUM_DATE,
+                                )}
+                              </span>
+                            </div>
+                            <div className="grid grid-cols-3 gap-2">
+                              <span className="text-gray-600">
+                                Ngày hồi phục:
+                              </span>
+                              <span className="col-span-2 font-medium">
+                                {incident.recoveredAt
+                                  ? formatDate(
+                                      incident.recoveredAt,
+                                      DATE_FORMATS.MEDIUM_DATE,
+                                    )
+                                  : "Chưa hồi phục"}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Symptoms & Treatment */}
+                        <div className="p-3 bg-gray-50 rounded-lg space-y-2">
+                          <h4 className="font-semibold text-sm">
+                            Triệu chứng và điều trị
+                          </h4>
+                          <div className="grid gap-2 text-sm">
+                            <div className="grid grid-cols-3 gap-2">
+                              <span className="text-gray-600">
+                                Triệu chứng:
+                              </span>
+                              <span className="col-span-2">
+                                {incident.specificSymptoms || "-"}
+                              </span>
+                            </div>
+                            <div className="grid grid-cols-3 gap-2">
+                              <span className="text-gray-600">Ghi chú:</span>
+                              <span className="col-span-2">
+                                {incident.treatmentNotes || "-"}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Treatment Measures */}
+                        <div className="p-3 bg-gray-50 rounded-lg space-y-2">
+                          <h4 className="font-semibold text-sm">Biện pháp</h4>
+                          <div className="grid gap-2 text-sm">
+                            <div className="grid grid-cols-3 gap-2 items-center">
+                              <span className="text-gray-600">
+                                Cần điều trị:
+                              </span>
+                              <span className="col-span-2">
+                                {incident.requiresTreatment ? "Có" : "Không"}
+                              </span>
+                            </div>
+                            <div className="grid grid-cols-3 gap-2 items-center">
+                              <span className="text-gray-600">Cách ly:</span>
+                              <span className="col-span-2">
+                                {incident.isIsolated ? "Có" : "Không"}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           )}
         </div>
-
-        {/* Detail Dialog */}
-        <Dialog open={isDetailOpen} onOpenChange={setIsDetailOpen}>
-          <DialogContent className="max-w-2xl">
-            <DialogHeader>
-              <DialogTitle>Chi tiết sự cố sức khỏe</DialogTitle>
-              <DialogDescription>
-                Thông tin chi tiết về sự cố của cá RFID: {koiFishRFID}
-              </DialogDescription>
-            </DialogHeader>
-
-            {selectedIncident && (
-              <div className="space-y-6">
-                {/* Incident Type & Info */}
-                {selectedIncident.incident && (
-                  <div className="space-y-4">
-                    <h4 className="font-semibold text-sm">Thông tin sự cố</h4>
-                    <div className="space-y-3 bg-muted/30 p-3 rounded-lg">
-                      <div>
-                        <p className="text-xs text-muted-foreground mb-1">
-                          Loại sự cố
-                        </p>
-                        <p className="font-medium text-sm">
-                          {selectedIncident.incident.incidentTypeName}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-muted-foreground mb-1">
-                          Tiêu đề sự cố
-                        </p>
-                        <p className="font-medium text-sm">
-                          {selectedIncident.incident.incidentTitle}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-muted-foreground mb-1">
-                          Mô tả chi tiết
-                        </p>
-                        <p className="text-sm bg-white/50 p-2 rounded">
-                          {selectedIncident.incident.description}
-                        </p>
-                      </div>
-                      <div className="grid grid-cols-2 gap-3 pt-2">
-                        <div>
-                          <p className="text-xs text-muted-foreground mb-1">
-                            Mức độ nghiêm trọng
-                          </p>
-                          <Badge
-                            className={`${getSeverityColor(
-                              selectedIncident.incident.severity,
-                            )} font-semibold text-xs`}
-                          >
-                            {getSeverityLabel(
-                              selectedIncident.incident.severity,
-                            )}
-                          </Badge>
-                        </div>
-                        <div>
-                          <p className="text-xs text-muted-foreground mb-1">
-                            Trạng thái sự cố
-                          </p>
-                          <Badge variant="outline" className="text-xs">
-                            {getIncidentStatusLabel(
-                              selectedIncident.incident.status,
-                            )}
-                          </Badge>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* Affected Fish Status */}
-                <div className="space-y-4 border-t pt-4">
-                  <h4 className="font-semibold text-sm">
-                    Trạng thái cá bị ảnh hưởng
-                  </h4>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <p className="text-xs text-muted-foreground">
-                        Ngày phát hiện
-                      </p>
-                      <p className="font-medium text-sm">
-                        {formatDate(
-                          selectedIncident.affectedFrom,
-                          DATE_FORMATS.MEDIUM_DATE,
-                        )}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-muted-foreground">
-                        Tình trạng sức khỏe
-                      </p>
-                      <Badge
-                        className={`${getStatusColor(
-                          selectedIncident.affectedStatus as AffectedStatus,
-                        )} font-semibold text-xs mt-1 inline-block`}
-                      >
-                        {getStatusLabel(
-                          selectedIncident.affectedStatus as AffectedStatus,
-                        )}
-                      </Badge>
-                    </div>
-                    <div>
-                      <p className="text-xs text-muted-foreground">
-                        Ngày hồi phục
-                      </p>
-                      <p className="font-medium text-sm">
-                        {selectedIncident.recoveredAt
-                          ? formatDate(
-                              selectedIncident.recoveredAt,
-                              DATE_FORMATS.MEDIUM_DATE,
-                            )
-                          : "Chưa hồi phục"}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Symptoms & Treatment */}
-                <div className="space-y-4 border-t pt-4">
-                  <h4 className="font-semibold text-sm">
-                    Triệu chứng và điều trị
-                  </h4>
-                  <div className="space-y-3">
-                    <div>
-                      <p className="text-xs text-muted-foreground mb-1">
-                        Triệu chứng cụ thể
-                      </p>
-                      <p className="text-sm bg-muted/50 p-2 rounded">
-                        {selectedIncident.specificSymptoms || "-"}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-muted-foreground mb-1">
-                        Ghi chú điều trị
-                      </p>
-                      <p className="text-sm bg-muted/50 p-2 rounded">
-                        {selectedIncident.treatmentNotes || "-"}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Treatment Status */}
-                <div className="space-y-4 border-t pt-4">
-                  <h4 className="font-semibold text-sm">Biện pháp điều trị</h4>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <p className="text-xs text-muted-foreground mb-2">
-                        Cần điều trị
-                      </p>
-                      <Badge
-                        variant={
-                          selectedIncident.requiresTreatment
-                            ? "destructive"
-                            : "outline"
-                        }
-                      >
-                        {selectedIncident.requiresTreatment ? "Có" : "Không"}
-                      </Badge>
-                    </div>
-                    <div>
-                      <p className="text-xs text-muted-foreground mb-2">
-                        Cách ly
-                      </p>
-                      <Badge
-                        variant={
-                          selectedIncident.isIsolated
-                            ? "destructive"
-                            : "outline"
-                        }
-                      >
-                        {selectedIncident.isIsolated ? "Có" : "Không"}
-                      </Badge>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-          </DialogContent>
-        </Dialog>
       </DialogContent>
     </Dialog>
   );

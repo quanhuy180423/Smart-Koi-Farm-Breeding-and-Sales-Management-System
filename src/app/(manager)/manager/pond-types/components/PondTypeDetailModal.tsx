@@ -7,8 +7,11 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { PondTypeResponse } from "@/lib/api/services/fetchPondType";
 import { getPondTypeLabel } from "@/lib/utils/enum/formatEnum";
+import { Layers, FileText, Users } from "lucide-react";
 
 interface PondTypeDetailModalProps {
   isOpen: boolean;
@@ -22,53 +25,93 @@ const PondTypeDetailModal = ({
   selectedPondType,
 }: PondTypeDetailModalProps) => (
   <Dialog open={isOpen} onOpenChange={onOpenChange}>
-    <DialogContent className="max-w-2xl">
-      <DialogHeader>
-        <DialogTitle className="text-xl font-semibold text-gray-800">
-          Chi tiết Loại Hồ: {selectedPondType?.typeName}
+    <DialogContent className="sm:max-w-3xl">
+      <DialogHeader className="space-y-3 pb-4 border-b">
+        <DialogTitle className="text-2xl mb-2 font-bold text-gray-900">
+          {selectedPondType?.typeName}
         </DialogTitle>
-        <DialogDescription>Thông tin chi tiết về loại hồ</DialogDescription>
+        <DialogDescription className="text-base text-gray-600">
+          Thông tin chi tiết về loại hồ cá
+        </DialogDescription>
       </DialogHeader>
       {selectedPondType && (
         <div className="space-y-6">
-          <div className="grid grid-cols-2 gap-6">
-            <div className="space-y-4">
-              <div>
-                <Label className="text-sm font-medium text-gray-600">
-                  Tên loại
-                </Label>
-                <p className="text-base font-semibold text-gray-800">
-                  {selectedPondType.typeName}
+          {/* Type Badge */}
+          <Card className="border-2">
+            <CardContent>
+              <div className="flex items-center justify-between">
+                <p className="text-sm font-medium text-muted-foreground mb-2">
+                  Phân loại hồ
                 </p>
+                <Badge
+                  className={`${getPondTypeLabel(selectedPondType.type).colorClass} px-4 py-1.5 text-sm font-medium`}
+                >
+                  {getPondTypeLabel(selectedPondType.type).label}
+                </Badge>
               </div>
-              <div>
-                <Label className="text-sm font-medium text-gray-600">
-                  Loại Hồ
-                </Label>
-                <div className="mt-2">
-                  <span
-                    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getPondTypeLabel(selectedPondType.type).colorClass}`}
-                  >
-                    {getPondTypeLabel(selectedPondType.type).label}
-                  </span>
+            </CardContent>
+          </Card>
+
+          {/* Basic Information */}
+          <div className="grid grid-cols-2 gap-4">
+            <Card className="border-2">
+              <CardContent>
+                <div className="flex items-start gap-3">
+                  <div className="p-2 rounded-lg bg-blue-50">
+                    <Layers className="h-5 w-5 text-blue-600" />
+                  </div>
+                  <div className="flex-1">
+                    <Label className="text-sm font-medium text-muted-foreground">
+                      Tên loại hồ
+                    </Label>
+                    <p className="text-lg font-bold text-gray-900 mt-1">
+                      {selectedPondType.typeName}
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="border-2">
+              <CardContent>
+                <div className="flex items-start gap-3">
+                  <div className="p-2 rounded-lg bg-green-50">
+                    <Users className="h-5 w-5 text-green-600" />
+                  </div>
+                  <div className="flex-1">
+                    <Label className="text-sm font-medium text-muted-foreground">
+                      Sức chứa khuyến nghị
+                    </Label>
+                    <p className="text-lg font-bold text-gray-900 mt-1">
+                      {selectedPondType.recommendedQuantity} con cá
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Description */}
+          <Card className="border-2">
+            <CardContent>
+              <div className="flex items-start gap-3">
+                <div className="p-2 rounded-lg bg-purple-50">
+                  <FileText className="h-5 w-5 text-purple-600" />
+                </div>
+                <div className="flex-1">
+                  <Label className="text-sm font-medium text-muted-foreground mb-2 block">
+                    Mô tả
+                  </Label>
+                  <div className="rounded-lg bg-muted/50">
+                    <p className="text-base text-gray-900 leading-relaxed">
+                      {selectedPondType.description ||
+                        "Chưa có mô tả cho loại hồ này"}
+                    </p>
+                  </div>
                 </div>
               </div>
-              <div>
-                <Label className="text-sm font-medium text-gray-600">
-                  Sức chứa khuyến nghị (Số lượng cá)
-                </Label>
-                <p className="text-base text-gray-800">
-                  {selectedPondType.recommendedQuantity}
-                </p>
-              </div>
-            </div>
-            <div className="space-y-4">
-              <Label className="text-sm font-medium text-gray-600">Mô tả</Label>
-              <p className="text-base text-gray-800">
-                {selectedPondType.description || "Chưa có mô tả"}
-              </p>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
         </div>
       )}
     </DialogContent>
