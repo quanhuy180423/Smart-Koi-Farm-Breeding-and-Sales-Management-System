@@ -152,9 +152,9 @@ export interface BreedingDetailResponse {
   totalFishQualified: number;
   totalPackage: number;
   koiFishes: KoiFishResponse[];
-  batch: EggBatchResponse;
-  fryFish: FryFishResponse;
-  classificationStage: ClassificationStageResponse;
+  batch: EggBatchResponse | null;
+  fryFish: FryFishResponse | null;
+  classificationStage: ClassificationStageResponse | null;
 }
 
 export interface BreedingRecommendResponse {

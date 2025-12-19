@@ -217,7 +217,7 @@ const pondTypeMeta: Record<PondTypeEnum, Label> = {
     colorClass: "bg-cyan-100 text-cyan-800",
   },
   [PondTypeEnum.FRY_FISH]: {
-    label: "Cá Con",
+    label: "Cá bột",
     colorClass: "bg-teal-100 text-teal-800",
   },
   [PondTypeEnum.CLASSIFICATION]: {

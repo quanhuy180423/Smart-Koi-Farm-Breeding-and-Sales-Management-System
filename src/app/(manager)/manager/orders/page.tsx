@@ -68,7 +68,6 @@ export default function ManagerOrdersPage() {
   const [statusFilter, setStatusFilter] = useState<OrderStatus | string>("all");
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-  // Date filter removed — using no date range
   const [minPrice, setMinPrice] = useState<string>("");
   const [maxPrice, setMaxPrice] = useState<string>("");
 
@@ -311,7 +310,7 @@ export default function ManagerOrdersPage() {
                 >
                   <div className="flex items-start gap-4 flex-1">
                     {/* FIX #2 & #3: Larger icon, better visual hierarchy */}
-                    <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                    <div className="w-14 h-14 rounded-xl bg-linear-to-br from-primary/20 to-primary/10 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
                       <Package className="h-7 w-7 text-primary" />
                     </div>
                     <div className="flex-1 min-w-0 space-y-3">
@@ -405,7 +404,7 @@ export default function ManagerOrdersPage() {
                             </div>
                           ))}
                           {order?.orderDetails?.length > 3 && (
-                            <div className="flex items-center justify-center p-3 bg-muted/30 rounded-lg border-2 border-dashed min-w-[80px] hover:bg-muted/50 transition-colors">
+                            <div className="flex items-center justify-center p-3 bg-muted/30 rounded-lg border-2 border-dashed min-w-20 hover:bg-muted/50 transition-colors">
                               <span className="text-sm font-medium text-muted-foreground">
                                 +{order.orderDetails.length - 3}
                               </span>
@@ -619,7 +618,7 @@ export default function ManagerOrdersPage() {
             <Button
               onClick={handleRefundOrder}
               disabled={updateStatusMutation.isPending}
-              className="bg-blue-600 hover:bg-blue-700 min-w-[160px]"
+              className="bg-blue-600 hover:bg-blue-700 min-w-40"
             >
               {updateStatusMutation.isPending ? (
                 <>

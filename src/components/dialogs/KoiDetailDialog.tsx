@@ -119,9 +119,6 @@ export function KoiDetailDialog({
                   <Badge variant="outline" className="text-xs">
                     RFID: {koi.rfid}
                   </Badge>
-                  <Badge variant="secondary" className="text-xs">
-                    {koi.type}
-                  </Badge>
                 </div>
               </div>
             </div>
@@ -225,32 +222,32 @@ export function KoiDetailDialog({
 
               {/* Quick Info Cards */}
               <div className="grid grid-cols-3 gap-3">
-                <div className="p-3 bg-linear-to-br from-blue-50 to-blue-100/50 rounded-lg border border-blue-200">
+                <div className="p-3 bg-gray-50 rounded-lg border border-gray-200">
                   <div className="flex items-center gap-2 mb-1">
-                    <Calendar className="h-4 w-4 text-blue-600" />
-                    <p className="text-xs font-medium text-blue-700">Tuổi</p>
+                    <Calendar className="h-4 w-4 text-gray-600" />
+                    <p className="text-xs font-medium text-gray-600">Tuổi</p>
                   </div>
-                  <p className="font-bold text-blue-900">
+                  <p className="font-bold text-gray-900">
                     {formatKoiAge(koi.birthDate)}
                   </p>
                 </div>
 
-                <div className="p-3 bg-linear-to-br from-purple-50 to-purple-100/50 rounded-lg border border-purple-200">
+                <div className="p-3 bg-gray-50 rounded-lg border border-gray-200">
                   <div className="flex items-center gap-2 mb-1">
-                    <Fish className="h-4 w-4 text-purple-600" />
-                    <p className="text-xs font-medium text-purple-700">
+                    <Fish className="h-4 w-4 text-gray-600" />
+                    <p className="text-xs font-medium text-gray-600">
                       Kích thước
                     </p>
                   </div>
-                  <p className="font-bold text-purple-900">
+                  <p className="font-bold text-gray-900">
                     {getFishSizeLabel(koi.size)}
                   </p>
                 </div>
 
-                <div className="p-3 bg-linear-to-br from-green-50 to-green-100/50 rounded-lg border border-green-200">
+                <div className="p-3 bg-gray-50 rounded-lg border border-gray-200">
                   <div className="flex items-center gap-2 mb-1">
-                    <Heart className="h-4 w-4 text-green-600" />
-                    <p className="text-xs font-medium text-green-700">
+                    <Heart className="h-4 w-4 text-gray-600" />
+                    <p className="text-xs font-medium text-gray-600">
                       Sức khỏe
                     </p>
                   </div>
@@ -265,9 +262,7 @@ export function KoiDetailDialog({
                 {/* Basic Info */}
                 <div className="p-4 bg-gray-50 rounded-xl border">
                   <div className="flex items-center gap-2 mb-3">
-                    <div className="p-1.5 bg-blue-500 rounded-lg">
-                      <Info className="h-4 w-4 text-white" />
-                    </div>
+                    <Info className="h-4 w-4 text-gray-600" />
                     <h4 className="font-semibold">Thông tin cơ bản</h4>
                   </div>
                   <div className="grid grid-cols-2 gap-3 text-sm">
@@ -293,9 +288,7 @@ export function KoiDetailDialog({
                 {/* Location & Origin */}
                 <div className="p-4 bg-gray-50 rounded-xl border">
                   <div className="flex items-center gap-2 mb-3">
-                    <div className="p-1.5 bg-purple-500 rounded-lg">
-                      <MapPin className="h-4 w-4 text-white" />
-                    </div>
+                    <MapPin className="h-4 w-4 text-gray-600" />
                     <h4 className="font-semibold">Vị trí & Nguồn gốc</h4>
                   </div>
                   <div className="grid grid-cols-2 gap-3 text-sm">
@@ -314,11 +307,11 @@ export function KoiDetailDialog({
                 {/* Status Cards */}
                 <div className="grid grid-cols-2 gap-3">
                   {koi.saleStatus && (
-                    <div className="p-3 bg-linear-to-br from-amber-50 to-amber-100/50 rounded-lg border border-amber-200">
+                    <div className="p-3 bg-gray-50 rounded-lg border">
                       <div className="flex items-center justify-between gap-2">
                         <div className="flex items-center gap-2">
-                          <TrendingUp className="h-4 w-4 text-amber-600" />
-                          <p className="text-xs font-medium text-amber-700">
+                          <TrendingUp className="h-4 w-4 text-gray-600" />
+                          <p className="text-xs font-medium text-gray-600">
                             Trạng thái bán
                           </p>
                         </div>
@@ -333,11 +326,11 @@ export function KoiDetailDialog({
                     </div>
                   )}
                   {koi.koiBreedingStatus && (
-                    <div className="p-3 bg-linear-to-br from-pink-50 to-pink-100/50 rounded-lg border border-pink-200">
+                    <div className="p-3 bg-gray-50 rounded-lg border">
                       <div className="flex items-center justify-between gap-2">
                         <div className="flex items-center gap-2">
-                          <Activity className="h-4 w-4 text-pink-600" />
-                          <p className="text-xs font-medium text-pink-700">
+                          <Activity className="h-4 w-4 text-gray-600" />
+                          <p className="text-xs font-medium text-gray-600">
                             Sinh sản
                           </p>
                         </div>
@@ -359,18 +352,13 @@ export function KoiDetailDialog({
 
                 {/* Mutation Info */}
                 {koi.isMutated && (
-                  <div className="p-4 bg-linear-to-br from-red-50 to-red-100/50 rounded-xl border border-red-200">
+                  <div className="p-4 bg-gray-50 rounded-xl border border-gray-300">
                     <div className="flex items-center gap-2 mb-2">
-                      <AlertCircle className="h-5 w-5 text-red-600" />
-                      <h4 className="font-semibold text-red-900">
-                        Thông tin đột biến
-                      </h4>
+                      <AlertCircle className="h-5 w-5 text-gray-600" />
+                      <h4 className="font-semibold">Thông tin đột biến</h4>
                     </div>
-                    <Badge variant="destructive" className="mb-2">
-                      Đột biến
-                    </Badge>
                     {koi.mutationDescription && (
-                      <p className="text-sm text-red-800 italic">
+                      <p className="text-sm text-gray-700 italic">
                         {koi.mutationDescription}
                       </p>
                     )}
@@ -392,12 +380,10 @@ export function KoiDetailDialog({
 
                 {/* Pricing */}
                 {showPricingInfo && (
-                  <div className="p-5 bg-linear-to-br from-primary/10 to-primary/5 rounded-xl border-2 border-primary/20">
+                  <div className="p-5 bg-gray-50 rounded-xl border border-gray-300">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <div className="p-2 bg-primary rounded-full">
-                          <DollarSign className="h-5 w-5 text-white" />
-                        </div>
+                        <DollarSign className="h-5 w-5 text-gray-600" />
                         <span className="font-semibold text-lg">Giá bán</span>
                       </div>
                       <span className="text-3xl font-bold text-primary">
@@ -462,7 +448,7 @@ export function KoiDetailDialog({
                       {/* Partner */}
                       <div className="p-3 bg-gray-50 rounded-lg mb-3">
                         <p className="text-xs font-medium text-gray-600 mb-2">
-                          Cá đối tác
+                          Cá phối giống
                         </p>
                         <div className="flex items-center gap-3">
                           {item.partner.images?.[0] && (

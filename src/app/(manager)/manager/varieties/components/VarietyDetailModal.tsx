@@ -18,7 +18,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Label } from "@/components/ui/label";
-import { Loader2 } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Loader2, Fish, Globe, FileText, Palette } from "lucide-react";
 import { VarietyResponse } from "@/lib/api/services/fetchVariety";
 import { useGetPatternsByVariety } from "@/hooks/usePattern";
 
@@ -41,8 +43,8 @@ const VarietyDetailModal = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl">
-        <DialogHeader>
+      <DialogContent className="sm:max-w-4xl">
+        <DialogHeader className="border-b pb-4">
           <DialogTitle className="text-xl font-semibold text-gray-800">
             Chi tiết Giống Cá: {selectedVariety?.varietyName}
           </DialogTitle>
@@ -58,40 +60,84 @@ const VarietyDetailModal = ({
             </TabsList>
 
             <TabsContent value="info" className="space-y-4">
-              <div className="grid grid-cols-2 gap-6">
-                <div className="space-y-4">
-                  <div>
-                    <Label className="text-sm font-medium text-gray-600">
-                      Tên giống
-                    </Label>
-                    <p className="text-base font-semibold text-gray-800">
-                      {selectedVariety.varietyName}
-                    </p>
-                  </div>
-                  <div>
-                    <Label className="text-sm font-medium text-gray-600">
-                      Quốc gia xuất xứ
-                    </Label>
-                    <p className="text-base text-gray-800">
-                      {selectedVariety.originCountry}
-                    </p>
-                  </div>
-                </div>
-                <div className="space-y-4 col-span-2">
-                  <Label className="text-sm font-medium text-gray-600">
-                    Đặc điểm/Mô tả
-                  </Label>
-                  <p className="text-base text-gray-800">
-                    {selectedVariety.characteristic || "Chưa có mô tả"}
-                  </p>
-                </div>
+              {/* Basic Info */}
+              <div className="grid grid-cols-2 gap-4">
+                <Card>
+                  <CardContent>
+                    <div className="flex items-start gap-3">
+                      <div className="p-2 bg-blue-100 rounded-lg">
+                        <Fish className="h-4 w-4 text-blue-600" />
+                      </div>
+                      <div className="flex-1">
+                        <Label className="text-sm font-medium text-gray-600">
+                          Tên giống
+                        </Label>
+                        <Badge
+                          variant="outline"
+                          className="mt-1 text-base font-semibold"
+                        >
+                          {selectedVariety.varietyName}
+                        </Badge>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardContent>
+                    <div className="flex items-start gap-3">
+                      <div className="p-2 bg-green-100 rounded-lg">
+                        <Globe className="h-4 w-4 text-green-600" />
+                      </div>
+                      <div className="flex-1">
+                        <Label className="text-sm font-medium text-gray-600">
+                          Quốc gia xuất xứ
+                        </Label>
+                        <p className="text-base text-gray-800 mt-1">
+                          {selectedVariety.originCountry}
+                        </p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
               </div>
+
+              {/* Description */}
+              <Card>
+                <CardContent>
+                  <div className="flex items-start gap-3">
+                    <div className="p-2 bg-purple-100 rounded-lg">
+                      <FileText className="h-4 w-4 text-purple-600" />
+                    </div>
+                    <div className="flex-1">
+                      <Label className="text-sm font-medium text-gray-600">
+                        Đặc điểm/Mô tả
+                      </Label>
+                      <p className="text-base text-gray-800 mt-1">
+                        {selectedVariety.characteristic || "Chưa có mô tả"}
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
             </TabsContent>
 
             <TabsContent value="patterns" className="space-y-4">
+              <div className="flex items-center gap-2 mb-4">
+                <div className="p-2 bg-orange-100 rounded-lg">
+                  <Palette className="h-4 w-4 text-orange-600" />
+                </div>
+                <h3 className="text-lg font-semibold text-gray-800">
+                  Danh sách hoa văn
+                </h3>
+              </div>
+
               {isLoading ? (
-                <div className="flex items-center justify-center py-8">
-                  <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                <div className="flex flex-col items-center justify-center py-12 text-center">
+                  <Loader2 className="h-8 w-8 animate-spin text-muted-foreground mb-3" />
+                  <p className="text-sm text-muted-foreground">
+                    Đang tải danh sách hoa văn...
+                  </p>
                 </div>
               ) : patterns.length > 0 ? (
                 <div className="border rounded-lg overflow-hidden">
@@ -124,9 +170,15 @@ const VarietyDetailModal = ({
                   </Table>
                 </div>
               ) : (
-                <div className="text-center py-8">
-                  <p className="text-muted-foreground">
-                    Không có hoa văn nào cho giống cá này
+                <div className="flex flex-col items-center justify-center py-12 text-center">
+                  <div className="p-4 bg-gray-100 rounded-full mb-4">
+                    <Palette className="h-8 w-8 text-gray-400" />
+                  </div>
+                  <p className="text-base font-medium text-gray-600 mb-1">
+                    Không có hoa văn
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    Chưa có hoa văn nào được thêm cho giống cá này
                   </p>
                 </div>
               )}

@@ -10,54 +10,64 @@ import {
 } from "@/components/ui/dialog";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { PondFormState } from "../page";
-import { PondStatus } from "@/lib/api/services/fetchPond";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { InputNumber } from "@/components/ui/input-number";
 import { Button } from "@/components/ui/button";
 import { ChevronRight, Loader2, Plus } from "lucide-react";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 
 // Zod validation schemas for pond
 const waterParametersSchema = z.object({
   phLevel: z
     .string()
-    .optional()
-    .refine((val) => !val || Number(val) >= 0, "pH Level phải >= 0"),
+    .min(1, "Vui lòng nhập pH Level")
+    .refine(
+      (val) => !isNaN(Number(val)) && Number(val) >= 0,
+      "pH Level phải >= 0",
+    ),
   temperatureCelsius: z
     .string()
-    .optional()
-    .refine((val) => !val || !isNaN(Number(val)), "Nhiệt độ phải là số hợp lệ"),
+    .min(1, "Vui lòng nhập Nhiệt độ")
+    .refine((val) => !isNaN(Number(val)), "Nhiệt độ phải là số hợp lệ"),
   oxygenLevel: z
     .string()
-    .optional()
-    .refine((val) => !val || Number(val) >= 0, "Oxy phải >= 0"),
+    .min(1, "Vui lòng nhập Oxy")
+    .refine((val) => !isNaN(Number(val)) && Number(val) >= 0, "Oxy phải >= 0"),
   ammoniaLevel: z
     .string()
-    .optional()
-    .refine((val) => !val || Number(val) >= 0, "Ammonia phải >= 0"),
+    .min(1, "Vui lòng nhập Ammonia")
+    .refine(
+      (val) => !isNaN(Number(val)) && Number(val) >= 0,
+      "Ammonia phải >= 0",
+    ),
   nitriteLevel: z
     .string()
-    .optional()
-    .refine((val) => !val || Number(val) >= 0, "Nitrite phải >= 0"),
+    .min(1, "Vui lòng nhập Nitrite")
+    .refine(
+      (val) => !isNaN(Number(val)) && Number(val) >= 0,
+      "Nitrite phải >= 0",
+    ),
   nitrateLevel: z
     .string()
-    .optional()
-    .refine((val) => !val || Number(val) >= 0, "Nitrate phải >= 0"),
+    .min(1, "Vui lòng nhập Nitrate")
+    .refine(
+      (val) => !isNaN(Number(val)) && Number(val) >= 0,
+      "Nitrate phải >= 0",
+    ),
   carbonHardness: z
     .string()
-    .optional()
-    .refine((val) => !val || Number(val) >= 0, "Carbon Hardness phải >= 0"),
+    .min(1, "Vui lòng nhập Độ cứng")
+    .refine(
+      (val) => !isNaN(Number(val)) && Number(val) >= 0,
+      "Carbon Hardness phải >= 0",
+    ),
   waterLevelMeters: z
     .string()
-    .optional()
-    .refine((val) => !val || Number(val) >= 0, "Mức nước phải >= 0"),
+    .min(1, "Vui lòng nhập Mực nước")
+    .refine(
+      (val) => !isNaN(Number(val)) && Number(val) >= 0,
+      "Mực nước phải >= 0",
+    ),
   notes: z.string().optional(),
 });
 
@@ -74,12 +84,10 @@ const pondSchema = z
     depthMeters: z
       .string()
       .refine((val) => val && Number(val) > 0, "Độ sâu phải lớn hơn 0"),
-    currentCapacity: z
-      .string()
-      .refine((val) => val && Number(val) > 0, "Dung tích phải lớn hơn 0"),
+    currentCapacity: z.string().optional(),
     areaId: z.string().min(1, "Vui lòng chọn khu vực"),
     pondTypeId: z.string().min(1, "Vui lòng chọn loại hồ"),
-    record: waterParametersSchema.optional(),
+    record: waterParametersSchema,
   })
   .refine(
     (data) => {
@@ -92,7 +100,7 @@ const pondSchema = z
       return true;
     },
     {
-      message: "Mức nước không được lớn hơn độ sâu của hồ",
+      message: "Mực nước không được lớn hơn độ sâu của hồ",
       path: ["record", "waterLevelMeters"],
     },
   );
@@ -125,6 +133,7 @@ const AddPondModal = ({
   getPondTypeNameById,
 }: AddPondModalProps) => {
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+  const [activeTab, setActiveTab] = useState("basic");
 
   const waterParamLabels: Record<string, string> = {
     phLevel: "pH Level",
@@ -134,7 +143,7 @@ const AddPondModal = ({
     nitriteLevel: "Nitrite (mg/L)",
     nitrateLevel: "Nitrate (mg/L)",
     carbonHardness: "Độ cứng (°dH)",
-    waterLevelMeters: "Mức nước (m)",
+    waterLevelMeters: "Mực nước (m)",
   };
 
   const handleAddPondWithValidation = () => {
@@ -144,7 +153,7 @@ const AddPondModal = ({
       lengthMeters: newPond.lengthMeters,
       widthMeters: newPond.widthMeters,
       depthMeters: newPond.depthMeters,
-      currentCapacity: newPond.currentCapacity,
+      currentCapacity: calculateCapacity(),
       areaId: newPond.areaId,
       pondTypeId: newPond.pondTypeId,
       record: newPond.record,
@@ -159,13 +168,56 @@ const AddPondModal = ({
             ? error.path.join(".")
             : (error.path[0] as string);
         errors[pathKey] = error.message;
+
+        // Also add without "record." prefix for inline validation
+        if (pathKey.startsWith("record.")) {
+          const fieldName = pathKey.replace("record.", "");
+          errors[fieldName] = error.message;
+        }
       });
       setFormErrors(errors);
+
+      // Automatically switch to the tab with errors
+      const basicFields = [
+        "pondName",
+        "location",
+        "lengthMeters",
+        "widthMeters",
+        "depthMeters",
+        "areaId",
+        "pondTypeId",
+      ];
+      const hasBasicErrors = Object.keys(errors).some((key) =>
+        basicFields.includes(key),
+      );
+      const hasWaterErrors = Object.keys(errors).some(
+        (key) => !basicFields.includes(key),
+      );
+
+      // Prioritize basic tab if it has errors, otherwise go to water tab
+      if (hasBasicErrors) {
+        setActiveTab("basic");
+      } else if (hasWaterErrors) {
+        setActiveTab("water");
+      }
       return;
     }
 
     // Keep current errors - let handleAddPond set them if validation fails there
     handleAddPond(setFormErrors);
+  };
+
+  // Calculate capacity from dimensions
+  const calculateCapacity = (): string => {
+    if (!newPond.lengthMeters || !newPond.widthMeters || !newPond.depthMeters) {
+      return "0";
+    }
+    const length = Number(newPond.lengthMeters);
+    const width = Number(newPond.widthMeters);
+    const depth = Number(newPond.depthMeters);
+    const capacityM3 = length * width * depth;
+    const capacityLiters = capacityM3 * 1000; // Convert m³ to liters
+    return Math.round(capacityLiters).toString();
   };
 
   const clearFieldError = (fieldName: string) => {
@@ -179,10 +231,45 @@ const AddPondModal = ({
   };
 
   const validateWaterParam = (fieldName: string, value: string): boolean => {
-    if (!value) return true; // empty is ok for optional
+    if (!value) return false; // empty is NOT ok - now required
     const num = parseFloat(value);
     if (isNaN(num)) return false;
     return num >= 0;
+  };
+
+  const handleWaterParamBlur = (
+    fieldName: string,
+    value: string | undefined,
+  ) => {
+    if (!value) {
+      const label = waterParamLabels[fieldName] || fieldName;
+      setFormErrors((prev) => ({
+        ...prev,
+        [fieldName]: `Vui lòng nhập ${label}`,
+      }));
+    } else {
+      const num = parseFloat(value);
+      if (isNaN(num) || num < 0) {
+        const label = waterParamLabels[fieldName] || fieldName;
+        setFormErrors((prev) => ({
+          ...prev,
+          [fieldName]: `${label} phải là số >= 0`,
+        }));
+      } else if (fieldName === "waterLevelMeters" && newPond.depthMeters) {
+        const waterLevel = Number(value);
+        const depth = Number(newPond.depthMeters);
+        if (waterLevel > depth) {
+          setFormErrors((prev) => ({
+            ...prev,
+            [fieldName]: "Mực nước không được lớn hơn độ sâu của hồ",
+          }));
+        } else {
+          clearFieldError(fieldName);
+        }
+      } else {
+        clearFieldError(fieldName);
+      }
+    }
   };
 
   const handleWaterParamChange = (
@@ -217,14 +304,34 @@ const AddPondModal = ({
     });
 
     // Validate immediately
-    if (strValue && !validateWaterParam(fieldName as string, strValue)) {
+    if (!strValue) {
+      const label = waterParamLabels[fieldName] || fieldName;
+      setFormErrors((prev) => ({
+        ...prev,
+        [fieldName]: `Vui lòng nhập ${label}`,
+      }));
+    } else if (!validateWaterParam(fieldName as string, strValue)) {
       const label = waterParamLabels[fieldName] || fieldName;
       setFormErrors((prev) => ({
         ...prev,
         [fieldName]: `${label} phải là số >= 0`,
       }));
     } else {
-      clearFieldError(fieldName as string);
+      // Special validation for water level vs depth
+      if (fieldName === "waterLevelMeters" && newPond.depthMeters) {
+        const waterLevel = Number(strValue);
+        const depth = Number(newPond.depthMeters);
+        if (waterLevel > depth) {
+          setFormErrors((prev) => ({
+            ...prev,
+            [fieldName]: "Mực nước không được lớn hơn độ sâu của hồ",
+          }));
+        } else {
+          clearFieldError(fieldName as string);
+        }
+      } else {
+        clearFieldError(fieldName as string);
+      }
     }
   };
 
@@ -232,12 +339,13 @@ const AddPondModal = ({
     onOpenChange(open);
     if (!open) {
       setFormErrors({});
+      setActiveTab("basic");
     }
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={handleDialogOpenChange}>
-      <DialogContent className="min-w-2xl">
+      <DialogContent className="min-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-xl font-semibold text-gray-800">
             Thêm hồ cá mới
@@ -247,14 +355,14 @@ const AddPondModal = ({
           </DialogDescription>
         </DialogHeader>
 
-        <Tabs defaultValue="basic" className="w-full">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="basic">Thông tin cơ bản</TabsTrigger>
             <TabsTrigger value="water">Thông số nước</TabsTrigger>
           </TabsList>
 
           {/* Basic Information Tab */}
-          <TabsContent value="basic" className="space-y-6">
+          <TabsContent value="basic" className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label
@@ -345,7 +453,7 @@ const AddPondModal = ({
                 </Button>
               </div>
             </div>
-            <div className="grid grid-cols-4 gap-4">
+            <div className="grid grid-cols-3 gap-4">
               <div className="space-y-2">
                 <Label
                   htmlFor="length"
@@ -433,6 +541,23 @@ const AddPondModal = ({
                       depthMeters: value ? String(value) : "",
                     });
                     clearFieldError("depthMeters");
+
+                    // Re-validate water level if depth changes
+                    if (value && newPond.record?.waterLevelMeters) {
+                      const waterLevel = Number(
+                        newPond.record.waterLevelMeters,
+                      );
+                      const newDepth = Number(value);
+                      if (waterLevel > newDepth) {
+                        setFormErrors((prev) => ({
+                          ...prev,
+                          waterLevelMeters:
+                            "Mực nước không được lớn hơn độ sâu của hồ",
+                        }));
+                      } else {
+                        clearFieldError("waterLevelMeters");
+                      }
+                    }
                   }}
                   placeholder="Độ sâu (m)"
                   allowDecimal={true}
@@ -448,74 +573,15 @@ const AddPondModal = ({
                   </p>
                 )}
               </div>
-              <div className="space-y-2">
-                <Label
-                  htmlFor="currentCapacity"
-                  className="text-sm font-medium text-gray-700"
-                >
-                  Dung tích (Lít) <span className="text-red-500">*</span>
-                </Label>
-                <InputNumber
-                  value={
-                    newPond.currentCapacity
-                      ? Number(newPond.currentCapacity)
-                      : undefined
-                  }
-                  onChange={(value) => {
-                    setNewPond({
-                      ...newPond,
-                      currentCapacity: value ? String(value) : "",
-                    });
-                    clearFieldError("currentCapacity");
-                  }}
-                  placeholder="Dung tích (Lít)"
-                  allowDecimal={true}
-                  className={`border-2 focus:border-blue-500 ${
-                    formErrors.currentCapacity
-                      ? "border-red-500"
-                      : "border-gray-300"
-                  }`}
-                />
-                {formErrors.currentCapacity && (
-                  <p className="text-sm text-red-500">
-                    {formErrors.currentCapacity}
-                  </p>
-                )}
-              </div>
-              <div className="space-y-2">
-                <Label
-                  htmlFor="status"
-                  className="text-sm font-medium text-gray-700"
-                >
-                  Trạng thái
-                </Label>
-                <Select
-                  value={newPond.pondStatus}
-                  onValueChange={(value: PondStatus) =>
-                    setNewPond({ ...newPond, pondStatus: value })
-                  }
-                >
-                  <SelectTrigger className="border-2 border-gray-300 focus:border-blue-500">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value={PondStatus.ACTIVE}>Hoạt động</SelectItem>
-                    <SelectItem value={PondStatus.MAINTENANCE}>
-                      Đang bảo trì
-                    </SelectItem>
-                    <SelectItem value={PondStatus.EMPTY}>Trống</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
             </div>
           </TabsContent>
 
           {/* Water Parameters Tab */}
-          <TabsContent value="water" className="space-y-6">
-            <div className="grid grid-cols-2 gap-4">
+          <TabsContent value="water" className="space-y-4">
+            <div className="grid grid-cols-2 gap-2">
               <div className="space-y-2">
                 <Label className="text-sm font-medium text-gray-700">
-                  pH Level
+                  pH Level <span className="text-red-500">*</span>
                 </Label>
                 <InputNumber
                   value={
@@ -524,6 +590,9 @@ const AddPondModal = ({
                       : undefined
                   }
                   onChange={(value) => handleWaterParamChange("phLevel", value)}
+                  onBlur={() =>
+                    handleWaterParamBlur("phLevel", newPond.record?.phLevel)
+                  }
                   placeholder="vd: 7.0"
                   allowDecimal={true}
                   className={`border-2 focus:border-blue-500 ${
@@ -536,7 +605,7 @@ const AddPondModal = ({
               </div>
               <div className="space-y-2">
                 <Label className="text-sm font-medium text-gray-700">
-                  Nhiệt độ (°C)
+                  Nhiệt độ (°C) <span className="text-red-500">*</span>
                 </Label>
                 <InputNumber
                   value={
@@ -544,52 +613,15 @@ const AddPondModal = ({
                       ? Number(newPond.record.temperatureCelsius)
                       : undefined
                   }
-                  onChange={(value) => {
-                    const strValue = value ? String(value) : "";
-                    setNewPond({
-                      ...newPond,
-                      record: {
-                        ...newPond.record,
-                        phLevel: newPond.record?.phLevel || "",
-                        temperatureCelsius: strValue,
-                        oxygenLevel: newPond.record?.oxygenLevel || "",
-                        ammoniaLevel: newPond.record?.ammoniaLevel || "",
-                        nitriteLevel: newPond.record?.nitriteLevel || "",
-                        nitrateLevel: newPond.record?.nitrateLevel || "",
-                        carbonHardness: newPond.record?.carbonHardness || "",
-                        waterLevelMeters:
-                          newPond.record?.waterLevelMeters || "",
-                        notes: newPond.record?.notes || "",
-                      },
-                    });
-                    // Validate immediately on change
-                    if (strValue) {
-                      const num = parseFloat(strValue);
-                      if (isNaN(num)) {
-                        setFormErrors((prev) => ({
-                          ...prev,
-                          temperatureCelsius: "Nhiệt độ phải là số hợp lệ",
-                        }));
-                      } else {
-                        clearFieldError("temperatureCelsius");
-                      }
-                    } else {
-                      clearFieldError("temperatureCelsius");
-                    }
-                  }}
-                  onBlur={() => {
-                    // Validate on blur as well
-                    const val = newPond.record?.temperatureCelsius;
-                    if (val) {
-                      const num = parseFloat(val);
-                      if (isNaN(num)) {
-                        setFormErrors((prev) => ({
-                          ...prev,
-                          temperatureCelsius: "Nhiệt độ phải là số hợp lệ",
-                        }));
-                      }
-                    }
-                  }}
+                  onChange={(value) =>
+                    handleWaterParamChange("temperatureCelsius", value)
+                  }
+                  onBlur={() =>
+                    handleWaterParamBlur(
+                      "temperatureCelsius",
+                      newPond.record?.temperatureCelsius,
+                    )
+                  }
                   placeholder="vd: 25"
                   allowDecimal={true}
                   className={`border-2 focus:border-blue-500 ${
@@ -606,7 +638,7 @@ const AddPondModal = ({
               </div>
               <div className="space-y-2">
                 <Label className="text-sm font-medium text-gray-700">
-                  Oxy (mg/L)
+                  Oxy (mg/L) <span className="text-red-500">*</span>
                 </Label>
                 <InputNumber
                   value={
@@ -616,6 +648,12 @@ const AddPondModal = ({
                   }
                   onChange={(value) =>
                     handleWaterParamChange("oxygenLevel", value)
+                  }
+                  onBlur={() =>
+                    handleWaterParamBlur(
+                      "oxygenLevel",
+                      newPond.record?.oxygenLevel,
+                    )
                   }
                   placeholder="vd: 7.5"
                   allowDecimal={true}
@@ -633,7 +671,7 @@ const AddPondModal = ({
               </div>
               <div className="space-y-2">
                 <Label className="text-sm font-medium text-gray-700">
-                  Amoniac (mg/L)
+                  Amoniac (mg/L) <span className="text-red-500">*</span>
                 </Label>
                 <InputNumber
                   value={
@@ -643,6 +681,12 @@ const AddPondModal = ({
                   }
                   onChange={(value) =>
                     handleWaterParamChange("ammoniaLevel", value)
+                  }
+                  onBlur={() =>
+                    handleWaterParamBlur(
+                      "ammoniaLevel",
+                      newPond.record?.ammoniaLevel,
+                    )
                   }
                   placeholder="vd: 0.02"
                   allowDecimal={true}
@@ -660,7 +704,7 @@ const AddPondModal = ({
               </div>
               <div className="space-y-2">
                 <Label className="text-sm font-medium text-gray-700">
-                  Nitrite (mg/L)
+                  Nitrite (mg/L) <span className="text-red-500">*</span>
                 </Label>
                 <InputNumber
                   value={
@@ -670,6 +714,12 @@ const AddPondModal = ({
                   }
                   onChange={(value) =>
                     handleWaterParamChange("nitriteLevel", value)
+                  }
+                  onBlur={() =>
+                    handleWaterParamBlur(
+                      "nitriteLevel",
+                      newPond.record?.nitriteLevel,
+                    )
                   }
                   placeholder="vd: 0.05"
                   allowDecimal={true}
@@ -687,7 +737,7 @@ const AddPondModal = ({
               </div>
               <div className="space-y-2">
                 <Label className="text-sm font-medium text-gray-700">
-                  Nitrate (mg/L)
+                  Nitrate (mg/L) <span className="text-red-500">*</span>
                 </Label>
                 <InputNumber
                   value={
@@ -697,6 +747,12 @@ const AddPondModal = ({
                   }
                   onChange={(value) =>
                     handleWaterParamChange("nitrateLevel", value)
+                  }
+                  onBlur={() =>
+                    handleWaterParamBlur(
+                      "nitrateLevel",
+                      newPond.record?.nitrateLevel,
+                    )
                   }
                   placeholder="vd: 50"
                   allowDecimal={true}
@@ -714,7 +770,7 @@ const AddPondModal = ({
               </div>
               <div className="space-y-2">
                 <Label className="text-sm font-medium text-gray-700">
-                  Độ cứng (°dH)
+                  Độ cứng (°dH) <span className="text-red-500">*</span>
                 </Label>
                 <InputNumber
                   value={
@@ -724,6 +780,12 @@ const AddPondModal = ({
                   }
                   onChange={(value) =>
                     handleWaterParamChange("carbonHardness", value)
+                  }
+                  onBlur={() =>
+                    handleWaterParamBlur(
+                      "carbonHardness",
+                      newPond.record?.carbonHardness,
+                    )
                   }
                   placeholder="vd: 8"
                   allowDecimal={true}
@@ -741,7 +803,7 @@ const AddPondModal = ({
               </div>
               <div className="space-y-2">
                 <Label className="text-sm font-medium text-gray-700">
-                  Mức nước (m)
+                  Mực nước (m) <span className="text-red-500">*</span>
                 </Label>
                 <InputNumber
                   value={
@@ -751,6 +813,12 @@ const AddPondModal = ({
                   }
                   onChange={(value) =>
                     handleWaterParamChange("waterLevelMeters", value)
+                  }
+                  onBlur={() =>
+                    handleWaterParamBlur(
+                      "waterLevelMeters",
+                      newPond.record?.waterLevelMeters,
+                    )
                   }
                   placeholder="vd: 1.5"
                   allowDecimal={true}
@@ -805,11 +873,15 @@ const AddPondModal = ({
           <Button
             variant="outline"
             onClick={() => handleDialogOpenChange(false)}
-            className="px-6"
+            className="px-6 cursor-pointer"
           >
             Hủy
           </Button>
-          <Button onClick={handleAddPondWithValidation} disabled={isPending}>
+          <Button
+            onClick={handleAddPondWithValidation}
+            disabled={isPending}
+            className="cursor-pointer"
+          >
             {isPending ? (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             ) : (

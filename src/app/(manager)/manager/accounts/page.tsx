@@ -69,6 +69,7 @@ import { PaginationWithLinks } from "@/components/pagination";
 import { useAuthStore } from "@/store/auth-store";
 
 const PAGE_SIZE_OPTIONS = [10, 20, 50];
+const REGEX_PHONE_VN = /^(\+84|84|0)[35789][0-9]{8}$/;
 
 interface NewAccountForm {
   fullName: string;
@@ -134,7 +135,6 @@ export default function AccountManagement() {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(PAGE_SIZE_OPTIONS[0]);
 
-  // Get current logged-in user
   const currentUser = useAuthStore((state) => state.user);
 
   const [isAddModalOpen, setIsAddModalOpen] = useState<boolean>(false);
@@ -160,12 +160,10 @@ export default function AccountManagement() {
     confirmPassword: "",
   });
 
-  // Import dialog state
   const [isImportModalOpen, setIsImportModalOpen] = useState<boolean>(false);
   const [importFile, setImportFile] = useState<File | null>(null);
   const [isDragActive, setIsDragActive] = useState<boolean>(false);
 
-  // Track which user is being toggled
   const [togglingUserId, setTogglingUserId] = useState<number | null>(null);
 
   // Hooks for creating and blocking accounts
@@ -173,7 +171,7 @@ export default function AccountManagement() {
   const toggleBlockMutation = useToggleAccountBlock();
   const importMutation = useImportStaffAccounts();
 
-  // Reset to page 1 when search or filter changes (when API is called)
+  // Reset to page 1 when search or filter changes
   useEffect(() => {
     setCurrentPage(1);
   }, [debouncedSearchTerm, roleFilter]);
@@ -236,9 +234,41 @@ export default function AccountManagement() {
   };
 
   const handleAddAccount = async () => {
-    // Validation: Only FarmStaff and SaleStaff are allowed for new staff accounts
+    if (!newAccount.fullName.trim()) {
+      toast.error("Vui lòng nhập tên đầy đủ");
+      return;
+    }
+
+    if (!newAccount.userName.trim()) {
+      toast.error("Vui lòng nhập tên tài khoản");
+      return;
+    }
+
+    if (!newAccount.email.trim()) {
+      toast.error("Vui lòng nhập email");
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(newAccount.email)) {
+      toast.error("Email không hợp lệ");
+      return;
+    }
+
+    if (!newAccount.phone.trim()) {
+      toast.error("Vui lòng nhập số điện thoại");
+      return;
+    }
+    if (!REGEX_PHONE_VN.test(newAccount.phone)) {
+      toast.error(
+        "Số điện thoại không hợp lệ. Vui lòng nhập số điện thoại có 10 chữ số.",
+      );
+      return;
+    }
+
+    if (!newAccount.role) {
+      toast.error("Vui lòng chọn vai trò");
+      return;
+    }
     if (
-      !newAccount.role ||
       ![Roles.FarmStaff, Roles.SaleStaff].includes(newAccount.role as Roles)
     ) {
       toast.error(
@@ -247,29 +277,26 @@ export default function AccountManagement() {
       return;
     }
 
-    if (
-      !newAccount.fullName ||
-      !newAccount.userName ||
-      !newAccount.email ||
-      !newAccount.password
-    ) {
-      toast.error("Vui lòng điền đầy đủ thông tin");
+    if (!newAccount.password) {
+      toast.error("Vui lòng nhập mật khẩu");
       return;
     }
 
-    // Validate password strength
     const passwordValidation = validatePassword(newAccount.password);
     if (!passwordValidation.isValid) {
       toast.error(passwordValidation.message);
       return;
     }
 
+    if (!newAccount.confirmPassword) {
+      toast.error("Vui lòng xác nhận mật khẩu");
+      return;
+    }
     if (newAccount.password !== newAccount.confirmPassword) {
       toast.error("Mật khẩu xác nhận không khớp");
       return;
     }
 
-    // Prepare request data
     const requestData: CreateStaffAccountRequest = {
       email: newAccount.email,
       userName: newAccount.userName,
@@ -280,7 +307,6 @@ export default function AccountManagement() {
     };
 
     try {
-      // Call API to create new staff account
       await createStaffMutation.mutateAsync(requestData);
 
       setIsAddModalOpen(false);
@@ -429,7 +455,7 @@ export default function AccountManagement() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {/* Search and Filter - FIX #1: Responsive Layout */}
+          {/* Search and Filter */}
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-6">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -439,7 +465,7 @@ export default function AccountManagement() {
                 onChange={(e) => {
                   setSearchTerm(e.target.value);
                 }}
-                className="pl-10 h-10 transition-all duration-200 focus:ring-2 focus:ring-primary/20"
+                className="pl-10 h-9 transition-all duration-200 focus:ring-2 focus:ring-primary/20"
               />
             </div>
 
@@ -481,7 +507,6 @@ export default function AccountManagement() {
             />
           ) : (
             <>
-              {/* Table - FIX #5: Better Scannability */}
               <div className="overflow-x-auto -mx-2">
                 <Table className="w-full">
                   <TableHeader>
@@ -598,8 +623,7 @@ export default function AccountManagement() {
                 Nhập thông tin để tạo tài khoản nhân viên
               </DialogDescription>
             </DialogHeader>
-            <div className="space-y-4 max-h-[70vh] overflow-y-auto p-2">
-              {/* FIX #3: Real-time Validation */}
+            <div className="space-y-4 max-h-[60vh] overflow-y-auto p-2">
               <div className="space-y-2">
                 <Label htmlFor="fullName" className="flex items-center gap-1">
                   Tên đầy đủ
@@ -647,22 +671,20 @@ export default function AccountManagement() {
                   }
                   placeholder="Nhập email"
                 />
-                {newAccount.email &&
-                  !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(newAccount.email) && (
-                    <p className="text-xs text-destructive mt-1">
-                      Email không hợp lệ
-                    </p>
-                  )}
               </div>
               <div className="space-y-2">
-                <Label htmlFor="phone">Số điện thoại</Label>
+                <Label htmlFor="phone" className="flex items-center gap-1">
+                  Số điện thoại
+                  <span className="text-destructive">*</span>
+                </Label>
                 <Input
                   id="phone"
                   type="tel"
                   value={newAccount.phone}
-                  onChange={(e) =>
-                    setNewAccount({ ...newAccount, phone: e.target.value })
-                  }
+                  onChange={(e) => {
+                    const value = e.target.value.replace(/[^0-9+]/g, "");
+                    setNewAccount({ ...newAccount, phone: value });
+                  }}
                   placeholder="Nhập số điện thoại"
                 />
               </div>
@@ -677,7 +699,7 @@ export default function AccountManagement() {
                     setNewAccount({ ...newAccount, role: value })
                   }
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="w-full">
                     <SelectValue placeholder="Chọn vai trò" />
                   </SelectTrigger>
                   <SelectContent>
@@ -800,12 +822,6 @@ export default function AccountManagement() {
                     placeholder="Xác nhận mật khẩu"
                     className="bg-input/50 border-border/60 focus:ring-primary/30 focus:border-primary pr-11 transition-all duration-200 h-10 px-3 hover:border-primary/50"
                   />
-                  {newAccount.confirmPassword &&
-                    newAccount.password !== newAccount.confirmPassword && (
-                      <p className="text-xs text-destructive mt-1">
-                        Mật khẩu xác nhận không khớp
-                      </p>
-                    )}
                   <Button
                     type="button"
                     variant="ghost"

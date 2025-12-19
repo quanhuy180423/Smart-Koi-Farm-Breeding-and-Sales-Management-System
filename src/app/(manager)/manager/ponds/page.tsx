@@ -98,106 +98,90 @@ export interface PondFormState {
 const waterParametersSchema = z.object({
   phLevel: z
     .string()
-    .optional()
-    .refine((val) => {
-      if (!val) return true; // optional, so empty is ok
-      const num = parseFloat(val);
-      return !isNaN(num) && num >= 0;
-    }, "pH Level phải >= 0"),
+    .min(1, "Vui lòng nhập pH Level")
+    .refine(
+      (val) => !isNaN(Number(val)) && Number(val) >= 0,
+      "pH Level phải >= 0",
+    ),
   temperatureCelsius: z
     .string()
-    .optional()
-    .refine((val) => {
-      if (!val) return true;
-      const num = parseFloat(val);
-      return !isNaN(num);
-    }, "Nhiệt độ phải là số hợp lệ"),
+    .min(1, "Vui lòng nhập Nhiệt độ")
+    .refine((val) => !isNaN(Number(val)), "Nhiệt độ phải là số hợp lệ"),
   oxygenLevel: z
     .string()
-    .optional()
-    .refine((val) => {
-      if (!val) return true;
-      const num = parseFloat(val);
-      return !isNaN(num) && num >= 0;
-    }, "Oxy phải >= 0"),
+    .min(1, "Vui lòng nhập Oxy")
+    .refine((val) => !isNaN(Number(val)) && Number(val) >= 0, "Oxy phải >= 0"),
   ammoniaLevel: z
     .string()
-    .optional()
-    .refine((val) => {
-      if (!val) return true;
-      const num = parseFloat(val);
-      return !isNaN(num) && num >= 0;
-    }, "Ammonia phải >= 0"),
+    .min(1, "Vui lòng nhập Ammonia")
+    .refine(
+      (val) => !isNaN(Number(val)) && Number(val) >= 0,
+      "Ammonia phải >= 0",
+    ),
   nitriteLevel: z
     .string()
-    .optional()
-    .refine((val) => {
-      if (!val) return true;
-      const num = parseFloat(val);
-      return !isNaN(num) && num >= 0;
-    }, "Nitrite phải >= 0"),
+    .min(1, "Vui lòng nhập Nitrite")
+    .refine(
+      (val) => !isNaN(Number(val)) && Number(val) >= 0,
+      "Nitrite phải >= 0",
+    ),
   nitrateLevel: z
     .string()
-    .optional()
-    .refine((val) => {
-      if (!val) return true;
-      const num = parseFloat(val);
-      return !isNaN(num) && num >= 0;
-    }, "Nitrate phải >= 0"),
+    .min(1, "Vui lòng nhập Nitrate")
+    .refine(
+      (val) => !isNaN(Number(val)) && Number(val) >= 0,
+      "Nitrate phải >= 0",
+    ),
   carbonHardness: z
     .string()
-    .optional()
-    .refine((val) => {
-      if (!val) return true;
-      const num = parseFloat(val);
-      return !isNaN(num) && num >= 0;
-    }, "Carbon Hardness phải >= 0"),
+    .min(1, "Vui lòng nhập Độ cứng")
+    .refine(
+      (val) => !isNaN(Number(val)) && Number(val) >= 0,
+      "Carbon Hardness phải >= 0",
+    ),
   waterLevelMeters: z
     .string()
-    .optional()
-    .refine((val) => {
-      if (!val) return true;
-      const num = parseFloat(val);
-      return !isNaN(num) && num >= 0;
-    }, "Mức nước phải >= 0"),
+    .min(1, "Vui lòng nhập Mực nước")
+    .refine(
+      (val) => !isNaN(Number(val)) && Number(val) >= 0,
+      "Mực nước phải >= 0",
+    ),
   notes: z.string().optional(),
 });
 
-const pondSchema = z.object({
-  pondName: z.string().min(1, "Vui lòng nhập tên hồ"),
-  location: z.string().min(1, "Vui lòng nhập địa điểm"),
-  lengthMeters: z
-    .string()
-    .min(1, "Vui lòng nhập chiều dài")
-    .refine((val) => {
-      const num = parseFloat(val);
-      return !isNaN(num) && num > 0;
-    }, "Chiều dài phải lớn hơn 0"),
-  widthMeters: z
-    .string()
-    .min(1, "Vui lòng nhập chiều rộng")
-    .refine((val) => {
-      const num = parseFloat(val);
-      return !isNaN(num) && num > 0;
-    }, "Chiều rộng phải lớn hơn 0"),
-  depthMeters: z
-    .string()
-    .min(1, "Vui lòng nhập độ sâu")
-    .refine((val) => {
-      const num = parseFloat(val);
-      return !isNaN(num) && num > 0;
-    }, "Độ sâu phải lớn hơn 0"),
-  currentCapacity: z
-    .string()
-    .min(1, "Vui lòng nhập dung tích")
-    .refine((val) => {
-      const num = parseFloat(val);
-      return !isNaN(num) && num > 0;
-    }, "Dung tích phải lớn hơn 0"),
-  areaId: z.string().min(1, "Vui lòng chọn khu vực"),
-  pondTypeId: z.string().min(1, "Vui lòng chọn loại hồ"),
-  record: waterParametersSchema.optional(),
-});
+const pondSchema = z
+  .object({
+    pondName: z.string().min(1, "Vui lòng nhập tên hồ"),
+    location: z.string().min(1, "Vui lòng nhập địa điểm"),
+    lengthMeters: z
+      .string()
+      .refine((val) => val && Number(val) > 0, "Chiều dài phải lớn hơn 0"),
+    widthMeters: z
+      .string()
+      .refine((val) => val && Number(val) > 0, "Chiều rộng phải lớn hơn 0"),
+    depthMeters: z
+      .string()
+      .refine((val) => val && Number(val) > 0, "Độ sâu phải lớn hơn 0"),
+    currentCapacity: z.string().optional(),
+    areaId: z.string().min(1, "Vui lòng chọn khu vực"),
+    pondTypeId: z.string().min(1, "Vui lòng chọn loại hồ"),
+    record: waterParametersSchema,
+  })
+  .refine(
+    (data) => {
+      // Validate waterLevelMeters <= depthMeters
+      if (data.record?.waterLevelMeters && data.depthMeters) {
+        const waterLevel = Number(data.record.waterLevelMeters);
+        const depth = Number(data.depthMeters);
+        return waterLevel <= depth;
+      }
+      return true;
+    },
+    {
+      message: "Mực nước không được lớn hơn độ sâu của hồ",
+      path: ["record", "waterLevelMeters"],
+    },
+  );
 
 export default function PondManagement() {
   const [searchTerm, setSearchTerm] = useState<string>("");
