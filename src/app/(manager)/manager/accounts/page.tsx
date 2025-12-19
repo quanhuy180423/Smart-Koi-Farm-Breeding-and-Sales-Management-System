@@ -258,7 +258,9 @@ export default function AccountManagement() {
       return;
     }
     if (!REGEX_PHONE_VN.test(newAccount.phone)) {
-      toast.error("Số điện thoại không hợp lệ. Vui lòng nhập số điện thoại có 10 chữ số.");
+      toast.error(
+        "Số điện thoại không hợp lệ. Vui lòng nhập số điện thoại có 10 chữ số.",
+      );
       return;
     }
 
@@ -266,8 +268,12 @@ export default function AccountManagement() {
       toast.error("Vui lòng chọn vai trò");
       return;
     }
-    if (![Roles.FarmStaff, Roles.SaleStaff].includes(newAccount.role as Roles)) {
-      toast.error("Chỉ có thể tạo tài khoản cho nhân viên trang trại hoặc nhân viên bán hàng");
+    if (
+      ![Roles.FarmStaff, Roles.SaleStaff].includes(newAccount.role as Roles)
+    ) {
+      toast.error(
+        "Chỉ có thể tạo tài khoản cho nhân viên trang trại hoặc nhân viên bán hàng",
+      );
       return;
     }
 
@@ -676,7 +682,7 @@ export default function AccountManagement() {
                   type="tel"
                   value={newAccount.phone}
                   onChange={(e) => {
-                    const value = e.target.value.replace(/[^0-9+]/g, '');
+                    const value = e.target.value.replace(/[^0-9+]/g, "");
                     setNewAccount({ ...newAccount, phone: value });
                   }}
                   placeholder="Nhập số điện thoại"

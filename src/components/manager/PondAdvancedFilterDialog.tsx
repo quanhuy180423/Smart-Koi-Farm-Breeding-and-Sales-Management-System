@@ -207,7 +207,9 @@ export default function PondAdvancedFilterDialog({
           <div className="space-y-4 overflow-y-auto flex-1 pr-2">
             {/* Basic Filters Section */}
             <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 space-y-4">
-              <h4 className="text-sm font-semibold text-gray-900">Thông tin cơ bản</h4>
+              <h4 className="text-sm font-semibold text-gray-900">
+                Thông tin cơ bản
+              </h4>
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1.5">
                   <Label className="text-sm text-gray-700">Trạng thái</Label>
@@ -241,8 +243,7 @@ export default function PondAdvancedFilterDialog({
                     <SelectContent>
                       <SelectItem value="all">Tất cả loại hồ</SelectItem>
                       {Object.values(PondTypeEnum).map((type) => {
-                        const labelEnumValue =
-                          type as PondTypeEnumLabel;
+                        const labelEnumValue = type as PondTypeEnumLabel;
                         return (
                           <SelectItem key={type} value={type}>
                             {getPondTypeLabel(labelEnumValue).label}
@@ -296,7 +297,8 @@ export default function PondAdvancedFilterDialog({
                   Sức chứa
                 </h4>
                 <span className="text-sm font-medium text-gray-600">
-                  {filters.minCapacityInput || 0} - {filters.maxCapacityInput || 1000000} Lít
+                  {filters.minCapacityInput || 0} -{" "}
+                  {filters.maxCapacityInput || 1000000} Lít
                 </span>
               </div>
 
@@ -324,7 +326,9 @@ export default function PondAdvancedFilterDialog({
 
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1.5">
-                  <Label className="text-xs text-gray-600">Tối thiểu (Lít)</Label>
+                  <Label className="text-xs text-gray-600">
+                    Tối thiểu (Lít)
+                  </Label>
                   <InputNumber
                     value={
                       filters.minCapacityInput
@@ -357,9 +361,7 @@ export default function PondAdvancedFilterDialog({
             {/* Depth Range Section */}
             <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 space-y-4">
               <div className="flex items-center justify-between">
-                <h4 className="text-sm font-semibold text-gray-900">
-                  Độ sâu
-                </h4>
+                <h4 className="text-sm font-semibold text-gray-900">Độ sâu</h4>
                 <span className="text-sm font-medium text-gray-600">
                   {filters.minDepthInput || 0} - {filters.maxDepthInput || 20} m
                 </span>
@@ -419,9 +421,7 @@ export default function PondAdvancedFilterDialog({
 
             {/* Date Range Section */}
             <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 space-y-4">
-              <h4 className="text-sm font-semibold text-gray-900">
-                Ngày tạo
-              </h4>
+              <h4 className="text-sm font-semibold text-gray-900">Ngày tạo</h4>
               <div className="grid grid-cols-2 gap-3">
                 <DatePickerFilter
                   label="Từ ngày"

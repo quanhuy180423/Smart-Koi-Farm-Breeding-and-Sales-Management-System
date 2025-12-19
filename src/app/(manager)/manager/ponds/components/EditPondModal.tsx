@@ -31,7 +31,7 @@ const waterParametersSchema = z.object({
     .min(1, "Vui lòng nhập pH Level")
     .refine(
       (val) => !isNaN(Number(val)) && Number(val) >= 0,
-      "pH Level phải >= 0"
+      "pH Level phải >= 0",
     ),
   temperatureCelsius: z
     .string()
@@ -46,35 +46,35 @@ const waterParametersSchema = z.object({
     .min(1, "Vui lòng nhập Ammonia")
     .refine(
       (val) => !isNaN(Number(val)) && Number(val) >= 0,
-      "Ammonia phải >= 0"
+      "Ammonia phải >= 0",
     ),
   nitriteLevel: z
     .string()
     .min(1, "Vui lòng nhập Nitrite")
     .refine(
       (val) => !isNaN(Number(val)) && Number(val) >= 0,
-      "Nitrite phải >= 0"
+      "Nitrite phải >= 0",
     ),
   nitrateLevel: z
     .string()
     .min(1, "Vui lòng nhập Nitrate")
     .refine(
       (val) => !isNaN(Number(val)) && Number(val) >= 0,
-      "Nitrate phải >= 0"
+      "Nitrate phải >= 0",
     ),
   carbonHardness: z
     .string()
     .min(1, "Vui lòng nhập Độ cứng")
     .refine(
       (val) => !isNaN(Number(val)) && Number(val) >= 0,
-      "Carbon Hardness phải >= 0"
+      "Carbon Hardness phải >= 0",
     ),
   waterLevelMeters: z
     .string()
     .min(1, "Vui lòng nhập Mực nước")
     .refine(
       (val) => !isNaN(Number(val)) && Number(val) >= 0,
-      "Mực nước phải >= 0"
+      "Mực nước phải >= 0",
     ),
   notes: z.string().optional(),
 });
@@ -109,7 +109,7 @@ const pondSchema = z
     {
       message: "Mực nước không được lớn hơn độ sâu của hồ",
       path: ["record", "waterLevelMeters"],
-    }
+    },
   );
 
 interface EditPondModalProps {
@@ -119,7 +119,7 @@ interface EditPondModalProps {
   editPondForm: PondFormState;
   setEditPondForm: React.Dispatch<React.SetStateAction<PondFormState>>;
   handleUpdatePond: (
-    onValidationError?: (errors: Record<string, string>) => void
+    onValidationError?: (errors: Record<string, string>) => void,
   ) => void;
   isPending: boolean;
   handleOpenAreaSelection: (context: "new" | "edit") => void;
@@ -198,10 +198,10 @@ const EditPondModal = ({
         "pondStatus",
       ];
       const hasBasicErrors = Object.keys(errors).some((key) =>
-        basicFields.includes(key)
+        basicFields.includes(key),
       );
       const hasWaterErrors = Object.keys(errors).some(
-        (key) => !basicFields.includes(key)
+        (key) => !basicFields.includes(key),
       );
 
       // Prioritize basic tab if it has errors, otherwise go to water tab
@@ -292,7 +292,7 @@ const EditPondModal = ({
       | "carbonHardness"
       | "waterLevelMeters"
       | "notes",
-    value: number | undefined
+    value: number | undefined,
   ) => {
     const strValue = value ? String(value) : "";
     setEditPondForm({
@@ -602,7 +602,7 @@ const EditPondModal = ({
                         // Re-validate water level if depth changes
                         if (value && editPondForm.record?.waterLevelMeters) {
                           const waterLevel = Number(
-                            editPondForm.record.waterLevelMeters
+                            editPondForm.record.waterLevelMeters,
                           );
                           const newDepth = Number(value);
                           if (waterLevel > newDepth) {

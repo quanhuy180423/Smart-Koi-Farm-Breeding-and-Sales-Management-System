@@ -765,7 +765,10 @@ export default function AreaManagement() {
                   Diện tích
                 </Label>
                 <p className="text-base text-gray-900 mt-1.5">
-                  <span className="font-semibold">{selectedArea.totalAreaSQM || 0}</span> m²
+                  <span className="font-semibold">
+                    {selectedArea.totalAreaSQM || 0}
+                  </span>{" "}
+                  m²
                 </p>
               </div>
 
@@ -783,9 +786,7 @@ export default function AreaManagement() {
             </div>
           )}
           <div className="flex justify-end pt-4 border-t">
-            <Button onClick={() => setIsDetailModalOpen(false)}>
-              Đóng
-            </Button>
+            <Button onClick={() => setIsDetailModalOpen(false)}>Đóng</Button>
           </div>
         </DialogContent>
       </Dialog>

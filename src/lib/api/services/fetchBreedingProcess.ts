@@ -191,7 +191,7 @@ export interface AnalyzePairResponse {
 
 export const breedingProcessService = {
   getBreedingProcesses: async (
-    request: BreedingProcessSearchParams
+    request: BreedingProcessSearchParams,
   ): Promise<BaseResponse<PagedResponse<BreedingProcessResponse>>> => {
     const filter = toRequestParams(request);
     const response = await apiService.get<
@@ -200,7 +200,7 @@ export const breedingProcessService = {
     return response.data;
   },
   addBreedingProcess: async (
-    request: Partial<BreedingProcessCreateRequest>
+    request: Partial<BreedingProcessCreateRequest>,
   ): Promise<BaseResponse<BreedingProcessResponse>> => {
     const response = await apiService.post<
       BaseResponse<BreedingProcessResponse>,
@@ -209,7 +209,7 @@ export const breedingProcessService = {
     return response.data;
   },
   getBreedingParentHistory: async (
-    id: number
+    id: number,
   ): Promise<BaseResponse<BreedingParentHistoryResponse>> => {
     const response = await apiService.get<
       BaseResponse<BreedingParentHistoryResponse>
@@ -217,7 +217,7 @@ export const breedingProcessService = {
     return response.data;
   },
   getRecommends: async (
-    request: Partial<BreedingRecommendRequest>
+    request: Partial<BreedingRecommendRequest>,
   ): Promise<BaseResponse<BreedingRecommendResponse>> => {
     const response = await apiService.post<
       BaseResponse<BreedingRecommendResponse>,
@@ -228,20 +228,20 @@ export const breedingProcessService = {
   cancelBreeding: async (id: number, note: string) => {
     const response = await apiService.put<BaseResponse<boolean>, string>(
       `${baseUrl}/cancel/${id}`,
-      note
+      note,
     );
     return response.data;
   },
   getBreedingDetail: async (
-    id?: number
+    id?: number,
   ): Promise<BaseResponse<BreedingDetailResponse>> => {
     const response = await apiService.get<BaseResponse<BreedingDetailResponse>>(
-      `${baseUrl}/detail/${id}`
+      `${baseUrl}/detail/${id}`,
     );
     return response.data;
   },
   analyzePair: async (
-    request: AnalyzePairRequest
+    request: AnalyzePairRequest,
   ): Promise<BaseResponse<AnalyzePairResponse>> => {
     const response = await apiService.post<
       BaseResponse<AnalyzePairResponse>,
@@ -250,10 +250,10 @@ export const breedingProcessService = {
     return response.data;
   },
   getBreedingKoiFishes: async (
-    breedingId: number
+    breedingId: number,
   ): Promise<BaseResponse<KoiFishResponse[]>> => {
     const response = await apiService.get<BaseResponse<KoiFishResponse[]>>(
-      `${baseUrl}/${breedingId}/koi-fishes`
+      `${baseUrl}/${breedingId}/koi-fishes`,
     );
     return response.data;
   },

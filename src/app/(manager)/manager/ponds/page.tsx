@@ -99,7 +99,10 @@ const waterParametersSchema = z.object({
   phLevel: z
     .string()
     .min(1, "Vui lòng nhập pH Level")
-    .refine((val) => !isNaN(Number(val)) && Number(val) >= 0, "pH Level phải >= 0"),
+    .refine(
+      (val) => !isNaN(Number(val)) && Number(val) >= 0,
+      "pH Level phải >= 0",
+    ),
   temperatureCelsius: z
     .string()
     .min(1, "Vui lòng nhập Nhiệt độ")
@@ -111,23 +114,38 @@ const waterParametersSchema = z.object({
   ammoniaLevel: z
     .string()
     .min(1, "Vui lòng nhập Ammonia")
-    .refine((val) => !isNaN(Number(val)) && Number(val) >= 0, "Ammonia phải >= 0"),
+    .refine(
+      (val) => !isNaN(Number(val)) && Number(val) >= 0,
+      "Ammonia phải >= 0",
+    ),
   nitriteLevel: z
     .string()
     .min(1, "Vui lòng nhập Nitrite")
-    .refine((val) => !isNaN(Number(val)) && Number(val) >= 0, "Nitrite phải >= 0"),
+    .refine(
+      (val) => !isNaN(Number(val)) && Number(val) >= 0,
+      "Nitrite phải >= 0",
+    ),
   nitrateLevel: z
     .string()
     .min(1, "Vui lòng nhập Nitrate")
-    .refine((val) => !isNaN(Number(val)) && Number(val) >= 0, "Nitrate phải >= 0"),
+    .refine(
+      (val) => !isNaN(Number(val)) && Number(val) >= 0,
+      "Nitrate phải >= 0",
+    ),
   carbonHardness: z
     .string()
     .min(1, "Vui lòng nhập Độ cứng")
-    .refine((val) => !isNaN(Number(val)) && Number(val) >= 0, "Carbon Hardness phải >= 0"),
+    .refine(
+      (val) => !isNaN(Number(val)) && Number(val) >= 0,
+      "Carbon Hardness phải >= 0",
+    ),
   waterLevelMeters: z
     .string()
     .min(1, "Vui lòng nhập Mực nước")
-    .refine((val) => !isNaN(Number(val)) && Number(val) >= 0, "Mực nước phải >= 0"),
+    .refine(
+      (val) => !isNaN(Number(val)) && Number(val) >= 0,
+      "Mực nước phải >= 0",
+    ),
   notes: z.string().optional(),
 });
 

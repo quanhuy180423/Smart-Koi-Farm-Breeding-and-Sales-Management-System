@@ -229,7 +229,7 @@ const PondDetailModal = ({
                         </span>
                         <span className="font-semibold">
                           {selectedPond.capacityLiters?.toLocaleString(
-                            "vi-VN"
+                            "vi-VN",
                           ) || 0}{" "}
                           L
                         </span>
@@ -240,7 +240,7 @@ const PondDetailModal = ({
                         </span>
                         <span className="font-semibold">
                           {selectedPond.currentCapacity?.toLocaleString(
-                            "vi-VN"
+                            "vi-VN",
                           ) || 0}{" "}
                           L
                         </span>
@@ -269,7 +269,10 @@ const PondDetailModal = ({
                         Ngày tạo
                       </Label>
                       <p className="text-base font-semibold text-gray-900 mt-1">
-                        {formatDate(selectedPond.createdAt, DATE_FORMATS.DATETIME_24H)}
+                        {formatDate(
+                          selectedPond.createdAt,
+                          DATE_FORMATS.DATETIME_24H,
+                        )}
                       </p>
                     </div>
                   </div>
@@ -313,7 +316,7 @@ const PondDetailModal = ({
                       <TableBody>
                         {koiFishesData.map((koi) => {
                           const healthLabel = getHealthStatusLabel(
-                            koi.healthStatus
+                            koi.healthStatus,
                           );
                           const genderLabel = getGenderLabel(koi.gender);
                           const saleLabel = getSaleStatusLabel(koi.saleStatus);
@@ -351,11 +354,13 @@ const PondDetailModal = ({
                                 </Badge>
                               </TableCell>
                               <TableCell className="text-right">
-                                {formatCurrency(koi.sellingPrice) ||
-                                  "-"}
+                                {formatCurrency(koi.sellingPrice) || "-"}
                               </TableCell>
                               <TableCell>
-                                {formatDate(koi.birthDate, DATE_FORMATS.MEDIUM_DATE)}
+                                {formatDate(
+                                  koi.birthDate,
+                                  DATE_FORMATS.MEDIUM_DATE,
+                                )}
                               </TableCell>
                             </TableRow>
                           );
@@ -433,7 +438,7 @@ const PondDetailModal = ({
                             <TableCell className="font-medium">
                               {formatDate(
                                 record.recordedAt,
-                                "HH:mm dd/MM/yyyy"
+                                "HH:mm dd/MM/yyyy",
                               )}
                             </TableCell>
                             <TableCell>{record.recordedByUserName}</TableCell>

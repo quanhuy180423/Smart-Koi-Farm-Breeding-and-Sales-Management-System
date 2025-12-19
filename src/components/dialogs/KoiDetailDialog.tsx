@@ -355,9 +355,7 @@ export function KoiDetailDialog({
                   <div className="p-4 bg-gray-50 rounded-xl border border-gray-300">
                     <div className="flex items-center gap-2 mb-2">
                       <AlertCircle className="h-5 w-5 text-gray-600" />
-                      <h4 className="font-semibold">
-                        Thông tin đột biến
-                      </h4>
+                      <h4 className="font-semibold">Thông tin đột biến</h4>
                     </div>
                     {koi.mutationDescription && (
                       <p className="text-sm text-gray-700 italic">
@@ -365,7 +363,7 @@ export function KoiDetailDialog({
                       </p>
                     )}
                   </div>
-                )}  
+                )}
 
                 {/* Description */}
                 {koi.description && (

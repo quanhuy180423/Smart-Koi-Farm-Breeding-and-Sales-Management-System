@@ -234,9 +234,7 @@ export default function ManagerOrderDetailPage() {
             {order.note && (
               <div>
                 <p className="text-sm text-muted-foreground">Ghi chú</p>
-                <p className="font-medium italic">
-                  {order.note}
-                </p>
+                <p className="font-medium italic">{order.note}</p>
               </div>
             )}
           </CardContent>

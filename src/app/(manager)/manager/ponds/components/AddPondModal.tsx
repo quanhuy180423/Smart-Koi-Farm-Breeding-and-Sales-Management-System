@@ -21,7 +21,10 @@ const waterParametersSchema = z.object({
   phLevel: z
     .string()
     .min(1, "Vui lòng nhập pH Level")
-    .refine((val) => !isNaN(Number(val)) && Number(val) >= 0, "pH Level phải >= 0"),
+    .refine(
+      (val) => !isNaN(Number(val)) && Number(val) >= 0,
+      "pH Level phải >= 0",
+    ),
   temperatureCelsius: z
     .string()
     .min(1, "Vui lòng nhập Nhiệt độ")
@@ -33,23 +36,38 @@ const waterParametersSchema = z.object({
   ammoniaLevel: z
     .string()
     .min(1, "Vui lòng nhập Ammonia")
-    .refine((val) => !isNaN(Number(val)) && Number(val) >= 0, "Ammonia phải >= 0"),
+    .refine(
+      (val) => !isNaN(Number(val)) && Number(val) >= 0,
+      "Ammonia phải >= 0",
+    ),
   nitriteLevel: z
     .string()
     .min(1, "Vui lòng nhập Nitrite")
-    .refine((val) => !isNaN(Number(val)) && Number(val) >= 0, "Nitrite phải >= 0"),
+    .refine(
+      (val) => !isNaN(Number(val)) && Number(val) >= 0,
+      "Nitrite phải >= 0",
+    ),
   nitrateLevel: z
     .string()
     .min(1, "Vui lòng nhập Nitrate")
-    .refine((val) => !isNaN(Number(val)) && Number(val) >= 0, "Nitrate phải >= 0"),
+    .refine(
+      (val) => !isNaN(Number(val)) && Number(val) >= 0,
+      "Nitrate phải >= 0",
+    ),
   carbonHardness: z
     .string()
     .min(1, "Vui lòng nhập Độ cứng")
-    .refine((val) => !isNaN(Number(val)) && Number(val) >= 0, "Carbon Hardness phải >= 0"),
+    .refine(
+      (val) => !isNaN(Number(val)) && Number(val) >= 0,
+      "Carbon Hardness phải >= 0",
+    ),
   waterLevelMeters: z
     .string()
     .min(1, "Vui lòng nhập Mực nước")
-    .refine((val) => !isNaN(Number(val)) && Number(val) >= 0, "Mực nước phải >= 0"),
+    .refine(
+      (val) => !isNaN(Number(val)) && Number(val) >= 0,
+      "Mực nước phải >= 0",
+    ),
   notes: z.string().optional(),
 });
 
@@ -150,7 +168,7 @@ const AddPondModal = ({
             ? error.path.join(".")
             : (error.path[0] as string);
         errors[pathKey] = error.message;
-        
+
         // Also add without "record." prefix for inline validation
         if (pathKey.startsWith("record.")) {
           const fieldName = pathKey.replace("record.", "");
@@ -158,12 +176,24 @@ const AddPondModal = ({
         }
       });
       setFormErrors(errors);
-      
+
       // Automatically switch to the tab with errors
-      const basicFields = ['pondName', 'location', 'lengthMeters', 'widthMeters', 'depthMeters', 'areaId', 'pondTypeId'];
-      const hasBasicErrors = Object.keys(errors).some((key) => basicFields.includes(key));
-      const hasWaterErrors = Object.keys(errors).some((key) => !basicFields.includes(key));
-      
+      const basicFields = [
+        "pondName",
+        "location",
+        "lengthMeters",
+        "widthMeters",
+        "depthMeters",
+        "areaId",
+        "pondTypeId",
+      ];
+      const hasBasicErrors = Object.keys(errors).some((key) =>
+        basicFields.includes(key),
+      );
+      const hasWaterErrors = Object.keys(errors).some(
+        (key) => !basicFields.includes(key),
+      );
+
       // Prioritize basic tab if it has errors, otherwise go to water tab
       if (hasBasicErrors) {
         setActiveTab("basic");
@@ -207,7 +237,10 @@ const AddPondModal = ({
     return num >= 0;
   };
 
-  const handleWaterParamBlur = (fieldName: string, value: string | undefined) => {
+  const handleWaterParamBlur = (
+    fieldName: string,
+    value: string | undefined,
+  ) => {
     if (!value) {
       const label = waterParamLabels[fieldName] || fieldName;
       setFormErrors((prev) => ({
@@ -508,15 +541,18 @@ const AddPondModal = ({
                       depthMeters: value ? String(value) : "",
                     });
                     clearFieldError("depthMeters");
-                    
+
                     // Re-validate water level if depth changes
                     if (value && newPond.record?.waterLevelMeters) {
-                      const waterLevel = Number(newPond.record.waterLevelMeters);
+                      const waterLevel = Number(
+                        newPond.record.waterLevelMeters,
+                      );
                       const newDepth = Number(value);
                       if (waterLevel > newDepth) {
                         setFormErrors((prev) => ({
                           ...prev,
-                          waterLevelMeters: "Mực nước không được lớn hơn độ sâu của hồ",
+                          waterLevelMeters:
+                            "Mực nước không được lớn hơn độ sâu của hồ",
                         }));
                       } else {
                         clearFieldError("waterLevelMeters");
@@ -554,7 +590,9 @@ const AddPondModal = ({
                       : undefined
                   }
                   onChange={(value) => handleWaterParamChange("phLevel", value)}
-                  onBlur={() => handleWaterParamBlur("phLevel", newPond.record?.phLevel)}
+                  onBlur={() =>
+                    handleWaterParamBlur("phLevel", newPond.record?.phLevel)
+                  }
                   placeholder="vd: 7.0"
                   allowDecimal={true}
                   className={`border-2 focus:border-blue-500 ${
@@ -575,8 +613,15 @@ const AddPondModal = ({
                       ? Number(newPond.record.temperatureCelsius)
                       : undefined
                   }
-                  onChange={(value) => handleWaterParamChange("temperatureCelsius", value)}
-                  onBlur={() => handleWaterParamBlur("temperatureCelsius", newPond.record?.temperatureCelsius)}
+                  onChange={(value) =>
+                    handleWaterParamChange("temperatureCelsius", value)
+                  }
+                  onBlur={() =>
+                    handleWaterParamBlur(
+                      "temperatureCelsius",
+                      newPond.record?.temperatureCelsius,
+                    )
+                  }
                   placeholder="vd: 25"
                   allowDecimal={true}
                   className={`border-2 focus:border-blue-500 ${
@@ -604,7 +649,12 @@ const AddPondModal = ({
                   onChange={(value) =>
                     handleWaterParamChange("oxygenLevel", value)
                   }
-                  onBlur={() => handleWaterParamBlur("oxygenLevel", newPond.record?.oxygenLevel)}
+                  onBlur={() =>
+                    handleWaterParamBlur(
+                      "oxygenLevel",
+                      newPond.record?.oxygenLevel,
+                    )
+                  }
                   placeholder="vd: 7.5"
                   allowDecimal={true}
                   className={`border-2 focus:border-blue-500 ${
@@ -632,7 +682,12 @@ const AddPondModal = ({
                   onChange={(value) =>
                     handleWaterParamChange("ammoniaLevel", value)
                   }
-                  onBlur={() => handleWaterParamBlur("ammoniaLevel", newPond.record?.ammoniaLevel)}
+                  onBlur={() =>
+                    handleWaterParamBlur(
+                      "ammoniaLevel",
+                      newPond.record?.ammoniaLevel,
+                    )
+                  }
                   placeholder="vd: 0.02"
                   allowDecimal={true}
                   className={`border-2 focus:border-blue-500 ${
@@ -660,7 +715,12 @@ const AddPondModal = ({
                   onChange={(value) =>
                     handleWaterParamChange("nitriteLevel", value)
                   }
-                  onBlur={() => handleWaterParamBlur("nitriteLevel", newPond.record?.nitriteLevel)}
+                  onBlur={() =>
+                    handleWaterParamBlur(
+                      "nitriteLevel",
+                      newPond.record?.nitriteLevel,
+                    )
+                  }
                   placeholder="vd: 0.05"
                   allowDecimal={true}
                   className={`border-2 focus:border-blue-500 ${
@@ -688,7 +748,12 @@ const AddPondModal = ({
                   onChange={(value) =>
                     handleWaterParamChange("nitrateLevel", value)
                   }
-                  onBlur={() => handleWaterParamBlur("nitrateLevel", newPond.record?.nitrateLevel)}
+                  onBlur={() =>
+                    handleWaterParamBlur(
+                      "nitrateLevel",
+                      newPond.record?.nitrateLevel,
+                    )
+                  }
                   placeholder="vd: 50"
                   allowDecimal={true}
                   className={`border-2 focus:border-blue-500 ${
@@ -716,7 +781,12 @@ const AddPondModal = ({
                   onChange={(value) =>
                     handleWaterParamChange("carbonHardness", value)
                   }
-                  onBlur={() => handleWaterParamBlur("carbonHardness", newPond.record?.carbonHardness)}
+                  onBlur={() =>
+                    handleWaterParamBlur(
+                      "carbonHardness",
+                      newPond.record?.carbonHardness,
+                    )
+                  }
                   placeholder="vd: 8"
                   allowDecimal={true}
                   className={`border-2 focus:border-blue-500 ${
@@ -744,7 +814,12 @@ const AddPondModal = ({
                   onChange={(value) =>
                     handleWaterParamChange("waterLevelMeters", value)
                   }
-                  onBlur={() => handleWaterParamBlur("waterLevelMeters", newPond.record?.waterLevelMeters)}
+                  onBlur={() =>
+                    handleWaterParamBlur(
+                      "waterLevelMeters",
+                      newPond.record?.waterLevelMeters,
+                    )
+                  }
                   placeholder="vd: 1.5"
                   allowDecimal={true}
                   className={`border-2 focus:border-blue-500 ${
@@ -802,7 +877,11 @@ const AddPondModal = ({
           >
             Hủy
           </Button>
-          <Button onClick={handleAddPondWithValidation} disabled={isPending} className="cursor-pointer">
+          <Button
+            onClick={handleAddPondWithValidation}
+            disabled={isPending}
+            className="cursor-pointer"
+          >
             {isPending ? (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             ) : (

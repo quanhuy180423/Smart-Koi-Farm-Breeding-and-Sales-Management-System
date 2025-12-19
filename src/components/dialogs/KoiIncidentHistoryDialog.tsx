@@ -135,10 +135,10 @@ export function KoiIncidentHistoryDialog({
               {incidents.map((incident) => {
                 const isExpanded = expandedId === incident.id;
                 const statusColor = getStatusColor(
-                  incident.affectedStatus as AffectedStatus
+                  incident.affectedStatus as AffectedStatus,
                 );
                 const statusLabel = getStatusLabel(
-                  incident.affectedStatus as AffectedStatus
+                  incident.affectedStatus as AffectedStatus,
                 );
 
                 return (
@@ -159,7 +159,7 @@ export function KoiIncidentHistoryDialog({
                           <div
                             className={cn(
                               "p-0.5 rounded-full border-2",
-                              statusColor
+                              statusColor,
                             )}
                           >
                             {koiFish?.images && koiFish.images.length > 0 ? (
@@ -187,13 +187,13 @@ export function KoiIncidentHistoryDialog({
                               <p className="text-xs text-gray-600">
                                 {formatDate(
                                   incident.affectedFrom,
-                                  DATE_FORMATS.MEDIUM_DATE
+                                  DATE_FORMATS.MEDIUM_DATE,
                                 )}
                               </p>
                               <Badge
                                 className={cn(
                                   "text-xs font-medium",
-                                  statusColor
+                                  statusColor,
                                 )}
                               >
                                 {statusLabel}
@@ -244,12 +244,12 @@ export function KoiIncidentHistoryDialog({
                                     className={cn(
                                       "text-xs w-fit",
                                       getSeverityColor(
-                                        incident.incident.severity
-                                      )
+                                        incident.incident.severity,
+                                      ),
                                     )}
                                   >
                                     {getSeverityLabel(
-                                      incident.incident.severity
+                                      incident.incident.severity,
                                     )}
                                   </Badge>
                                 </div>
@@ -263,7 +263,7 @@ export function KoiIncidentHistoryDialog({
                                   className="text-xs w-fit"
                                 >
                                   {getIncidentStatusLabel(
-                                    incident.incident.status
+                                    incident.incident.status,
                                   )}
                                 </Badge>
                               </div>
@@ -284,7 +284,7 @@ export function KoiIncidentHistoryDialog({
                               <span className="col-span-2 font-medium">
                                 {formatDate(
                                   incident.affectedFrom,
-                                  DATE_FORMATS.MEDIUM_DATE
+                                  DATE_FORMATS.MEDIUM_DATE,
                                 )}
                               </span>
                             </div>
@@ -296,7 +296,7 @@ export function KoiIncidentHistoryDialog({
                                 {incident.recoveredAt
                                   ? formatDate(
                                       incident.recoveredAt,
-                                      DATE_FORMATS.MEDIUM_DATE
+                                      DATE_FORMATS.MEDIUM_DATE,
                                     )
                                   : "Chưa hồi phục"}
                               </span>

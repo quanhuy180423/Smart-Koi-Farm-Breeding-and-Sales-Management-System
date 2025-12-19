@@ -98,7 +98,7 @@ export default function ManagerDashboard() {
         {
           title: "Tổng số cá Koi",
           value: new Intl.NumberFormat("vi-VN").format(
-            statistics.totalKoi.current
+            statistics.totalKoi.current,
           ),
           change: `${statistics.totalKoi.changePercent > 0 ? "+" : ""}${statistics.totalKoi.changePercent}%`,
           changeType:
@@ -108,7 +108,7 @@ export default function ManagerDashboard() {
         {
           title: "Tài khoản hoạt động",
           value: new Intl.NumberFormat("vi-VN").format(
-            statistics.activeAccounts.current
+            statistics.activeAccounts.current,
           ),
           change: `${statistics.activeAccounts.changePercent > 0 ? "+" : ""}${statistics.activeAccounts.changePercent}%`,
           changeType:
@@ -120,7 +120,7 @@ export default function ManagerDashboard() {
         {
           title: "Số hồ đang sử dụng",
           value: new Intl.NumberFormat("vi-VN").format(
-            statistics.pondsInUse.current
+            statistics.pondsInUse.current,
           ),
           change: `${statistics.pondsInUse.changePercent > 0 ? "+" : ""}${statistics.pondsInUse.changePercent}%`,
           changeType:

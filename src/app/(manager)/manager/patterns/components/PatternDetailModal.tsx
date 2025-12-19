@@ -97,7 +97,10 @@ export default function PatternDetailModal({
                     <Label className="text-sm font-medium text-gray-600">
                       Tên hoa văn
                     </Label>
-                    <Badge variant="outline" className="mt-1 text-base font-semibold">
+                    <Badge
+                      variant="outline"
+                      className="mt-1 text-base font-semibold"
+                    >
                       {pattern?.patternName}
                     </Badge>
                   </div>
@@ -147,7 +150,9 @@ export default function PatternDetailModal({
             {isLoading ? (
               <div className="flex flex-col items-center justify-center py-12 text-center">
                 <Loader2 className="h-8 w-8 animate-spin text-muted-foreground mb-3" />
-                <p className="text-sm text-muted-foreground">Đang tải danh sách giống cá...</p>
+                <p className="text-sm text-muted-foreground">
+                  Đang tải danh sách giống cá...
+                </p>
               </div>
             ) : varieties.length > 0 ? (
               <div className="border rounded-lg overflow-hidden">

@@ -26,7 +26,9 @@ const TaskTemplateDetailModal = ({
         <DialogTitle className="text-lg font-semibold">
           Chi tiết công việc
         </DialogTitle>
-        <DialogDescription>Thông tin chi tiết về mẫu công việc</DialogDescription>
+        <DialogDescription>
+          Thông tin chi tiết về mẫu công việc
+        </DialogDescription>
       </DialogHeader>
       {selectedTask && (
         <div className="space-y-4 overflow-y-auto flex-1 pr-1">
@@ -46,7 +48,10 @@ const TaskTemplateDetailModal = ({
               Thời lượng mặc định
             </Label>
             <p className="text-base text-gray-900 mt-1.5">
-              <span className="font-semibold">{selectedTask.defaultDuration}</span> phút
+              <span className="font-semibold">
+                {selectedTask.defaultDuration}
+              </span>{" "}
+              phút
             </p>
           </div>
 
@@ -78,14 +83,20 @@ const TaskTemplateDetailModal = ({
               <div>
                 <span className="font-medium">Tạo lúc:</span>{" "}
                 <span className="text-gray-700">
-                  {formatDate(selectedTask.createdAt, DATE_FORMATS.DATETIME_24H)}
+                  {formatDate(
+                    selectedTask.createdAt,
+                    DATE_FORMATS.DATETIME_24H,
+                  )}
                 </span>
               </div>
               {selectedTask.updatedAt && (
                 <div>
                   <span className="font-medium">Cập nhật lúc:</span>{" "}
                   <span className="text-gray-700">
-                    {formatDate(selectedTask.updatedAt, DATE_FORMATS.DATETIME_24H)}
+                    {formatDate(
+                      selectedTask.updatedAt,
+                      DATE_FORMATS.DATETIME_24H,
+                    )}
                   </span>
                 </div>
               )}
