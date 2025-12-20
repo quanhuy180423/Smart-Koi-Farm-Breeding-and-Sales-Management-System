@@ -350,9 +350,16 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
   }) => {
     return (
       <div className="flex flex-col items-center">
-        <button
+        <div
           onClick={onClickTrigger}
           className="relative cursor-pointer group"
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              onClickTrigger();
+            }
+          }}
         >
           {selected ? (
             <div className="relative">
@@ -388,7 +395,7 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
               />
             </div>
           )}
-        </button>
+        </div>
 
         <div className="mt-4 text-center w-full">
           {selected ? (
