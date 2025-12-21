@@ -745,7 +745,7 @@ export default function BreedingManagement() {
                               </Tooltip>
 
                               {process.status ===
-                                BreedingStatus.CLASSIFICATION && (
+                                BreedingStatus.CLASSIFICATION && process.result !== BreedingResult.FAILED && (
                                 <Tooltip>
                                   <TooltipTrigger asChild>
                                     <Button
@@ -767,7 +767,7 @@ export default function BreedingManagement() {
                               )}
 
                               {process.status !== BreedingStatus.COMPLETE &&
-                                process.status !== BreedingStatus.FAILED && (
+                                process.result !== BreedingResult.FAILED && (
                                   <Tooltip>
                                     <TooltipTrigger asChild>
                                       <Button
