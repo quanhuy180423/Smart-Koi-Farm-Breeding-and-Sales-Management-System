@@ -745,26 +745,27 @@ export default function BreedingManagement() {
                               </Tooltip>
 
                               {process.status ===
-                                BreedingStatus.CLASSIFICATION && process.result !== BreedingResult.FAILED && (
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <Button
-                                      size="sm"
-                                      variant="ghost"
-                                      className="h-8 w-8 p-0 text-green-600 hover:text-green-700 hover:bg-green-50"
-                                      onClick={() => {
-                                        setBreedingToComplete(process);
-                                        setIsCompleteModalOpen(true);
-                                      }}
-                                    >
-                                      <CheckCircle className="h-4 w-4" />
-                                    </Button>
-                                  </TooltipTrigger>
-                                  <TooltipContent>
-                                    <p>Hoàn thành phân loại</p>
-                                  </TooltipContent>
-                                </Tooltip>
-                              )}
+                                BreedingStatus.CLASSIFICATION &&
+                                process.result !== BreedingResult.FAILED && (
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <Button
+                                        size="sm"
+                                        variant="ghost"
+                                        className="h-8 w-8 p-0 text-green-600 hover:text-green-700 hover:bg-green-50"
+                                        onClick={() => {
+                                          setBreedingToComplete(process);
+                                          setIsCompleteModalOpen(true);
+                                        }}
+                                      >
+                                        <CheckCircle className="h-4 w-4" />
+                                      </Button>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                      <p>Hoàn thành phân loại</p>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                )}
 
                               {process.status !== BreedingStatus.COMPLETE &&
                                 process.result !== BreedingResult.FAILED && (
