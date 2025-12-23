@@ -141,7 +141,7 @@ export default function ShippingInfoPage() {
                 </div>
               )}
 
-              {shippingBoxes && shippingBoxes.length > 0 && (
+              {/* {shippingBoxes && shippingBoxes.length > 0 && (
                 <div className="mt-8 rounded-lg bg-blue-50 p-4 border border-blue-100">
                   <div className="flex items-start gap-3">
                     <Info className="h-5 w-5 text-blue-600 mt-0.5 shrink-0" />
@@ -155,7 +155,7 @@ export default function ShippingInfoPage() {
                     </div>
                   </div>
                 </div>
-              )}
+              )} */}
             </CardContent>
           </Card>
         </div>
@@ -273,7 +273,7 @@ export default function ShippingInfoPage() {
                 </div>
               )}
 
-              {shippingDistances && shippingDistances.length > 0 && (
+              {/* {shippingDistances && shippingDistances.length > 0 && (
                 <div className="mt-8 rounded-lg bg-blue-50 p-4 border border-blue-100">
                   <div className="flex items-start gap-3">
                     <Info className="h-5 w-5 text-blue-600 mt-0.5 shrink-0" />
@@ -287,7 +287,7 @@ export default function ShippingInfoPage() {
                     </div>
                   </div>
                 </div>
-              )}
+              )} */}
             </CardContent>
           </Card>
         </div>
@@ -393,7 +393,7 @@ export default function ShippingInfoPage() {
                       + (30.000đ + 30km × 2.000đ) ={" "}
                       {shippingBoxes && shippingBoxes.length > 0
                         ? formatCurrency(
-                            shippingBoxes[0].fee + 30000 + 30 * 2000,
+                            shippingBoxes[0].fee + 30000 + 30 * 2000
                           )
                         : "340.000đ"}
                     </p>

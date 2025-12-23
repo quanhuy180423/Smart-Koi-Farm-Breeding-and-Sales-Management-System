@@ -945,7 +945,7 @@ export default function ShippingManagement() {
                         )}
                       </div>
 
-                      <div className="rounded-lg bg-blue-50 p-4">
+                      {/* <div className="rounded-lg bg-blue-50 p-4">
                         <div className="flex items-start gap-3">
                           <Info className="h-7 w-7 text-blue-600 -mt-0.5" />
                           <div className="text-sm text-blue-800">
@@ -957,7 +957,7 @@ export default function ShippingManagement() {
                             </p>
                           </div>
                         </div>
-                      </div>
+                      </div> */}
                     </div>
                     <div className="flex justify-end gap-3 pt-4 border-t">
                       <Button
