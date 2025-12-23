@@ -32,7 +32,7 @@ export default function ComparisonSection({
     isPending,
   } = useAnalyzePair();
   const [analysisData, setAnalysisData] = useState<AnalyzePairResponse | null>(
-    null,
+    null
   );
 
   useEffect(() => {
@@ -52,7 +52,7 @@ export default function ComparisonSection({
 
   // Helper function to get risk level based on percentage
   const getRiskLevel = (
-    value: number,
+    value: number
   ): {
     label: string;
     bgColor: string;
@@ -299,7 +299,7 @@ export default function ComparisonSection({
                 <span className="text-base font-bold text-blue-800">
                   Cá Bố - Tỷ lệ thụ tinh trung bình:{" "}
                   {analysisData?.maleBreedingInfo?.avgFertilizationRate?.toFixed(
-                    2,
+                    2
                   )}
                   %
                 </span>
@@ -324,7 +324,7 @@ export default function ComparisonSection({
                     </div>
                     <span className="text-sm font-bold text-blue-600">
                       {analysisData?.maleBreedingInfo?.breedingSuccessRate?.toFixed(
-                        2,
+                        2
                       )}
                       %
                     </span>
@@ -363,7 +363,7 @@ export default function ComparisonSection({
                     </div>
                     <span className="text-sm font-bold text-pink-600">
                       {analysisData?.femaleBreedingInfo?.breedingSuccessRate?.toFixed(
-                        2,
+                        2
                       )}
                       %
                     </span>
@@ -452,7 +452,7 @@ export default function ComparisonSection({
                             style={{
                               width: `${Math.min(assessment.percent ?? 0, 100)}%`,
                               backgroundColor: assessment.bgColor.includes(
-                                "green",
+                                "green"
                               )
                                 ? "#22c55e"
                                 : assessment.bgColor.includes("yellow")
@@ -481,7 +481,7 @@ export default function ComparisonSection({
           </div>
         </div>
       )}
-
+      {/* 
       <div>
         <h3 className="text-lg font-bold text-gray-800 mb-6 flex items-center gap-2">
           <div className="bg-purple-100 text-purple-800 rounded-full w-8 h-8 flex items-center justify-center">
@@ -505,7 +505,7 @@ export default function ComparisonSection({
             </div>
           </CardContent>
         </Card>
-      </div>
+      </div> */}
     </section>
   );
 }
