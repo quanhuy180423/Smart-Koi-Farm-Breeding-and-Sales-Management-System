@@ -7,6 +7,7 @@ import breedingProcessService, {
   BreedingProcessSearchParams,
   BreedingRecommendRequest,
   AnalyzePairRequest,
+  BreedingRecommendResponse,
 } from "@/lib/api/services/fetchBreedingProcess";
 import { KoiFishResponse } from "@/lib/api/services/fetchKoiFish";
 import { useAuthStore } from "@/store/auth-store";
@@ -137,6 +138,11 @@ export function useGetBreedingRecommend() {
   return useMutation({
     mutationFn: (request: Partial<BreedingRecommendRequest>) =>
       breedingProcessService.getRecommends(request),
+    onSuccess: (data: BaseResponse<BreedingRecommendResponse>) => {
+      if (data.result.recommendedPairs.length === 0)
+        toast.error("Không tìm thấy cặp cá phù hợp");
+      return data;
+    },
     onError: (error: ApiError) => {
       toast.error(error.error?.result || "Có lỗi xảy ra khi lấy thông tin");
     },
