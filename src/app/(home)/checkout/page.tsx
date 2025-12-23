@@ -1020,7 +1020,10 @@ export default function CheckoutPage() {
                             )}
 
                             <p className="text-xs text-muted-foreground">
-                              {getFishSizeLabel(item?.koiFish?.size || item.packetFish?.size)} cm
+                              {getFishSizeLabel(
+                                item?.koiFish?.size || item.packetFish?.size,
+                              )}{" "}
+                              cm
                             </p>
                             <div className="flex justify-between items-center">
                               <span

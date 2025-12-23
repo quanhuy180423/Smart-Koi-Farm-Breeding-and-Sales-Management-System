@@ -95,6 +95,12 @@ export const promotionService = {
     );
     return response.data;
   },
+  toggleActivePromotion: async (id: number): Promise<BaseResponse<boolean>> => {
+    const response = await apiService.patch<BaseResponse<boolean>>(
+      `${baseUrl}/${id}/toggle-active`,
+    );
+    return response.data;
+  },
 };
 
 export default promotionService;

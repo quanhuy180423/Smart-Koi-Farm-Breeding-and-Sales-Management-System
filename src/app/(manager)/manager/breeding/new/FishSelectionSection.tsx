@@ -14,7 +14,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -37,6 +36,7 @@ import { KoiFishFilterBar } from "./KoiFishFilterBar";
 import { HealthStatus } from "@/lib/api/services/fetchKoiFish";
 import { useGetVarieties } from "@/hooks/useVariety";
 import { Zap, Target, TrendingUp } from "lucide-react";
+import { InputNumber } from "@/components/ui/input-number";
 
 const recommendSchema = z.object({
   targetVariety: z.string().min(1, { message: "Giống mong muốn là bắt buộc." }),
@@ -173,23 +173,19 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
       const pairs = recommendData.result.recommendedPairs || [];
       setRecommendedPairs(pairs);
 
-      if (pairs.length === 0) {
-        toast.error("Không tìm thấy cặp cá nào phù hợp với tiêu chí.");
-      } else {
-        // Save to cache when we get new results
-        const cacheData: CachedBreedingData = {
-          timestamp: Date.now(),
-          formData: {
-            targetVariety,
-            priority,
-            isMutation,
-            minHatchRate,
-            minSurvivalRate,
-          },
-          recommendedPairs: pairs,
-        };
-        localStorage.setItem(CACHE_KEY, JSON.stringify(cacheData));
-      }
+      // Save to cache when we get new results
+      const cacheData: CachedBreedingData = {
+        timestamp: Date.now(),
+        formData: {
+          targetVariety,
+          priority,
+          isMutation,
+          minHatchRate,
+          minSurvivalRate,
+        },
+        recommendedPairs: pairs,
+      };
+      localStorage.setItem(CACHE_KEY, JSON.stringify(cacheData));
     }
   }, [
     recommendData,
@@ -314,17 +310,6 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
   const [motherDetailKoi, setMotherDetailKoi] =
     useState<KoiFishResponse | null>(null);
   const [isMotherDetailOpen, setIsMotherDetailOpen] = useState(false);
-
-  const handleNumericInput = (e: React.FormEvent<HTMLInputElement>) => {
-    const target = e.currentTarget;
-    const value = target.value;
-    const numericValue = value
-      .replace(/[^0-9.]/g, "")
-      .replace(/(\..*)\./g, "$1");
-    if (value !== numericValue) {
-      target.value = numericValue;
-    }
-  };
 
   const handleSelectRecommendedPair = (pair: RecommendedPair) => {
     setSelectedPairToFetch({ fatherId: pair.maleId, motherId: pair.femaleId });
@@ -823,12 +808,12 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
                 >
                   Tỷ lệ nở tối thiểu (%) <span className="text-red-500">*</span>
                 </Label>
-                <Input
+                <InputNumber
                   id="min-hatch-rate"
                   placeholder="VD: 85"
                   value={minHatchRate}
-                  onChange={(e) => setMinHatchRate(e.target.value)}
-                  onInput={handleNumericInput}
+                  max={100}
+                  min={1}
                   className="mt-1 border border-gray-300 w-full"
                 />
               </div>
@@ -840,12 +825,12 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
                   Tỷ lệ sống tối thiểu (%){" "}
                   <span className="text-red-500">*</span>
                 </Label>
-                <Input
+                <InputNumber
                   id="min-survival-rate"
                   placeholder="VD: 90"
                   value={minSurvivalRate}
-                  onChange={(e) => setMinSurvivalRate(e.target.value)}
-                  onInput={handleNumericInput}
+                  max={100}
+                  min={1}
                   className="mt-1 border border-gray-300 w-full"
                 />
               </div>

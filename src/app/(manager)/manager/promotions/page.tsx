@@ -48,6 +48,7 @@ import {
   Edit,
   Trash2,
   MoreHorizontal,
+  Power,
 } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import {
@@ -62,6 +63,7 @@ import {
   useCreatePromotion,
   useUpdatePromotion,
   useDeletePromotion,
+  useToggleActivePromotion,
 } from "@/hooks/usePromotion";
 import {
   PromotionResponse,
@@ -206,6 +208,8 @@ export default function PromotionManagement() {
     },
   });
 
+  const toggleActivePromotionMutation = useToggleActivePromotion();
+
   const {
     data: promotionsData = defaultPromotionData,
     isLoading,
@@ -254,6 +258,10 @@ export default function PromotionManagement() {
     if (promotionToDelete) {
       await deletePromotionMutation.mutateAsync(promotionToDelete.id);
     }
+  };
+
+  const handleToggleActive = async (promotion: PromotionResponse) => {
+    await toggleActivePromotionMutation.mutateAsync(promotion.id);
   };
 
   const handleApplyFilters = () => {
@@ -660,6 +668,18 @@ export default function PromotionManagement() {
                                 >
                                   <Edit className="mr-2 h-4 w-4 hover:text-white" />
                                   Chỉnh sửa
+                                </DropdownMenuItem>
+
+                                <DropdownMenuItem
+                                  onClick={() => handleToggleActive(promotion)}
+                                  disabled={
+                                    toggleActivePromotionMutation.isPending
+                                  }
+                                >
+                                  <Power className="mr-2 h-4 w-4 hover:text-white" />
+                                  {promotion.isActive
+                                    ? "Vô hiệu hóa"
+                                    : "Kích hoạt"}
                                 </DropdownMenuItem>
 
                                 <DropdownMenuSeparator />
