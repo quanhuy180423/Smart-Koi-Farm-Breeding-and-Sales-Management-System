@@ -62,7 +62,7 @@ export default function RenewPasswordPage() {
         email,
         newPassword,
         confirmedNewPassword,
-        token,
+        accsessToken: token,
       });
     } catch {}
   };
