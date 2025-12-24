@@ -47,7 +47,7 @@ export interface ResetPasswordRequest {
   email: string;
   newPassword: string;
   confirmedNewPassword: string;
-  token: string;
+  accsessToken: string;
 }
 
 export interface ForgotPasswordRequest {

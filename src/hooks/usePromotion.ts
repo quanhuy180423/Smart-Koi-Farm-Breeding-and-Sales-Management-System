@@ -187,3 +187,41 @@ export function useCurrentPromotion() {
     staleTime: 5 * 60 * 1000, // Cache for 5 minutes
   });
 }
+
+interface UseToggleActivePromotionOptions {
+  onSuccess?: () => void;
+  onError?: (error: Error) => void;
+}
+
+/**
+ * Hook to toggle active status of a promotion
+ */
+export function useToggleActivePromotion(
+  options?: UseToggleActivePromotionOptions,
+) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (id: number) => {
+      const response = await promotionService.toggleActivePromotion(id);
+      return response;
+    },
+    onSuccess: (data: BaseResponse<boolean>) => {
+      if (data.isSuccess) {
+        toast.success(
+          data.message || "Thay đổi trạng thái khuyến mãi thành công!",
+        );
+        queryClient.invalidateQueries({ queryKey: ["promotions"] });
+        options?.onSuccess?.();
+      } else {
+        toast.error(data.message || "Thay đổi trạng thái khuyến mãi thất bại");
+      }
+    },
+    onError: (error: Error) => {
+      const message =
+        error.message || "Có lỗi xảy ra khi thay đổi trạng thái khuyến mãi";
+      toast.error(message);
+      options?.onError?.(error);
+    },
+  });
+}
