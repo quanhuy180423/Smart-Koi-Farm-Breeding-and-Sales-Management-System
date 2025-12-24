@@ -282,7 +282,7 @@ export default function SaleDashboard() {
         <Card className="relative overflow-hidden">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
-              Cá trong kho
+              Cá đang bán
             </CardTitle>
             <div className="h-8 w-8 rounded-lg bg-orange-100 flex items-center justify-center">
               <Fish className="h-4 w-4 text-orange-600" />
@@ -298,7 +298,7 @@ export default function SaleDashboard() {
                 <div className="text-2xl font-bold">
                   {stats ? stats.fishInStock.current : "N/A"}
                 </div>
-                {stats && (
+                {/* {stats && (
                   <div className="flex items-center text-xs text-muted-foreground mt-1">
                     <Package className="h-3 w-3 text-orange-600 mr-1" />
                     <span className="text-orange-600">
@@ -306,7 +306,7 @@ export default function SaleDashboard() {
                     </span>
                     <span className="ml-1">cá sắp hết hàng</span>
                   </div>
-                )}
+                )} */}
               </>
             )}
           </CardContent>
