@@ -182,10 +182,10 @@ export default function BreedingInfoPage() {
   const [selectedPondName, setSelectedPondName] = useState<string | null>(null);
 
   const { data: fatherFish, isLoading: isLoadingFather } = useGetKoiFishById(
-    maleId ? Number(maleId) : undefined,
+    maleId ? Number(maleId) : undefined
   );
   const { data: motherFish, isLoading: isLoadingMother } = useGetKoiFishById(
-    femaleId ? Number(femaleId) : undefined,
+    femaleId ? Number(femaleId) : undefined
   );
 
   const { mutateAsync: addBreedingProcessAsync, isPending } =
@@ -217,6 +217,7 @@ export default function BreedingInfoPage() {
         maleKoiId: fatherFish.id,
         pondId: Number(selectedPond),
       });
+      localStorage.removeItem("breeding_criteria_cache");
       router.push("/manager/breeding");
     } catch {}
   };
