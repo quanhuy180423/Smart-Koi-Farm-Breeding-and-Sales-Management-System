@@ -812,7 +812,9 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
                   id="min-hatch-rate"
                   placeholder="VD: 85"
                   value={minHatchRate}
-                  onChange={(value) => setMinHatchRate(isNaN(value) ? "" : String(value))}
+                  onChange={(value) =>
+                    setMinHatchRate(isNaN(value) ? "" : String(value))
+                  }
                   max={100}
                   min={1}
                   className="mt-1 border border-gray-300 w-full"
@@ -830,7 +832,9 @@ export function FishSelectionSection({ onSelection }: FishSelectionProps) {
                   id="min-survival-rate"
                   placeholder="VD: 90"
                   value={minSurvivalRate}
-                  onChange={(value) => setMinSurvivalRate(isNaN(value) ? "" : String(value))}
+                  onChange={(value) =>
+                    setMinSurvivalRate(isNaN(value) ? "" : String(value))
+                  }
                   max={100}
                   min={1}
                   className="mt-1 border border-gray-300 w-full"

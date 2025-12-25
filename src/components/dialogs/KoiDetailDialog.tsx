@@ -135,7 +135,7 @@ export function KoiDetailDialog({
 
             <TabsContent value="general" className="space-y-4 mt-4">
               {/* Media Gallery */}
-              {mediaList.length > 0 && (
+              {mediaList.length > 0 && currentMedia && (
                 <div className="space-y-3">
                   {isCurrentImage ? (
                     <div
