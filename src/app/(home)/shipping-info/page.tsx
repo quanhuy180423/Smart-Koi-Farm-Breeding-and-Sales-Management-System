@@ -393,7 +393,7 @@ export default function ShippingInfoPage() {
                       + (30.000đ + 30km × 2.000đ) ={" "}
                       {shippingBoxes && shippingBoxes.length > 0
                         ? formatCurrency(
-                            shippingBoxes[0].fee + 30000 + 30 * 2000
+                            shippingBoxes[0].fee + 30000 + 30 * 2000,
                           )
                         : "340.000đ"}
                     </p>
