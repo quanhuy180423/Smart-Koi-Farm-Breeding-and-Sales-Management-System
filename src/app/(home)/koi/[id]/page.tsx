@@ -411,12 +411,12 @@ export default function KoiDetailPage() {
         {/* Detailed Information Tabs */}
         <div className="mt-12">
           <Tabs defaultValue="details" className="w-full">
-            <TabsList className="grid w-full grid-cols-5">
+            <TabsList className="grid w-full grid-cols-4">
               <TabsTrigger value="details">Thông tin chi tiết</TabsTrigger>
               <TabsTrigger value="health">Sức khỏe</TabsTrigger>
               <TabsTrigger value="pedigree">Gia phả</TabsTrigger>
               <TabsTrigger value="breeding">Lịch sử sinh sản</TabsTrigger>
-              <TabsTrigger value="care">Hướng dẫn chăm sóc</TabsTrigger>
+              {/* <TabsTrigger value="care">Hướng dẫn chăm sóc</TabsTrigger> */}
             </TabsList>
 
             <TabsContent value="details" className="mt-6">
@@ -1002,7 +1002,7 @@ export default function KoiDetailPage() {
               </Card>
             </TabsContent>
 
-            <TabsContent value="care" className="mt-6">
+            {/* <TabsContent value="care" className="mt-6">
               <Card>
                 <CardHeader>
                   <CardTitle>Hướng dẫn chăm sóc</CardTitle>
@@ -1027,7 +1027,7 @@ export default function KoiDetailPage() {
                   </div>
                 </CardContent>
               </Card>
-            </TabsContent>
+            </TabsContent> */}
           </Tabs>
         </div>
       </div>
