@@ -25,7 +25,6 @@ import { WeeklyScheduleTemplate } from "@/lib/api/services/fetchWeeklyScheduleTe
 import { DayOfWeekEnum } from "@/lib/api/services/fetchWeeklyScheduleTemplate";
 import { useGenerateWorkSchedules } from "@/hooks/useWeeklyScheduleTemplate";
 import { formatTimeToHHMM } from "@/lib/utils/formatTime";
-import { DatePickerFilter } from "@/components/ui/DatePickerFilter";
 import { toLocalDateString } from "@/lib/utils/dates";
 import toast from "react-hot-toast";
 import { DatePickerSchedule } from "@/components/ui/DatePickerSchedule";
